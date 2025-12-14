@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-export type PanelMode = 'none' | 'normal-values' | 'conclusion-samples';
+export type PanelMode = 'none' | 'normal-values' | 'conclusion-samples' | 'custom-text';
 
 export interface PanelData {
   mode: PanelMode;
@@ -14,6 +14,7 @@ interface RightPanelContextType {
   panelData: PanelData;
   showNormalValues: (organ: string, field?: string) => void;
   showConclusionSamples: (organ: string) => void;
+  showCustomText: (title: string, content: React.ReactNode) => void;
   hidePanel: () => void;
   addText: (text: string) => void;
   setAddTextCallback: (callback: ((text: string) => void) | undefined) => void;
@@ -55,6 +56,15 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
     });
   };
 
+  const showCustomText = (title: string, content: React.ReactNode) => {
+    setPanelData({
+      mode: 'custom-text',
+      title,
+      content,
+    });
+    setOnAddTextCallback(undefined);
+  };
+
   const hidePanel = () => {
     setPanelData({ mode: 'none' });
     setOnAddTextCallback(undefined);
@@ -75,6 +85,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
       panelData,
       showNormalValues,
       showConclusionSamples,
+      showCustomText,
       hidePanel,
       addText,
       setAddTextCallback,

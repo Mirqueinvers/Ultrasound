@@ -23,6 +23,7 @@ const RightSidePanel: React.FC = () => {
               {panelData.mode === 'conclusion-samples' && (
                 <ConclusionSamplesPanel organ={panelData.organ!} onAddText={addText} />
               )}
+              {panelData.mode === 'custom-text' && panelData.content}
             </div>
           </>
         )}
