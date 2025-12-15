@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { RangeIndicator, normalRanges } from '../common/NormalRange';
 import { useFieldFocus } from '../hooks/useFieldFocus';
-import { useRightPanel } from '../contexts/RightPanelContext';
 
 export interface LiverProtocol {
   // Размеры
@@ -20,6 +19,9 @@ export interface LiverProtocol {
   vascularPattern: string;         // Сосудистый рисунок
   portalVeinDiameter: string;      // мм
   ivc: string;
+
+    // Дополнительно
+  additional: string;
 
   // Заключение
   conclusion: string;
@@ -42,6 +44,7 @@ const defaultState: LiverProtocol = {
   vascularPattern: "",
   portalVeinDiameter: "",
   ivc: "",
+  additional: "",
   conclusion: "",
 };
 
@@ -68,16 +71,20 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     conclusionFocus.handleBlur();
   };
 
-  // Устанавливаем глобальный обработчик для добавления текста
+  // Устанавливаем глобальный обработчик для добавления текста только для печени
   useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
-      const text = event.detail;
-      setForm(prev => ({
-        ...prev,
-        conclusion: prev.conclusion 
-          ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-          : text
-      }));
+      const { text, organ } = event.detail;
+      
+      // Проверяем, что текст предназначен для печени
+      if (organ === 'liver') {
+        setForm(prev => ({
+          ...prev,
+          conclusion: prev.conclusion 
+            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
+            : text
+        }));
+      }
     };
 
     window.addEventListener('add-conclusion-text', handleAddText as EventListener);
@@ -100,7 +107,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   return (
     <div className="flex flex-col gap-4">
       <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        🫀 Печень
+        Печень
       </h3>
 
       {/* Размеры */}
@@ -304,6 +311,19 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             value={form.ivc}
             normalRange={normalRanges.liver.ivc}
             label="НПВ"
+          />
+        </div>
+      </fieldset>
+
+      {/* Дополнительно */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Дополнительно</legend>
+        <div>
+          <textarea
+            rows={3}
+            className={inputClasses + " resize-y"}
+            value={form.additional}
+            onChange={e => updateField("additional", e.target.value)}
           />
         </div>
       </fieldset>

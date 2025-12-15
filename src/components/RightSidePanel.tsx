@@ -75,9 +75,9 @@ const ConclusionSamplesPanel: React.FC<ConclusionSamplesPanelProps> = ({ organ, 
   }
 
   const handleSampleClick = (sample: string) => {
-    // Создаем кастомное событие
+    // Передаем орган вместе с текстом
     const event = new CustomEvent('add-conclusion-text', {
-      detail: sample
+      detail: { text: sample, organ }
     });
     window.dispatchEvent(event);
   };

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { RangeIndicator, normalRanges } from '../common/NormalRange';
+import { useFieldFocus } from '../hooks/useFieldFocus';
 
 export interface Concretion {
   size: string;      // мм
@@ -35,6 +36,9 @@ export interface GallbladderProtocol {
   cysticDuct: string;              // мм (пузырный проток)
   commonBileDuct: string;          // мм (общий желчный проток)
 
+      // Дополнительно
+  additional: string;
+
   // Заключение
   conclusion: string;
 }
@@ -58,11 +62,20 @@ const defaultState: GallbladderProtocol = {
   content: "",
   cysticDuct: "",
   commonBileDuct: "",
+  additional: "",
   conclusion: "",
 };
 
 export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<GallbladderProtocol>(value ?? defaultState);
+
+  // Добавляем useFieldFocus для полей желчного пузыря
+  const conclusionFocus = useFieldFocus('gallbladder', 'conclusion');
+  const lengthFocus = useFieldFocus('gallbladder', 'length');
+  const widthFocus = useFieldFocus('gallbladder', 'width');
+  const wallThicknessFocus = useFieldFocus('gallbladder', 'wallThickness');
+  const cysticDuctFocus = useFieldFocus('gallbladder', 'cysticDuct');
+  const commonBileDuctFocus = useFieldFocus('gallbladder', 'commonBileDuct');
 
   const updateField = (field: keyof GallbladderProtocol, val: string) => {
     const updated = { ...form, [field]: val };
@@ -106,6 +119,37 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
     onChange?.(updated);
   };
 
+  // Глобальный обработчик для добавления текста только в заключение желчного пузыря
+  React.useEffect(() => {
+    const handleAddText = (event: CustomEvent) => {
+      const { text, organ } = event.detail;
+      
+      // Проверяем, что текст предназначен для желчного пузыря
+      if (organ === 'gallbladder') {
+        setForm(prev => ({
+          ...prev,
+          conclusion: prev.conclusion 
+            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
+            : text
+        }));
+      }
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
+
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
+    };
+  }, []);
+
+  const handleConclusionFocus = () => {
+    conclusionFocus.handleFocus();
+  };
+
+  const handleConclusionBlur = () => {
+    conclusionFocus.handleBlur();
+  };
+
   const inputClasses =
     "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
   const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
@@ -132,6 +176,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               className={inputClasses}
               value={form.length}
               onChange={e => updateField("length", e.target.value)}
+              onFocus={lengthFocus.handleFocus}
+              onBlur={lengthFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
@@ -148,6 +194,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               className={inputClasses}
               value={form.width}
               onChange={e => updateField("width", e.target.value)}
+              onFocus={widthFocus.handleFocus}
+              onBlur={widthFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
@@ -169,6 +217,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               className={inputClasses}
               value={form.wallThickness}
               onChange={e => updateField("wallThickness", e.target.value)}
+              onFocus={wallThicknessFocus.handleFocus}
+              onBlur={wallThicknessFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
@@ -359,6 +409,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               className={inputClasses}
               value={form.cysticDuct}
               onChange={e => updateField("cysticDuct", e.target.value)}
+              onFocus={cysticDuctFocus.handleFocus}
+              onBlur={cysticDuctFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
@@ -375,12 +427,27 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               className={inputClasses}
               value={form.commonBileDuct}
               onChange={e => updateField("commonBileDuct", e.target.value)}
+              onFocus={commonBileDuctFocus.handleFocus}
+              onBlur={commonBileDuctFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
             value={form.commonBileDuct}
             normalRange={normalRanges.gallbladder.commonBileDuct}
             label="Общий желчный проток"
+          />
+        </div>
+      </fieldset>
+
+            {/* Дополнительно */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Дополнительно</legend>
+        <div>
+          <textarea
+            rows={3}
+            className={inputClasses + " resize-y"}
+            value={form.additional}
+            onChange={e => updateField("additional", e.target.value)}
           />
         </div>
       </fieldset>
@@ -394,6 +461,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             className={inputClasses + " resize-y"}
             value={form.conclusion}
             onChange={e => updateField("conclusion", e.target.value)}
+            onFocus={handleConclusionFocus}
+            onBlur={handleConclusionBlur}
           />
         </div>
       </fieldset>

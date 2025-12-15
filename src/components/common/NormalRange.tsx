@@ -20,6 +20,12 @@ export interface NormalRangesData {
     cysticDuct: NormalRange;       // мм (пузырный проток)
     commonBileDuct: NormalRange;   // мм (общий желчный проток)
   };
+  pancreas: {
+    head: NormalRange;             // мм (головка)
+    body: NormalRange;             // мм (тело)
+    tail: NormalRange;             // мм (хвост)
+    wirsungDuct: NormalRange;      // мм (Вирсунгов проток)
+  };
   // Можно добавить другие органы
 }
 
@@ -72,6 +78,12 @@ export const normalRanges: NormalRangesData = {
       max: 8,
       unit: 'мм',
     },
+  },
+  pancreas: {
+    head: { min: 0, max: 32, unit: 'мм' },
+    body: { min: 0, max: 21, unit: 'мм' },
+    tail: { min: 0, max: 30, unit: 'мм' },
+    wirsungDuct: { min: 0, max: 3, unit: 'мм' },
   },
 };
 

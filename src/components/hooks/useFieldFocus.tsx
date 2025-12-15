@@ -5,11 +5,25 @@ import { customSizeTexts, getCustomText } from '../common/customSizeTexts';
 export const useFieldFocus = (organ: string, field?: string) => {
   const { showConclusionSamples, showCustomText } = useRightPanel();
   const isConclusionField = field && field.includes('conclusion');
+  
+  // Поля размеров для всех органов
   const isSizeField = field && [
+    // Печень
     'rightLobeAP', 
     'leftLobeAP', 
     'portalVeinDiameter', 
-    'ivc'
+    'ivc',
+    // Желчный пузырь
+    'length',
+    'width', 
+    'wallThickness',
+    'cysticDuct',
+    'commonBileDuct',
+    // Поджелудочная железа
+    'head',
+    'body',
+    'tail',
+    'wirsungDuct'
   ].includes(field);
   
   const handleFocus = useCallback(() => {
