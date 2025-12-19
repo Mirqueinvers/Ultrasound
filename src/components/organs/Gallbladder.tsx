@@ -439,7 +439,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
         </div>
       </fieldset>
 
-            {/* Дополнительно */}
+      {/* Дополнительно */}
       <fieldset className={fieldsetClasses}>
         <legend className={legendClasses}>Дополнительно</legend>
         <div>

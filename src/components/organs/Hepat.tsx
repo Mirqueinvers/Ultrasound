@@ -4,8 +4,15 @@ import { useFieldFocus } from '../hooks/useFieldFocus';
 
 export interface LiverProtocol {
   // Размеры
-  rightLobeAP: string;             // мм
-  leftLobeAP: string;              // мм
+  rightLobeAP: string;             // мм (ПЗР правая)
+  leftLobeAP: string;              // мм (ПЗР левая)
+  
+  // Дополнительные размеры (скрытые по умолчанию)
+  rightLobeCCR: string;            // мм (ККР правая)
+  rightLobeCVR: string;            // мм (КВР правая) 
+  leftLobeCCR: string;             // мм (ККР левая)
+  rightLobeTotal: string;          // мм (ККР + ПЗР правая, авторасчет)
+  leftLobeTotal: string;           // мм (ККР + ПЗР левая, авторасчет)
 
   // Структура
   echogenicity: string;
@@ -20,7 +27,7 @@ export interface LiverProtocol {
   portalVeinDiameter: string;      // мм
   ivc: string;
 
-    // Дополнительно
+  // Дополнительно
   additional: string;
 
   // Заключение
@@ -35,6 +42,11 @@ interface HepatProps {
 const defaultState: LiverProtocol = {
   rightLobeAP: "",
   leftLobeAP: "",
+  rightLobeCCR: "",
+  rightLobeCVR: "",
+  leftLobeCCR: "",
+  rightLobeTotal: "",
+  leftLobeTotal: "",
   echogenicity: "",
   homogeneity: "",
   contours: "",
@@ -59,9 +71,35 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
   const updateField = (field: keyof LiverProtocol, val: string) => {
     const updated = { ...form, [field]: val };
+    
+    // Автоматический расчет сумм
+    if (field === 'rightLobeAP' || field === 'rightLobeCCR' || field === 'rightLobeCVR') {
+      const ap = parseFloat(field === 'rightLobeAP' ? val : form.rightLobeAP) || 0;
+      const ccr = parseFloat(field === 'rightLobeCCR' ? val : form.rightLobeCCR) || 0;
+      const cvr = parseFloat(field === 'rightLobeCVR' ? val : form.rightLobeCVR) || 0;
+      updated.rightLobeTotal = (ccr + cvr + ap).toString();
+    }
+    
+    if (field === 'leftLobeAP' || field === 'leftLobeCCR') {
+      const ap = parseFloat(field === 'leftLobeAP' ? val : form.leftLobeAP) || 0;
+      const ccr = parseFloat(field === 'leftLobeCCR' ? val : form.leftLobeCCR) || 0;
+      updated.leftLobeTotal = (ccr + ap).toString();
+    }
+    
     setForm(updated);
     onChange?.(updated);
   };
+
+  // Определяем, нужно ли показывать дополнительные поля
+  const rightLobeAPValue = parseFloat(form.rightLobeAP) || 0;
+  const leftLobeAPValue = parseFloat(form.leftLobeAP) || 0;
+  const normalRightLobeAP = 140; // верхняя граница нормы
+  const normalLeftLobeAP = 90;   // верхняя граница нормы
+  
+  const showRightLobeAdditional = rightLobeAPValue > normalRightLobeAP;
+  const showLeftLobeAdditional = leftLobeAPValue > normalLeftLobeAP;
+
+  // ... остальной код ...
 
   const handleConclusionFocus = () => {
     conclusionFocus.handleFocus();
@@ -151,6 +189,90 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             label="Левая доля"
           />
         </div>
+
+        {/* Дополнительные размеры правой доли */}
+        {showRightLobeAdditional && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <h5 className="text-xs font-semibold text-yellow-800 mb-3">
+              ⚠️ ПЗР правой доли превышает норму - дополнительные измерения:
+            </h5>
+            
+            <div className="flex items-center gap-4 mb-3">
+              <label className="block text-xs font-medium text-gray-700 w-1/3">
+                Правая доля, ККР (мм)
+                <input
+                  type="text"
+                  className={inputClasses}
+                  value={form.rightLobeCCR}
+                  onChange={e => updateField("rightLobeCCR", e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4 mb-3">
+              <label className="block text-xs font-medium text-gray-700 w-1/3">
+                Правая доля, КВР (мм)
+                <input
+                  type="text"
+                  className={inputClasses}
+                  value={form.rightLobeCVR}
+                  onChange={e => updateField("rightLobeCVR", e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="block text-xs font-medium text-gray-700 w-1/3">
+                Правая доля, ККР + ПЗР (мм)
+                <input
+                  type="text"
+                  className={inputClasses + " bg-gray-100"}
+                  value={form.rightLobeTotal}
+                  readOnly
+                />
+              </label>
+              <span className="text-xs text-gray-500">
+                (Автоматический расчет)
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Дополнительные размеры левой доли */}
+        {showLeftLobeAdditional && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <h5 className="text-xs font-semibold text-yellow-800 mb-3">
+              ⚠️ ПЗР левой доли превышает норму - дополнительные измерения:
+            </h5>
+            
+            <div className="flex items-center gap-4 mb-3">
+              <label className="block text-xs font-medium text-gray-700 w-1/3">
+                Левая доля, ККР (мм)
+                <input
+                  type="text"
+                  className={inputClasses}
+                  value={form.leftLobeCCR}
+                  onChange={e => updateField("leftLobeCCR", e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="block text-xs font-medium text-gray-700 w-1/3">
+                Левая доля, ККР + ПЗР (мм)
+                <input
+                  type="text"
+                  className={inputClasses + " bg-gray-100"}
+                  value={form.leftLobeTotal}
+                  readOnly
+                />
+              </label>
+              <span className="text-xs text-gray-500">
+                (Автоматический расчет)
+              </span>
+            </div>
+          </div>
+        )}
       </fieldset>
 
       {/* Структура */}
