@@ -8,11 +8,17 @@ export const useFieldFocus = (organ: string, field?: string) => {
   
   // Поля размеров для всех органов
   const isSizeField = field && [
-    // Печень
+    // Печень - основные размеры
     'rightLobeAP', 
     'leftLobeAP', 
     'portalVeinDiameter', 
     'ivc',
+    // Печень - дополнительные размеры
+    'rightLobeCCR',
+    'rightLobeCVR',
+    'leftLobeCCR',
+    'rightLobeTotal',
+    'leftLobeTotal',
     // Желчный пузырь
     'length',
     'width', 

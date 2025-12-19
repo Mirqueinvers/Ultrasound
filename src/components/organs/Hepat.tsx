@@ -68,21 +68,28 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   const leftLobeFocus = useFieldFocus('liver', 'leftLobeAP');
   const portalVeinFocus = useFieldFocus('liver', 'portalVeinDiameter');
   const ivcFocus = useFieldFocus('liver', 'ivc');
+  // Добавляем фокусы для новых полей
+  const rightLobeCCRFocus = useFieldFocus('liver', 'rightLobeCCR');
+  const rightLobeCVRFocus = useFieldFocus('liver', 'rightLobeCVR');
+  const leftLobeCCRFocus = useFieldFocus('liver', 'leftLobeCCR');
+  const rightLobeTotalFocus = useFieldFocus('liver', 'rightLobeTotal');
+  const leftLobeTotalFocus = useFieldFocus('liver', 'leftLobeTotal');
 
   const updateField = (field: keyof LiverProtocol, val: string) => {
     const updated = { ...form, [field]: val };
     
     // Автоматический расчет сумм
-    if (field === 'rightLobeAP' || field === 'rightLobeCCR' || field === 'rightLobeCVR') {
+    if (field === 'rightLobeAP' || field === 'rightLobeCCR') {
       const ap = parseFloat(field === 'rightLobeAP' ? val : form.rightLobeAP) || 0;
       const ccr = parseFloat(field === 'rightLobeCCR' ? val : form.rightLobeCCR) || 0;
-      const cvr = parseFloat(field === 'rightLobeCVR' ? val : form.rightLobeCVR) || 0;
-      updated.rightLobeTotal = (ccr + cvr + ap).toString();
+      // Правая доля: ККР + ПЗР (без КВР)
+      updated.rightLobeTotal = (ccr + ap).toString();
     }
     
     if (field === 'leftLobeAP' || field === 'leftLobeCCR') {
       const ap = parseFloat(field === 'leftLobeAP' ? val : form.leftLobeAP) || 0;
       const ccr = parseFloat(field === 'leftLobeCCR' ? val : form.leftLobeCCR) || 0;
+      // Левая доля: ККР + ПЗР
       updated.leftLobeTotal = (ccr + ap).toString();
     }
     
@@ -93,13 +100,27 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   // Определяем, нужно ли показывать дополнительные поля
   const rightLobeAPValue = parseFloat(form.rightLobeAP) || 0;
   const leftLobeAPValue = parseFloat(form.leftLobeAP) || 0;
-  const normalRightLobeAP = 140; // верхняя граница нормы
-  const normalLeftLobeAP = 90;   // верхняя граница нормы
+  const rightLobeCCRValue = parseFloat(form.rightLobeCCR) || 0;
+  const rightLobeCVRValue = parseFloat(form.rightLobeCVR) || 0;
+  const rightLobeTotalValue = parseFloat(form.rightLobeTotal) || 0;
+  const leftLobeCCRValue = parseFloat(form.leftLobeCCR) || 0;
+  const leftLobeTotalValue = parseFloat(form.leftLobeTotal) || 0;
   
-  const showRightLobeAdditional = rightLobeAPValue > normalRightLobeAP;
-  const showLeftLobeAdditional = leftLobeAPValue > normalLeftLobeAP;
-
-  // ... остальной код ...
+  const normalRightLobeAP = 125; // верхняя граница нормы
+  const normalLeftLobeAP = 90;   // верхняя граница нормы
+  const normalRightLobeCCR = 140;
+  const normalRightLobeCVR = 150;
+  const normalRightLobeTotal = 260;
+  const normalLeftLobeCCR = 100;
+  const normalLeftLobeTotal = 160;
+  
+  const showRightLobeAdditional = rightLobeAPValue > normalRightLobeAP || 
+                                  rightLobeCCRValue > normalRightLobeCCR ||
+                                  rightLobeCVRValue > normalRightLobeCVR ||
+                                  rightLobeTotalValue > normalRightLobeTotal;
+  const showLeftLobeAdditional = leftLobeAPValue > normalLeftLobeAP ||
+                                 leftLobeCCRValue > normalLeftLobeCCR ||
+                                 leftLobeTotalValue > normalLeftLobeTotal;
 
   const handleConclusionFocus = () => {
     conclusionFocus.handleFocus();
@@ -205,8 +226,15 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   className={inputClasses}
                   value={form.rightLobeCCR}
                   onChange={e => updateField("rightLobeCCR", e.target.value)}
+                  onFocus={rightLobeCCRFocus.handleFocus}
+                  onBlur={rightLobeCCRFocus.handleBlur}
                 />
               </label>
+              <RangeIndicator 
+                value={form.rightLobeCCR}
+                normalRange={normalRanges.liver.rightLobeCCR}
+                label="ККР правая"
+              />
             </div>
 
             <div className="flex items-center gap-4 mb-3">
@@ -217,8 +245,15 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   className={inputClasses}
                   value={form.rightLobeCVR}
                   onChange={e => updateField("rightLobeCVR", e.target.value)}
+                  onFocus={rightLobeCVRFocus.handleFocus}
+                  onBlur={rightLobeCVRFocus.handleBlur}
                 />
               </label>
+              <RangeIndicator 
+                value={form.rightLobeCVR}
+                normalRange={normalRanges.liver.rightLobeCVR}
+                label="КВР правая"
+              />
             </div>
 
             <div className="flex items-center gap-4">
@@ -229,11 +264,15 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   className={inputClasses + " bg-gray-100"}
                   value={form.rightLobeTotal}
                   readOnly
+                  onFocus={rightLobeTotalFocus.handleFocus}
+                  onBlur={rightLobeTotalFocus.handleBlur}
                 />
               </label>
-              <span className="text-xs text-gray-500">
-                (Автоматический расчет)
-              </span>
+              <RangeIndicator 
+                value={form.rightLobeTotal}
+                normalRange={normalRanges.liver.rightLobeTotal}
+                label="Общая сумма правая"
+              />
             </div>
           </div>
         )}
@@ -253,6 +292,8 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   className={inputClasses}
                   value={form.leftLobeCCR}
                   onChange={e => updateField("leftLobeCCR", e.target.value)}
+                  onFocus={leftLobeCCRFocus.handleFocus}
+                  onBlur={leftLobeCCRFocus.handleBlur}
                 />
               </label>
             </div>
@@ -265,11 +306,15 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   className={inputClasses + " bg-gray-100"}
                   value={form.leftLobeTotal}
                   readOnly
+                  onFocus={leftLobeTotalFocus.handleFocus}
+                  onBlur={leftLobeTotalFocus.handleBlur}
                 />
               </label>
-              <span className="text-xs text-gray-500">
-                (Автоматический расчет)
-              </span>
+              <RangeIndicator 
+                value={form.leftLobeTotal}
+                normalRange={normalRanges.liver.leftLobeTotal}
+                label="Общая сумма левая"
+              />
             </div>
           </div>
         )}

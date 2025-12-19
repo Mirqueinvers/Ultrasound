@@ -8,10 +8,17 @@ export interface NormalRange {
 
 export interface NormalRangesData {
   liver: {
-    rightLobeAP: NormalRange;      // мм
-    leftLobeAP: NormalRange;       // мм
+    rightLobeAP: NormalRange;      // мм (ПЗР правая)
+    leftLobeAP: NormalRange;       // мм (ПЗР левая)
     portalVeinDiameter: NormalRange; // мм (воротная вена)
     ivc: NormalRange;              // мм (НПВ)
+    
+    // Дополнительные размеры печени
+    rightLobeCCR: NormalRange;     // мм (ККР правая)
+    rightLobeCVR: NormalRange;     // мм (КВР правая)
+    leftLobeCCR: NormalRange;      // мм (ККР левая)
+    rightLobeTotal: NormalRange;   // мм (ККР + ПЗР правая)
+    leftLobeTotal: NormalRange;    // мм (ККР + ПЗР левая)
   };
   gallbladder: {
     length: NormalRange;           // мм (длина)
@@ -32,12 +39,12 @@ export interface NormalRangesData {
 export const normalRanges: NormalRangesData = {
   liver: {
     rightLobeAP: {
-      min: 110,
-      max: 140,
+      min: 0,
+      max: 125,
       unit: 'мм',
     },
     leftLobeAP: {
-      min: 70,
+      min: 0,
       max: 90,
       unit: 'мм',
     },
@@ -49,6 +56,33 @@ export const normalRanges: NormalRangesData = {
     ivc: {
       min: 0,
       max: 25,
+      unit: 'мм',
+    },
+    
+    // Дополнительные размеры печени
+    rightLobeCCR: {
+      min: 0,
+      max: 140,
+      unit: 'мм',
+    },
+    rightLobeCVR: {
+      min: 0,
+      max: 150,
+      unit: 'мм',
+    },
+    leftLobeCCR: {
+      min: 0,
+      max: 100,
+      unit: 'мм',
+    },
+    rightLobeTotal: {
+      min: 0,
+      max: 260,
+      unit: 'мм',
+    },
+    leftLobeTotal: {
+      min: 0,
+      max: 160,
       unit: 'мм',
     },
   },
