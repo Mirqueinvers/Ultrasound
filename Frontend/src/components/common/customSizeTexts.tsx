@@ -8,7 +8,7 @@ interface SizeTextData {
 export const customSizeTexts: Record<string, SizeTextData> = {
   // Печень
   rightLobeAP: {
-    title: 'Правая доля печени',
+    title: 'Передне-задний размер правой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 125 мм.</p>
@@ -16,10 +16,10 @@ export const customSizeTexts: Record<string, SizeTextData> = {
     )
   },
   leftLobeAP: {
-    title: 'Левая доля печени', 
+    title: 'Передне-задний размер левой доли печени.', 
     content: (
       <div className="space-y-2">
-        <p className="text-xs">Норма: 60-90 мм</p>
+        <p className="text-xs">Норма: до 90 мм.</p>
       </div>
     )
   },
@@ -42,45 +42,36 @@ export const customSizeTexts: Record<string, SizeTextData> = {
   
   // Новые поля для расширенных размеров печени
   rightLobeCCR: {
-    title: 'Правая доля, ККР',
+    title: 'Кранио-каудальный размер правой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 140 мм</p>
-        <p className="text-xs text-gray-600">
-          Кранио-каудальный размер правой доли
-        </p>
         <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
           <p className="text-xs text-yellow-800">
-            ⚠️ Измеряется в продольном сечении от купола до нижнего края
+            Измеряется в продольном сечении от купола до нижнего края.
           </p>
         </div>
       </div>
     )
   },
   rightLobeCVR: {
-    title: 'Правая доля, КВР',
+    title: 'Косой вертикальный размер правой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 150 мм</p>
-        <p className="text-xs text-gray-600">
-          Косой вертикальный размер правой доли
-        </p>
         <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
           <p className="text-xs text-blue-800">
-            Ваш кастомный текст для КВР правой доли
+            Измеряется от края печени до наиболее удаленной краниальной точки купола диафрагмы.
           </p>
         </div>
       </div>
     )
   },
   leftLobeCCR: {
-    title: 'Левая доля, ККР',
+    title: 'Кранио-каудальный размер левой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 100 мм</p>
-        <p className="text-xs text-gray-600">
-          Кранио-каудальный размер левой доли
-        </p>
         <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
           <p className="text-xs text-green-800">
             Увеличение ККР может указывать на гипертрофию
@@ -90,34 +81,18 @@ export const customSizeTexts: Record<string, SizeTextData> = {
     )
   },
   rightLobeTotal: {
-    title: 'Правая доля, общий размер',
+    title: 'Кранио-каудальный + передней-задний размер правой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 260 мм</p>
-        <p className="text-xs text-gray-600">
-          Сумма: ККР + ПЗР (без КВР)
-        </p>
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
-          <p className="text-xs text-red-800">
-            🔍 Автоматический расчет при превышении ПЗР
-          </p>
-        </div>
       </div>
     )
   },
   leftLobeTotal: {
-    title: 'Левая доля, общий размер',
+    title: 'Кранио-каудальный + передней-задний размер левой доли печени.',
     content: (
       <div className="space-y-2">
         <p className="text-xs">Норма: до 160 мм</p>
-        <p className="text-xs text-gray-600">
-          Сумма: ККР + ПЗР
-        </p>
-        <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded">
-          <p className="text-xs text-purple-800">
-            Ваш кастомный текст для общей суммы левой доли
-          </p>
-        </div>
       </div>
     )
   },
