@@ -151,9 +151,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     return () => {
       window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
     };
-  }, []);
-
-  const inputClasses =
+  }, []);  const inputClasses =
     "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
   const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
   const fieldsetClasses =
@@ -333,7 +331,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               onChange={e => updateField("echogenicity", e.target.value)}
             >
               <option value=""></option>
-              <option value="норма">норма</option>
+              <option value="норма">средняя</option>
               <option value="повышена">повышена</option>
               <option value="снижена">снижена</option>
             </select>
@@ -357,16 +355,16 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
         <div>
           <label className={labelClasses}>
-            Контуры
+            Контур
             <select
               className={inputClasses}
               value={form.contours}
               onChange={e => updateField("contours", e.target.value)}
             >
               <option value=""></option>
-              <option value="ровные">ровные</option>
-              <option value="неровные">неровные</option>
-              <option value="бугристые">бугристые</option>
+              <option value="ровные">четкий, ровный</option>
+              <option value="неровные">четкий, неровный</option>
+              <option value="бугристые">бугристый</option>
             </select>
           </label>
         </div>
@@ -394,10 +392,14 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.focalLesionsPresence}
               onChange={e => {
                 const val = e.target.value;
-                updateField("focalLesionsPresence", val);
+                
+                // Обновляем состояние напрямую через setForm
+                const updated = { ...form, focalLesionsPresence: val };
                 if (val === "не определяются") {
-                  updateField("focalLesions", "");
+                  updated.focalLesions = "";
                 }
+                setForm(updated);
+                onChange?.(updated);
               }}
             >
               <option value=""></option>
