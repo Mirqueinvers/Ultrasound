@@ -33,7 +33,12 @@ export interface NormalRangesData {
     tail: NormalRange;             // мм (хвост)
     wirsungDuct: NormalRange;      // мм (Вирсунгов проток)
   };
-  // Можно добавить другие органы
+  spleen: {
+    length: NormalRange;           // мм (длина)
+    width: NormalRange;            // мм (ширина)
+    splenicVein: NormalRange;      // мм (селезеночная вена)
+    splenicArtery: NormalRange;    // мм (селезеночная артерия)
+  };
 }
 
 export const normalRanges: NormalRangesData = {
@@ -49,12 +54,12 @@ export const normalRanges: NormalRangesData = {
       unit: 'мм',
     },
     portalVeinDiameter: {
-      min: 0,
+      min: 8,
       max: 15,
       unit: 'мм',
     },
     ivc: {
-      min: 0,
+      min: 15,
       max: 25,
       unit: 'мм',
     },
@@ -89,7 +94,7 @@ export const normalRanges: NormalRangesData = {
   gallbladder: {
     length: {
       min: 0,
-      max: 100,
+      max: 80,
       unit: 'мм',
     },
     width: {
@@ -103,13 +108,13 @@ export const normalRanges: NormalRangesData = {
       unit: 'мм',
     },
     cysticDuct: {
-      min: 0,
-      max: 5,
+      min: 1,
+      max: 3,
       unit: 'мм',
     },
     commonBileDuct: {
       min: 0,
-      max: 8,
+      max: 6,
       unit: 'мм',
     },
   },
@@ -119,18 +124,31 @@ export const normalRanges: NormalRangesData = {
     tail: { min: 0, max: 30, unit: 'мм' },
     wirsungDuct: { min: 0, max: 3, unit: 'мм' },
   },
+  spleen: {
+    length: { min: 0, max: 120, unit: 'мм' },
+    width: { min: 0, max: 70, unit: 'мм' },
+    splenicVein: { min: 5, max: 8, unit: 'мм' },
+    splenicArtery: { min: 4, max: 7, unit: 'мм' },
+  },
 };
 
 interface RangeIndicatorProps {
   value: string;
   normalRange: NormalRange;
-  label: string;
+  label?: string;
 }
 
 export const RangeIndicator: React.FC<RangeIndicatorProps> = ({ 
   value, 
-  normalRange, 
+  normalRange,
+  label
 }) => {
+  // Добавляем проверку на undefined
+  if (!normalRange) {
+    console.warn('RangeIndicator: normalRange is undefined', { value, label });
+    return null;
+  }
+
   const numericValue = parseFloat(value);
   const isValid = !isNaN(numericValue);
   
@@ -159,6 +177,11 @@ export const RangeIndicator: React.FC<RangeIndicatorProps> = ({
       <div className="text-red-700 font-medium">
         Норма: {formatNormalRange()}
       </div>
+      {label && (
+        <div className="text-red-600 text-xs mt-1">
+          {label}: {value} {normalRange.unit}
+        </div>
+      )}
     </div>
   );
 };

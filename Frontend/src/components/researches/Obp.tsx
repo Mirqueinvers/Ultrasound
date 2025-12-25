@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Hepat, type LiverProtocol } from '../organs/Hepat';
 import Gallbladder, { type GallbladderProtocol } from '../organs/Gallbladder';
 import Pancreas, { type PancreasProtocol } from '../organs/Pancreas';
+import Spleen, { type SpleenProtocol } from '../organs/Spleen';
+
 
 export interface ObpProtocol {
   liver: LiverProtocol;
   gallbladder: GallbladderProtocol | null;
   pancreas: PancreasProtocol | null;
+  spleen: SpleenProtocol | null;
+
 }
 
 interface ObpProps {
@@ -58,6 +62,19 @@ const defaultState: ObpProtocol = {
     additional: "",
     conclusion: "",
   },
+  spleen: {
+    length: "",
+    width: "",
+    echogenicity: "",
+    echostructure: "",
+    contours: "",
+    pathologicalFormations: "Не определяются",
+    pathologicalFormationsText: "",
+    splenicVein: "",
+    splenicArtery: "",
+    additional: "",
+    conclusion: "",
+  },
 };
 
 export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
@@ -77,6 +94,12 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
 
   const updatePancreas = (pancreasData: PancreasProtocol) => {
     const updated = { ...form, pancreas: pancreasData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+  
+  const updateSpleen = (spleenData: SpleenProtocol) => {
+    const updated = { ...form, spleen: spleenData };
     setForm(updated);
     onChange?.(updated);
   };
@@ -117,14 +140,12 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
         />
       </div>
 
-      {/* Заглушки для будущих компонентов */}
-      <div className="border-2 border-dashed border-slate-300 rounded-lg p-5 bg-slate-100 text-center">
-        <h4 className="m-0 mb-2 text-slate-600 text-base">
-          🫀 Селезенка
-        </h4>
-        <p className="m-0 text-slate-400 text-sm">
-          Компонент будет добавлен в следующей версии
-        </p>
+      {/* Селезенка */}
+      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+        <Spleen 
+          value={form.spleen || undefined} 
+          onChange={updateSpleen} 
+        />
       </div>
     </div>
   );

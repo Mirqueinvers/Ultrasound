@@ -37,6 +37,7 @@ interface NormalValuesPanelProps {
   field?: string;
 }
 
+
 const NormalValuesPanel: React.FC<NormalValuesPanelProps> = ({ organ, field }) => {
   const ranges = normalRanges[organ as keyof typeof normalRanges];
   
@@ -103,11 +104,12 @@ function getConclusionSamples(organ: string): string[] {
       'Стеатоз.',
       'Гепатомегалия.',
       'Диффузные изменения печени.',
+      'Киста.',
+      'Объемное образование.',
     ],
     gallbladder: [
       'Хронический холецистит',
       'Калькулезный холецистит',
-      'Желчнокаменная болезнь',
       'Полип желчного пузыря',
       'Холестероз желчного пузыря',
     ],
@@ -118,9 +120,12 @@ function getConclusionSamples(organ: string): string[] {
       'Увеличение поджелудочной железы',
     ],
     spleen: [
-      'Спленомегалия',
-      'Диффузные изменения селезенки',
-      'Дополнительная долька селезенки',
+      'Спленомегалия.',
+      'Диффузные изменения селезенки.',
+      'Дополнительная долька селезенки.',
+      'Киста селезенки.',
+      'Объемное образование селезенки.',
+      'Кальцинаты в селезенке.',
     ],
     kidneys: [
       'Нефролитиаз',

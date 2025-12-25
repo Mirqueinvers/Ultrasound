@@ -20,8 +20,8 @@ export const useFieldFocus = (organ: string, field?: string) => {
     'rightLobeTotal',
     'leftLobeTotal',
     // Желчный пузырь
-    'length',
-    'width', 
+    'gallbladderLength', // Обновлено
+    'gallbladderWidth', // Обновлено
     'wallThickness',
     'cysticDuct',
     'commonBileDuct',
@@ -29,7 +29,12 @@ export const useFieldFocus = (organ: string, field?: string) => {
     'head',
     'body',
     'tail',
-    'wirsungDuct'
+    'wirsungDuct',
+    // Селезенка
+    'spleenLength', // Обновлено
+    'spleenWidth', // Обновлено
+    'splenicVein',
+    'splenicArtery'
   ].includes(field);
   
   const handleFocus = useCallback(() => {

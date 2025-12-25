@@ -71,8 +71,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 
   // Добавляем useFieldFocus для полей желчного пузыря
   const conclusionFocus = useFieldFocus('gallbladder', 'conclusion');
-  const lengthFocus = useFieldFocus('gallbladder', 'length');
-  const widthFocus = useFieldFocus('gallbladder', 'width');
+  const lengthFocus = useFieldFocus('gallbladder', 'gallbladderLength'); // Обновлено
+  const widthFocus = useFieldFocus('gallbladder', 'gallbladderWidth'); // Обновлено
   const wallThicknessFocus = useFieldFocus('gallbladder', 'wallThickness');
   const cysticDuctFocus = useFieldFocus('gallbladder', 'cysticDuct');
   const commonBileDuctFocus = useFieldFocus('gallbladder', 'commonBileDuct');
@@ -197,9 +197,10 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
           <RangeIndicator 
             value={form.length}
             normalRange={normalRanges.gallbladder.length}
-            label="Длина"
+            
           />
         </div>
+
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Ширина (мм)
@@ -215,7 +216,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
           <RangeIndicator 
             value={form.width}
             normalRange={normalRanges.gallbladder.width}
-            label="Ширина"
           />
         </div>
       </fieldset>
@@ -238,7 +238,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
           <RangeIndicator 
             value={form.wallThickness}
             normalRange={normalRanges.gallbladder.wallThickness}
-            label="Толщина стенки"
           />
         </div>
       </fieldset>
@@ -268,9 +267,9 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onChange={e => updateField("constriction", e.target.value)}
             >
               <option value=""></option>
-              <option value="в проксимальной трети">в проксимальной трети</option>
-              <option value="в средней трети">в средней трети</option>
-              <option value="в дистальной трети">в дистальной трети</option>
+              <option value="шейка">шейка</option>
+              <option value="тело">тело</option>
+              <option value="дно">дно</option>
             </select>
           </label>
         </div>
@@ -450,7 +449,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
           <RangeIndicator 
             value={form.cysticDuct}
             normalRange={normalRanges.gallbladder.cysticDuct}
-            label="Пузырный проток"
           />
         </div>
         <div className="flex items-center gap-4">
@@ -468,7 +466,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
           <RangeIndicator 
             value={form.commonBileDuct}
             normalRange={normalRanges.gallbladder.commonBileDuct}
-            label="Общий желчный проток"
           />
         </div>
       </fieldset>

@@ -349,6 +349,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <option value=""></option>
               <option value="однородная">однородная</option>
               <option value="неоднородная">неоднородная</option>
+              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
             </select>
           </label>
         </div>
@@ -386,7 +387,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
         <div>
           <label className={labelClasses}>
-            Очаговые образования
+            Патологические образования
             <select
               className={inputClasses}
               value={form.focalLesionsPresence}
@@ -412,11 +413,10 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
         {showFocalTextarea && (
           <div>
             <label className={labelClasses}>
-              Описание очаговых образований
+              Описание патологических образований
               <textarea
                 rows={3}
                 className={inputClasses + " resize-y"}
-                placeholder="описание размеров, эхогенности, контуров, сосудистости"
                 value={form.focalLesions}
                 onChange={e => updateField("focalLesions", e.target.value)}
               />
@@ -509,7 +509,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             onChange={e => updateField("conclusion", e.target.value)}
             onFocus={handleConclusionFocus}
             onBlur={handleConclusionBlur}
-            placeholder="диффузные изменения, очаговые образования, рекомендации"
           />
         </div>
       </fieldset>

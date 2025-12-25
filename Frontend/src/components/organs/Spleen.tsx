@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import { RangeIndicator, normalRanges } from '../common/NormalRange';
 import { useFieldFocus } from '../hooks/useFieldFocus';
 
-export interface PancreasProtocol {
+export interface SpleenProtocol {
   // Размеры
-  head: string;                    // мм (головка)
-  body: string;                    // мм (тело)
-  tail: string;                    // мм (хвост)
-
+  length: string;              // мм (длина)
+  width: string;               // мм (ширина)
+  
   // Структура
-  echogenicity: string;            // Эхогенность
-  echostructure: string;           // Эхоструктура
-  contour: string;                 // Контур
-  pathologicalFormations: string;  // Не определяются / Определяются
-  pathologicalFormationsText: string; // описание патологических образований
+  echogenicity: string;        // Эхогенность
+  echostructure: string;       // Эхоструктура  
+  contours: string;            // Контур
+  pathologicalFormations: string;  // Патологические образования
+  pathologicalFormationsText: string;  // описание, если определяются
 
-  // Вирсунгов проток
-  wirsungDuct: string;             // мм (диаметр)
+  // Сосуды
+  splenicVein: string;         // мм (селезеночная вена)
+  splenicArtery: string;       // мм (селезеночная артерия)
 
   // Дополнительно
   additional: string;
@@ -25,56 +25,47 @@ export interface PancreasProtocol {
   conclusion: string;
 }
 
-interface PancreasProps {
-  value?: PancreasProtocol;
-  onChange?: (value: PancreasProtocol) => void;
+interface SpleenProps {
+  value?: SpleenProtocol;
+  onChange?: (value: SpleenProtocol) => void;
 }
 
-const defaultState: PancreasProtocol = {
-  head: "",
-  body: "",
-  tail: "",
+const defaultState: SpleenProtocol = {
+  length: "",
+  width: "",
   echogenicity: "",
   echostructure: "",
-  contour: "",
-  pathologicalFormations: "Не определяются",
+  contours: "",
+  pathologicalFormations: "",
   pathologicalFormationsText: "",
-  wirsungDuct: "",
+  splenicVein: "",
+  splenicArtery: "",
   additional: "",
   conclusion: "",
 };
 
-export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<PancreasProtocol>(value ?? defaultState);
+export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
+  const [form, setForm] = useState<SpleenProtocol>(value ?? defaultState);
 
-  // Безопасное получение нормальных значений для поджелудочной железы
-  const pancreasRanges = normalRanges?.pancreas || {
-    head: { min: 0, max: 32, unit: 'мм' },
-    body: { min: 0, max: 21, unit: 'мм' },
-    tail: { min: 0, max: 30, unit: 'мм' },
-    wirsungDuct: { min: 0, max: 3, unit: 'мм' },
-  };
+  const conclusionFocus = useFieldFocus('spleen', 'conclusion');
+  const lengthFocus = useFieldFocus('spleen', 'spleenLength'); // Обновлено
+  const widthFocus = useFieldFocus('spleen', 'spleenWidth'); // Обновлено
+  const splenicVeinFocus = useFieldFocus('spleen', 'splenicVein');
+  const splenicArteryFocus = useFieldFocus('spleen', 'splenicArtery');
 
-  // Добавляем useFieldFocus для полей поджелудочной железы
-  const conclusionFocus = useFieldFocus('pancreas', 'conclusion');
-  const headFocus = useFieldFocus('pancreas', 'head');
-  const bodyFocus = useFieldFocus('pancreas', 'body');
-  const tailFocus = useFieldFocus('pancreas', 'tail');
-  const wirsungDuctFocus = useFieldFocus('pancreas', 'wirsungDuct');
-
-  const updateField = (field: keyof PancreasProtocol, val: string) => {
+  const updateField = (field: keyof SpleenProtocol, val: string) => {
     const updated = { ...form, [field]: val };
     setForm(updated);
     onChange?.(updated);
   };
 
-  // Глобальный обработчик для добавления текста только в заключение поджелудочной железы
+  // Устанавливаем глобальный обработчик для добавления текста только для селезенки
   useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
       const { text, organ } = event.detail;
       
-      // Проверяем, что текст предназначен для поджелудочной железы
-      if (organ === 'pancreas') {
+      // Проверяем, что текст предназначен для селезенки
+      if (organ === 'spleen') {
         setForm(prev => ({
           ...prev,
           conclusion: prev.conclusion 
@@ -91,14 +82,6 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
     };
   }, []);
 
-  const handleConclusionFocus = () => {
-    conclusionFocus.handleFocus();
-  };
-
-  const handleConclusionBlur = () => {
-    conclusionFocus.handleBlur();
-  };
-
   const inputClasses =
     "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
   const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
@@ -107,12 +90,12 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   const legendClasses =
     "px-1 text-sm font-semibold text-gray-800";
 
-  const showPathologicalFormations = form.pathologicalFormations === "Определяются";
+  const showPathologicalTextarea = form.pathologicalFormations === "определяются";
 
   return (
     <div className="flex flex-col gap-4">
       <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        Поджелудочная железа
+        Селезенка
       </h3>
 
       {/* Размеры */}
@@ -121,58 +104,37 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
 
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
-            Головка (мм)
+            Длина (мм)
             <input
               type="text"
               className={inputClasses}
-              value={form.head}
-              onChange={e => updateField("head", e.target.value)}
-              onFocus={headFocus.handleFocus}
-              onBlur={headFocus.handleBlur}
+              value={form.length}
+              onChange={e => updateField("length", e.target.value)}
+              onFocus={lengthFocus.handleFocus}
+              onBlur={lengthFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
-            value={form.head}
-            normalRange={pancreasRanges.head}
-            label="Головка"
+            value={form.length}
+            normalRange={normalRanges.spleen.length}
           />
         </div>
 
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
-            Тело (мм)
+            Ширина (мм)
             <input
               type="text"
               className={inputClasses}
-              value={form.body}
-              onChange={e => updateField("body", e.target.value)}
-              onFocus={bodyFocus.handleFocus}
-              onBlur={bodyFocus.handleBlur}
+              value={form.width}
+              onChange={e => updateField("width", e.target.value)}
+              onFocus={widthFocus.handleFocus}
+              onBlur={widthFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
-            value={form.body}
-            normalRange={pancreasRanges.body}
-            label="Тело"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Хвост (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.tail}
-              onChange={e => updateField("tail", e.target.value)}
-              onFocus={tailFocus.handleFocus}
-              onBlur={tailFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator 
-            value={form.tail}
-            normalRange={pancreasRanges.tail}
-            label="Хвост"
+            value={form.width}
+            normalRange={normalRanges.spleen.width}
           />
         </div>
       </fieldset>
@@ -218,14 +180,13 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             Контур
             <select
               className={inputClasses}
-              value={form.contour}
-              onChange={e => updateField("contour", e.target.value)}
+              value={form.contours}
+              onChange={e => updateField("contours", e.target.value)}
             >
               <option value=""></option>
-              <option value="четкий, ровный">четкий, ровный</option>
-              <option value="четкий, не ровный">четкий, не ровный</option>
-              <option value="не четкий">не четкий</option>
-              <option value="бугристый">бугристый</option>
+              <option value="ровные">четкий, ровный</option>
+              <option value="неровные">четкий, неровный</option>
+              <option value="бугристые">бугристый</option>
             </select>
           </label>
         </div>
@@ -238,20 +199,24 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               value={form.pathologicalFormations}
               onChange={e => {
                 const val = e.target.value;
-                updateField("pathologicalFormations", val);
-                if (val === "Не определяются") {
-                  updateField("pathologicalFormationsText", "");
+                
+                // Обновляем состояние напрямую через setForm
+                const updated = { ...form, pathologicalFormations: val };
+                if (val === "не определяются") {
+                  updated.pathologicalFormationsText = "";
                 }
+                setForm(updated);
+                onChange?.(updated);
               }}
             >
               <option value=""></option>
-              <option value="Не определяются">Не определяются</option>
-              <option value="Определяются">Определяются</option>
+              <option value="определяются">определяются</option>
+              <option value="не определяются">не определяются</option>
             </select>
           </label>
         </div>
 
-        {showPathologicalFormations && (
+        {showPathologicalTextarea && (
           <div>
             <label className={labelClasses}>
               Описание патологических образований
@@ -266,25 +231,43 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
         )}
       </fieldset>
 
-      {/* Вирсунгов проток */}
+      {/* Сосуды */}
       <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Вирсунгов проток</legend>
+        <legend className={legendClasses}>Сосуды</legend>
+
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
-            Вирсунгов проток (мм)
+            Селезеночная вена, диаметр (мм)
             <input
               type="text"
               className={inputClasses}
-              value={form.wirsungDuct}
-              onChange={e => updateField("wirsungDuct", e.target.value)}
-              onFocus={wirsungDuctFocus.handleFocus}
-              onBlur={wirsungDuctFocus.handleBlur}
+              value={form.splenicVein}
+              onChange={e => updateField("splenicVein", e.target.value)}
+              onFocus={splenicVeinFocus.handleFocus}
+              onBlur={splenicVeinFocus.handleBlur}
             />
           </label>
           <RangeIndicator 
-            value={form.wirsungDuct}
-            normalRange={pancreasRanges.wirsungDuct}
-            label="Вирсунгов проток"
+            value={form.splenicVein}
+            normalRange={normalRanges.spleen.splenicVein}
+          />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className={labelClasses}>
+            Селезеночная артерия, диаметр (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.splenicArtery}
+              onChange={e => updateField("splenicArtery", e.target.value)}
+              onFocus={splenicArteryFocus.handleFocus}
+              onBlur={splenicArteryFocus.handleBlur}
+            />
+          </label>
+          <RangeIndicator 
+            value={form.splenicArtery}
+            normalRange={normalRanges.spleen.splenicArtery}
           />
         </div>
       </fieldset>
@@ -305,14 +288,15 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
       {/* Заключение */}
       <fieldset className={fieldsetClasses}>
         <legend className={legendClasses}>Заключение</legend>
+
         <div>
           <textarea
             rows={4}
             className={inputClasses + " resize-y"}
             value={form.conclusion}
             onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={handleConclusionFocus}
-            onBlur={handleConclusionBlur}
+            onFocus={conclusionFocus.handleFocus}
+            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </fieldset>
@@ -320,4 +304,4 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   );
 };
 
-export default Pancreas;
+export default Spleen;
