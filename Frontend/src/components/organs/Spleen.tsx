@@ -3,6 +3,7 @@ import { RangeIndicator, normalRanges } from "../common/NormalRange";
 import { useFieldFocus } from "../hooks/useFieldFocus";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
+import { SelectWithTextarea } from "../common/SelectWithTextarea";
 
 export interface SpleenProtocol {
   // Размеры
@@ -89,9 +90,6 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
       );
     };
   }, []);
-
-  const showPathologicalTextarea =
-    form.pathologicalFormations === "определяются";
 
   return (
     <div className="flex flex-col gap-4">
@@ -190,47 +188,21 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
           </label>
         </div>
 
-        <div>
-          <label className={labelClasses}>
-            Патологические образования
-            <select
-              className={inputClasses}
-              value={form.pathologicalFormations}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: SpleenProtocol = {
-                  ...form,
-                  pathologicalFormations: val,
-                };
-                if (val === "не определяются") {
-                  updated.pathologicalFormationsText = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
-            >
-              <option value="" />
-              <option value="определяются">определяются</option>
-              <option value="не определяются">не определяются</option>
-            </select>
-          </label>
-        </div>
-
-        {showPathologicalTextarea && (
-          <div>
-            <label className={labelClasses}>
-              Описание патологических образований
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.pathologicalFormationsText}
-                onChange={e =>
-                  updateField("pathologicalFormationsText", e.target.value)
-                }
-              />
-            </label>
-          </div>
-        )}
+        <SelectWithTextarea
+          label="Патологические образования"
+          selectValue={form.pathologicalFormations}
+          textareaValue={form.pathologicalFormationsText}
+          onSelectChange={val => updateField("pathologicalFormations", val)}
+          onTextareaChange={val =>
+            updateField("pathologicalFormationsText", val)
+          }
+          options={[
+            { value: "Не определяются", label: "Не определяются" },
+            { value: "Определяются", label: "Определяются" },
+          ]}
+          triggerValue="Определяются"
+          textareaLabel="Описание патологических образований"
+        />
       </Fieldset>
 
       {/* Сосуды */}

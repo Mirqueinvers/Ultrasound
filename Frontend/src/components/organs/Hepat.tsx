@@ -3,6 +3,8 @@ import { RangeIndicator, normalRanges } from "../common/NormalRange";
 import { useFieldFocus } from "../hooks/useFieldFocus";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
+import { SelectWithTextarea } from "../common/SelectWithTextarea";
+
 
 export interface LiverProtocol {
   // Размеры
@@ -131,8 +133,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     leftLobeAPValue > normalLeftLobeAP ||
     leftLobeCCRValue > normalLeftLobeCCR ||
     leftLobeTotalValue > normalLeftLobeTotal;
-
-  const showFocalTextarea = form.focalLesionsPresence === "определяются";
 
   const handleConclusionFocus = () => {
     conclusionFocus.handleFocus();
@@ -390,45 +390,19 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           </label>
         </div>
 
-        <div>
-          <label className={labelClasses}>
-            Патологические образования
-            <select
-              className={inputClasses}
-              value={form.focalLesionsPresence}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: LiverProtocol = {
-                  ...form,
-                  focalLesionsPresence: val,
-                };
-                if (val === "не определяются") {
-                  updated.focalLesions = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
-            >
-              <option value="" />
-              <option value="определяются">определяются</option>
-              <option value="не определяются">не определяются</option>
-            </select>
-          </label>
-        </div>
-
-        {showFocalTextarea && (
-          <div>
-            <label className={labelClasses}>
-              Описание патологических образований
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.focalLesions}
-                onChange={e => updateField("focalLesions", e.target.value)}
-              />
-            </label>
-          </div>
-        )}
+        <SelectWithTextarea
+          label="Патологические образования"
+          selectValue={form.focalLesionsPresence}
+          textareaValue={form.focalLesions}
+          onSelectChange={val => updateField("focalLesionsPresence", val)}
+          onTextareaChange={val => updateField("focalLesions", val)}
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+          triggerValue="определяются"
+          textareaLabel="Описание патологических образований"
+        />
       </Fieldset>
 
       {/* Сосуды */}

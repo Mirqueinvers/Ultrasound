@@ -1,32 +1,28 @@
 import React, { useState } from "react";
-import {
-  RangeIndicator,
-  normalRanges,
-  NormalRange,
-} from "../../common/NormalRange";
+import { RangeIndicator, normalRanges } from "../../common/NormalRange";
+import type { NormalRange } from "../../common/NormalRange";
 import { useFieldFocus } from "../../hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { Fieldset } from "../../common/Fieldset";
 import { inputClasses, labelClasses } from "../../common/formClasses";
+import { SelectWithTextarea } from "../../common/SelectWithTextarea";
 
 export interface Concrement {
-  size: string; // мм
-  location: string; // локализация
+  size: string;
+  location: string;
 }
 
 export interface Cyst {
-  size: string; // мм
-  location: string; // локализация
+  size: string;
+  location: string;
 }
 
 export interface KidneyProtocol {
-  // Размеры
   length: string;
   width: string;
   thickness: string;
 
-  // Паренхима
   parenchymaSize: string;
   parenchymaEchogenicity: string;
   parenchymaStructure: string;
@@ -39,7 +35,6 @@ export interface KidneyProtocol {
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
 
-  // ЧЛС
   pcsSize: string;
   pcsMicroliths: string;
   pcsMicrolithsSize: string;
@@ -52,17 +47,13 @@ export interface KidneyProtocol {
   pcsPathologicalFormations: string;
   pcsPathologicalFormationsText: string;
 
-  // Синус
   sinus: string;
 
-  // Область надпочечников
   adrenalArea: string;
   adrenalAreaText: string;
 
-  // Контур почки
   contour: string;
 
-  // Дополнительно
   additional: string;
 }
 
@@ -105,7 +96,6 @@ const defaultState: KidneyProtocol = {
   additional: "",
 };
 
-// утилиты работы со списками
 const pushItem = <T,>(list: T[], item: T) => [...list, item];
 
 const updateListItem = <T,>(
@@ -117,7 +107,6 @@ const updateListItem = <T,>(
 const removeListItem = <T,>(list: T[], index: number): T[] =>
   list.filter((_, i) => i !== index);
 
-// ряд размера с RangeIndicator
 interface SizeRowProps {
   label: string;
   value: string;
@@ -234,7 +223,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     setAndNotify(draft);
   };
 
-  // паренхима – конкременты
   const addParenchymaConcrement = () => {
     const draft: KidneyProtocol = {
       ...form,
@@ -273,7 +261,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     setAndNotify(draft);
   };
 
-  // паренхима – кисты
   const addParenchymaCyst = () => {
     const draft: KidneyProtocol = {
       ...form,
@@ -309,7 +296,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     setAndNotify(draft);
   };
 
-  // ЧЛС – конкременты
   const addPcsConcrement = () => {
     const draft: KidneyProtocol = {
       ...form,
@@ -345,7 +331,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     setAndNotify(draft);
   };
 
-  // ЧЛС – кисты
   const addPcsCyst = () => {
     const draft: KidneyProtocol = {
       ...form,
@@ -377,10 +362,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     setAndNotify(draft);
   };
 
-  const showParenchymaPathologicalTextarea =
-    form.parenchymaPathologicalFormations === "определяются";
-  const showPcsPathologicalTextarea =
-    form.pcsPathologicalFormations === "определяются";
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
   const showAdrenalAreaTextarea = form.adrenalArea === "изменена";
 
@@ -388,7 +369,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     <div className="flex flex-col gap-4">
       <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">{title}</h3>
 
-      {/* Размеры */}
       <Fieldset title="Размеры">
         <SizeRow
           label="Длина (мм)"
@@ -413,7 +393,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         />
       </Fieldset>
 
-      {/* Контур почки */}
       <Fieldset title="Контур почки">
         <div>
           <label className={labelClasses}>
@@ -432,7 +411,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         </div>
       </Fieldset>
 
-      {/* Паренхима */}
       <Fieldset title="Паренхима">
         <div>
           <label className={labelClasses}>
@@ -537,55 +515,25 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           />
         )}
 
-        <div>
-          <label className={labelClasses}>
-            Патологические образования
-            <select
-              className={inputClasses}
-              value={form.parenchymaPathologicalFormations}
-              onChange={e =>
-                updateSelect(
-                  "parenchymaPathologicalFormations",
-                  e.target.value,
-                  draft => {
-                    if (
-                      draft.parenchymaPathologicalFormations ===
-                      "не определяются"
-                    ) {
-                      draft.parenchymaPathologicalFormationsText = "";
-                    }
-                  },
-                )
-              }
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
-
-        {showParenchymaPathologicalTextarea && (
-          <div>
-            <label className={labelClasses}>
-              Описание патологических образований
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.parenchymaPathologicalFormationsText}
-                onChange={e =>
-                  updateField(
-                    "parenchymaPathologicalFormationsText",
-                    e.target.value,
-                  )
-                }
-              />
-            </label>
-          </div>
-        )}
+        <SelectWithTextarea
+          label="Патологические образования"
+          selectValue={form.parenchymaPathologicalFormations}
+          textareaValue={form.parenchymaPathologicalFormationsText}
+          onSelectChange={val =>
+            updateField("parenchymaPathologicalFormations", val)
+          }
+          onTextareaChange={val =>
+            updateField("parenchymaPathologicalFormationsText", val)
+          }
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+          triggerValue="определяются"
+          textareaLabel="Описание патологических образований"
+        />
       </Fieldset>
 
-      {/* ЧЛС */}
       <Fieldset title="Чашечно-лоханочная система">
         <div>
           <label className={labelClasses}>
@@ -695,49 +643,25 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           />
         )}
 
-        <div>
-          <label className={labelClasses}>
-            Патологические образования
-            <select
-              className={inputClasses}
-              value={form.pcsPathologicalFormations}
-              onChange={e =>
-                updateSelect(
-                  "pcsPathologicalFormations",
-                  e.target.value,
-                  draft => {
-                    if (draft.pcsPathologicalFormations === "не определяются") {
-                      draft.pcsPathologicalFormationsText = "";
-                    }
-                  },
-                )
-              }
-            >
-              <option value="" />
-              <option value="определяются">определяются</option>
-              <option value="не определяются">не определяются</option>
-            </select>
-          </label>
-        </div>
-
-        {showPcsPathologicalTextarea && (
-          <div>
-            <label className={labelClasses}>
-              Описание патологических образований
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.pcsPathologicalFormationsText}
-                onChange={e =>
-                  updateField("pcsPathologicalFormationsText", e.target.value)
-                }
-              />
-            </label>
-          </div>
-        )}
+        <SelectWithTextarea
+          label="Патологические образования"
+          selectValue={form.pcsPathologicalFormations}
+          textareaValue={form.pcsPathologicalFormationsText}
+          onSelectChange={val =>
+            updateField("pcsPathologicalFormations", val)
+          }
+          onTextareaChange={val =>
+            updateField("pcsPathologicalFormationsText", val)
+          }
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+          triggerValue="определяются"
+          textareaLabel="Описание патологических образований"
+        />
       </Fieldset>
 
-      {/* Синус */}
       <Fieldset title="Синус">
         <div>
           <label className={labelClasses}>
@@ -755,7 +679,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         </div>
       </Fieldset>
 
-      {/* Область надпочечников */}
       <Fieldset title="Область надпочечников">
         <div>
           <label className={labelClasses}>
@@ -786,14 +709,15 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
                 rows={3}
                 className={inputClasses + " resize-y"}
                 value={form.adrenalAreaText}
-                onChange={e => updateField("adrenalAreaText", e.target.value)}
+                onChange={e =>
+                  updateField("adrenalAreaText", e.target.value)
+                }
               />
             </label>
           </div>
         )}
       </Fieldset>
 
-      {/* Дополнительно */}
       <Fieldset title="Дополнительно">
         <div>
           <textarea

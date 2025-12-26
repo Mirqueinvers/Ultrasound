@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from "../common/NormalRange";
-import { useFieldFocus } from "../hooks/useFieldFocus";
-import { Fieldset } from "../common/Fieldset";
-import { inputClasses, labelClasses } from "../common/formClasses";
+import { RangeIndicator, normalRanges } from '../common/NormalRange';
+import { useFieldFocus } from '../hooks/useFieldFocus';
+import { SelectWithTextarea } from "../common/SelectWithTextarea";
 
 export interface PancreasProtocol {
   // Размеры
-  head: string; // мм (головка)
-  body: string; // мм (тело)
-  tail: string; // мм (хвост)
+  head: string;                    // мм (головка)
+  body: string;                    // мм (тело)
+  tail: string;                    // мм (хвост)
 
   // Структура
-  echogenicity: string; // Эхогенность
-  echostructure: string; // Эхоструктура
-  contour: string; // Контур
-  pathologicalFormations: string; // Не определяются / Определяются
+  echogenicity: string;            // Эхогенность
+  echostructure: string;           // Эхоструктура
+  contour: string;                 // Контур
+  pathologicalFormations: string;  // Не определяются / Определяются
   pathologicalFormationsText: string; // описание патологических образований
 
   // Вирсунгов проток
-  wirsungDuct: string; // мм (диаметр)
+  wirsungDuct: string;             // мм (диаметр)
 
   // Дополнительно
   additional: string;
@@ -49,20 +48,20 @@ const defaultState: PancreasProtocol = {
 export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<PancreasProtocol>(value ?? defaultState);
 
-  // безопасное получение норм
+  // Безопасное получение нормальных значений для поджелудочной железы
   const pancreasRanges = normalRanges?.pancreas || {
-    head: { min: 0, max: 32, unit: "мм" },
-    body: { min: 0, max: 21, unit: "мм" },
-    tail: { min: 0, max: 30, unit: "мм" },
-    wirsungDuct: { min: 0, max: 3, unit: "мм" },
+    head: { min: 0, max: 32, unit: 'мм' },
+    body: { min: 0, max: 21, unit: 'мм' },
+    tail: { min: 0, max: 30, unit: 'мм' },
+    wirsungDuct: { min: 0, max: 3, unit: 'мм' },
   };
 
-  // фокусы
-  const conclusionFocus = useFieldFocus("pancreas", "conclusion");
-  const headFocus = useFieldFocus("pancreas", "head");
-  const bodyFocus = useFieldFocus("pancreas", "body");
-  const tailFocus = useFieldFocus("pancreas", "tail");
-  const wirsungDuctFocus = useFieldFocus("pancreas", "wirsungDuct");
+  // Добавляем useFieldFocus для полей поджелудочной железы
+  const conclusionFocus = useFieldFocus('pancreas', 'conclusion');
+  const headFocus = useFieldFocus('pancreas', 'head');
+  const bodyFocus = useFieldFocus('pancreas', 'body');
+  const tailFocus = useFieldFocus('pancreas', 'tail');
+  const wirsungDuctFocus = useFieldFocus('pancreas', 'wirsungDuct');
 
   const updateField = (field: keyof PancreasProtocol, val: string) => {
     const updated = { ...form, [field]: val };
@@ -70,33 +69,26 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
     onChange?.(updated);
   };
 
-  // глобальный обработчик добавления текста в заключение только для поджелудочной
+  // Глобальный обработчик для добавления текста только в заключение поджелудочной железы
   useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
       const { text, organ } = event.detail;
-
-      if (organ === "pancreas") {
+      
+      // Проверяем, что текст предназначен для поджелудочной железы
+      if (organ === 'pancreas') {
         setForm(prev => ({
           ...prev,
-          conclusion: prev.conclusion
-            ? prev.conclusion +
-              (prev.conclusion.endsWith(".") ? " " : ". ") +
-              text
-            : text,
+          conclusion: prev.conclusion 
+            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
+            : text
         }));
       }
     };
 
-    window.addEventListener(
-      "add-conclusion-text",
-      handleAddText as EventListener,
-    );
+    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
 
     return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddText as EventListener,
-      );
+      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
     };
   }, []);
 
@@ -108,7 +100,13 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
     conclusionFocus.handleBlur();
   };
 
-  const showPathologicalFormations = form.pathologicalFormations === "Определяются";
+  const inputClasses =
+    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
+  const fieldsetClasses =
+    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
+  const legendClasses =
+    "px-1 text-sm font-semibold text-gray-800";
 
   return (
     <div className="flex flex-col gap-4">
@@ -117,7 +115,9 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
       </h3>
 
       {/* Размеры */}
-      <Fieldset title="Размеры">
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Размеры</legend>
+
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Головка (мм)
@@ -130,7 +130,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               onBlur={headFocus.handleBlur}
             />
           </label>
-          <RangeIndicator
+          <RangeIndicator 
             value={form.head}
             normalRange={pancreasRanges.head}
             label="Головка"
@@ -149,7 +149,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               onBlur={bodyFocus.handleBlur}
             />
           </label>
-          <RangeIndicator
+          <RangeIndicator 
             value={form.body}
             normalRange={pancreasRanges.body}
             label="Тело"
@@ -168,16 +168,18 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               onBlur={tailFocus.handleBlur}
             />
           </label>
-          <RangeIndicator
+          <RangeIndicator 
             value={form.tail}
             normalRange={pancreasRanges.tail}
             label="Хвост"
           />
         </div>
-      </Fieldset>
+      </fieldset>
 
       {/* Структура */}
-      <Fieldset title="Структура">
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Структура</legend>
+
         <div>
           <label className={labelClasses}>
             Эхогенность
@@ -186,7 +188,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               value={form.echogenicity}
               onChange={e => updateField("echogenicity", e.target.value)}
             >
-              <option value="" />
+              <option value=""></option>
               <option value="норма">средняя</option>
               <option value="повышена">повышена</option>
               <option value="снижена">снижена</option>
@@ -202,12 +204,10 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               value={form.echostructure}
               onChange={e => updateField("echostructure", e.target.value)}
             >
-              <option value="" />
+              <option value=""></option>
               <option value="однородная">однородная</option>
               <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">
-                диффузно-неоднородная
-              </option>
+              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
             </select>
           </label>
         </div>
@@ -220,7 +220,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               value={form.contour}
               onChange={e => updateField("contour", e.target.value)}
             >
-              <option value="" />
+              <option value=""></option>
               <option value="четкий, ровный">четкий, ровный</option>
               <option value="четкий, не ровный">четкий, не ровный</option>
               <option value="не четкий">не четкий</option>
@@ -229,46 +229,26 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
           </label>
         </div>
 
-        <div>
-          <label className={labelClasses}>
-            Патологические образования
-            <select
-              className={inputClasses}
-              value={form.pathologicalFormations}
-              onChange={e => {
-                const val = e.target.value;
-                updateField("pathologicalFormations", val);
-                if (val === "Не определяются") {
-                  updateField("pathologicalFormationsText", "");
-                }
-              }}
-            >
-              <option value="" />
-              <option value="Не определяются">Не определяются</option>
-              <option value="Определяются">Определяются</option>
-            </select>
-          </label>
-        </div>
-
-        {showPathologicalFormations && (
-          <div>
-            <label className={labelClasses}>
-              Описание патологических образований
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.pathologicalFormationsText}
-                onChange={e =>
-                  updateField("pathologicalFormationsText", e.target.value)
-                }
-              />
-            </label>
-          </div>
-        )}
-      </Fieldset>
+        <SelectWithTextarea
+          label="Патологические образования"
+          selectValue={form.pathologicalFormations}
+          textareaValue={form.pathologicalFormationsText}
+          onSelectChange={val => updateField("pathologicalFormations", val)}
+          onTextareaChange={val =>
+            updateField("pathologicalFormationsText", val)
+          }
+          options={[
+            { value: "Не определяются", label: "Не определяются" },
+            { value: "Определяются", label: "Определяются" },
+          ]}
+          triggerValue="Определяются"
+          textareaLabel="Описание патологических образований"
+        />
+      </fieldset>
 
       {/* Вирсунгов проток */}
-      <Fieldset title="Вирсунгов проток">
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Вирсунгов проток</legend>
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Вирсунгов проток (мм)
@@ -281,16 +261,17 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               onBlur={wirsungDuctFocus.handleBlur}
             />
           </label>
-          <RangeIndicator
+          <RangeIndicator 
             value={form.wirsungDuct}
             normalRange={pancreasRanges.wirsungDuct}
             label="Вирсунгов проток"
           />
         </div>
-      </Fieldset>
+      </fieldset>
 
       {/* Дополнительно */}
-      <Fieldset title="Дополнительно">
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Дополнительно</legend>
         <div>
           <textarea
             rows={3}
@@ -299,10 +280,11 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             onChange={e => updateField("additional", e.target.value)}
           />
         </div>
-      </Fieldset>
+      </fieldset>
 
       {/* Заключение */}
-      <Fieldset title="Заключение">
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Заключение</legend>
         <div>
           <textarea
             rows={4}
@@ -313,7 +295,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             onBlur={handleConclusionBlur}
           />
         </div>
-      </Fieldset>
+      </fieldset>
     </div>
   );
 };

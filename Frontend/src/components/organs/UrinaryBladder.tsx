@@ -68,7 +68,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       );
 
       if (length > 0 && width > 0 && depth > 0) {
-        const volume = length * width * depth * 0.523;
+        const volume = (length * width * depth * 0.523)/1000;
         updated.volume = volume.toFixed(0); // целое значение мл
       } else {
         updated.volume = "";
@@ -92,7 +92,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       );
 
       if (length > 0 && width > 0 && depth > 0) {
-        const volume = length * width * depth * 0.523;
+        const volume = (length * width * depth * 0.523)/1000;
         updated.residualVolume = volume.toFixed(0);
       } else {
         updated.residualVolume = "";
