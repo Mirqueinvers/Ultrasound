@@ -12,11 +12,13 @@ export const normalRanges = {
     length: { min: 90, max: 120, unit: "мм" },
     width: { min: 40, max: 60, unit: "мм" },
     thickness: { min: 35, max: 50, unit: "мм" },
+    parenchyma: { min: 14, max: 25, unit: "мм" },
   },
   rightKidney: {
     length: { min: 90, max: 120, unit: "мм" },
     width: { min: 40, max: 60, unit: "мм" },
     thickness: { min: 35, max: 50, unit: "мм" },
+    parenchyma: { min: 14, max: 25, unit: "мм" },
   },
   liver: {
     rightLobeAP: { min: 90, max: 125, unit: "мм" },
@@ -48,6 +50,9 @@ export const normalRanges = {
     splenicVein: { min: 4, max: 8, unit: "мм" },
     splenicArtery: { min: 2, max: 4, unit: "мм" },
   },
+  urinaryBladder: {
+    residualVolume: { min: 0, max: 50, unit: "мл" },
+},
 } as const;
 
 export interface RangeIndicatorProps {

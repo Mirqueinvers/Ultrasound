@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
+import { RangeIndicator, normalRanges } from "../common/NormalRange";
+
 
 export interface UrinaryBladderProtocol {
   // Размеры до мочеиспускания
@@ -107,6 +109,8 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
     setForm(updated);
     onChange?.(updated);
   };
+
+  const ranges = normalRanges.urinaryBladder;
 
   const showContentsText = form.contents === "неоднородное";
 
@@ -226,6 +230,10 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
               readOnly
             />
           </label>
+          <RangeIndicator
+            value={form.residualVolume}
+            normalRange={ranges.residualVolume}
+          />
         </div>
       </Fieldset>
 

@@ -363,7 +363,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   };
 
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
-  const showAdrenalAreaTextarea = form.adrenalArea === "изменена";
 
   return (
     <div className="flex flex-col gap-4">
@@ -412,17 +411,13 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       </Fieldset>
 
       <Fieldset title="Паренхима">
-        <div>
-          <label className={labelClasses}>
-            Размер (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.parenchymaSize}
-              onChange={e => updateField("parenchymaSize", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Размер паренхимы (мм)"
+          value={form.parenchymaSize}
+          onChange={val => updateField("parenchymaSize", val)}
+          focus={useFieldFocus(organName, "parenchymaSize")}
+          range={ranges.parenchyma}
+        />
 
         <div>
           <label className={labelClasses}>
@@ -680,42 +675,19 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       </Fieldset>
 
       <Fieldset title="Область надпочечников">
-        <div>
-          <label className={labelClasses}>
-            Состояние
-            <select
-              className={inputClasses}
-              value={form.adrenalArea}
-              onChange={e =>
-                updateSelect("adrenalArea", e.target.value, draft => {
-                  if (draft.adrenalArea === "не изменена") {
-                    draft.adrenalAreaText = "";
-                  }
-                })
-              }
-            >
-              <option value="" />
-              <option value="не изменена">не изменена</option>
-              <option value="изменена">изменена</option>
-            </select>
-          </label>
-        </div>
-
-        {showAdrenalAreaTextarea && (
-          <div>
-            <label className={labelClasses}>
-              Описание изменений
-              <textarea
-                rows={3}
-                className={inputClasses + " resize-y"}
-                value={form.adrenalAreaText}
-                onChange={e =>
-                  updateField("adrenalAreaText", e.target.value)
-                }
-              />
-            </label>
-          </div>
-        )}
+        <SelectWithTextarea
+          label="Состояние"
+          selectValue={form.adrenalArea}
+          textareaValue={form.adrenalAreaText}
+          onSelectChange={val => updateField("adrenalArea", val)}
+          onTextareaChange={val => updateField("adrenalAreaText", val)}
+          options={[
+            { value: "не изменена", label: "не изменена" },
+            { value: "изменена", label: "изменена" },
+          ]}
+          triggerValue="изменена"
+          textareaLabel="Описание изменений"
+        />
       </Fieldset>
 
       <Fieldset title="Дополнительно">
