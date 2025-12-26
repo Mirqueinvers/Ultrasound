@@ -26,6 +26,8 @@ export interface KidneyProtocol {
   parenchymaConcrementslist: Concrement[];
   parenchymaCysts: string;
   parenchymaCystslist: Cyst[];
+  parenchymaMultipleCysts: boolean;
+  parenchymaMultipleCystsSize: string;
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
   
@@ -37,6 +39,8 @@ export interface KidneyProtocol {
   pcsConcrementslist: Concrement[];
   pcsCysts: string;
   pcsCystslist: Cyst[];
+  pcsMultipleCysts: boolean;
+  pcsMultipleCystsSize: string;
   pcsPathologicalFormations: string;
   pcsPathologicalFormationsText: string;
   
@@ -49,7 +53,11 @@ export interface KidneyProtocol {
   
   // Контур почки
   contour: string;
+
+  // Дополнительно
+  additional: string;
 }
+
 
 interface KidneyCommonProps {
   side: 'left' | 'right';
@@ -68,6 +76,8 @@ const defaultState: KidneyProtocol = {
   parenchymaConcrementslist: [],
   parenchymaCysts: "",
   parenchymaCystslist: [],
+  parenchymaMultipleCysts: false,
+  parenchymaMultipleCystsSize: "",
   parenchymaPathologicalFormations: "",
   parenchymaPathologicalFormationsText: "",
   pcsSize: "",
@@ -77,24 +87,52 @@ const defaultState: KidneyProtocol = {
   pcsConcrementslist: [],
   pcsCysts: "",
   pcsCystslist: [],
+  pcsMultipleCysts: false,
+  pcsMultipleCystsSize: "",
   pcsPathologicalFormations: "",
   pcsPathologicalFormationsText: "",
   sinus: "",
   adrenalArea: "",
   adrenalAreaText: "",
   contour: "",
+  additional: "",
 };
+
 
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChange }) => {
   // Обеспечиваем наличие всех необходимых полей с массивами
-  const initialValue: KidneyProtocol = {
-    ...defaultState,
-    ...(value || {}),
-    parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
-    parenchymaCystslist: value?.parenchymaCystslist || [],
-    pcsConcrementslist: value?.pcsConcrementslist || [],
-    pcsCystslist: value?.pcsCystslist || [],
+const initialValue: KidneyProtocol = {
+  ...defaultState,
+  ...(value || {}),
+  parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
+  parenchymaCystslist: value?.parenchymaCystslist || [],
+  parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
+  parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
+  pcsConcrementslist: value?.pcsConcrementslist || [],
+  pcsCystslist: value?.pcsCystslist || [],
+  pcsMultipleCysts: value?.pcsMultipleCysts || false,
+  pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
+};
+
+const toggleParenchymaMultipleCysts = () => {
+  const updated = {
+    ...form,
+    parenchymaMultipleCysts: !form.parenchymaMultipleCysts,
+    parenchymaMultipleCystsSize: !form.parenchymaMultipleCysts ? form.parenchymaMultipleCystsSize : ""
   };
+  setForm(updated);
+  onChange?.(updated);
+};
+
+const togglePcsMultipleCysts = () => {
+  const updated = {
+    ...form,
+    pcsMultipleCysts: !form.pcsMultipleCysts,
+    pcsMultipleCystsSize: !form.pcsMultipleCysts ? form.pcsMultipleCystsSize : ""
+  };
+  setForm(updated);
+  onChange?.(updated);
+};
 
   const [form, setForm] = useState<KidneyProtocol>(initialValue);
 
@@ -482,13 +520,47 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
 
         {form.parenchymaCysts === "определяются" && (
         <div className="space-y-2 ml-4">
+            <div className="flex gap-2">
             <button
-            type="button"
-            className={buttonClasses}
-            onClick={addParenchymaCyst}
+                type="button"
+                className={buttonClasses}
+                onClick={addParenchymaCyst}
             >
-            Добавить кисту
+                Добавить кисту
             </button>
+            <button
+                type="button"
+                className={`${buttonClasses} ${form.parenchymaMultipleCysts ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                onClick={toggleParenchymaMultipleCysts}
+            >
+                Множественные кисты
+            </button>
+            </div>
+            
+            {form.parenchymaMultipleCysts && (
+            <div className="flex items-center gap-2 bg-yellow-50 p-2 rounded">
+                <label className="flex items-center gap-2 flex-1">
+                <span className="text-xs font-medium text-gray-700">Максимальным размером до (мм)</span>
+                <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1 w-24`}
+                    value={form.parenchymaMultipleCystsSize}
+                    onChange={e => updateField("parenchymaMultipleCystsSize", e.target.value)}
+                />
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={toggleParenchymaMultipleCysts}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            )}
+            
             {form.parenchymaCystslist.map((cyst, index) => (
             <div key={index} className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700 min-w-[20px]">
@@ -548,6 +620,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
             ))}
         </div>
         )}
+
+
 
 
         <div>
@@ -725,13 +799,47 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
 
         {form.pcsCysts === "определяются" && (
         <div className="space-y-2 ml-4">
+            <div className="flex gap-2">
             <button
-            type="button"
-            className={buttonClasses}
-            onClick={addPcsCyst}
+                type="button"
+                className={buttonClasses}
+                onClick={addPcsCyst}
             >
-            Добавить кисту
+                Добавить кисту
             </button>
+            <button
+                type="button"
+                className={`${buttonClasses} ${form.pcsMultipleCysts ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                onClick={togglePcsMultipleCysts}
+            >
+                Множественные кисты
+            </button>
+            </div>
+            
+            {form.pcsMultipleCysts && (
+            <div className="flex items-center gap-2 bg-yellow-50 p-2 rounded">
+                <label className="flex items-center gap-2 flex-1">
+                <span className="text-xs font-medium text-gray-700">Максимальным размером до (мм)</span>
+                <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1 w-24`}
+                    value={form.pcsMultipleCystsSize}
+                    onChange={e => updateField("pcsMultipleCystsSize", e.target.value)}
+                />
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={togglePcsMultipleCysts}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            )}
+            
             {form.pcsCystslist.map((cyst, index) => (
             <div key={index} className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700 min-w-[20px]">
@@ -791,6 +899,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
             ))}
         </div>
         )}
+
+
 
 
         <div>
@@ -892,6 +1002,19 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
           </div>
         )}
       </fieldset>
+
+      {/* Дополнительно */}
+        <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Дополнительно</legend>
+        <div>
+            <textarea
+            rows={3}
+            className={inputClasses + " resize-y"}
+            value={form.additional}
+            onChange={e => updateField("additional", e.target.value)}
+            />
+        </div>
+        </fieldset>
     </div>
   );
 };

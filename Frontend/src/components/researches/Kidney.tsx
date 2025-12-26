@@ -27,22 +27,28 @@ const createDefaultKidneyState = (): KidneyCommonProtocol => ({
   parenchymaConcrementslist: [],
   parenchymaCysts: "не определяются",
   parenchymaCystslist: [],
+  parenchymaMultipleCysts: false,
+  parenchymaMultipleCystsSize: "",
   parenchymaPathologicalFormations: "не определяются",
   parenchymaPathologicalFormationsText: "",
   pcsSize: "",
-  pcsMicroliths: "",
+  pcsMicroliths: "не определяются",
   pcsMicrolithsSize: "",
   pcsConcrements: "не определяются",
   pcsConcrementslist: [],
   pcsCysts: "не определяются",
   pcsCystslist: [],
+  pcsMultipleCysts: false,
+  pcsMultipleCystsSize: "",
   pcsPathologicalFormations: "не определяются",
   pcsPathologicalFormationsText: "",
   sinus: "",
   adrenalArea: "",
   adrenalAreaText: "",
   contour: "",
+  additional: "",
 });
+
 
 
 const defaultState: KidneyProtocol = {
