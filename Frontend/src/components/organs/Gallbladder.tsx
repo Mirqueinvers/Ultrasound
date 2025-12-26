@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { normalRanges } from "../common/NormalRange";
 import { useFieldFocus } from "../hooks/useFieldFocus";
+import { SizeRow } from "../common/SizeRow";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses, buttonClasses } from "../common/formClasses";
 
@@ -184,62 +185,32 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 
       {/* Размеры */}
       <Fieldset title="Размеры">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Длина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.length}
-              onChange={e => updateField("length", e.target.value)}
-              onFocus={lengthFocus.handleFocus}
-              onBlur={lengthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.length}
-            normalRange={normalRanges.gallbladder.length}
-          />
-        </div>
+        <SizeRow
+          label="Длина (мм)"
+          value={form.length}
+          onChange={val => updateField("length", val)}
+          focus={lengthFocus}
+          range={normalRanges.gallbladder.length}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Ширина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.width}
-              onChange={e => updateField("width", e.target.value)}
-              onFocus={widthFocus.handleFocus}
-              onBlur={widthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.width}
-            normalRange={normalRanges.gallbladder.width}
-          />
-        </div>
+        <SizeRow
+          label="Ширина (мм)"
+          value={form.width}
+          onChange={val => updateField("width", val)}
+          focus={widthFocus}
+          range={normalRanges.gallbladder.width}
+        />
       </Fieldset>
 
       {/* Размеры стенки */}
       <Fieldset title="Размеры стенки">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Толщина стенки (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.wallThickness}
-              onChange={e => updateField("wallThickness", e.target.value)}
-              onFocus={wallThicknessFocus.handleFocus}
-              onBlur={wallThicknessFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.wallThickness}
-            normalRange={normalRanges.gallbladder.wallThickness}
-          />
-        </div>
+        <SizeRow
+          label="Толщина стенки (мм)"
+          value={form.wallThickness}
+          onChange={val => updateField("wallThickness", val)}
+          focus={wallThicknessFocus}
+          range={normalRanges.gallbladder.wallThickness}
+        />
       </Fieldset>
 
       {/* Форма */}
@@ -468,41 +439,21 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 
       {/* Протоки */}
       <Fieldset title="Протоки">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Пузырный проток (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.cysticDuct}
-              onChange={e => updateField("cysticDuct", e.target.value)}
-              onFocus={cysticDuctFocus.handleFocus}
-              onBlur={cysticDuctFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.cysticDuct}
-            normalRange={normalRanges.gallbladder.cysticDuct}
-          />
-        </div>
+        <SizeRow
+          label="Пузырный проток (мм)"
+          value={form.cysticDuct}
+          onChange={val => updateField("cysticDuct", val)}
+          focus={cysticDuctFocus}
+          range={normalRanges.gallbladder.cysticDuct}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Общий желчный проток (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.commonBileDuct}
-              onChange={e => updateField("commonBileDuct", e.target.value)}
-              onFocus={commonBileDuctFocus.handleFocus}
-              onBlur={commonBileDuctFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.commonBileDuct}
-            normalRange={normalRanges.gallbladder.commonBileDuct}
-          />
-        </div>
+        <SizeRow
+          label="Общий желчный проток (мм)"
+          value={form.commonBileDuct}
+          onChange={val => updateField("commonBileDuct", val)}
+          focus={commonBileDuctFocus}
+          range={normalRanges.gallbladder.commonBileDuct}
+        />
       </Fieldset>
 
       {/* Дополнительно */}

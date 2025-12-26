@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { normalRanges } from "../common/NormalRange";
 import { useFieldFocus } from "../hooks/useFieldFocus";
+import { SizeRow } from "../common/SizeRow";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
 import { SelectWithTextarea } from "../common/SelectWithTextarea";
-
 
 export interface LiverProtocol {
   // Размеры
@@ -178,41 +178,21 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
       {/* Размеры */}
       <Fieldset title="Размеры">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Правая доля, ПЗР (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.rightLobeAP}
-              onChange={e => updateField("rightLobeAP", e.target.value)}
-              onFocus={rightLobeFocus.handleFocus}
-              onBlur={rightLobeFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.rightLobeAP}
-            normalRange={normalRanges.liver.rightLobeAP}
-          />
-        </div>
+        <SizeRow
+          label="Правая доля, ПЗР (мм)"
+          value={form.rightLobeAP}
+          onChange={val => updateField("rightLobeAP", val)}
+          focus={rightLobeFocus}
+          range={normalRanges.liver.rightLobeAP}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Левая доля, ПЗР (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.leftLobeAP}
-              onChange={e => updateField("leftLobeAP", e.target.value)}
-              onFocus={leftLobeFocus.handleFocus}
-              onBlur={leftLobeFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.leftLobeAP}
-            normalRange={normalRanges.liver.leftLobeAP}
-          />
-        </div>
+        <SizeRow
+          label="Левая доля, ПЗР (мм)"
+          value={form.leftLobeAP}
+          onChange={val => updateField("leftLobeAP", val)}
+          focus={leftLobeFocus}
+          range={normalRanges.liver.leftLobeAP}
+        />
 
         {/* Дополнительные размеры правой доли */}
         {showRightLobeAdditional && (
@@ -221,59 +201,30 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               ⚠️ ПЗР правой доли превышает норму — дополнительные измерения:
             </h5>
 
-            <div className="flex items-center gap-4 mb-3">
-              <label className="block text-xs font-medium text-gray-700 w-1/3">
-                Правая доля, ККР (мм)
-                <input
-                  type="text"
-                  className={inputClasses}
-                  value={form.rightLobeCCR}
-                  onChange={e => updateField("rightLobeCCR", e.target.value)}
-                  onFocus={rightLobeCCRFocus.handleFocus}
-                  onBlur={rightLobeCCRFocus.handleBlur}
-                />
-              </label>
-              <RangeIndicator
-                value={form.rightLobeCCR}
-                normalRange={normalRanges.liver.rightLobeCCR}
-              />
-            </div>
+            <SizeRow
+              label="Правая доля, ККР (мм)"
+              value={form.rightLobeCCR}
+              onChange={val => updateField("rightLobeCCR", val)}
+              focus={rightLobeCCRFocus}
+              range={normalRanges.liver.rightLobeCCR}
+            />
 
-            <div className="flex items-center gap-4 mb-3">
-              <label className="block text-xs font-medium text-gray-700 w-1/3">
-                Правая доля, КВР (мм)
-                <input
-                  type="text"
-                  className={inputClasses}
-                  value={form.rightLobeCVR}
-                  onChange={e => updateField("rightLobeCVR", e.target.value)}
-                  onFocus={rightLobeCVRFocus.handleFocus}
-                  onBlur={rightLobeCVRFocus.handleBlur}
-                />
-              </label>
-              <RangeIndicator
-                value={form.rightLobeCVR}
-                normalRange={normalRanges.liver.rightLobeCVR}
-              />
-            </div>
+            <SizeRow
+              label="Правая доля, КВР (мм)"
+              value={form.rightLobeCVR}
+              onChange={val => updateField("rightLobeCVR", val)}
+              focus={rightLobeCVRFocus}
+              range={normalRanges.liver.rightLobeCVR}
+            />
 
-            <div className="flex items-center gap-4">
-              <label className="block text-xs font-medium text-gray-700 w-1/3">
-                Правая доля, ККР + ПЗР (мм)
-                <input
-                  type="text"
-                  className={inputClasses + " bg-gray-100"}
-                  value={form.rightLobeTotal}
-                  readOnly
-                  onFocus={rightLobeTotalFocus.handleFocus}
-                  onBlur={rightLobeTotalFocus.handleBlur}
-                />
-              </label>
-              <RangeIndicator
-                value={form.rightLobeTotal}
-                normalRange={normalRanges.liver.rightLobeTotal}
-              />
-            </div>
+            <SizeRow
+              label="Правая доля, ККР + ПЗР (мм)"
+              value={form.rightLobeTotal}
+              onChange={val => updateField("rightLobeTotal", val)}
+              focus={rightLobeTotalFocus}
+              range={normalRanges.liver.rightLobeTotal}
+              readOnly={true}
+            />
           </div>
         )}
 
@@ -284,41 +235,22 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               ⚠️ ПЗР левой доли превышает норму — дополнительные измерения:
             </h5>
 
-            <div className="flex items-center gap-4 mb-3">
-              <label className="block text-xs font-medium text-gray-700 w-1/3">
-                Левая доля, ККР (мм)
-                <input
-                  type="text"
-                  className={inputClasses}
-                  value={form.leftLobeCCR}
-                  onChange={e => updateField("leftLobeCCR", e.target.value)}
-                  onFocus={leftLobeCCRFocus.handleFocus}
-                  onBlur={leftLobeCCRFocus.handleBlur}
-                />
-              </label>
-              <RangeIndicator
-                value={form.leftLobeCCR}
-                normalRange={normalRanges.liver.leftLobeCCR}
-              />
-            </div>
+            <SizeRow
+              label="Левая доля, ККР (мм)"
+              value={form.leftLobeCCR}
+              onChange={val => updateField("leftLobeCCR", val)}
+              focus={leftLobeCCRFocus}
+              range={normalRanges.liver.leftLobeCCR}
+            />
 
-            <div className="flex items-center gap-4">
-              <label className="block text-xs font-medium text-gray-700 w-1/3">
-                Левая доля, ККР + ПЗР (мм)
-                <input
-                  type="text"
-                  className={inputClasses + " bg-gray-100"}
-                  value={form.leftLobeTotal}
-                  readOnly
-                  onFocus={leftLobeTotalFocus.handleFocus}
-                  onBlur={leftLobeTotalFocus.handleBlur}
-                />
-              </label>
-              <RangeIndicator
-                value={form.leftLobeTotal}
-                normalRange={normalRanges.liver.leftLobeTotal}
-              />
-            </div>
+            <SizeRow
+              label="Левая доля, ККР + ПЗР (мм)"
+              value={form.leftLobeTotal}
+              onChange={val => updateField("leftLobeTotal", val)}
+              focus={leftLobeTotalFocus}
+              range={normalRanges.liver.leftLobeTotal}
+              readOnly={true}
+            />
           </div>
         )}
       </Fieldset>
@@ -423,41 +355,21 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           </label>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Воротная вена, диаметр (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.portalVeinDiameter}
-              onChange={e => updateField("portalVeinDiameter", e.target.value)}
-              onFocus={portalVeinFocus.handleFocus}
-              onBlur={portalVeinFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.portalVeinDiameter}
-            normalRange={normalRanges.liver.portalVeinDiameter}
-          />
-        </div>
+        <SizeRow
+          label="Воротная вена, диаметр (мм)"
+          value={form.portalVeinDiameter}
+          onChange={val => updateField("portalVeinDiameter", val)}
+          focus={portalVeinFocus}
+          range={normalRanges.liver.portalVeinDiameter}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Нижняя полая вена, диаметр (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.ivc}
-              onChange={e => updateField("ivc", e.target.value)}
-              onFocus={ivcFocus.handleFocus}
-              onBlur={ivcFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.ivc}
-            normalRange={normalRanges.liver.ivc}
-          />
-        </div>
+        <SizeRow
+          label="Нижняя полая вена, диаметр (мм)"
+          value={form.ivc}
+          onChange={val => updateField("ivc", val)}
+          focus={ivcFocus}
+          range={normalRanges.liver.ivc}
+        />
       </Fieldset>
 
       {/* Дополнительно */}

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
-import { RangeIndicator, normalRanges } from "../common/NormalRange";
-
+import { normalRanges } from "../common/NormalRange";
+import { SizeRow } from "../common/SizeRow";
+import { useFieldFocus } from "../hooks/useFieldFocus";
 
 export interface UrinaryBladderProtocol {
   // Размеры до мочеиспускания
@@ -53,6 +54,17 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   const [form, setForm] = useState<UrinaryBladderProtocol>(
     value ?? defaultState,
   );
+
+  // Создаём фокусы для всех полей с размерами
+  const lengthFocus = useFieldFocus("urinaryBladder", "length");
+  const widthFocus = useFieldFocus("urinaryBladder", "width");
+  const depthFocus = useFieldFocus("urinaryBladder", "depth");
+  const volumeFocus = useFieldFocus("urinaryBladder", "volume");
+  const wallThicknessFocus = useFieldFocus("urinaryBladder", "wallThickness");
+  const residualLengthFocus = useFieldFocus("urinaryBladder", "residualLength");
+  const residualWidthFocus = useFieldFocus("urinaryBladder", "residualWidth");
+  const residualDepthFocus = useFieldFocus("urinaryBladder", "residualDepth");
+  const residualVolumeFocus = useFieldFocus("urinaryBladder", "residualVolume");
 
   const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
     const updated: UrinaryBladderProtocol = { ...form, [field]: val };
@@ -114,6 +126,9 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
 
   const showContentsText = form.contents === "неоднородное";
 
+  // Создаём пустой range для полей без валидации (можно определить в normalRanges если нужно)
+  const emptyRange = { min: 0, max: 999999, unit: "мм" };
+
   return (
     <div className="flex flex-col gap-4">
       <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
@@ -121,120 +136,82 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       </h3>
 
       <Fieldset title="Размеры">
-        <div>
-          <label className={labelClasses}>
-            Длина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.length}
-              onChange={e => updateField("length", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Длина (мм)"
+          value={form.length}
+          onChange={val => updateField("length", val)}
+          focus={lengthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Ширина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.width}
-              onChange={e => updateField("width", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Ширина (мм)"
+          value={form.width}
+          onChange={val => updateField("width", val)}
+          focus={widthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Передне-задний (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.depth}
-              onChange={e => updateField("depth", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Передне-задний (мм)"
+          value={form.depth}
+          onChange={val => updateField("depth", val)}
+          focus={depthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Объем (мл)
-            <input
-              type="text"
-              className={inputClasses + " bg-gray-100"}
-              value={form.volume}
-              readOnly
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Объем (мл)"
+          value={form.volume}
+          onChange={val => updateField("volume", val)}
+          focus={volumeFocus}
+          range={emptyRange}
+          readOnly={true}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Толщина стенки (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.wallThickness}
-              onChange={e => updateField("wallThickness", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Толщина стенки (мм)"
+          value={form.wallThickness}
+          onChange={val => updateField("wallThickness", val)}
+          focus={wallThicknessFocus}
+          range={ranges.wallThickness}
+        />
       </Fieldset>
 
       {/* Объем остаточной мочи */}
       <Fieldset title="Объем остаточной мочи">
-        <div>
-          <label className={labelClasses}>
-            Длина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.residualLength}
-              onChange={e => updateField("residualLength", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Длина (мм)"
+          value={form.residualLength}
+          onChange={val => updateField("residualLength", val)}
+          focus={residualLengthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Ширина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.residualWidth}
-              onChange={e => updateField("residualWidth", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Ширина (мм)"
+          value={form.residualWidth}
+          onChange={val => updateField("residualWidth", val)}
+          focus={residualWidthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Передне-задний (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.residualDepth}
-              onChange={e => updateField("residualDepth", e.target.value)}
-            />
-          </label>
-        </div>
+        <SizeRow
+          label="Передне-задний (мм)"
+          value={form.residualDepth}
+          onChange={val => updateField("residualDepth", val)}
+          focus={residualDepthFocus}
+          range={emptyRange}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Объем остаточной мочи (мл)
-            <input
-              type="text"
-              className={inputClasses + " bg-gray-100"}
-              value={form.residualVolume}
-              readOnly
-            />
-          </label>
-          <RangeIndicator
-            value={form.residualVolume}
-            normalRange={ranges.residualVolume}
-          />
-        </div>
+        <SizeRow
+          label="Объем остаточной мочи (мл)"
+          value={form.residualVolume}
+          onChange={val => updateField("residualVolume", val)}
+          focus={residualVolumeFocus}
+          range={ranges.residualVolume}
+          readOnly={true}
+        />
       </Fieldset>
 
       {/* Содержимое */}

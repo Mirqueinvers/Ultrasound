@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { normalRanges } from "../common/NormalRange";
 import { useFieldFocus } from "../hooks/useFieldFocus";
+import { SizeRow } from "../common/SizeRow";
 import { Fieldset } from "../common/Fieldset";
 import { inputClasses, labelClasses } from "../common/formClasses";
 import { SelectWithTextarea } from "../common/SelectWithTextarea";
@@ -99,41 +100,21 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
 
       {/* Размеры */}
       <Fieldset title="Размеры">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Длина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.length}
-              onChange={e => updateField("length", e.target.value)}
-              onFocus={lengthFocus.handleFocus}
-              onBlur={lengthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.length}
-            normalRange={normalRanges.spleen.length}
-          />
-        </div>
+        <SizeRow
+          label="Длина (мм)"
+          value={form.length}
+          onChange={val => updateField("length", val)}
+          focus={lengthFocus}
+          range={normalRanges.spleen.length}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Ширина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.width}
-              onChange={e => updateField("width", e.target.value)}
-              onFocus={widthFocus.handleFocus}
-              onBlur={widthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.width}
-            normalRange={normalRanges.spleen.width}
-          />
-        </div>
+        <SizeRow
+          label="Ширина (мм)"
+          value={form.width}
+          onChange={val => updateField("width", val)}
+          focus={widthFocus}
+          range={normalRanges.spleen.width}
+        />
       </Fieldset>
 
       {/* Структура */}
@@ -207,41 +188,21 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
 
       {/* Сосуды */}
       <Fieldset title="Сосуды">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Селезеночная вена, диаметр (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.splenicVein}
-              onChange={e => updateField("splenicVein", e.target.value)}
-              onFocus={splenicVeinFocus.handleFocus}
-              onBlur={splenicVeinFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.splenicVein}
-            normalRange={normalRanges.spleen.splenicVein}
-          />
-        </div>
+        <SizeRow
+          label="Селезеночная вена, диаметр (мм)"
+          value={form.splenicVein}
+          onChange={val => updateField("splenicVein", val)}
+          focus={splenicVeinFocus}
+          range={normalRanges.spleen.splenicVein}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Селезеночная артерия, диаметр (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.splenicArtery}
-              onChange={e => updateField("splenicArtery", e.target.value)}
-              onFocus={splenicArteryFocus.handleFocus}
-              onBlur={splenicArteryFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator
-            value={form.splenicArtery}
-            normalRange={normalRanges.spleen.splenicArtery}
-          />
-        </div>
+        <SizeRow
+          label="Селезеночная артерия, диаметр (мм)"
+          value={form.splenicArtery}
+          onChange={val => updateField("splenicArtery", val)}
+          focus={splenicArteryFocus}
+          range={normalRanges.spleen.splenicArtery}
+        />
       </Fieldset>
 
       {/* Дополнительно */}

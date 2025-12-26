@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { RangeIndicator, normalRanges } from "../../common/NormalRange";
-import type { NormalRange } from "../../common/NormalRange";
+import { normalRanges } from "../../common/NormalRange";
 import { useFieldFocus } from "../../hooks/useFieldFocus";
+import { SizeRow } from "../../common/SizeRow";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { Fieldset } from "../../common/Fieldset";
@@ -107,37 +107,6 @@ const updateListItem = <T,>(
 const removeListItem = <T,>(list: T[], index: number): T[] =>
   list.filter((_, i) => i !== index);
 
-interface SizeRowProps {
-  label: string;
-  value: string;
-  onChange: (val: string) => void;
-  focus: ReturnType<typeof useFieldFocus>;
-  range: NormalRange;
-}
-
-const SizeRow: React.FC<SizeRowProps> = ({
-  label,
-  value,
-  onChange,
-  focus,
-  range,
-}) => (
-  <div className="flex items-center gap-4">
-    <label className={labelClasses}>
-      {label}
-      <input
-        type="text"
-        className={inputClasses}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        onFocus={focus.handleFocus}
-        onBlur={focus.handleBlur}
-      />
-    </label>
-    <RangeIndicator value={value} normalRange={range} />
-  </div>
-);
-
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   side,
   value,
@@ -166,6 +135,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const thicknessFocus = useFieldFocus(organName, "thickness");
+  const parenchymaSizeFocus = useFieldFocus(organName, "parenchymaSize");
 
   const setAndNotify = (draft: KidneyProtocol) => {
     setForm(draft);
@@ -415,7 +385,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           label="Размер паренхимы (мм)"
           value={form.parenchymaSize}
           onChange={val => updateField("parenchymaSize", val)}
-          focus={useFieldFocus(organName, "parenchymaSize")}
+          focus={parenchymaSizeFocus}
           range={ranges.parenchyma}
         />
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
+import { normalRanges } from '../common/NormalRange';
 import { useFieldFocus } from '../hooks/useFieldFocus';
+import { SizeRow } from '../common/SizeRow';
 import { SelectWithTextarea } from "../common/SelectWithTextarea";
 
 export interface PancreasProtocol {
@@ -118,62 +119,29 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
       <fieldset className={fieldsetClasses}>
         <legend className={legendClasses}>Размеры</legend>
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Головка (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.head}
-              onChange={e => updateField("head", e.target.value)}
-              onFocus={headFocus.handleFocus}
-              onBlur={headFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator 
-            value={form.head}
-            normalRange={pancreasRanges.head}
-            label="Головка"
-          />
-        </div>
+        <SizeRow
+          label="Головка (мм)"
+          value={form.head}
+          onChange={val => updateField("head", val)}
+          focus={headFocus}
+          range={pancreasRanges.head}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Тело (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.body}
-              onChange={e => updateField("body", e.target.value)}
-              onFocus={bodyFocus.handleFocus}
-              onBlur={bodyFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator 
-            value={form.body}
-            normalRange={pancreasRanges.body}
-            label="Тело"
-          />
-        </div>
+        <SizeRow
+          label="Тело (мм)"
+          value={form.body}
+          onChange={val => updateField("body", val)}
+          focus={bodyFocus}
+          range={pancreasRanges.body}
+        />
 
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Хвост (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.tail}
-              onChange={e => updateField("tail", e.target.value)}
-              onFocus={tailFocus.handleFocus}
-              onBlur={tailFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator 
-            value={form.tail}
-            normalRange={pancreasRanges.tail}
-            label="Хвост"
-          />
-        </div>
+        <SizeRow
+          label="Хвост (мм)"
+          value={form.tail}
+          onChange={val => updateField("tail", val)}
+          focus={tailFocus}
+          range={pancreasRanges.tail}
+        />
       </fieldset>
 
       {/* Структура */}
@@ -249,24 +217,14 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
       {/* Вирсунгов проток */}
       <fieldset className={fieldsetClasses}>
         <legend className={legendClasses}>Вирсунгов проток</legend>
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Вирсунгов проток (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.wirsungDuct}
-              onChange={e => updateField("wirsungDuct", e.target.value)}
-              onFocus={wirsungDuctFocus.handleFocus}
-              onBlur={wirsungDuctFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator 
-            value={form.wirsungDuct}
-            normalRange={pancreasRanges.wirsungDuct}
-            label="Вирсунгов проток"
-          />
-        </div>
+        
+        <SizeRow
+          label="Вирсунгов проток (мм)"
+          value={form.wirsungDuct}
+          onChange={val => updateField("wirsungDuct", val)}
+          focus={wirsungDuctFocus}
+          range={pancreasRanges.wirsungDuct}
+        />
       </fieldset>
 
       {/* Дополнительно */}

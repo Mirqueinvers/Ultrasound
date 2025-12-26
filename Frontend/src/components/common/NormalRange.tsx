@@ -52,6 +52,7 @@ export const normalRanges = {
   },
   urinaryBladder: {
     residualVolume: { min: 0, max: 50, unit: "мл" },
+    wallThickness: { min: 0, max: 5, unit: "мм" },
 },
 } as const;
 

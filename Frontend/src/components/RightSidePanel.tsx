@@ -68,7 +68,7 @@ interface ConclusionSamplesPanelProps {
   onAddText: (text: string) => void;
 }
 
-const ConclusionSamplesPanel: React.FC<ConclusionSamplesPanelProps> = ({ organ, onAddText }) => {
+const ConclusionSamplesPanel: React.FC<ConclusionSamplesPanelProps> = ({ organ }) => {
   const samples = getConclusionSamples(organ);
 
   if (samples.length === 0) {
