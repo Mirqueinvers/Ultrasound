@@ -78,19 +78,29 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   const updateField = (field: keyof LiverProtocol, val: string) => {
     const updated = { ...form, [field]: val };
     
-    // Автоматический расчет сумм
+    // Автоматический расчет сумм (только когда оба значения введены)
     if (field === 'rightLobeAP' || field === 'rightLobeCCR') {
-      const ap = parseFloat(field === 'rightLobeAP' ? val : form.rightLobeAP) || 0;
-      const ccr = parseFloat(field === 'rightLobeCCR' ? val : form.rightLobeCCR) || 0;
-      // Правая доля: ККР + ПЗР (без КВР)
-      updated.rightLobeTotal = (ccr + ap).toString();
+      const ap = parseFloat(field === 'rightLobeAP' ? val : form.rightLobeAP);
+      const ccr = parseFloat(field === 'rightLobeCCR' ? val : form.rightLobeCCR);
+      
+      // Правая доля: ККР + ПЗР (без КВР) - только когда оба значения введены
+      if (ap > 0 && ccr > 0) {
+        updated.rightLobeTotal = (ccr + ap).toString();
+      } else {
+        updated.rightLobeTotal = "";
+      }
     }
     
     if (field === 'leftLobeAP' || field === 'leftLobeCCR') {
-      const ap = parseFloat(field === 'leftLobeAP' ? val : form.leftLobeAP) || 0;
-      const ccr = parseFloat(field === 'leftLobeCCR' ? val : form.leftLobeCCR) || 0;
-      // Левая доля: ККР + ПЗР
-      updated.leftLobeTotal = (ccr + ap).toString();
+      const ap = parseFloat(field === 'leftLobeAP' ? val : form.leftLobeAP);
+      const ccr = parseFloat(field === 'leftLobeCCR' ? val : form.leftLobeCCR);
+      
+      // Левая доля: ККР + ПЗР - только когда оба значения введены
+      if (ap > 0 && ccr > 0) {
+        updated.leftLobeTotal = (ccr + ap).toString();
+      } else {
+        updated.leftLobeTotal = "";
+      }
     }
     
     setForm(updated);
@@ -186,7 +196,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <RangeIndicator 
             value={form.rightLobeAP}
             normalRange={normalRanges.liver.rightLobeAP}
-            label="Правая доля"
           />
         </div>
 
@@ -205,7 +214,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <RangeIndicator 
             value={form.leftLobeAP}
             normalRange={normalRanges.liver.leftLobeAP}
-            label="Левая доля"
           />
         </div>
 
@@ -231,7 +239,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <RangeIndicator 
                 value={form.rightLobeCCR}
                 normalRange={normalRanges.liver.rightLobeCCR}
-                label="ККР правая"
               />
             </div>
 
@@ -250,7 +257,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <RangeIndicator 
                 value={form.rightLobeCVR}
                 normalRange={normalRanges.liver.rightLobeCVR}
-                label="КВР правая"
               />
             </div>
 
@@ -269,7 +275,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <RangeIndicator 
                 value={form.rightLobeTotal}
                 normalRange={normalRanges.liver.rightLobeTotal}
-                label="Общая сумма правая"
               />
             </div>
           </div>
@@ -294,6 +299,10 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={leftLobeCCRFocus.handleBlur}
                 />
               </label>
+              <RangeIndicator 
+                value={form.leftLobeCCR}
+                normalRange={normalRanges.liver.leftLobeCCR}
+              />
             </div>
 
             <div className="flex items-center gap-4">
@@ -311,7 +320,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <RangeIndicator 
                 value={form.leftLobeTotal}
                 normalRange={normalRanges.liver.leftLobeTotal}
-                label="Общая сумма левая"
               />
             </div>
           </div>
@@ -460,7 +468,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <RangeIndicator 
             value={form.portalVeinDiameter}
             normalRange={normalRanges.liver.portalVeinDiameter}
-            label="Воротная вена"
           />
         </div>
 
@@ -479,7 +486,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <RangeIndicator 
             value={form.ivc}
             normalRange={normalRanges.liver.ivc}
-            label="НПВ"
           />
         </div>
       </fieldset>

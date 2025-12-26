@@ -1,5 +1,6 @@
 import React from 'react';
 import Obp from './researches/Obp';
+import Kidney from './researches/Kidney';
 
 interface ContentProps {
   selectedStudy: string;
@@ -60,15 +61,7 @@ const Content: React.FC<ContentProps> = ({ selectedStudy, activeSection }) => {
     case 'ОБП':
       return <Obp />;
     case 'Почки':
-      return (
-        <div className="content">
-          <h2 className="text-slate-800 mt-0">УЗИ почек</h2>
-          <div className="mt-6 p-8 border-2 border-dashed border-slate-300 rounded-lg text-center">
-            <h3 className="text-slate-600 mb-2">🚧 В разработке</h3>
-            <p className="text-slate-500">Компонент для УЗИ почек будет добавлен в следующей версии</p>
-          </div>
-        </div>
-      );
+      return <Kidney />;
     case 'ОМТ (Ж)':
       return (
         <div className="content">
