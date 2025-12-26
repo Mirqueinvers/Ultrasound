@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../hooks/useFieldFocus';
+import { RangeIndicator, normalRanges } from '../../common/NormalRange';
+import { useFieldFocus } from '../../hooks/useFieldFocus';
+import { Concrements } from "./Concrements";
+import { Cysts } from "./Cysts";
+
 
 export interface Concrement {
   size: string;      // мм
@@ -296,7 +299,6 @@ const togglePcsMultipleCysts = () => {
     "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
   const legendClasses =
     "px-1 text-sm font-semibold text-gray-800";
-  const buttonClasses = "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   const showParenchymaPathologicalTextarea = form.parenchymaPathologicalFormations === "определяются";
   const showPcsPathologicalTextarea = form.pcsPathologicalFormations === "определяются";
@@ -452,56 +454,13 @@ const togglePcsMultipleCysts = () => {
         </div>
 
         {form.parenchymaConcrements === "определяются" && (
-        <div className="space-y-2 ml-4">
-            <button
-            type="button"
-            className={buttonClasses}
-            onClick={addParenchymaConcrement}
-            >
-            Добавить конкремент
-            </button>
-            {form.parenchymaConcrementslist.map((concrement, index) => (
-            <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                {index + 1}.
-                </span>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Размер (мм)</span>
-                <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={concrement.size}
-                    onChange={e => updateParenchymaConcrement(index, "size", e.target.value)}
-                />
-                </label>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Локализация</span>
-                <select
-                    className={`${inputClasses} text-xs py-1`}
-                    value={concrement.location}
-                    onChange={e => updateParenchymaConcrement(index, "location", e.target.value)}
-                >
-                    <option value=""></option>
-                    <option value="верхний полюс">верхний полюс</option>
-                    <option value="нижний полюс">нижний полюс</option>
-                    <option value="в центре">в центре</option>
-                </select>
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={() => removeParenchymaConcrement(index)}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            ))}
-        </div>
+          <Concrements
+            items={form.parenchymaConcrementslist}
+            onAdd={addParenchymaConcrement}
+            onUpdate={updateParenchymaConcrement}
+            onRemove={removeParenchymaConcrement}
+          />
         )}
-
 
         <div>
           <label className={labelClasses}>
@@ -517,112 +476,21 @@ const togglePcsMultipleCysts = () => {
             </select>
           </label>
         </div>
-
+            
         {form.parenchymaCysts === "определяются" && (
-        <div className="space-y-2 ml-4">
-            <div className="flex gap-2">
-            <button
-                type="button"
-                className={buttonClasses}
-                onClick={addParenchymaCyst}
-            >
-                Добавить кисту
-            </button>
-            <button
-                type="button"
-                className={`${buttonClasses} ${form.parenchymaMultipleCysts ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                onClick={toggleParenchymaMultipleCysts}
-            >
-                Множественные кисты
-            </button>
-            </div>
-            
-            {form.parenchymaMultipleCysts && (
-            <div className="flex items-center gap-2 bg-yellow-50 p-2 rounded">
-                <label className="flex items-center gap-2 flex-1">
-                <span className="text-xs font-medium text-gray-700">Максимальным размером до (мм)</span>
-                <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1 w-24`}
-                    value={form.parenchymaMultipleCystsSize}
-                    onChange={e => updateField("parenchymaMultipleCystsSize", e.target.value)}
-                />
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={toggleParenchymaMultipleCysts}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            )}
-            
-            {form.parenchymaCystslist.map((cyst, index) => (
-            <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                {index + 1}.
-                </span>
-                <div className="flex-1 flex items-end gap-1">
-                <label className="flex-1">
-                    <span className="text-xs text-gray-500">Размер 1 (мм)</span>
-                    <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.size.split('x')[0] || ""}
-                    onChange={e => {
-                        const size2 = cyst.size.split('x')[1] || "";
-                        updateParenchymaCyst(index, "size", e.target.value + (size2 ? `x${size2}` : ""));
-                    }}
-                    />
-                </label>
-                <span className="text-gray-500 pb-1">×</span>
-                <label className="flex-1">
-                    <span className="text-xs text-gray-500">Размер 2 (мм)</span>
-                    <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.size.split('x')[1] || ""}
-                    onChange={e => {
-                        const size1 = cyst.size.split('x')[0] || "";
-                        updateParenchymaCyst(index, "size", size1 + (e.target.value ? `x${e.target.value}` : ""));
-                    }}
-                    />
-                </label>
-                </div>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Локализация</span>
-                <select
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.location}
-                    onChange={e => updateParenchymaCyst(index, "location", e.target.value)}
-                >
-                    <option value=""></option>
-                    <option value="верхний полюс">верхний полюс</option>
-                    <option value="нижний полюс">нижний полюс</option>
-                    <option value="в центре">в центре</option>
-                </select>
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={() => removeParenchymaCyst(index)}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            ))}
-        </div>
+          <Cysts
+            items={form.parenchymaCystslist}
+            onAdd={addParenchymaCyst}
+            onUpdate={updateParenchymaCyst}
+            onRemove={removeParenchymaCyst}
+            multiple={form.parenchymaMultipleCysts}
+            multipleSize={form.parenchymaMultipleCystsSize}
+            onToggleMultiple={toggleParenchymaMultipleCysts}
+            onChangeMultipleSize={value =>
+              updateField("parenchymaMultipleCystsSize", value)
+            }
+          />
         )}
-
-
-
 
         <div>
           <label className={labelClasses}>
@@ -732,54 +600,12 @@ const togglePcsMultipleCysts = () => {
         </div>
 
         {form.pcsConcrements === "определяются" && (
-        <div className="space-y-2 ml-4">
-            <button
-            type="button"
-            className={buttonClasses}
-            onClick={addPcsConcrement}
-            >
-            Добавить конкремент
-            </button>
-            {form.pcsConcrementslist.map((concrement, index) => (
-            <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                {index + 1}.
-                </span>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Размер (мм)</span>
-                <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={concrement.size}
-                    onChange={e => updatePcsConcrement(index, "size", e.target.value)}
-                />
-                </label>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Локализация</span>
-                <select
-                    className={`${inputClasses} text-xs py-1`}
-                    value={concrement.location}
-                    onChange={e => updatePcsConcrement(index, "location", e.target.value)}
-                >
-                    <option value=""></option>
-                    <option value="верхний полюс">верхний полюс</option>
-                    <option value="нижний полюс">нижний полюс</option>
-                    <option value="в центре">в центре</option>
-                </select>
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={() => removePcsConcrement(index)}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            ))}
-        </div>
+          <Concrements
+            items={form.pcsConcrementslist}
+            onAdd={addPcsConcrement}
+            onUpdate={updatePcsConcrement}
+            onRemove={removePcsConcrement}
+          />
         )}
 
         <div>
@@ -796,112 +622,21 @@ const togglePcsMultipleCysts = () => {
             </select>
           </label>
         </div>
-
+ 
         {form.pcsCysts === "определяются" && (
-        <div className="space-y-2 ml-4">
-            <div className="flex gap-2">
-            <button
-                type="button"
-                className={buttonClasses}
-                onClick={addPcsCyst}
-            >
-                Добавить кисту
-            </button>
-            <button
-                type="button"
-                className={`${buttonClasses} ${form.pcsMultipleCysts ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                onClick={togglePcsMultipleCysts}
-            >
-                Множественные кисты
-            </button>
-            </div>
-            
-            {form.pcsMultipleCysts && (
-            <div className="flex items-center gap-2 bg-yellow-50 p-2 rounded">
-                <label className="flex items-center gap-2 flex-1">
-                <span className="text-xs font-medium text-gray-700">Максимальным размером до (мм)</span>
-                <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1 w-24`}
-                    value={form.pcsMultipleCystsSize}
-                    onChange={e => updateField("pcsMultipleCystsSize", e.target.value)}
-                />
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={togglePcsMultipleCysts}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            )}
-            
-            {form.pcsCystslist.map((cyst, index) => (
-            <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                {index + 1}.
-                </span>
-                <div className="flex-1 flex items-end gap-1">
-                <label className="flex-1">
-                    <span className="text-xs text-gray-500">Размер 1 (мм)</span>
-                    <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.size.split('x')[0] || ""}
-                    onChange={e => {
-                        const size2 = cyst.size.split('x')[1] || "";
-                        updatePcsCyst(index, "size", e.target.value + (size2 ? `x${size2}` : ""));
-                    }}
-                    />
-                </label>
-                <span className="text-gray-500 pb-1">×</span>
-                <label className="flex-1">
-                    <span className="text-xs text-gray-500">Размер 2 (мм)</span>
-                    <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.size.split('x')[1] || ""}
-                    onChange={e => {
-                        const size1 = cyst.size.split('x')[0] || "";
-                        updatePcsCyst(index, "size", size1 + (e.target.value ? `x${e.target.value}` : ""));
-                    }}
-                    />
-                </label>
-                </div>
-                <label className="flex-1">
-                <span className="text-xs text-gray-500">Локализация</span>
-                <select
-                    className={`${inputClasses} text-xs py-1`}
-                    value={cyst.location}
-                    onChange={e => updatePcsCyst(index, "location", e.target.value)}
-                >
-                    <option value=""></option>
-                    <option value="верхний полюс">верхний полюс</option>
-                    <option value="нижний полюс">нижний полюс</option>
-                    <option value="в центре">в центре</option>
-                </select>
-                </label>
-                <button
-                type="button"
-                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                onClick={() => removePcsCyst(index)}
-                title="Удалить"
-                >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                </button>
-            </div>
-            ))}
-        </div>
+          <Cysts
+            items={form.pcsCystslist}
+            onAdd={addPcsCyst}
+            onUpdate={updatePcsCyst}
+            onRemove={removePcsCyst}
+            multiple={form.pcsMultipleCysts}
+            multipleSize={form.pcsMultipleCystsSize}
+            onToggleMultiple={togglePcsMultipleCysts}
+            onChangeMultipleSize={value =>
+              updateField("pcsMultipleCystsSize", value)
+            }
+          />
         )}
-
-
-
 
         <div>
           <label className={labelClasses}>
