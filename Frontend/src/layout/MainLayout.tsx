@@ -1,8 +1,10 @@
 // Frontend/src/layouts/MainLayout.tsx
-import type { PropsWithChildren } from 'react';
-import Header from './Header';
-import LeftSidePanel from './LeftSidePanel';
-import RightSidePanel from './RightSidePanel';
+import type { PropsWithChildren } from "react";
+
+import Header from "@layout/Header";
+import LeftSidePanel from "@layout/LeftSidePanel";
+import RightSidePanel from "@layout/RightSidePanel";
+
 
 type MainLayoutProps = PropsWithChildren<{
   activeSection: string;

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Hepat, type LiverProtocol } from '../organs/Hepat';
-import Gallbladder, { type GallbladderProtocol } from '../organs/Gallbladder';
-import Pancreas, { type PancreasProtocol } from '../organs/Pancreas';
-import Spleen, { type SpleenProtocol } from '../organs/Spleen';
+import React, { useState } from "react";
 
+import Hepat, { type LiverProtocol } from "@organs/Hepat";
+import Gallbladder, { type GallbladderProtocol } from "@organs/Gallbladder";
+import Pancreas, { type PancreasProtocol } from "@organs/Pancreas";
+import Spleen, { type SpleenProtocol } from "@organs/Spleen";
 
 export interface ObpProtocol {
   liver: LiverProtocol;

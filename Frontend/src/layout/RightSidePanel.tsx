@@ -1,6 +1,7 @@
-import React from 'react';
-import { useRightPanel } from '../contexts/RightPanelContext';
-import { normalRanges } from '../components/common/NormalRange';
+import React from "react";
+
+import { useRightPanel } from "@contexts/RightPanelContext";
+import { normalRanges } from "@common";
 
 const RightSidePanel: React.FC = () => {
   const { panelData, addText } = useRightPanel();

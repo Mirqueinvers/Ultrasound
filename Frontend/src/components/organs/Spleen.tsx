@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { normalRanges } from "../common/NormalRange";
-import { useFieldFocus } from "../../hooks/useFieldFocus";
-import { SizeRow } from "../common/SizeRow";
-import { Fieldset } from "../common/Fieldset";
-import { inputClasses, labelClasses } from "../../utils/formClasses";
-import { SelectWithTextarea } from "../common/SelectWithTextarea";
+
+import { normalRanges, SizeRow, Fieldset, SelectWithTextarea } from "@common";
+import { useFieldFocus } from "@hooks/useFieldFocus";
+import { inputClasses, labelClasses } from "@utils/formClasses";
 
 export interface SpleenProtocol {
   // Размеры

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea} from "../../common";
-import { useFieldFocus } from "../../../hooks/useFieldFocus";
+import { normalRanges, SizeRow, Fieldset, SelectWithTextarea} from "@components/common";
+import { useFieldFocus } from "@hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
-import { inputClasses, labelClasses } from "../../../utils/formClasses";
+import { inputClasses, labelClasses } from "@utils/formClasses";
 
 export interface Concrement {
   size: string;

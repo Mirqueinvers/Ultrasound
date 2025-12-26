@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import KidneyCommon from '../organs/Kidney/KidneyCommon';
-import UrinaryBladder from '../organs/UrinaryBladder';
-import type { KidneyProtocol as KidneyCommonProtocol } from '../organs/Kidney/KidneyCommon';
-import type { UrinaryBladderProtocol } from '../organs/UrinaryBladder';
+import React, { useState } from "react";
+
+import KidneyCommon from "@organs/Kidney/KidneyCommon";
+import UrinaryBladder from "@organs/UrinaryBladder";
+import type { KidneyProtocol as KidneyCommonProtocol } from "@organs/Kidney/KidneyCommon";
+import type { UrinaryBladderProtocol } from "@organs/UrinaryBladder";
 
 export interface KidneyProtocol {
   rightKidney: KidneyCommonProtocol;

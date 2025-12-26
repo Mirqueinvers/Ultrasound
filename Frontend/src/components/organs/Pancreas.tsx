@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../../hooks/useFieldFocus';
-import { SizeRow } from '../common/SizeRow';
-import { SelectWithTextarea } from "../common/SelectWithTextarea";
+
+import { normalRanges, SizeRow, SelectWithTextarea } from "@common";
+import { useFieldFocus } from "@hooks/useFieldFocus";
 
 export interface PancreasProtocol {
   // Размеры
