@@ -24,14 +24,18 @@ const createDefaultKidneyState = (): KidneyCommonProtocol => ({
   parenchymaEchogenicity: "",
   parenchymaStructure: "",
   parenchymaConcrements: "не определяются",
+  parenchymaConcrementslist: [],
   parenchymaCysts: "не определяются",
+  parenchymaCystslist: [],
   parenchymaPathologicalFormations: "не определяются",
   parenchymaPathologicalFormationsText: "",
   pcsSize: "",
   pcsMicroliths: "",
   pcsMicrolithsSize: "",
   pcsConcrements: "не определяются",
+  pcsConcrementslist: [],
   pcsCysts: "не определяются",
+  pcsCystslist: [],
   pcsPathologicalFormations: "не определяются",
   pcsPathologicalFormationsText: "",
   sinus: "",
@@ -39,6 +43,7 @@ const createDefaultKidneyState = (): KidneyCommonProtocol => ({
   adrenalAreaText: "",
   contour: "",
 });
+
 
 const defaultState: KidneyProtocol = {
   rightKidney: createDefaultKidneyState(),

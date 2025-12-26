@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import { RangeIndicator, normalRanges } from '../common/NormalRange';
 import { useFieldFocus } from '../hooks/useFieldFocus';
 
+export interface Concrement {
+  size: string;      // мм
+  location: string;  // локализация
+}
+
+export interface Cyst {
+  size: string;      // мм
+  location: string;  // локализация
+}
+
 export interface KidneyProtocol {
   // Размеры
   length: string;
@@ -13,7 +23,9 @@ export interface KidneyProtocol {
   parenchymaEchogenicity: string;
   parenchymaStructure: string;
   parenchymaConcrements: string;
+  parenchymaConcrementslist: Concrement[];
   parenchymaCysts: string;
+  parenchymaCystslist: Cyst[];
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
   
@@ -22,7 +34,9 @@ export interface KidneyProtocol {
   pcsMicroliths: string;
   pcsMicrolithsSize: string;
   pcsConcrements: string;
+  pcsConcrementslist: Concrement[];
   pcsCysts: string;
+  pcsCystslist: Cyst[];
   pcsPathologicalFormations: string;
   pcsPathologicalFormationsText: string;
   
@@ -51,14 +65,18 @@ const defaultState: KidneyProtocol = {
   parenchymaEchogenicity: "",
   parenchymaStructure: "",
   parenchymaConcrements: "",
+  parenchymaConcrementslist: [],
   parenchymaCysts: "",
+  parenchymaCystslist: [],
   parenchymaPathologicalFormations: "",
   parenchymaPathologicalFormationsText: "",
   pcsSize: "",
   pcsMicroliths: "",
   pcsMicrolithsSize: "",
   pcsConcrements: "",
+  pcsConcrementslist: [],
   pcsCysts: "",
+  pcsCystslist: [],
   pcsPathologicalFormations: "",
   pcsPathologicalFormationsText: "",
   sinus: "",
@@ -68,7 +86,17 @@ const defaultState: KidneyProtocol = {
 };
 
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChange }) => {
-  const [form, setForm] = useState<KidneyProtocol>(value ?? defaultState);
+  // Обеспечиваем наличие всех необходимых полей с массивами
+  const initialValue: KidneyProtocol = {
+    ...defaultState,
+    ...(value || {}),
+    parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
+    parenchymaCystslist: value?.parenchymaCystslist || [],
+    pcsConcrementslist: value?.pcsConcrementslist || [],
+    pcsCystslist: value?.pcsCystslist || [],
+  };
+
+  const [form, setForm] = useState<KidneyProtocol>(initialValue);
 
   const organName = side === 'left' ? 'leftKidney' : 'rightKidney';
   const title = side === 'left' ? 'Левая почка' : 'Правая почка';
@@ -101,6 +129,124 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
       updated.adrenalAreaText = "";
     }
     
+    // Автоматическая очистка списков конкрементов и кист
+    if (field === 'parenchymaConcrements' && val === 'не определяются') {
+      updated.parenchymaConcrementslist = [];
+    }
+    if (field === 'parenchymaCysts' && val === 'не определяются') {
+      updated.parenchymaCystslist = [];
+    }
+    if (field === 'pcsConcrements' && val === 'не определяются') {
+      updated.pcsConcrementslist = [];
+    }
+    if (field === 'pcsCysts' && val === 'не определяются') {
+      updated.pcsCystslist = [];
+    }
+    
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  // Функции для работы с конкрементами паренхимы
+  const addParenchymaConcrement = () => {
+    const updated = {
+      ...form,
+      parenchymaConcrementslist: [...form.parenchymaConcrementslist, { size: "", location: "" }]
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateParenchymaConcrement = (index: number, field: keyof Concrement, val: string) => {
+    const updatedList = form.parenchymaConcrementslist.map((item, i) =>
+      i === index ? { ...item, [field]: val } : item
+    );
+    const updated = { ...form, parenchymaConcrementslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const removeParenchymaConcrement = (index: number) => {
+    const updatedList = form.parenchymaConcrementslist.filter((_, i) => i !== index);
+    const updated = { ...form, parenchymaConcrementslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  // Функции для работы с кистами паренхимы
+  const addParenchymaCyst = () => {
+    const updated = {
+      ...form,
+      parenchymaCystslist: [...form.parenchymaCystslist, { size: "", location: "" }]
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateParenchymaCyst = (index: number, field: keyof Cyst, val: string) => {
+    const updatedList = form.parenchymaCystslist.map((item, i) =>
+      i === index ? { ...item, [field]: val } : item
+    );
+    const updated = { ...form, parenchymaCystslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const removeParenchymaCyst = (index: number) => {
+    const updatedList = form.parenchymaCystslist.filter((_, i) => i !== index);
+    const updated = { ...form, parenchymaCystslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  // Функции для работы с конкрементами ЧЛС
+  const addPcsConcrement = () => {
+    const updated = {
+      ...form,
+      pcsConcrementslist: [...form.pcsConcrementslist, { size: "", location: "" }]
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updatePcsConcrement = (index: number, field: keyof Concrement, val: string) => {
+    const updatedList = form.pcsConcrementslist.map((item, i) =>
+      i === index ? { ...item, [field]: val } : item
+    );
+    const updated = { ...form, pcsConcrementslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const removePcsConcrement = (index: number) => {
+    const updatedList = form.pcsConcrementslist.filter((_, i) => i !== index);
+    const updated = { ...form, pcsConcrementslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  // Функции для работы с кистами ЧЛС
+  const addPcsCyst = () => {
+    const updated = {
+      ...form,
+      pcsCystslist: [...form.pcsCystslist, { size: "", location: "" }]
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updatePcsCyst = (index: number, field: keyof Cyst, val: string) => {
+    const updatedList = form.pcsCystslist.map((item, i) =>
+      i === index ? { ...item, [field]: val } : item
+    );
+    const updated = { ...form, pcsCystslist: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const removePcsCyst = (index: number) => {
+    const updatedList = form.pcsCystslist.filter((_, i) => i !== index);
+    const updated = { ...form, pcsCystslist: updatedList };
     setForm(updated);
     onChange?.(updated);
   };
@@ -112,6 +258,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
     "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
   const legendClasses =
     "px-1 text-sm font-semibold text-gray-800";
+  const buttonClasses = "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   const showParenchymaPathologicalTextarea = form.parenchymaPathologicalFormations === "определяются";
   const showPcsPathologicalTextarea = form.pcsPathologicalFormations === "определяются";
@@ -266,6 +413,58 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
           </label>
         </div>
 
+        {form.parenchymaConcrements === "определяются" && (
+        <div className="space-y-2 ml-4">
+            <button
+            type="button"
+            className={buttonClasses}
+            onClick={addParenchymaConcrement}
+            >
+            Добавить конкремент
+            </button>
+            {form.parenchymaConcrementslist.map((concrement, index) => (
+            <div key={index} className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
+                {index + 1}.
+                </span>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Размер (мм)</span>
+                <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={concrement.size}
+                    onChange={e => updateParenchymaConcrement(index, "size", e.target.value)}
+                />
+                </label>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Локализация</span>
+                <select
+                    className={`${inputClasses} text-xs py-1`}
+                    value={concrement.location}
+                    onChange={e => updateParenchymaConcrement(index, "location", e.target.value)}
+                >
+                    <option value=""></option>
+                    <option value="верхний полюс">верхний полюс</option>
+                    <option value="нижний полюс">нижний полюс</option>
+                    <option value="в центре">в центре</option>
+                </select>
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={() => removeParenchymaConcrement(index)}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            ))}
+        </div>
+        )}
+
+
         <div>
           <label className={labelClasses}>
             Кисты
@@ -280,6 +479,76 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
             </select>
           </label>
         </div>
+
+        {form.parenchymaCysts === "определяются" && (
+        <div className="space-y-2 ml-4">
+            <button
+            type="button"
+            className={buttonClasses}
+            onClick={addParenchymaCyst}
+            >
+            Добавить кисту
+            </button>
+            {form.parenchymaCystslist.map((cyst, index) => (
+            <div key={index} className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
+                {index + 1}.
+                </span>
+                <div className="flex-1 flex items-end gap-1">
+                <label className="flex-1">
+                    <span className="text-xs text-gray-500">Размер 1 (мм)</span>
+                    <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.size.split('x')[0] || ""}
+                    onChange={e => {
+                        const size2 = cyst.size.split('x')[1] || "";
+                        updateParenchymaCyst(index, "size", e.target.value + (size2 ? `x${size2}` : ""));
+                    }}
+                    />
+                </label>
+                <span className="text-gray-500 pb-1">×</span>
+                <label className="flex-1">
+                    <span className="text-xs text-gray-500">Размер 2 (мм)</span>
+                    <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.size.split('x')[1] || ""}
+                    onChange={e => {
+                        const size1 = cyst.size.split('x')[0] || "";
+                        updateParenchymaCyst(index, "size", size1 + (e.target.value ? `x${e.target.value}` : ""));
+                    }}
+                    />
+                </label>
+                </div>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Локализация</span>
+                <select
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.location}
+                    onChange={e => updateParenchymaCyst(index, "location", e.target.value)}
+                >
+                    <option value=""></option>
+                    <option value="верхний полюс">верхний полюс</option>
+                    <option value="нижний полюс">нижний полюс</option>
+                    <option value="в центре">в центре</option>
+                </select>
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={() => removeParenchymaCyst(index)}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            ))}
+        </div>
+        )}
+
 
         <div>
           <label className={labelClasses}>
@@ -339,38 +608,38 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
         </div>
 
         <div className="flex items-center gap-4">
-        <label className={labelClasses}>
+          <label className={labelClasses}>
             Микролиты
             <select
-            className={inputClasses}
-            value={form.pcsMicroliths}
-            onChange={e => {
+              className={inputClasses}
+              value={form.pcsMicroliths}
+              onChange={e => {
                 const val = e.target.value;
                 const updated = { ...form, pcsMicroliths: val };
                 if (val === "не определяются") {
-                updated.pcsMicrolithsSize = "";
+                  updated.pcsMicrolithsSize = "";
                 }
                 setForm(updated);
                 onChange?.(updated);
-            }}
+              }}
             >
-            <option value=""></option>
-            <option value="не определяются">не определяются</option>
-            <option value="определяются">определяются</option>
+              <option value=""></option>
+              <option value="не определяются">не определяются</option>
+              <option value="определяются">определяются</option>
             </select>
-        </label>
+          </label>
 
-        {showMicrolithsSize && (
+          {showMicrolithsSize && (
             <label className={labelClasses}>
-            Размером до (мм)
-            <input
+              Размером до (мм)
+              <input
                 type="text"
                 className={inputClasses}
                 value={form.pcsMicrolithsSize}
                 onChange={e => updateField("pcsMicrolithsSize", e.target.value)}
-            />
+              />
             </label>
-        )}
+          )}
         </div>
 
         <div>
@@ -388,6 +657,57 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
           </label>
         </div>
 
+        {form.pcsConcrements === "определяются" && (
+        <div className="space-y-2 ml-4">
+            <button
+            type="button"
+            className={buttonClasses}
+            onClick={addPcsConcrement}
+            >
+            Добавить конкремент
+            </button>
+            {form.pcsConcrementslist.map((concrement, index) => (
+            <div key={index} className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
+                {index + 1}.
+                </span>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Размер (мм)</span>
+                <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={concrement.size}
+                    onChange={e => updatePcsConcrement(index, "size", e.target.value)}
+                />
+                </label>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Локализация</span>
+                <select
+                    className={`${inputClasses} text-xs py-1`}
+                    value={concrement.location}
+                    onChange={e => updatePcsConcrement(index, "location", e.target.value)}
+                >
+                    <option value=""></option>
+                    <option value="верхний полюс">верхний полюс</option>
+                    <option value="нижний полюс">нижний полюс</option>
+                    <option value="в центре">в центре</option>
+                </select>
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={() => removePcsConcrement(index)}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            ))}
+        </div>
+        )}
+
         <div>
           <label className={labelClasses}>
             Кисты
@@ -402,6 +722,76 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChang
             </select>
           </label>
         </div>
+
+        {form.pcsCysts === "определяются" && (
+        <div className="space-y-2 ml-4">
+            <button
+            type="button"
+            className={buttonClasses}
+            onClick={addPcsCyst}
+            >
+            Добавить кисту
+            </button>
+            {form.pcsCystslist.map((cyst, index) => (
+            <div key={index} className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
+                {index + 1}.
+                </span>
+                <div className="flex-1 flex items-end gap-1">
+                <label className="flex-1">
+                    <span className="text-xs text-gray-500">Размер 1 (мм)</span>
+                    <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.size.split('x')[0] || ""}
+                    onChange={e => {
+                        const size2 = cyst.size.split('x')[1] || "";
+                        updatePcsCyst(index, "size", e.target.value + (size2 ? `x${size2}` : ""));
+                    }}
+                    />
+                </label>
+                <span className="text-gray-500 pb-1">×</span>
+                <label className="flex-1">
+                    <span className="text-xs text-gray-500">Размер 2 (мм)</span>
+                    <input
+                    type="text"
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.size.split('x')[1] || ""}
+                    onChange={e => {
+                        const size1 = cyst.size.split('x')[0] || "";
+                        updatePcsCyst(index, "size", size1 + (e.target.value ? `x${e.target.value}` : ""));
+                    }}
+                    />
+                </label>
+                </div>
+                <label className="flex-1">
+                <span className="text-xs text-gray-500">Локализация</span>
+                <select
+                    className={`${inputClasses} text-xs py-1`}
+                    value={cyst.location}
+                    onChange={e => updatePcsCyst(index, "location", e.target.value)}
+                >
+                    <option value=""></option>
+                    <option value="верхний полюс">верхний полюс</option>
+                    <option value="нижний полюс">нижний полюс</option>
+                    <option value="в центре">в центре</option>
+                </select>
+                </label>
+                <button
+                type="button"
+                className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                onClick={() => removePcsCyst(index)}
+                title="Удалить"
+                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
+            ))}
+        </div>
+        )}
+
 
         <div>
           <label className={labelClasses}>
