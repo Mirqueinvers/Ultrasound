@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { RangeIndicator, normalRanges } from "../../common/NormalRange";
+import {
+  RangeIndicator,
+  normalRanges,
+  NormalRange,
+} from "../../common/NormalRange";
 import { useFieldFocus } from "../../hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
@@ -35,7 +39,7 @@ export interface KidneyProtocol {
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
 
-  // Чашечно-лоханочная система
+  // ЧЛС
   pcsSize: string;
   pcsMicroliths: string;
   pcsMicrolithsSize: string;
@@ -101,6 +105,50 @@ const defaultState: KidneyProtocol = {
   additional: "",
 };
 
+// утилиты работы со списками
+const pushItem = <T,>(list: T[], item: T) => [...list, item];
+
+const updateListItem = <T,>(
+  list: T[],
+  index: number,
+  patch: Partial<T>,
+): T[] => list.map((item, i) => (i === index ? { ...item, ...patch } : item));
+
+const removeListItem = <T,>(list: T[], index: number): T[] =>
+  list.filter((_, i) => i !== index);
+
+// ряд размера с RangeIndicator
+interface SizeRowProps {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  focus: ReturnType<typeof useFieldFocus>;
+  range: NormalRange;
+}
+
+const SizeRow: React.FC<SizeRowProps> = ({
+  label,
+  value,
+  onChange,
+  focus,
+  range,
+}) => (
+  <div className="flex items-center gap-4">
+    <label className={labelClasses}>
+      {label}
+      <input
+        type="text"
+        className={inputClasses}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onFocus={focus.handleFocus}
+        onBlur={focus.handleBlur}
+      />
+    </label>
+    <RangeIndicator value={value} normalRange={range} />
+  </div>
+);
+
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   side,
   value,
@@ -123,189 +171,210 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
   const organName = side === "left" ? "leftKidney" : "rightKidney";
   const title = side === "left" ? "Левая почка" : "Правая почка";
-  const ranges = side === "left" ? normalRanges.leftKidney : normalRanges.rightKidney;
+  const ranges =
+    side === "left" ? normalRanges.leftKidney : normalRanges.rightKidney;
 
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const thicknessFocus = useFieldFocus(organName, "thickness");
 
-  const updateField = (field: keyof KidneyProtocol, val: string) => {
-    const updated: KidneyProtocol = { ...form, [field]: val };
+  const setAndNotify = (draft: KidneyProtocol) => {
+    setForm(draft);
+    onChange?.(draft);
+  };
 
-    if (field === "parenchymaPathologicalFormations" && val === "не определяются") {
-      updated.parenchymaPathologicalFormationsText = "";
-    }
+  const updateField = (field: keyof KidneyProtocol, value: string) => {
+    const draft: KidneyProtocol = { ...form, [field]: value };
+    setAndNotify(draft);
+  };
 
-    if (field === "pcsPathologicalFormations" && val === "не определяются") {
-      updated.pcsPathologicalFormationsText = "";
-    }
+  const updateSelect = (
+    field: keyof KidneyProtocol,
+    value: string,
+    cleanup?: (draft: KidneyProtocol) => void,
+  ) => {
+    const draft: KidneyProtocol = { ...form, [field]: value };
 
-    if (field === "pcsMicroliths" && val === "не определяются") {
-      updated.pcsMicrolithsSize = "";
+    if (field === "parenchymaConcrements" && value === "не определяются") {
+      draft.parenchymaConcrementslist = [];
     }
-
-    if (field === "adrenalArea" && val === "не изменена") {
-      updated.adrenalAreaText = "";
+    if (field === "parenchymaCysts" && value === "не определяются") {
+      draft.parenchymaCystslist = [];
     }
-
-    if (field === "parenchymaConcrements" && val === "не определяются") {
-      updated.parenchymaConcrementslist = [];
+    if (field === "pcsConcrements" && value === "не определяются") {
+      draft.pcsConcrementslist = [];
     }
-    if (field === "parenchymaCysts" && val === "не определяются") {
-      updated.parenchymaCystslist = [];
-    }
-    if (field === "pcsConcrements" && val === "не определяются") {
-      updated.pcsConcrementslist = [];
-    }
-    if (field === "pcsCysts" && val === "не определяются") {
-      updated.pcsCystslist = [];
+    if (field === "pcsCysts" && value === "не определяются") {
+      draft.pcsCystslist = [];
     }
 
-    setForm(updated);
-    onChange?.(updated);
+    cleanup?.(draft);
+    setAndNotify(draft);
   };
 
   const toggleParenchymaMultipleCysts = () => {
-    const updated: KidneyProtocol = {
+    const draft: KidneyProtocol = {
       ...form,
       parenchymaMultipleCysts: !form.parenchymaMultipleCysts,
       parenchymaMultipleCystsSize: !form.parenchymaMultipleCysts
         ? form.parenchymaMultipleCystsSize
         : "",
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
   const togglePcsMultipleCysts = () => {
-    const updated: KidneyProtocol = {
+    const draft: KidneyProtocol = {
       ...form,
       pcsMultipleCysts: !form.pcsMultipleCysts,
       pcsMultipleCystsSize: !form.pcsMultipleCysts
         ? form.pcsMultipleCystsSize
         : "",
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
   // паренхима – конкременты
   const addParenchymaConcrement = () => {
-    const updated = {
+    const draft: KidneyProtocol = {
       ...form,
-      parenchymaConcrementslist: [
-        ...form.parenchymaConcrementslist,
-        { size: "", location: "" },
-      ],
+      parenchymaConcrementslist: pushItem(form.parenchymaConcrementslist, {
+        size: "",
+        location: "",
+      }),
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
   const updateParenchymaConcrement = (
     index: number,
     field: keyof Concrement,
-    val: string,
+    value: string,
   ) => {
-    const updatedList = form.parenchymaConcrementslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, parenchymaConcrementslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      parenchymaConcrementslist: updateListItem(
+        form.parenchymaConcrementslist,
+        index,
+        { [field]: value } as Partial<Concrement>,
+      ),
+    };
+    setAndNotify(draft);
   };
 
   const removeParenchymaConcrement = (index: number) => {
-    const updatedList = form.parenchymaConcrementslist.filter((_, i) => i !== index);
-    const updated = { ...form, parenchymaConcrementslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      parenchymaConcrementslist: removeListItem(
+        form.parenchymaConcrementslist,
+        index,
+      ),
+    };
+    setAndNotify(draft);
   };
 
   // паренхима – кисты
   const addParenchymaCyst = () => {
-    const updated = {
+    const draft: KidneyProtocol = {
       ...form,
-      parenchymaCystslist: [...form.parenchymaCystslist, { size: "", location: "" }],
+      parenchymaCystslist: pushItem(form.parenchymaCystslist, {
+        size: "",
+        location: "",
+      }),
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
   const updateParenchymaCyst = (
     index: number,
     field: keyof Cyst,
-    val: string,
+    value: string,
   ) => {
-    const updatedList = form.parenchymaCystslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, parenchymaCystslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      parenchymaCystslist: updateListItem(
+        form.parenchymaCystslist,
+        index,
+        { [field]: value } as Partial<Cyst>,
+      ),
+    };
+    setAndNotify(draft);
   };
 
   const removeParenchymaCyst = (index: number) => {
-    const updatedList = form.parenchymaCystslist.filter((_, i) => i !== index);
-    const updated = { ...form, parenchymaCystslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      parenchymaCystslist: removeListItem(form.parenchymaCystslist, index),
+    };
+    setAndNotify(draft);
   };
 
   // ЧЛС – конкременты
   const addPcsConcrement = () => {
-    const updated = {
+    const draft: KidneyProtocol = {
       ...form,
-      pcsConcrementslist: [...form.pcsConcrementslist, { size: "", location: "" }],
+      pcsConcrementslist: pushItem(form.pcsConcrementslist, {
+        size: "",
+        location: "",
+      }),
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
   const updatePcsConcrement = (
     index: number,
     field: keyof Concrement,
-    val: string,
+    value: string,
   ) => {
-    const updatedList = form.pcsConcrementslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, pcsConcrementslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      pcsConcrementslist: updateListItem(
+        form.pcsConcrementslist,
+        index,
+        { [field]: value } as Partial<Concrement>,
+      ),
+    };
+    setAndNotify(draft);
   };
 
   const removePcsConcrement = (index: number) => {
-    const updatedList = form.pcsConcrementslist.filter((_, i) => i !== index);
-    const updated = { ...form, pcsConcrementslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      pcsConcrementslist: removeListItem(form.pcsConcrementslist, index),
+    };
+    setAndNotify(draft);
   };
 
   // ЧЛС – кисты
   const addPcsCyst = () => {
-    const updated = {
+    const draft: KidneyProtocol = {
       ...form,
-      pcsCystslist: [...form.pcsCystslist, { size: "", location: "" }],
+      pcsCystslist: pushItem(form.pcsCystslist, {
+        size: "",
+        location: "",
+      }),
     };
-    setForm(updated);
-    onChange?.(updated);
+    setAndNotify(draft);
   };
 
-  const updatePcsCyst = (index: number, field: keyof Cyst, val: string) => {
-    const updatedList = form.pcsCystslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, pcsCystslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+  const updatePcsCyst = (index: number, field: keyof Cyst, value: string) => {
+    const draft: KidneyProtocol = {
+      ...form,
+      pcsCystslist: updateListItem(
+        form.pcsCystslist,
+        index,
+        { [field]: value } as Partial<Cyst>,
+      ),
+    };
+    setAndNotify(draft);
   };
 
   const removePcsCyst = (index: number) => {
-    const updatedList = form.pcsCystslist.filter((_, i) => i !== index);
-    const updated = { ...form, pcsCystslist: updatedList };
-    setForm(updated);
-    onChange?.(updated);
+    const draft: KidneyProtocol = {
+      ...form,
+      pcsCystslist: removeListItem(form.pcsCystslist, index),
+    };
+    setAndNotify(draft);
   };
 
   const showParenchymaPathologicalTextarea =
@@ -321,50 +390,27 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
       {/* Размеры */}
       <Fieldset title="Размеры">
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Длина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.length}
-              onChange={e => updateField("length", e.target.value)}
-              onFocus={lengthFocus.handleFocus}
-              onBlur={lengthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator value={form.length} normalRange={ranges?.length} />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Ширина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.width}
-              onChange={e => updateField("width", e.target.value)}
-              onFocus={widthFocus.handleFocus}
-              onBlur={widthFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator value={form.width} normalRange={ranges?.width} />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className={labelClasses}>
-            Толщина (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.thickness}
-              onChange={e => updateField("thickness", e.target.value)}
-              onFocus={thicknessFocus.handleFocus}
-              onBlur={thicknessFocus.handleBlur}
-            />
-          </label>
-          <RangeIndicator value={form.thickness} normalRange={ranges?.thickness} />
-        </div>
+        <SizeRow
+          label="Длина (мм)"
+          value={form.length}
+          onChange={val => updateField("length", val)}
+          focus={lengthFocus}
+          range={ranges.length}
+        />
+        <SizeRow
+          label="Ширина (мм)"
+          value={form.width}
+          onChange={val => updateField("width", val)}
+          focus={widthFocus}
+          range={ranges.width}
+        />
+        <SizeRow
+          label="Толщина (мм)"
+          value={form.thickness}
+          onChange={val => updateField("thickness", val)}
+          focus={thicknessFocus}
+          range={ranges.thickness}
+        />
       </Fieldset>
 
       {/* Контур почки */}
@@ -406,7 +452,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.parenchymaEchogenicity}
-              onChange={e => updateField("parenchymaEchogenicity", e.target.value)}
+              onChange={e =>
+                updateField("parenchymaEchogenicity", e.target.value)
+              }
             >
               <option value="" />
               <option value="средняя">средняя</option>
@@ -422,7 +470,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.parenchymaStructure}
-              onChange={e => updateField("parenchymaStructure", e.target.value)}
+              onChange={e =>
+                updateField("parenchymaStructure", e.target.value)
+              }
             >
               <option value="" />
               <option value="однородная">однородная</option>
@@ -437,7 +487,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.parenchymaConcrements}
-              onChange={e => updateField("parenchymaConcrements", e.target.value)}
+              onChange={e =>
+                updateSelect("parenchymaConcrements", e.target.value)
+              }
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
@@ -461,7 +513,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.parenchymaCysts}
-              onChange={e => updateField("parenchymaCysts", e.target.value)}
+              onChange={e => updateSelect("parenchymaCysts", e.target.value)}
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
@@ -491,18 +543,20 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.parenchymaPathologicalFormations}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: KidneyProtocol = {
-                  ...form,
-                  parenchymaPathologicalFormations: val,
-                };
-                if (val === "не определяются") {
-                  updated.parenchymaPathologicalFormationsText = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
+              onChange={e =>
+                updateSelect(
+                  "parenchymaPathologicalFormations",
+                  e.target.value,
+                  draft => {
+                    if (
+                      draft.parenchymaPathologicalFormations ===
+                      "не определяются"
+                    ) {
+                      draft.parenchymaPathologicalFormationsText = "";
+                    }
+                  },
+                )
+              }
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
@@ -520,7 +574,10 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
                 className={inputClasses + " resize-y"}
                 value={form.parenchymaPathologicalFormationsText}
                 onChange={e =>
-                  updateField("parenchymaPathologicalFormationsText", e.target.value)
+                  updateField(
+                    "parenchymaPathologicalFormationsText",
+                    e.target.value,
+                  )
                 }
               />
             </label>
@@ -528,7 +585,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         )}
       </Fieldset>
 
-      {/* Чашечно-лоханочная система */}
+      {/* ЧЛС */}
       <Fieldset title="Чашечно-лоханочная система">
         <div>
           <label className={labelClasses}>
@@ -545,40 +602,42 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           </label>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div>
           <label className={labelClasses}>
             Микролиты
             <select
               className={inputClasses}
               value={form.pcsMicroliths}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: KidneyProtocol = { ...form, pcsMicroliths: val };
-                if (val === "не определяются") {
-                  updated.pcsMicrolithsSize = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
+              onChange={e =>
+                updateSelect("pcsMicroliths", e.target.value, draft => {
+                  if (draft.pcsMicroliths === "не определяются") {
+                    draft.pcsMicrolithsSize = "";
+                  }
+                })
+              }
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
           </label>
+        </div>
 
-          {showMicrolithsSize && (
+        {showMicrolithsSize && (
+          <div>
             <label className={labelClasses}>
               Размером до (мм)
               <input
                 type="text"
                 className={inputClasses}
                 value={form.pcsMicrolithsSize}
-                onChange={e => updateField("pcsMicrolithsSize", e.target.value)}
+                onChange={e =>
+                  updateField("pcsMicrolithsSize", e.target.value)
+                }
               />
             </label>
-          )}
-        </div>
+          </div>
+        )}
 
         <div>
           <label className={labelClasses}>
@@ -586,7 +645,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.pcsConcrements}
-              onChange={e => updateField("pcsConcrements", e.target.value)}
+              onChange={e =>
+                updateSelect("pcsConcrements", e.target.value)
+              }
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
@@ -610,7 +671,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.pcsCysts}
-              onChange={e => updateField("pcsCysts", e.target.value)}
+              onChange={e => updateSelect("pcsCysts", e.target.value)}
             >
               <option value="" />
               <option value="не определяются">не определяются</option>
@@ -640,18 +701,17 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.pcsPathologicalFormations}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: KidneyProtocol = {
-                  ...form,
-                  pcsPathologicalFormations: val,
-                };
-                if (val === "не определяются") {
-                  updated.pcsPathologicalFormationsText = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
+              onChange={e =>
+                updateSelect(
+                  "pcsPathologicalFormations",
+                  e.target.value,
+                  draft => {
+                    if (draft.pcsPathologicalFormations === "не определяются") {
+                      draft.pcsPathologicalFormationsText = "";
+                    }
+                  },
+                )
+              }
             >
               <option value="" />
               <option value="определяются">определяются</option>
@@ -703,15 +763,13 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             <select
               className={inputClasses}
               value={form.adrenalArea}
-              onChange={e => {
-                const val = e.target.value;
-                const updated: KidneyProtocol = { ...form, adrenalArea: val };
-                if (val === "не изменена") {
-                  updated.adrenalAreaText = "";
-                }
-                setForm(updated);
-                onChange?.(updated);
-              }}
+              onChange={e =>
+                updateSelect("adrenalArea", e.target.value, draft => {
+                  if (draft.adrenalArea === "не изменена") {
+                    draft.adrenalAreaText = "";
+                  }
+                })
+              }
             >
               <option value="" />
               <option value="не изменена">не изменена</option>
