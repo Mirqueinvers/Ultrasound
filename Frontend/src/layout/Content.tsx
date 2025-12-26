@@ -1,6 +1,6 @@
 import React from 'react';
-import Obp from './researches/Obp';
-import Kidney from './researches/Kidney';
+import Obp from '../components/researches/Obp';
+import Kidney from '../components/researches/Kidney';
 
 interface ContentProps {
   selectedStudy: string;

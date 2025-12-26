@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRightPanel } from '../contexts/RightPanelContext';
-import { normalRanges } from './common/NormalRange';
+import { normalRanges } from '../components/common/NormalRange';
 
 const RightSidePanel: React.FC = () => {
   const { panelData, addText } = useRightPanel();

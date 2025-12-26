@@ -1,0 +1,47 @@
+// Frontend/src/layouts/MainLayout.tsx
+import type { PropsWithChildren } from 'react';
+import Header from './Header';
+import LeftSidePanel from './LeftSidePanel';
+import RightSidePanel from './RightSidePanel';
+
+type MainLayoutProps = PropsWithChildren<{
+  activeSection: string;
+  setActiveSection: (value: string) => void;
+  selectedStudy: string;
+  onStudySelect: (value: string) => void;
+}>;
+
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  activeSection,
+  setActiveSection,
+  selectedStudy,
+  onStudySelect,
+}) => {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="flex flex-col gap-3 p-6">
+        <Header
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+        />
+
+        <div className="flex gap-3">
+          <LeftSidePanel
+            activeSection={activeSection}
+            selectedStudy={selectedStudy}
+            onStudySelect={onStudySelect}
+          />
+
+          <div className="w-[70%] bg-white border border-slate-300 px-6 py-6 shadow-lg rounded-lg">
+            {children}
+          </div>
+
+          <RightSidePanel />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MainLayout;
