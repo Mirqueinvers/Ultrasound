@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRightPanel } from './contexts/RightPanelContext';
+import { useRightPanel } from '../contexts/RightPanelContext';
 import { normalRanges } from './common/NormalRange';
 
 const RightSidePanel: React.FC = () => {

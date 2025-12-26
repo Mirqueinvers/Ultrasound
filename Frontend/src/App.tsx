@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RightPanelProvider } from './components/contexts/RightPanelContext';
+import { RightPanelProvider } from './contexts/RightPanelContext';
 import Header from './components/Header';
 import LeftSidePanel from './components/LeftSidePanel';
 import RightSidePanel from './components/RightSidePanel';

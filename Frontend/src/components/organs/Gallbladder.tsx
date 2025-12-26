@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { normalRanges } from "../common/NormalRange";
-import { useFieldFocus } from "../hooks/useFieldFocus";
+import { useFieldFocus } from "../../hooks/useFieldFocus";
 import { SizeRow } from "../common/SizeRow";
 import { Fieldset } from "../common/Fieldset";
-import { inputClasses, labelClasses, buttonClasses } from "../common/formClasses";
+import { inputClasses, labelClasses, buttonClasses } from "../../utils/formClasses";
 
 export interface Concretion {
   size: string;    // мм

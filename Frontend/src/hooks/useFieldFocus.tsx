@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useRightPanel } from '../contexts/RightPanelContext';
-import { customSizeTexts, getCustomText } from '../common/customSizeTexts';
+import { customSizeTexts, getCustomText } from '../utils/customSizeTexts';
 
 export const useFieldFocus = (organ: string, field?: string) => {
   const { showConclusionSamples, showCustomText } = useRightPanel();

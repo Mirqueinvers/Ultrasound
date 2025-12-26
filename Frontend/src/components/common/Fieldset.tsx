@@ -1,6 +1,6 @@
 // Frontend/src/components/common/Fieldset.tsx
 import React from "react";
-import { fieldsetClasses, legendClasses } from "./formClasses";
+import { fieldsetClasses, legendClasses } from "../../utils/formClasses";
 
 interface FieldsetProps {
   title: string;

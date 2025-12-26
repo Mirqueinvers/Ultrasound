@@ -1,8 +1,8 @@
 import React from "react";
 import { RangeIndicator } from "./NormalRange";
 import type { NormalRange } from "./NormalRange";
-import { useFieldFocus } from "../hooks/useFieldFocus";
-import { inputClasses, labelClasses } from "./formClasses";
+import { useFieldFocus } from "../../hooks/useFieldFocus";
+import { inputClasses, labelClasses } from "../../utils/formClasses";
 
 interface SizeRowProps {
   label: string;

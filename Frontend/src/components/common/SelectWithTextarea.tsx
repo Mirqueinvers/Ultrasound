@@ -1,5 +1,5 @@
 import React from "react";
-import { inputClasses, labelClasses } from "./formClasses";
+import { inputClasses, labelClasses } from "../../utils/formClasses";
 
 interface Option {
   value: string;

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { normalRanges } from "../../common/NormalRange";
-import { useFieldFocus } from "../../hooks/useFieldFocus";
+import { useFieldFocus } from "../../../hooks/useFieldFocus";
 import { SizeRow } from "../../common/SizeRow";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { Fieldset } from "../../common/Fieldset";
-import { inputClasses, labelClasses } from "../../common/formClasses";
+import { inputClasses, labelClasses } from "../../../utils/formClasses";
 import { SelectWithTextarea } from "../../common/SelectWithTextarea";
 
 export interface Concrement {

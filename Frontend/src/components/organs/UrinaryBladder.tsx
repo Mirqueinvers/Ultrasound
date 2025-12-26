@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Fieldset } from "../common/Fieldset";
-import { inputClasses, labelClasses } from "../common/formClasses";
+import { inputClasses, labelClasses } from "../../utils/formClasses";
 import { normalRanges } from "../common/NormalRange";
 import { SizeRow } from "../common/SizeRow";
-import { useFieldFocus } from "../hooks/useFieldFocus";
+import { useFieldFocus } from "../../hooks/useFieldFocus";
 
 export interface UrinaryBladderProtocol {
   // Размеры до мочеиспускания

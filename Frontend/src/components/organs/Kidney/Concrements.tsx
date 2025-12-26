@@ -1,7 +1,7 @@
 // Frontend/src/components/organs/Kidney/Concrements.tsx
 import React from "react";
 import type { Concrement } from "./KidneyCommon";
-import { inputClasses, buttonClasses } from "../../common/formClasses";
+import { inputClasses, buttonClasses } from "../../../utils/formClasses";
 
 interface ConcrementsProps {
   items: Concrement[];
