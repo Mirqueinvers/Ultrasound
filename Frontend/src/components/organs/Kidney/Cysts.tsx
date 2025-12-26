@@ -1,11 +1,7 @@
 // Frontend/src/components/organs/Kidney/Cysts.tsx
 import React from "react";
-import type { Cyst, KidneyProtocol } from "./KidneyCommon";
-
-const inputClasses =
-  "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-const buttonClasses =
-  "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
+import type { Cyst } from "./KidneyCommon";
+import { inputClasses, buttonClasses } from "../../common/formClasses";
 
 interface CystsProps {
   items: Cyst[];
@@ -19,7 +15,7 @@ interface CystsProps {
   onToggleMultiple: () => void;
   onChangeMultipleSize: (value: string) => void;
 
-  // удобно иметь кастомный текст кнопки, если нужно
+  // опциональный текст для кнопки добавления
   addLabel?: string;
 }
 
@@ -76,6 +72,7 @@ export const Cysts: React.FC<CystsProps> = ({
               onChange={e => onChangeMultipleSize(e.target.value)}
             />
           </label>
+
           <button
             type="button"
             className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"

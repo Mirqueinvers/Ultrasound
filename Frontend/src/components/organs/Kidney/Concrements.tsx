@@ -1,17 +1,14 @@
 // Frontend/src/components/organs/Kidney/Concrements.tsx
 import React from "react";
 import type { Concrement } from "./KidneyCommon";
-
-const inputClasses =
-  "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-const buttonClasses =
-  "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
+import { inputClasses, buttonClasses } from "../../common/formClasses";
 
 interface ConcrementsProps {
   items: Concrement[];
   onAdd: () => void;
   onUpdate: (index: number, field: keyof Concrement, value: string) => void;
   onRemove: (index: number) => void;
+  addLabel?: string;
 }
 
 export const Concrements: React.FC<ConcrementsProps> = ({
@@ -19,6 +16,7 @@ export const Concrements: React.FC<ConcrementsProps> = ({
   onAdd,
   onUpdate,
   onRemove,
+  addLabel = "Добавить конкремент",
 }) => {
   return (
     <div className="space-y-2 ml-4">
@@ -27,7 +25,7 @@ export const Concrements: React.FC<ConcrementsProps> = ({
         className={buttonClasses}
         onClick={onAdd}
       >
-        Добавить конкремент
+        {addLabel}
       </button>
 
       {items.map((concrement, index) => (
@@ -66,8 +64,18 @@ export const Concrements: React.FC<ConcrementsProps> = ({
             onClick={() => onRemove(index)}
             title="Удалить"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { RangeIndicator, normalRanges } from '../../common/NormalRange';
-import { useFieldFocus } from '../../hooks/useFieldFocus';
+import { RangeIndicator, normalRanges } from "../../common/NormalRange";
+import { useFieldFocus } from "../../hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
-
+import { Fieldset } from "../../common/Fieldset";
+import { inputClasses, labelClasses } from "../../common/formClasses";
 
 export interface Concrement {
-  size: string;      // мм
-  location: string;  // локализация
+  size: string; // мм
+  location: string; // локализация
 }
 
 export interface Cyst {
-  size: string;      // мм
-  location: string;  // локализация
+  size: string; // мм
+  location: string; // локализация
 }
 
 export interface KidneyProtocol {
@@ -20,7 +21,7 @@ export interface KidneyProtocol {
   length: string;
   width: string;
   thickness: string;
-  
+
   // Паренхима
   parenchymaSize: string;
   parenchymaEchogenicity: string;
@@ -33,7 +34,7 @@ export interface KidneyProtocol {
   parenchymaMultipleCystsSize: string;
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
-  
+
   // Чашечно-лоханочная система
   pcsSize: string;
   pcsMicroliths: string;
@@ -46,14 +47,14 @@ export interface KidneyProtocol {
   pcsMultipleCystsSize: string;
   pcsPathologicalFormations: string;
   pcsPathologicalFormationsText: string;
-  
+
   // Синус
   sinus: string;
-  
+
   // Область надпочечников
   adrenalArea: string;
   adrenalAreaText: string;
-  
+
   // Контур почки
   contour: string;
 
@@ -61,9 +62,8 @@ export interface KidneyProtocol {
   additional: string;
 }
 
-
 interface KidneyCommonProps {
-  side: 'left' | 'right';
+  side: "left" | "right";
   value?: KidneyProtocol;
   onChange?: (value: KidneyProtocol) => void;
 }
@@ -101,106 +101,114 @@ const defaultState: KidneyProtocol = {
   additional: "",
 };
 
-
-export const KidneyCommon: React.FC<KidneyCommonProps> = ({ side, value, onChange }) => {
-  // Обеспечиваем наличие всех необходимых полей с массивами
-const initialValue: KidneyProtocol = {
-  ...defaultState,
-  ...(value || {}),
-  parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
-  parenchymaCystslist: value?.parenchymaCystslist || [],
-  parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
-  parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
-  pcsConcrementslist: value?.pcsConcrementslist || [],
-  pcsCystslist: value?.pcsCystslist || [],
-  pcsMultipleCysts: value?.pcsMultipleCysts || false,
-  pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
-};
-
-const toggleParenchymaMultipleCysts = () => {
-  const updated = {
-    ...form,
-    parenchymaMultipleCysts: !form.parenchymaMultipleCysts,
-    parenchymaMultipleCystsSize: !form.parenchymaMultipleCysts ? form.parenchymaMultipleCystsSize : ""
+export const KidneyCommon: React.FC<KidneyCommonProps> = ({
+  side,
+  value,
+  onChange,
+}) => {
+  const initialValue: KidneyProtocol = {
+    ...defaultState,
+    ...(value || {}),
+    parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
+    parenchymaCystslist: value?.parenchymaCystslist || [],
+    parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
+    parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
+    pcsConcrementslist: value?.pcsConcrementslist || [],
+    pcsCystslist: value?.pcsCystslist || [],
+    pcsMultipleCysts: value?.pcsMultipleCysts || false,
+    pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
   };
-  setForm(updated);
-  onChange?.(updated);
-};
-
-const togglePcsMultipleCysts = () => {
-  const updated = {
-    ...form,
-    pcsMultipleCysts: !form.pcsMultipleCysts,
-    pcsMultipleCystsSize: !form.pcsMultipleCysts ? form.pcsMultipleCystsSize : ""
-  };
-  setForm(updated);
-  onChange?.(updated);
-};
 
   const [form, setForm] = useState<KidneyProtocol>(initialValue);
 
-  const organName = side === 'left' ? 'leftKidney' : 'rightKidney';
-  const title = side === 'left' ? 'Левая почка' : 'Правая почка';
-  const ranges = side === 'left' ? normalRanges.leftKidney : normalRanges.rightKidney;
+  const organName = side === "left" ? "leftKidney" : "rightKidney";
+  const title = side === "left" ? "Левая почка" : "Правая почка";
+  const ranges = side === "left" ? normalRanges.leftKidney : normalRanges.rightKidney;
 
-  const lengthFocus = useFieldFocus(organName, 'length');
-  const widthFocus = useFieldFocus(organName, 'width');
-  const thicknessFocus = useFieldFocus(organName, 'thickness');
+  const lengthFocus = useFieldFocus(organName, "length");
+  const widthFocus = useFieldFocus(organName, "width");
+  const thicknessFocus = useFieldFocus(organName, "thickness");
 
   const updateField = (field: keyof KidneyProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
-    
-    // Автоматическая очистка описания патологических образований паренхимы
-    if (field === 'parenchymaPathologicalFormations' && val === 'не определяются') {
+    const updated: KidneyProtocol = { ...form, [field]: val };
+
+    if (field === "parenchymaPathologicalFormations" && val === "не определяются") {
       updated.parenchymaPathologicalFormationsText = "";
     }
-    
-    // Автоматическая очистка описания патологических образований ЧЛС
-    if (field === 'pcsPathologicalFormations' && val === 'не определяются') {
+
+    if (field === "pcsPathologicalFormations" && val === "не определяются") {
       updated.pcsPathologicalFormationsText = "";
     }
-    
-    // Автоматическая очистка размера микролитов
-    if (field === 'pcsMicroliths' && val === 'не определяются') {
+
+    if (field === "pcsMicroliths" && val === "не определяются") {
       updated.pcsMicrolithsSize = "";
     }
-    
-    // Автоматическая очистка описания изменений надпочечников
-    if (field === 'adrenalArea' && val === 'не изменена') {
+
+    if (field === "adrenalArea" && val === "не изменена") {
       updated.adrenalAreaText = "";
     }
-    
-    // Автоматическая очистка списков конкрементов и кист
-    if (field === 'parenchymaConcrements' && val === 'не определяются') {
+
+    if (field === "parenchymaConcrements" && val === "не определяются") {
       updated.parenchymaConcrementslist = [];
     }
-    if (field === 'parenchymaCysts' && val === 'не определяются') {
+    if (field === "parenchymaCysts" && val === "не определяются") {
       updated.parenchymaCystslist = [];
     }
-    if (field === 'pcsConcrements' && val === 'не определяются') {
+    if (field === "pcsConcrements" && val === "не определяются") {
       updated.pcsConcrementslist = [];
     }
-    if (field === 'pcsCysts' && val === 'не определяются') {
+    if (field === "pcsCysts" && val === "не определяются") {
       updated.pcsCystslist = [];
     }
-    
+
     setForm(updated);
     onChange?.(updated);
   };
 
-  // Функции для работы с конкрементами паренхимы
-  const addParenchymaConcrement = () => {
-    const updated = {
+  const toggleParenchymaMultipleCysts = () => {
+    const updated: KidneyProtocol = {
       ...form,
-      parenchymaConcrementslist: [...form.parenchymaConcrementslist, { size: "", location: "" }]
+      parenchymaMultipleCysts: !form.parenchymaMultipleCysts,
+      parenchymaMultipleCystsSize: !form.parenchymaMultipleCysts
+        ? form.parenchymaMultipleCystsSize
+        : "",
     };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updateParenchymaConcrement = (index: number, field: keyof Concrement, val: string) => {
+  const togglePcsMultipleCysts = () => {
+    const updated: KidneyProtocol = {
+      ...form,
+      pcsMultipleCysts: !form.pcsMultipleCysts,
+      pcsMultipleCystsSize: !form.pcsMultipleCysts
+        ? form.pcsMultipleCystsSize
+        : "",
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  // паренхима – конкременты
+  const addParenchymaConcrement = () => {
+    const updated = {
+      ...form,
+      parenchymaConcrementslist: [
+        ...form.parenchymaConcrementslist,
+        { size: "", location: "" },
+      ],
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateParenchymaConcrement = (
+    index: number,
+    field: keyof Concrement,
+    val: string,
+  ) => {
     const updatedList = form.parenchymaConcrementslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
+      i === index ? { ...item, [field]: val } : item,
     );
     const updated = { ...form, parenchymaConcrementslist: updatedList };
     setForm(updated);
@@ -214,19 +222,23 @@ const togglePcsMultipleCysts = () => {
     onChange?.(updated);
   };
 
-  // Функции для работы с кистами паренхимы
+  // паренхима – кисты
   const addParenchymaCyst = () => {
     const updated = {
       ...form,
-      parenchymaCystslist: [...form.parenchymaCystslist, { size: "", location: "" }]
+      parenchymaCystslist: [...form.parenchymaCystslist, { size: "", location: "" }],
     };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updateParenchymaCyst = (index: number, field: keyof Cyst, val: string) => {
+  const updateParenchymaCyst = (
+    index: number,
+    field: keyof Cyst,
+    val: string,
+  ) => {
     const updatedList = form.parenchymaCystslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
+      i === index ? { ...item, [field]: val } : item,
     );
     const updated = { ...form, parenchymaCystslist: updatedList };
     setForm(updated);
@@ -240,19 +252,23 @@ const togglePcsMultipleCysts = () => {
     onChange?.(updated);
   };
 
-  // Функции для работы с конкрементами ЧЛС
+  // ЧЛС – конкременты
   const addPcsConcrement = () => {
     const updated = {
       ...form,
-      pcsConcrementslist: [...form.pcsConcrementslist, { size: "", location: "" }]
+      pcsConcrementslist: [...form.pcsConcrementslist, { size: "", location: "" }],
     };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updatePcsConcrement = (index: number, field: keyof Concrement, val: string) => {
+  const updatePcsConcrement = (
+    index: number,
+    field: keyof Concrement,
+    val: string,
+  ) => {
     const updatedList = form.pcsConcrementslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
+      i === index ? { ...item, [field]: val } : item,
     );
     const updated = { ...form, pcsConcrementslist: updatedList };
     setForm(updated);
@@ -266,11 +282,11 @@ const togglePcsMultipleCysts = () => {
     onChange?.(updated);
   };
 
-  // Функции для работы с кистами ЧЛС
+  // ЧЛС – кисты
   const addPcsCyst = () => {
     const updated = {
       ...form,
-      pcsCystslist: [...form.pcsCystslist, { size: "", location: "" }]
+      pcsCystslist: [...form.pcsCystslist, { size: "", location: "" }],
     };
     setForm(updated);
     onChange?.(updated);
@@ -278,7 +294,7 @@ const togglePcsMultipleCysts = () => {
 
   const updatePcsCyst = (index: number, field: keyof Cyst, val: string) => {
     const updatedList = form.pcsCystslist.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
+      i === index ? { ...item, [field]: val } : item,
     );
     const updated = { ...form, pcsCystslist: updatedList };
     setForm(updated);
@@ -292,29 +308,19 @@ const togglePcsMultipleCysts = () => {
     onChange?.(updated);
   };
 
-  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
-
-  const showParenchymaPathologicalTextarea = form.parenchymaPathologicalFormations === "определяются";
-  const showPcsPathologicalTextarea = form.pcsPathologicalFormations === "определяются";
+  const showParenchymaPathologicalTextarea =
+    form.parenchymaPathologicalFormations === "определяются";
+  const showPcsPathologicalTextarea =
+    form.pcsPathologicalFormations === "определяются";
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
   const showAdrenalAreaTextarea = form.adrenalArea === "изменена";
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        {title}
-      </h3>
+      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">{title}</h3>
 
       {/* Размеры */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры</legend>
-
+      <Fieldset title="Размеры">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Длина (мм)
@@ -327,10 +333,7 @@ const togglePcsMultipleCysts = () => {
               onBlur={lengthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
-            value={form.length}
-            normalRange={ranges?.length}
-          />
+          <RangeIndicator value={form.length} normalRange={ranges?.length} />
         </div>
 
         <div className="flex items-center gap-4">
@@ -345,10 +348,7 @@ const togglePcsMultipleCysts = () => {
               onBlur={widthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
-            value={form.width}
-            normalRange={ranges?.width}
-          />
+          <RangeIndicator value={form.width} normalRange={ranges?.width} />
         </div>
 
         <div className="flex items-center gap-4">
@@ -363,17 +363,12 @@ const togglePcsMultipleCysts = () => {
               onBlur={thicknessFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
-            value={form.thickness}
-            normalRange={ranges?.thickness}
-          />
+          <RangeIndicator value={form.thickness} normalRange={ranges?.thickness} />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Контур почки */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Контур почки</legend>
-
+      <Fieldset title="Контур почки">
         <div>
           <label className={labelClasses}>
             Характеристика
@@ -382,19 +377,17 @@ const togglePcsMultipleCysts = () => {
               value={form.contour}
               onChange={e => updateField("contour", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="четкий ровный">четкий, ровный</option>
               <option value="четкий неровный">четкий, неровный</option>
               <option value="нечеткий">нечеткий</option>
             </select>
           </label>
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Паренхима */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Паренхима</legend>
-
+      <Fieldset title="Паренхима">
         <div>
           <label className={labelClasses}>
             Размер (мм)
@@ -415,7 +408,7 @@ const togglePcsMultipleCysts = () => {
               value={form.parenchymaEchogenicity}
               onChange={e => updateField("parenchymaEchogenicity", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="средняя">средняя</option>
               <option value="повышена">повышена</option>
               <option value="понижена">понижена</option>
@@ -431,7 +424,7 @@ const togglePcsMultipleCysts = () => {
               value={form.parenchymaStructure}
               onChange={e => updateField("parenchymaStructure", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="однородная">однородная</option>
               <option value="диффузно-неоднородная">диффузно-неоднородная</option>
             </select>
@@ -446,7 +439,7 @@ const togglePcsMultipleCysts = () => {
               value={form.parenchymaConcrements}
               onChange={e => updateField("parenchymaConcrements", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
@@ -470,13 +463,13 @@ const togglePcsMultipleCysts = () => {
               value={form.parenchymaCysts}
               onChange={e => updateField("parenchymaCysts", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
           </label>
         </div>
-            
+
         {form.parenchymaCysts === "определяются" && (
           <Cysts
             items={form.parenchymaCystslist}
@@ -500,7 +493,10 @@ const togglePcsMultipleCysts = () => {
               value={form.parenchymaPathologicalFormations}
               onChange={e => {
                 const val = e.target.value;
-                const updated = { ...form, parenchymaPathologicalFormations: val };
+                const updated: KidneyProtocol = {
+                  ...form,
+                  parenchymaPathologicalFormations: val,
+                };
                 if (val === "не определяются") {
                   updated.parenchymaPathologicalFormationsText = "";
                 }
@@ -508,7 +504,7 @@ const togglePcsMultipleCysts = () => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
@@ -523,17 +519,17 @@ const togglePcsMultipleCysts = () => {
                 rows={3}
                 className={inputClasses + " resize-y"}
                 value={form.parenchymaPathologicalFormationsText}
-                onChange={e => updateField("parenchymaPathologicalFormationsText", e.target.value)}
+                onChange={e =>
+                  updateField("parenchymaPathologicalFormationsText", e.target.value)
+                }
               />
             </label>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Чашечно-лоханочная система */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Чашечно-лоханочная система</legend>
-
+      <Fieldset title="Чашечно-лоханочная система">
         <div>
           <label className={labelClasses}>
             Размер
@@ -542,7 +538,7 @@ const togglePcsMultipleCysts = () => {
               value={form.pcsSize}
               onChange={e => updateField("pcsSize", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не изменена">не изменена</option>
               <option value="расширена">расширена</option>
             </select>
@@ -557,7 +553,7 @@ const togglePcsMultipleCysts = () => {
               value={form.pcsMicroliths}
               onChange={e => {
                 const val = e.target.value;
-                const updated = { ...form, pcsMicroliths: val };
+                const updated: KidneyProtocol = { ...form, pcsMicroliths: val };
                 if (val === "не определяются") {
                   updated.pcsMicrolithsSize = "";
                 }
@@ -565,7 +561,7 @@ const togglePcsMultipleCysts = () => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
@@ -592,7 +588,7 @@ const togglePcsMultipleCysts = () => {
               value={form.pcsConcrements}
               onChange={e => updateField("pcsConcrements", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
@@ -616,13 +612,13 @@ const togglePcsMultipleCysts = () => {
               value={form.pcsCysts}
               onChange={e => updateField("pcsCysts", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не определяются">не определяются</option>
               <option value="определяются">определяются</option>
             </select>
           </label>
         </div>
- 
+
         {form.pcsCysts === "определяются" && (
           <Cysts
             items={form.pcsCystslist}
@@ -646,7 +642,10 @@ const togglePcsMultipleCysts = () => {
               value={form.pcsPathologicalFormations}
               onChange={e => {
                 const val = e.target.value;
-                const updated = { ...form, pcsPathologicalFormations: val };
+                const updated: KidneyProtocol = {
+                  ...form,
+                  pcsPathologicalFormations: val,
+                };
                 if (val === "не определяются") {
                   updated.pcsPathologicalFormationsText = "";
                 }
@@ -654,7 +653,7 @@ const togglePcsMultipleCysts = () => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="определяются">определяются</option>
               <option value="не определяются">не определяются</option>
             </select>
@@ -669,17 +668,17 @@ const togglePcsMultipleCysts = () => {
                 rows={3}
                 className={inputClasses + " resize-y"}
                 value={form.pcsPathologicalFormationsText}
-                onChange={e => updateField("pcsPathologicalFormationsText", e.target.value)}
+                onChange={e =>
+                  updateField("pcsPathologicalFormationsText", e.target.value)
+                }
               />
             </label>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Синус */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Синус</legend>
-
+      <Fieldset title="Синус">
         <div>
           <label className={labelClasses}>
             Состояние
@@ -688,18 +687,16 @@ const togglePcsMultipleCysts = () => {
               value={form.sinus}
               onChange={e => updateField("sinus", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="без включений">без включений</option>
               <option value="с включениями">с включениями</option>
             </select>
           </label>
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Область надпочечников */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Область надпочечников</legend>
-
+      <Fieldset title="Область надпочечников">
         <div>
           <label className={labelClasses}>
             Состояние
@@ -708,7 +705,7 @@ const togglePcsMultipleCysts = () => {
               value={form.adrenalArea}
               onChange={e => {
                 const val = e.target.value;
-                const updated = { ...form, adrenalArea: val };
+                const updated: KidneyProtocol = { ...form, adrenalArea: val };
                 if (val === "не изменена") {
                   updated.adrenalAreaText = "";
                 }
@@ -716,7 +713,7 @@ const togglePcsMultipleCysts = () => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не изменена">не изменена</option>
               <option value="изменена">изменена</option>
             </select>
@@ -736,20 +733,19 @@ const togglePcsMultipleCysts = () => {
             </label>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Дополнительно */}
-        <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Дополнительно</legend>
+      <Fieldset title="Дополнительно">
         <div>
-            <textarea
+          <textarea
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-            />
+          />
         </div>
-        </fieldset>
+      </Fieldset>
     </div>
   );
 };

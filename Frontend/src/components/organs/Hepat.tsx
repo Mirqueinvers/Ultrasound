@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../hooks/useFieldFocus';
+import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { useFieldFocus } from "../hooks/useFieldFocus";
+import { Fieldset } from "../common/Fieldset";
+import { inputClasses, labelClasses } from "../common/formClasses";
 
 export interface LiverProtocol {
   // Размеры
-  rightLobeAP: string;             // мм (ПЗР правая)
-  leftLobeAP: string;              // мм (ПЗР левая)
-  
+  rightLobeAP: string;      // мм (ПЗР правая)
+  leftLobeAP: string;       // мм (ПЗР левая)
+
   // Дополнительные размеры (скрытые по умолчанию)
-  rightLobeCCR: string;            // мм (ККР правая)
-  rightLobeCVR: string;            // мм (КВР правая) 
-  leftLobeCCR: string;             // мм (ККР левая)
-  rightLobeTotal: string;          // мм (ККР + ПЗР правая, авторасчет)
-  leftLobeTotal: string;           // мм (ККР + ПЗР левая, авторасчет)
+  rightLobeCCR: string;     // мм (ККР правая)
+  rightLobeCVR: string;     // мм (КВР правая)
+  leftLobeCCR: string;      // мм (ККР левая)
+  rightLobeTotal: string;   // мм (ККР + ПЗР правая, авторасчет)
+  leftLobeTotal: string;    // мм (ККР + ПЗР левая, авторасчет)
 
   // Структура
   echogenicity: string;
-  homogeneity: string;             // Эхоструктура
+  homogeneity: string;      // Эхоструктура
   contours: string;
   lowerEdgeAngle: string;
-  focalLesionsPresence: string;    // определяются / не определяются
-  focalLesions: string;            // описание, если определяются
+  focalLesionsPresence: string; // определяются / не определяются
+  focalLesions: string;         // описание, если определяются
 
   // Сосуды
-  vascularPattern: string;         // Сосудистый рисунок
-  portalVeinDiameter: string;      // мм
+  vascularPattern: string;
+  portalVeinDiameter: string;   // мм
   ivc: string;
 
   // Дополнительно
@@ -63,51 +65,46 @@ const defaultState: LiverProtocol = {
 export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<LiverProtocol>(value ?? defaultState);
 
-  const conclusionFocus = useFieldFocus('liver', 'conclusion');
-  const rightLobeFocus = useFieldFocus('liver', 'rightLobeAP');
-  const leftLobeFocus = useFieldFocus('liver', 'leftLobeAP');
-  const portalVeinFocus = useFieldFocus('liver', 'portalVeinDiameter');
-  const ivcFocus = useFieldFocus('liver', 'ivc');
-  // Добавляем фокусы для новых полей
-  const rightLobeCCRFocus = useFieldFocus('liver', 'rightLobeCCR');
-  const rightLobeCVRFocus = useFieldFocus('liver', 'rightLobeCVR');
-  const leftLobeCCRFocus = useFieldFocus('liver', 'leftLobeCCR');
-  const rightLobeTotalFocus = useFieldFocus('liver', 'rightLobeTotal');
-  const leftLobeTotalFocus = useFieldFocus('liver', 'leftLobeTotal');
+  const conclusionFocus = useFieldFocus("liver", "conclusion");
+  const rightLobeFocus = useFieldFocus("liver", "rightLobeAP");
+  const leftLobeFocus = useFieldFocus("liver", "leftLobeAP");
+  const portalVeinFocus = useFieldFocus("liver", "portalVeinDiameter");
+  const ivcFocus = useFieldFocus("liver", "ivc");
+
+  // дополнительные поля
+  const rightLobeCCRFocus = useFieldFocus("liver", "rightLobeCCR");
+  const rightLobeCVRFocus = useFieldFocus("liver", "rightLobeCVR");
+  const leftLobeCCRFocus = useFieldFocus("liver", "leftLobeCCR");
+  const rightLobeTotalFocus = useFieldFocus("liver", "rightLobeTotal");
+  const leftLobeTotalFocus = useFieldFocus("liver", "leftLobeTotal");
 
   const updateField = (field: keyof LiverProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
-    
-    // Автоматический расчет сумм (только когда оба значения введены)
-    if (field === 'rightLobeAP' || field === 'rightLobeCCR') {
-      const ap = parseFloat(field === 'rightLobeAP' ? val : form.rightLobeAP);
-      const ccr = parseFloat(field === 'rightLobeCCR' ? val : form.rightLobeCCR);
-      
-      // Правая доля: ККР + ПЗР (без КВР) - только когда оба значения введены
-      if (ap > 0 && ccr > 0) {
-        updated.rightLobeTotal = (ccr + ap).toString();
-      } else {
-        updated.rightLobeTotal = "";
-      }
+    const updated: LiverProtocol = { ...form, [field]: val };
+
+    // авторасчет сумм (ККР + ПЗР), только когда оба значения есть
+    if (field === "rightLobeAP" || field === "rightLobeCCR") {
+      const ap =
+        parseFloat(field === "rightLobeAP" ? val : form.rightLobeAP) || 0;
+      const ccr =
+        parseFloat(field === "rightLobeCCR" ? val : form.rightLobeCCR) || 0;
+
+      updated.rightLobeTotal = ap > 0 && ccr > 0 ? (ccr + ap).toString() : "";
     }
-    
-    if (field === 'leftLobeAP' || field === 'leftLobeCCR') {
-      const ap = parseFloat(field === 'leftLobeAP' ? val : form.leftLobeAP);
-      const ccr = parseFloat(field === 'leftLobeCCR' ? val : form.leftLobeCCR);
-      
-      // Левая доля: ККР + ПЗР - только когда оба значения введены
-      if (ap > 0 && ccr > 0) {
-        updated.leftLobeTotal = (ccr + ap).toString();
-      } else {
-        updated.leftLobeTotal = "";
-      }
+
+    if (field === "leftLobeAP" || field === "leftLobeCCR") {
+      const ap =
+        parseFloat(field === "leftLobeAP" ? val : form.leftLobeAP) || 0;
+      const ccr =
+        parseFloat(field === "leftLobeCCR" ? val : form.leftLobeCCR) || 0;
+
+      updated.leftLobeTotal = ap > 0 && ccr > 0 ? (ccr + ap).toString() : "";
     }
-    
+
     setForm(updated);
     onChange?.(updated);
   };
 
-  // Определяем, нужно ли показывать дополнительные поля
+  // значения для логики показа доп. полей
   const rightLobeAPValue = parseFloat(form.rightLobeAP) || 0;
   const leftLobeAPValue = parseFloat(form.leftLobeAP) || 0;
   const rightLobeCCRValue = parseFloat(form.rightLobeCCR) || 0;
@@ -115,22 +112,27 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   const rightLobeTotalValue = parseFloat(form.rightLobeTotal) || 0;
   const leftLobeCCRValue = parseFloat(form.leftLobeCCR) || 0;
   const leftLobeTotalValue = parseFloat(form.leftLobeTotal) || 0;
-  
-  const normalRightLobeAP = 125; // верхняя граница нормы
-  const normalLeftLobeAP = 90;   // верхняя граница нормы
+
+  const normalRightLobeAP = 125;
+  const normalLeftLobeAP = 90;
   const normalRightLobeCCR = 140;
   const normalRightLobeCVR = 150;
   const normalRightLobeTotal = 260;
   const normalLeftLobeCCR = 100;
   const normalLeftLobeTotal = 160;
-  
-  const showRightLobeAdditional = rightLobeAPValue > normalRightLobeAP || 
-                                  rightLobeCCRValue > normalRightLobeCCR ||
-                                  rightLobeCVRValue > normalRightLobeCVR ||
-                                  rightLobeTotalValue > normalRightLobeTotal;
-  const showLeftLobeAdditional = leftLobeAPValue > normalLeftLobeAP ||
-                                 leftLobeCCRValue > normalLeftLobeCCR ||
-                                 leftLobeTotalValue > normalLeftLobeTotal;
+
+  const showRightLobeAdditional =
+    rightLobeAPValue > normalRightLobeAP ||
+    rightLobeCCRValue > normalRightLobeCCR ||
+    rightLobeCVRValue > normalRightLobeCVR ||
+    rightLobeTotalValue > normalRightLobeTotal;
+
+  const showLeftLobeAdditional =
+    leftLobeAPValue > normalLeftLobeAP ||
+    leftLobeCCRValue > normalLeftLobeCCR ||
+    leftLobeTotalValue > normalLeftLobeTotal;
+
+  const showFocalTextarea = form.focalLesionsPresence === "определяются";
 
   const handleConclusionFocus = () => {
     conclusionFocus.handleFocus();
@@ -140,47 +142,42 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     conclusionFocus.handleBlur();
   };
 
-  // Устанавливаем глобальный обработчик для добавления текста только для печени
+  // обработчик добавления текста в заключение для печени
   useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
       const { text, organ } = event.detail;
-      
-      // Проверяем, что текст предназначен для печени
-      if (organ === 'liver') {
+
+      if (organ === "liver") {
         setForm(prev => ({
           ...prev,
-          conclusion: prev.conclusion 
-            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-            : text
+          conclusion: prev.conclusion
+            ? prev.conclusion +
+              (prev.conclusion.endsWith(".") ? " " : ". ") +
+              text
+            : text,
         }));
       }
     };
 
-    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
+    window.addEventListener(
+      "add-conclusion-text",
+      handleAddText as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
+      window.removeEventListener(
+        "add-conclusion-text",
+        handleAddText as EventListener,
+      );
     };
-  }, []);  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
-
-  const showFocalTextarea = form.focalLesionsPresence === "определяются";
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        Печень
-      </h3>
+      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">Печень</h3>
 
       {/* Размеры */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры</legend>
-
+      <Fieldset title="Размеры">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Правая доля, ПЗР (мм)
@@ -193,7 +190,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               onBlur={rightLobeFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.rightLobeAP}
             normalRange={normalRanges.liver.rightLobeAP}
           />
@@ -211,7 +208,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               onBlur={leftLobeFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.leftLobeAP}
             normalRange={normalRanges.liver.leftLobeAP}
           />
@@ -221,9 +218,9 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
         {showRightLobeAdditional && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
             <h5 className="text-xs font-semibold text-yellow-800 mb-3">
-              ⚠️ ПЗР правой доли превышает норму - дополнительные измерения:
+              ⚠️ ПЗР правой доли превышает норму — дополнительные измерения:
             </h5>
-            
+
             <div className="flex items-center gap-4 mb-3">
               <label className="block text-xs font-medium text-gray-700 w-1/3">
                 Правая доля, ККР (мм)
@@ -236,7 +233,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={rightLobeCCRFocus.handleBlur}
                 />
               </label>
-              <RangeIndicator 
+              <RangeIndicator
                 value={form.rightLobeCCR}
                 normalRange={normalRanges.liver.rightLobeCCR}
               />
@@ -254,7 +251,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={rightLobeCVRFocus.handleBlur}
                 />
               </label>
-              <RangeIndicator 
+              <RangeIndicator
                 value={form.rightLobeCVR}
                 normalRange={normalRanges.liver.rightLobeCVR}
               />
@@ -272,7 +269,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={rightLobeTotalFocus.handleBlur}
                 />
               </label>
-              <RangeIndicator 
+              <RangeIndicator
                 value={form.rightLobeTotal}
                 normalRange={normalRanges.liver.rightLobeTotal}
               />
@@ -284,9 +281,9 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
         {showLeftLobeAdditional && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
             <h5 className="text-xs font-semibold text-yellow-800 mb-3">
-              ⚠️ ПЗР левой доли превышает норму - дополнительные измерения:
+              ⚠️ ПЗР левой доли превышает норму — дополнительные измерения:
             </h5>
-            
+
             <div className="flex items-center gap-4 mb-3">
               <label className="block text-xs font-medium text-gray-700 w-1/3">
                 Левая доля, ККР (мм)
@@ -299,7 +296,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={leftLobeCCRFocus.handleBlur}
                 />
               </label>
-              <RangeIndicator 
+              <RangeIndicator
                 value={form.leftLobeCCR}
                 normalRange={normalRanges.liver.leftLobeCCR}
               />
@@ -317,19 +314,17 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                   onBlur={leftLobeTotalFocus.handleBlur}
                 />
               </label>
-              <RangeIndicator 
+              <RangeIndicator
                 value={form.leftLobeTotal}
                 normalRange={normalRanges.liver.leftLobeTotal}
               />
             </div>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Структура */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Структура</legend>
-
+      <Fieldset title="Структура">
         <div>
           <label className={labelClasses}>
             Эхогенность
@@ -338,7 +333,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.echogenicity}
               onChange={e => updateField("echogenicity", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="норма">средняя</option>
               <option value="повышена">повышена</option>
               <option value="снижена">снижена</option>
@@ -354,10 +349,12 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.homogeneity}
               onChange={e => updateField("homogeneity", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="однородная">однородная</option>
               <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
+              <option value="диффузно-неоднородная">
+                диффузно-неоднородная
+              </option>
             </select>
           </label>
         </div>
@@ -370,7 +367,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.contours}
               onChange={e => updateField("contours", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="ровные">четкий, ровный</option>
               <option value="неровные">четкий, неровный</option>
               <option value="бугристые">бугристый</option>
@@ -386,7 +383,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.lowerEdgeAngle}
               onChange={e => updateField("lowerEdgeAngle", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="заострён">заострён</option>
               <option value="закруглён">закруглён</option>
             </select>
@@ -401,9 +398,10 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.focalLesionsPresence}
               onChange={e => {
                 const val = e.target.value;
-                
-                // Обновляем состояние напрямую через setForm
-                const updated = { ...form, focalLesionsPresence: val };
+                const updated: LiverProtocol = {
+                  ...form,
+                  focalLesionsPresence: val,
+                };
                 if (val === "не определяются") {
                   updated.focalLesions = "";
                 }
@@ -411,7 +409,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="определяются">определяются</option>
               <option value="не определяются">не определяются</option>
             </select>
@@ -431,12 +429,10 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             </label>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Сосуды */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Сосуды</legend>
-
+      <Fieldset title="Сосуды">
         <div>
           <label className={labelClasses}>
             Сосудистый рисунок
@@ -445,7 +441,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               value={form.vascularPattern}
               onChange={e => updateField("vascularPattern", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="не изменен">не изменен</option>
               <option value="обеднен">обеднен</option>
               <option value="усилен">усилен</option>
@@ -465,7 +461,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               onBlur={portalVeinFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.portalVeinDiameter}
             normalRange={normalRanges.liver.portalVeinDiameter}
           />
@@ -483,16 +479,15 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               onBlur={ivcFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.ivc}
             normalRange={normalRanges.liver.ivc}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Дополнительно */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Дополнительно</legend>
+      <Fieldset title="Дополнительно">
         <div>
           <textarea
             rows={3}
@@ -501,12 +496,10 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             onChange={e => updateField("additional", e.target.value)}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Заключение */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Заключение</legend>
-
+      <Fieldset title="Заключение">
         <div>
           <textarea
             rows={4}
@@ -517,7 +510,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             onBlur={handleConclusionBlur}
           />
         </div>
-      </fieldset>
+      </Fieldset>
     </div>
   );
 };

@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../hooks/useFieldFocus';
+import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { useFieldFocus } from "../hooks/useFieldFocus";
+import { Fieldset } from "../common/Fieldset";
+import { inputClasses, labelClasses } from "../common/formClasses";
 
 export interface SpleenProtocol {
   // Размеры
-  length: string;              // мм (длина)
-  width: string;               // мм (ширина)
-  
+  length: string; // мм (длина)
+  width: string;  // мм (ширина)
+
   // Структура
-  echogenicity: string;        // Эхогенность
-  echostructure: string;       // Эхоструктура  
-  contours: string;            // Контур
-  pathologicalFormations: string;  // Патологические образования
-  pathologicalFormationsText: string;  // описание, если определяются
+  echogenicity: string;              // Эхогенность
+  echostructure: string;            // Эхоструктура
+  contours: string;                 // Контур
+  pathologicalFormations: string;   // Патологические образования
+  pathologicalFormationsText: string; // описание, если определяются
 
   // Сосуды
-  splenicVein: string;         // мм (селезеночная вена)
-  splenicArtery: string;       // мм (селезеночная артерия)
+  splenicVein: string;   // мм (селезеночная вена)
+  splenicArtery: string; // мм (селезеночная артерия)
 
   // Дополнительно
   additional: string;
@@ -47,11 +49,11 @@ const defaultState: SpleenProtocol = {
 export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<SpleenProtocol>(value ?? defaultState);
 
-  const conclusionFocus = useFieldFocus('spleen', 'conclusion');
-  const lengthFocus = useFieldFocus('spleen', 'spleenLength'); // Обновлено
-  const widthFocus = useFieldFocus('spleen', 'spleenWidth'); // Обновлено
-  const splenicVeinFocus = useFieldFocus('spleen', 'splenicVein');
-  const splenicArteryFocus = useFieldFocus('spleen', 'splenicArtery');
+  const conclusionFocus = useFieldFocus("spleen", "conclusion");
+  const lengthFocus = useFieldFocus("spleen", "spleenLength");
+  const widthFocus = useFieldFocus("spleen", "spleenWidth");
+  const splenicVeinFocus = useFieldFocus("spleen", "splenicVein");
+  const splenicArteryFocus = useFieldFocus("spleen", "splenicArtery");
 
   const updateField = (field: keyof SpleenProtocol, val: string) => {
     const updated = { ...form, [field]: val };
@@ -59,38 +61,37 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
     onChange?.(updated);
   };
 
-  // Устанавливаем глобальный обработчик для добавления текста только для селезенки
   useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
       const { text, organ } = event.detail;
-      
-      // Проверяем, что текст предназначен для селезенки
-      if (organ === 'spleen') {
+
+      if (organ === "spleen") {
         setForm(prev => ({
           ...prev,
-          conclusion: prev.conclusion 
-            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-            : text
+          conclusion: prev.conclusion
+            ? prev.conclusion +
+              (prev.conclusion.endsWith(".") ? " " : ". ") +
+              text
+            : text,
         }));
       }
     };
 
-    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
+    window.addEventListener(
+      "add-conclusion-text",
+      handleAddText as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
+      window.removeEventListener(
+        "add-conclusion-text",
+        handleAddText as EventListener,
+      );
     };
   }, []);
 
-  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
-
-  const showPathologicalTextarea = form.pathologicalFormations === "определяются";
+  const showPathologicalTextarea =
+    form.pathologicalFormations === "определяются";
 
   return (
     <div className="flex flex-col gap-4">
@@ -99,9 +100,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
       </h3>
 
       {/* Размеры */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры</legend>
-
+      <Fieldset title="Размеры">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Длина (мм)
@@ -114,7 +113,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               onBlur={lengthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.length}
             normalRange={normalRanges.spleen.length}
           />
@@ -132,17 +131,15 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               onBlur={widthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.width}
             normalRange={normalRanges.spleen.width}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Структура */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Структура</legend>
-
+      <Fieldset title="Структура">
         <div>
           <label className={labelClasses}>
             Эхогенность
@@ -151,7 +148,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               value={form.echogenicity}
               onChange={e => updateField("echogenicity", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="норма">средняя</option>
               <option value="повышена">повышена</option>
               <option value="снижена">снижена</option>
@@ -167,10 +164,12 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               value={form.echostructure}
               onChange={e => updateField("echostructure", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="однородная">однородная</option>
               <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
+              <option value="диффузно-неоднородная">
+                диффузно-неоднородная
+              </option>
             </select>
           </label>
         </div>
@@ -183,7 +182,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               value={form.contours}
               onChange={e => updateField("contours", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="ровные">четкий, ровный</option>
               <option value="неровные">четкий, неровный</option>
               <option value="бугристые">бугристый</option>
@@ -199,9 +198,10 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               value={form.pathologicalFormations}
               onChange={e => {
                 const val = e.target.value;
-                
-                // Обновляем состояние напрямую через setForm
-                const updated = { ...form, pathologicalFormations: val };
+                const updated: SpleenProtocol = {
+                  ...form,
+                  pathologicalFormations: val,
+                };
                 if (val === "не определяются") {
                   updated.pathologicalFormationsText = "";
                 }
@@ -209,7 +209,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
                 onChange?.(updated);
               }}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="определяются">определяются</option>
               <option value="не определяются">не определяются</option>
             </select>
@@ -224,17 +224,17 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
                 rows={3}
                 className={inputClasses + " resize-y"}
                 value={form.pathologicalFormationsText}
-                onChange={e => updateField("pathologicalFormationsText", e.target.value)}
+                onChange={e =>
+                  updateField("pathologicalFormationsText", e.target.value)
+                }
               />
             </label>
           </div>
         )}
-      </fieldset>
+      </Fieldset>
 
       {/* Сосуды */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Сосуды</legend>
-
+      <Fieldset title="Сосуды">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Селезеночная вена, диаметр (мм)
@@ -247,7 +247,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               onBlur={splenicVeinFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.splenicVein}
             normalRange={normalRanges.spleen.splenicVein}
           />
@@ -265,16 +265,15 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
               onBlur={splenicArteryFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.splenicArtery}
             normalRange={normalRanges.spleen.splenicArtery}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Дополнительно */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Дополнительно</legend>
+      <Fieldset title="Дополнительно">
         <div>
           <textarea
             rows={3}
@@ -283,12 +282,10 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
             onChange={e => updateField("additional", e.target.value)}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Заключение */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Заключение</legend>
-
+      <Fieldset title="Заключение">
         <div>
           <textarea
             rows={4}
@@ -299,7 +296,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
             onBlur={conclusionFocus.handleBlur}
           />
         </div>
-      </fieldset>
+      </Fieldset>
     </div>
   );
 };

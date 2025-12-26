@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../hooks/useFieldFocus';
+import React, { useState } from "react";
+import { Fieldset } from "../common/Fieldset";
+import { inputClasses, labelClasses } from "../common/formClasses";
 
 export interface UrinaryBladderProtocol {
-  // Размеры
-  volume: string;
+  // Размеры до мочеиспускания
+  length: string;
+  width: string;
+  depth: string;
+  volume: string; // рассчитывается из length * width * depth * 0.523
   wallThickness: string;
-  
-  // Характеристики
-  wallStructure: string;
-  contents: string;
-  ureteralOrifices: string;
-  
+
+  // Объем остаточной мочи
+  residualLength: string;
+  residualWidth: string;
+  residualDepth: string;
+  residualVolume: string; // рассчитывается так же
+
+  // Содержимое
+  contents: string;            // однородное / неоднородное
+  contentsText: string;        // описание, если неоднородное
+
   // Дополнительно
   additional: string;
-  
-  // Заключение
-  conclusion: string;
 }
 
 interface UrinaryBladderProps {
@@ -25,65 +30,85 @@ interface UrinaryBladderProps {
 }
 
 const defaultState: UrinaryBladderProtocol = {
+  length: "",
+  width: "",
+  depth: "",
   volume: "",
   wallThickness: "",
-  wallStructure: "",
+  residualLength: "",
+  residualWidth: "",
+  residualDepth: "",
+  residualVolume: "",
   contents: "",
-  ureteralOrifices: "",
+  contentsText: "",
   additional: "",
-  conclusion: "",
 };
 
-export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<UrinaryBladderProtocol>(value ?? defaultState);
-
-  const conclusionFocus = useFieldFocus('urinaryBladder', 'conclusion');
-  const volumeFocus = useFieldFocus('urinaryBladder', 'volume');
-  const wallThicknessFocus = useFieldFocus('urinaryBladder', 'wallThickness');
+export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
+  value,
+  onChange,
+}) => {
+  const [form, setForm] = useState<UrinaryBladderProtocol>(
+    value ?? defaultState,
+  );
 
   const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
+    const updated: UrinaryBladderProtocol = { ...form, [field]: val };
+
+    // пересчет объема основного мочевого пузыря
+    if (field === "length" || field === "width" || field === "depth") {
+      const length = parseFloat(
+        field === "length" ? val : updated.length || "0",
+      );
+      const width = parseFloat(
+        field === "width" ? val : updated.width || "0",
+      );
+      const depth = parseFloat(
+        field === "depth" ? val : updated.depth || "0",
+      );
+
+      if (length > 0 && width > 0 && depth > 0) {
+        const volume = length * width * depth * 0.523;
+        updated.volume = volume.toFixed(0); // целое значение мл
+      } else {
+        updated.volume = "";
+      }
+    }
+
+    // пересчет объема остаточной мочи
+    if (
+      field === "residualLength" ||
+      field === "residualWidth" ||
+      field === "residualDepth"
+    ) {
+      const length = parseFloat(
+        field === "residualLength" ? val : updated.residualLength || "0",
+      );
+      const width = parseFloat(
+        field === "residualWidth" ? val : updated.residualWidth || "0",
+      );
+      const depth = parseFloat(
+        field === "residualDepth" ? val : updated.residualDepth || "0",
+      );
+
+      if (length > 0 && width > 0 && depth > 0) {
+        const volume = length * width * depth * 0.523;
+        updated.residualVolume = volume.toFixed(0);
+      } else {
+        updated.residualVolume = "";
+      }
+    }
+
+    // если содержимое однородное – очищаем описание
+    if (field === "contents" && val === "однородное") {
+      updated.contentsText = "";
+    }
+
     setForm(updated);
     onChange?.(updated);
   };
 
-  const handleConclusionFocus = () => {
-    conclusionFocus.handleFocus();
-  };
-
-  const handleConclusionBlur = () => {
-    conclusionFocus.handleBlur();
-  };
-
-  // Устанавливаем глобальный обработчик для добавления текста только для мочевого пузыря
-  useEffect(() => {
-    const handleAddText = (event: CustomEvent) => {
-      const { text, organ } = event.detail;
-      
-      if (organ === 'urinaryBladder') {
-        setForm(prev => ({
-          ...prev,
-          conclusion: prev.conclusion 
-            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-            : text
-        }));
-      }
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
-
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
-    };
-  }, []);
-
-  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
+  const showContentsText = form.contents === "неоднородное";
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,30 +116,56 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({ value, onChange 
         Мочевой пузырь
       </h3>
 
-      {/* Размеры */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры</legend>
+      <Fieldset title="Размеры">
+        <div>
+          <label className={labelClasses}>
+            Длина (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.length}
+              onChange={e => updateField("length", e.target.value)}
+            />
+          </label>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div>
+          <label className={labelClasses}>
+            Ширина (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.width}
+              onChange={e => updateField("width", e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label className={labelClasses}>
+            Передне-задний (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.depth}
+              onChange={e => updateField("depth", e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
           <label className={labelClasses}>
             Объем (мл)
             <input
               type="text"
-              className={inputClasses}
+              className={inputClasses + " bg-gray-100"}
               value={form.volume}
-              onChange={e => updateField("volume", e.target.value)}
-              onFocus={volumeFocus.handleFocus}
-              onBlur={volumeFocus.handleBlur}
-              placeholder="200-400"
+              readOnly
             />
           </label>
-          <RangeIndicator 
-            value={form.volume}
-            normalRange={normalRanges.urinaryBladder?.volume}
-          />
         </div>
 
-        <div className="flex items-center gap-4">
+        <div>
           <label className={labelClasses}>
             Толщина стенки (мм)
             <input
@@ -122,101 +173,105 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({ value, onChange 
               className={inputClasses}
               value={form.wallThickness}
               onChange={e => updateField("wallThickness", e.target.value)}
-              onFocus={wallThicknessFocus.handleFocus}
-              onBlur={wallThicknessFocus.handleBlur}
-              placeholder="3-5"
             />
           </label>
-          <RangeIndicator 
-            value={form.wallThickness}
-            normalRange={normalRanges.urinaryBladder?.wallThickness}
-          />
         </div>
-      </fieldset>
+      </Fieldset>
 
-      {/* Характеристики */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Характеристики</legend>
-
+      {/* Объем остаточной мочи */}
+      <Fieldset title="Объем остаточной мочи">
         <div>
           <label className={labelClasses}>
-            Структура стенки
-            <select
+            Длина (мм)
+            <input
+              type="text"
               className={inputClasses}
-              value={form.wallStructure}
-              onChange={e => updateField("wallStructure", e.target.value)}
-            >
-              <option value=""></option>
-              <option value="равномерная">равномерная</option>
-              <option value="неравномерная">неравномерная</option>
-              <option value="утолщенная">утолщенная</option>
-              <option value="истонченная">истонченная</option>
-            </select>
+              value={form.residualLength}
+              onChange={e => updateField("residualLength", e.target.value)}
+            />
           </label>
         </div>
 
         <div>
           <label className={labelClasses}>
-            Содержимое
+            Ширина (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.residualWidth}
+              onChange={e => updateField("residualWidth", e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label className={labelClasses}>
+            Передне-задний (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.residualDepth}
+              onChange={e => updateField("residualDepth", e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label className={labelClasses}>
+            Объем остаточной мочи (мл)
+            <input
+              type="text"
+              className={inputClasses + " bg-gray-100"}
+              value={form.residualVolume}
+              readOnly
+            />
+          </label>
+        </div>
+      </Fieldset>
+
+      {/* Содержимое */}
+      <Fieldset title="Содержимое">
+        <div>
+          <label className={labelClasses}>
+            Характер содержимого
             <select
               className={inputClasses}
               value={form.contents}
               onChange={e => updateField("contents", e.target.value)}
             >
-              <option value=""></option>
-              <option value="анэхогенное">анэхогенное</option>
-              <option value="гиперэхогенное">гиперэхогенное</option>
-              <option value="с осадком">с осадком</option>
-              <option value="с взвесью">со взвесью</option>
-              <option value="пустой">пустой</option>
+              <option value="" />
+              <option value="однородное">однородное</option>
+              <option value="неоднородное">неоднородное</option>
             </select>
           </label>
         </div>
 
-        <div>
-          <label className={labelClasses}>
-            Устья мочеточников
-            <input
-              type="text"
-              className={inputClasses}
-              value={form.ureteralOrifices}
-              onChange={e => updateField("ureteralOrifices", e.target.value)}
-              placeholder="визуализируются"
-            />
-          </label>
-        </div>
-      </fieldset>
+        {showContentsText && (
+          <div>
+            <label className={labelClasses}>
+              Описание содержимого
+              <textarea
+                rows={3}
+                className={inputClasses + " resize-y"}
+                value={form.contentsText}
+                onChange={e => updateField("contentsText", e.target.value)}
+              />
+            </label>
+          </div>
+        )}
+      </Fieldset>
 
       {/* Дополнительно */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Дополнительно</legend>
+      <Fieldset title="Дополнительно">
         <div>
           <textarea
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-            placeholder="Дополнительная информация..."
           />
         </div>
-      </fieldset>
-
-      {/* Заключение */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Заключение</legend>
-
-        <div>
-          <textarea
-            rows={4}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={handleConclusionFocus}
-            onBlur={handleConclusionBlur}
-            placeholder="Заключение по мочевому пузырю..."
-          />
-        </div>
-      </fieldset>
+      </Fieldset>
     </div>
   );
 };

@@ -11,3 +11,6 @@ export const fieldsetClasses =
 
 export const legendClasses =
   "px-1 text-sm font-semibold text-gray-800";
+
+export const buttonClasses =
+  "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";  

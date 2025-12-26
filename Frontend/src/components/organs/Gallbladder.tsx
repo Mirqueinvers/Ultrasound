@@ -1,42 +1,44 @@
-import React, { useState } from "react";
-import { RangeIndicator, normalRanges } from '../common/NormalRange';
-import { useFieldFocus } from '../hooks/useFieldFocus';
+import React, { useState, useEffect } from "react";
+import { RangeIndicator, normalRanges } from "../common/NormalRange";
+import { useFieldFocus } from "../hooks/useFieldFocus";
+import { Fieldset } from "../common/Fieldset";
+import { inputClasses, labelClasses, buttonClasses } from "../common/formClasses";
 
 export interface Concretion {
-  size: string;      // мм
-  position: string;  // проксимальная треть / средняя треть / дистальная треть
+  size: string;    // мм
+  position: string; // проксимальная треть / средняя треть / дистальная треть
 }
 
 export interface Polyp {
-  size: string;      // мм
-  position: string;  // проксимальная треть / средняя треть / дистальная треть
+  size: string;    // мм
+  position: string; // проксимальная треть / средняя треть / дистальная треть
 }
 
 export interface GallbladderProtocol {
   // Размеры
-  length: string;                  // мм (длина)
-  width: string;                   // мм (ширина)
+  length: string;
+  width: string;
 
   // Стенка
-  wallThickness: string;           // мм (толщина стенки)
+  wallThickness: string;
 
   // Форма
-  shape: string;                   // Правильная / S-образная / С загибом
-  constriction: string;            // в проксимальной трети / средней трети / дистальной трети
+  shape: string;
+  constriction: string;
 
   // Содержимое
-  contentType: string;             // Однородное / Взвесь / Сладж
-  concretions: string;             // Не определяются / Определяются
-  concretionsList: Concretion[];   // список конкрементов
-  polyps: string;                  // Не определяются / Определяются
-  polypsList: Polyp[];             // список полипов
-  content: string;                 // описание содержимого (дополнительно)
+  contentType: string;
+  concretions: string;
+  concretionsList: Concretion[];
+  polyps: string;
+  polypsList: Polyp[];
+  content: string;
 
   // Протоки
-  cysticDuct: string;              // мм (пузырный проток)
-  commonBileDuct: string;          // мм (общий желчный проток)
+  cysticDuct: string;
+  commonBileDuct: string;
 
-      // Дополнительно
+  // Дополнительно
   additional: string;
 
   // Заключение
@@ -69,13 +71,12 @@ const defaultState: GallbladderProtocol = {
 export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<GallbladderProtocol>(value ?? defaultState);
 
-  // Добавляем useFieldFocus для полей желчного пузыря
-  const conclusionFocus = useFieldFocus('gallbladder', 'conclusion');
-  const lengthFocus = useFieldFocus('gallbladder', 'gallbladderLength'); // Обновлено
-  const widthFocus = useFieldFocus('gallbladder', 'gallbladderWidth'); // Обновлено
-  const wallThicknessFocus = useFieldFocus('gallbladder', 'wallThickness');
-  const cysticDuctFocus = useFieldFocus('gallbladder', 'cysticDuct');
-  const commonBileDuctFocus = useFieldFocus('gallbladder', 'commonBileDuct');
+  const conclusionFocus = useFieldFocus("gallbladder", "conclusion");
+  const lengthFocus = useFieldFocus("gallbladder", "gallbladderLength");
+  const widthFocus = useFieldFocus("gallbladder", "gallbladderWidth");
+  const wallThicknessFocus = useFieldFocus("gallbladder", "wallThickness");
+  const cysticDuctFocus = useFieldFocus("gallbladder", "cysticDuct");
+  const commonBileDuctFocus = useFieldFocus("gallbladder", "commonBileDuct");
 
   const updateField = (field: keyof GallbladderProtocol, val: string) => {
     const updated = { ...form, [field]: val };
@@ -86,35 +87,21 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
   const addConcretion = () => {
     const updated = {
       ...form,
-      concretionsList: [...form.concretionsList, { size: "", position: "" }]
+      concretionsList: [...form.concretionsList, { size: "", position: "" }],
     };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updateConcretion = (index: number, field: keyof Concretion, val: string) => {
+  const updateConcretion = (
+    index: number,
+    field: keyof Concretion,
+    val: string,
+  ) => {
     const updatedList = form.concretionsList.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
+      i === index ? { ...item, [field]: val } : item,
     );
     const updated = { ...form, concretionsList: updatedList };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const addPolyp = () => {
-    const updated = {
-      ...form,
-      polypsList: [...form.polypsList, { size: "", position: "" }]
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const updatePolyp = (index: number, field: keyof Polyp, val: string) => {
-    const updatedList = form.polypsList.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item
-    );
-    const updated = { ...form, polypsList: updatedList };
     setForm(updated);
     onChange?.(updated);
   };
@@ -126,6 +113,24 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
     onChange?.(updated);
   };
 
+  const addPolyp = () => {
+    const updated = {
+      ...form,
+      polypsList: [...form.polypsList, { size: "", position: "" }],
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updatePolyp = (index: number, field: keyof Polyp, val: string) => {
+    const updatedList = form.polypsList.map((item, i) =>
+      i === index ? { ...item, [field]: val } : item,
+    );
+    const updated = { ...form, polypsList: updatedList };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
   const removePolyp = (index: number) => {
     const updatedList = form.polypsList.filter((_, i) => i !== index);
     const updated = { ...form, polypsList: updatedList };
@@ -133,26 +138,33 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
     onChange?.(updated);
   };
 
-  // Глобальный обработчик для добавления текста только в заключение желчного пузыря
-  React.useEffect(() => {
+  // добавление текста в заключение для органа gallbladder
+  useEffect(() => {
     const handleAddText = (event: CustomEvent) => {
       const { text, organ } = event.detail;
-      
-      // Проверяем, что текст предназначен для желчного пузыря
-      if (organ === 'gallbladder') {
+
+      if (organ === "gallbladder") {
         setForm(prev => ({
           ...prev,
-          conclusion: prev.conclusion 
-            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-            : text
+          conclusion: prev.conclusion
+            ? prev.conclusion +
+              (prev.conclusion.endsWith(".") ? " " : ". ") +
+              text
+            : text,
         }));
       }
     };
 
-    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
+    window.addEventListener(
+      "add-conclusion-text",
+      handleAddText as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
+      window.removeEventListener(
+        "add-conclusion-text",
+        handleAddText as EventListener,
+      );
     };
   }, []);
 
@@ -164,15 +176,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
     conclusionFocus.handleBlur();
   };
 
-  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
-  const buttonClasses = "px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
-
   return (
     <div className="flex flex-col gap-4">
       <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
@@ -180,8 +183,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
       </h3>
 
       {/* Размеры */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры</legend>
+      <Fieldset title="Размеры">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Длина (мм)
@@ -194,10 +196,9 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onBlur={lengthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.length}
             normalRange={normalRanges.gallbladder.length}
-            
           />
         </div>
 
@@ -213,16 +214,15 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onBlur={widthFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.width}
             normalRange={normalRanges.gallbladder.width}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Размеры стенки */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Размеры стенки</legend>
+      <Fieldset title="Размеры стенки">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Толщина стенки (мм)
@@ -235,16 +235,15 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onBlur={wallThicknessFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.wallThickness}
             normalRange={normalRanges.gallbladder.wallThickness}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Форма */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Форма</legend>
+      <Fieldset title="Форма">
         <div className="space-y-2">
           <label className={labelClasses}>
             Форма желчного пузыря
@@ -253,12 +252,13 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               value={form.shape}
               onChange={e => updateField("shape", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="Правильная">Правильная</option>
               <option value="S-образная">S-образная</option>
               <option value="С загибом">С загибом</option>
             </select>
           </label>
+
           <label className={labelClasses}>
             Перетяжка
             <select
@@ -266,18 +266,17 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               value={form.constriction}
               onChange={e => updateField("constriction", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="шейка">шейка</option>
               <option value="тело">тело</option>
               <option value="дно">дно</option>
             </select>
           </label>
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Содержимое */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Содержимое</legend>
+      <Fieldset title="Содержимое">
         <div className="space-y-2">
           <label className={labelClasses}>
             Тип содержимого
@@ -286,7 +285,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               value={form.contentType}
               onChange={e => updateField("contentType", e.target.value)}
             >
-              <option value=""></option>
+              <option value="" />
               <option value="Однородное">Однородное</option>
               <option value="Взвесь">Взвесь</option>
               <option value="Сладж">Сладж</option>
@@ -314,41 +313,59 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               >
                 Добавить
               </button>
+
               {form.concretionsList.map((concretion, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700 min-w-[20px]">
                     {index + 1}.
                   </span>
+
                   <label className="flex-1">
                     <span className="text-xs text-gray-500">Размеры (мм)</span>
                     <input
                       type="text"
                       className={`${inputClasses} text-xs py-1`}
                       value={concretion.size}
-                      onChange={e => updateConcretion(index, "size", e.target.value)}
+                      onChange={e =>
+                        updateConcretion(index, "size", e.target.value)
+                      }
                     />
                   </label>
+
                   <label className="flex-1">
                     <span className="text-xs text-gray-500">Положение</span>
                     <select
                       className={`${inputClasses} text-xs py-1`}
                       value={concretion.position}
-                      onChange={e => updateConcretion(index, "position", e.target.value)}
+                      onChange={e =>
+                        updateConcretion(index, "position", e.target.value)
+                      }
                     >
-                      <option value=""></option>
+                      <option value="" />
                       <option value="проксимальная треть">проксимальная треть</option>
                       <option value="средняя треть">средняя треть</option>
                       <option value="дистальная треть">дистальная треть</option>
                     </select>
                   </label>
+
                   <button
                     type="button"
                     className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
                     onClick={() => removeConcretion(index)}
                     title="Удалить"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -377,41 +394,59 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               >
                 Добавить
               </button>
+
               {form.polypsList.map((polyp, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700 min-w-[20px]">
                     {index + 1}.
                   </span>
+
                   <label className="flex-1">
                     <span className="text-xs text-gray-500">Размеры (мм)</span>
                     <input
                       type="text"
                       className={`${inputClasses} text-xs py-1`}
                       value={polyp.size}
-                      onChange={e => updatePolyp(index, "size", e.target.value)}
+                      onChange={e =>
+                        updatePolyp(index, "size", e.target.value)
+                      }
                     />
                   </label>
+
                   <label className="flex-1">
                     <span className="text-xs text-gray-500">Положение</span>
                     <select
                       className={`${inputClasses} text-xs py-1`}
                       value={polyp.position}
-                      onChange={e => updatePolyp(index, "position", e.target.value)}
+                      onChange={e =>
+                        updatePolyp(index, "position", e.target.value)
+                      }
                     >
-                      <option value=""></option>
+                      <option value="" />
                       <option value="проксимальная треть">проксимальная треть</option>
                       <option value="средняя треть">средняя треть</option>
                       <option value="дистальная треть">дистальная треть</option>
                     </select>
                   </label>
+
                   <button
                     type="button"
                     className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
                     onClick={() => removePolyp(index)}
                     title="Удалить"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -429,11 +464,10 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             />
           </label>
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Протоки */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Протоки</legend>
+      <Fieldset title="Протоки">
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Пузырный проток (мм)
@@ -446,11 +480,12 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onBlur={cysticDuctFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.cysticDuct}
             normalRange={normalRanges.gallbladder.cysticDuct}
           />
         </div>
+
         <div className="flex items-center gap-4">
           <label className={labelClasses}>
             Общий желчный проток (мм)
@@ -463,16 +498,15 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               onBlur={commonBileDuctFocus.handleBlur}
             />
           </label>
-          <RangeIndicator 
+          <RangeIndicator
             value={form.commonBileDuct}
             normalRange={normalRanges.gallbladder.commonBileDuct}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Дополнительно */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Дополнительно</legend>
+      <Fieldset title="Дополнительно">
         <div>
           <textarea
             rows={3}
@@ -481,11 +515,10 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             onChange={e => updateField("additional", e.target.value)}
           />
         </div>
-      </fieldset>
+      </Fieldset>
 
       {/* Заключение */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Заключение</legend>
+      <Fieldset title="Заключение">
         <div>
           <textarea
             rows={3}
@@ -496,7 +529,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             onBlur={handleConclusionBlur}
           />
         </div>
-      </fieldset>
+      </Fieldset>
     </div>
   );
 };
