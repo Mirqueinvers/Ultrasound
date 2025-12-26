@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import { RangeIndicator, normalRanges } from '../common/NormalRange';
+import { useFieldFocus } from '../hooks/useFieldFocus';
 
 export interface UrinaryBladderProtocol {
+  // Размеры
   volume: string;
   wallThickness: string;
+  
+  // Характеристики
   wallStructure: string;
   contents: string;
   ureteralOrifices: string;
+  
+  // Дополнительно
   additional: string;
+  
+  // Заключение
   conclusion: string;
 }
 
@@ -15,123 +24,199 @@ interface UrinaryBladderProps {
   onChange?: (value: UrinaryBladderProtocol) => void;
 }
 
-const UrinaryBladder: React.FC<UrinaryBladderProps> = ({ value, onChange }) => {
-  const handleChange = (field: keyof UrinaryBladderProtocol, newValue: string) => {
-    if (onChange) {
-      onChange({
-        ...value!,
-        [field]: newValue,
-      });
-    }
+const defaultState: UrinaryBladderProtocol = {
+  volume: "",
+  wallThickness: "",
+  wallStructure: "",
+  contents: "",
+  ureteralOrifices: "",
+  additional: "",
+  conclusion: "",
+};
+
+export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({ value, onChange }) => {
+  const [form, setForm] = useState<UrinaryBladderProtocol>(value ?? defaultState);
+
+  const conclusionFocus = useFieldFocus('urinaryBladder', 'conclusion');
+  const volumeFocus = useFieldFocus('urinaryBladder', 'volume');
+  const wallThicknessFocus = useFieldFocus('urinaryBladder', 'wallThickness');
+
+  const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
+    const updated = { ...form, [field]: val };
+    setForm(updated);
+    onChange?.(updated);
   };
 
+  const handleConclusionFocus = () => {
+    conclusionFocus.handleFocus();
+  };
+
+  const handleConclusionBlur = () => {
+    conclusionFocus.handleBlur();
+  };
+
+  // Устанавливаем глобальный обработчик для добавления текста только для мочевого пузыря
+  useEffect(() => {
+    const handleAddText = (event: CustomEvent) => {
+      const { text, organ } = event.detail;
+      
+      if (organ === 'urinaryBladder') {
+        setForm(prev => ({
+          ...prev,
+          conclusion: prev.conclusion 
+            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
+            : text
+        }));
+      }
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
+
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
+    };
+  }, []);
+
+  const inputClasses =
+    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
+  const fieldsetClasses =
+    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
+  const legendClasses =
+    "px-1 text-sm font-semibold text-gray-800";
+
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-slate-800 mb-4">
+    <div className="flex flex-col gap-4">
+      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
         Мочевой пузырь
       </h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+
+      {/* Размеры */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Размеры</legend>
+
+        <div className="flex items-center gap-4">
+          <label className={labelClasses}>
             Объем (мл)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.volume}
+              onChange={e => updateField("volume", e.target.value)}
+              onFocus={volumeFocus.handleFocus}
+              onBlur={volumeFocus.handleBlur}
+              placeholder="200-400"
+            />
           </label>
-          <input
-            type="text"
-            value={value?.volume || ''}
-            onChange={(e) => handleChange('volume', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="200-400"
+          <RangeIndicator 
+            value={form.volume}
+            normalRange={normalRanges.urinaryBladder?.volume}
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+        <div className="flex items-center gap-4">
+          <label className={labelClasses}>
             Толщина стенки (мм)
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.wallThickness}
+              onChange={e => updateField("wallThickness", e.target.value)}
+              onFocus={wallThicknessFocus.handleFocus}
+              onBlur={wallThicknessFocus.handleBlur}
+              placeholder="3-5"
+            />
           </label>
-          <input
-            type="text"
-            value={value?.wallThickness || ''}
-            onChange={(e) => handleChange('wallThickness', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="3-5"
+          <RangeIndicator 
+            value={form.wallThickness}
+            normalRange={normalRanges.urinaryBladder?.wallThickness}
           />
         </div>
+      </fieldset>
+
+      {/* Характеристики */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Характеристики</legend>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className={labelClasses}>
             Структура стенки
+            <select
+              className={inputClasses}
+              value={form.wallStructure}
+              onChange={e => updateField("wallStructure", e.target.value)}
+            >
+              <option value=""></option>
+              <option value="равномерная">равномерная</option>
+              <option value="неравномерная">неравномерная</option>
+              <option value="утолщенная">утолщенная</option>
+              <option value="истонченная">истонченная</option>
+            </select>
           </label>
-          <select
-            value={value?.wallStructure || ''}
-            onChange={(e) => handleChange('wallStructure', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Выберите</option>
-            <option value="равномерная">Равномерная</option>
-            <option value="неравномерная">Неравномерная</option>
-            <option value="утолщенная">Утолщенная</option>
-            <option value="истонченная">Истонченная</option>
-          </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className={labelClasses}>
             Содержимое
+            <select
+              className={inputClasses}
+              value={form.contents}
+              onChange={e => updateField("contents", e.target.value)}
+            >
+              <option value=""></option>
+              <option value="анэхогенное">анэхогенное</option>
+              <option value="гиперэхогенное">гиперэхогенное</option>
+              <option value="с осадком">с осадком</option>
+              <option value="с взвесью">со взвесью</option>
+              <option value="пустой">пустой</option>
+            </select>
           </label>
-          <select
-            value={value?.contents || ''}
-            onChange={(e) => handleChange('contents', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Выберите</option>
-            <option value="анэхогенное">Анэхогенное</option>
-            <option value="гиперэхогенное">Гиперэхогенное</option>
-            <option value="с осадком">С осадком</option>
-            <option value="с взвесью">Со взвесью</option>
-            <option value="пустой">Пустой</option>
-          </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className={labelClasses}>
             Устья мочеточников
+            <input
+              type="text"
+              className={inputClasses}
+              value={form.ureteralOrifices}
+              onChange={e => updateField("ureteralOrifices", e.target.value)}
+              placeholder="визуализируются"
+            />
           </label>
-          <input
-            type="text"
-            value={value?.ureteralOrifices || ''}
-            onChange={(e) => handleChange('ureteralOrifices', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="визуализируются"
-          />
         </div>
+      </fieldset>
 
-        <div className="md:col-span-3">
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Дополнительные данные
-          </label>
+      {/* Дополнительно */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Дополнительно</legend>
+        <div>
           <textarea
-            value={value?.additional || ''}
-            onChange={(e) => handleChange('additional', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={2}
+            rows={3}
+            className={inputClasses + " resize-y"}
+            value={form.additional}
+            onChange={e => updateField("additional", e.target.value)}
             placeholder="Дополнительная информация..."
           />
         </div>
+      </fieldset>
 
-        <div className="md:col-span-3">
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Заключение
-          </label>
+      {/* Заключение */}
+      <fieldset className={fieldsetClasses}>
+        <legend className={legendClasses}>Заключение</legend>
+
+        <div>
           <textarea
-            value={value?.conclusion || ''}
-            onChange={(e) => handleChange('conclusion', e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={2}
+            rows={4}
+            className={inputClasses + " resize-y"}
+            value={form.conclusion}
+            onChange={e => updateField("conclusion", e.target.value)}
+            onFocus={handleConclusionFocus}
+            onBlur={handleConclusionBlur}
             placeholder="Заключение по мочевому пузырю..."
           />
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 };

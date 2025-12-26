@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import RightKidney from '../organs/RightKidney';
-import LeftKidney from '../organs/LeftKidney';
+import KidneyCommon from '../organs/KidneyCommon';
 import UrinaryBladder from '../organs/UrinaryBladder';
-import type { RightKidneyProtocol } from '../organs/RightKidney';
-import type { LeftKidneyProtocol } from '../organs/LeftKidney';
+import type { KidneyProtocol as KidneyCommonProtocol } from '../organs/KidneyCommon';
 import type { UrinaryBladderProtocol } from '../organs/UrinaryBladder';
 
 export interface KidneyProtocol {
-  rightKidney: RightKidneyProtocol;
-  leftKidney: LeftKidneyProtocol;
+  rightKidney: KidneyCommonProtocol;
+  leftKidney: KidneyCommonProtocol;
   urinaryBladder: UrinaryBladderProtocol;
 }
 
@@ -17,37 +15,34 @@ interface KidneyProps {
   onChange?: (value: KidneyProtocol) => void;
 }
 
+// Функция для создания дефолтного состояния почки
+const createDefaultKidneyState = (): KidneyCommonProtocol => ({
+  length: "",
+  width: "",
+  thickness: "",
+  parenchymaSize: "",
+  parenchymaEchogenicity: "",
+  parenchymaStructure: "",
+  parenchymaConcrements: "не определяются",
+  parenchymaCysts: "не определяются",
+  parenchymaPathologicalFormations: "не определяются",
+  parenchymaPathologicalFormationsText: "",
+  pcsSize: "",
+  pcsMicroliths: "",
+  pcsMicrolithsSize: "",
+  pcsConcrements: "не определяются",
+  pcsCysts: "не определяются",
+  pcsPathologicalFormations: "не определяются",
+  pcsPathologicalFormationsText: "",
+  sinus: "",
+  adrenalArea: "",
+  adrenalAreaText: "",
+  contour: "",
+});
+
 const defaultState: KidneyProtocol = {
-  rightKidney: {
-    length: "",
-    width: "",
-    thickness: "",
-    echogenicity: "",
-    echostructure: "",
-    contours: "",
-    pathologicalFormations: "Не определяются",
-    pathologicalFormationsText: "",
-    renalSinus: "",
-    renalArtery: "",
-    renalVein: "",
-    additional: "",
-    conclusion: "",
-  },
-  leftKidney: {
-    length: "",
-    width: "",
-    thickness: "",
-    echogenicity: "",
-    echostructure: "",
-    contours: "",
-    pathologicalFormations: "Не определяются",
-    pathologicalFormationsText: "",
-    renalSinus: "",
-    renalArtery: "",
-    renalVein: "",
-    additional: "",
-    conclusion: "",
-  },
+  rightKidney: createDefaultKidneyState(),
+  leftKidney: createDefaultKidneyState(),
   urinaryBladder: {
     volume: "",
     wallThickness: "",
@@ -62,13 +57,13 @@ const defaultState: KidneyProtocol = {
 export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<KidneyProtocol>(value ?? defaultState);
 
-  const updateRightKidney = (rightKidneyData: RightKidneyProtocol) => {
+  const updateRightKidney = (rightKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, rightKidney: rightKidneyData };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updateLeftKidney = (leftKidneyData: LeftKidneyProtocol) => {
+  const updateLeftKidney = (leftKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, leftKidney: leftKidneyData };
     setForm(updated);
     onChange?.(updated);
@@ -94,7 +89,8 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
 
       {/* Правая почка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <RightKidney 
+        <KidneyCommon 
+          side="right"
           value={form.rightKidney} 
           onChange={updateRightKidney} 
         />
@@ -102,7 +98,8 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
 
       {/* Левая почка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <LeftKidney 
+        <KidneyCommon 
+          side="left"
           value={form.leftKidney} 
           onChange={updateLeftKidney} 
         />

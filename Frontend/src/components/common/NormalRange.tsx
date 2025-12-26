@@ -39,6 +39,21 @@ export interface NormalRangesData {
     splenicVein: NormalRange;      // мм (селезеночная вена)
     splenicArtery: NormalRange;    // мм (селезеночная артерия)
   };
+
+  leftKidney: {
+    length: NormalRange;
+    width: NormalRange;
+    thickness: NormalRange;
+  };
+  rightKidney: {
+    length: NormalRange;
+    width: NormalRange;
+    thickness: NormalRange;
+  };
+  urinaryBladder: {
+    volume: NormalRange;
+    wallThickness: NormalRange;
+  };
 }
 
 export const normalRanges: NormalRangesData = {
@@ -129,6 +144,21 @@ export const normalRanges: NormalRangesData = {
     width: { min: 0, max: 70, unit: 'мм' },
     splenicVein: { min: 5, max: 8, unit: 'мм' },
     splenicArtery: { min: 4, max: 7, unit: 'мм' },
+  },
+
+  leftKidney: {
+    length: { min: 100, max: 120, unit: 'мм' },
+    width: { min: 50, max: 60, unit: 'мм' },
+    thickness: { min: 40, max: 50, unit: 'мм' },
+  },
+  rightKidney: {
+    length: { min: 100, max: 120, unit: 'мм' },
+    width: { min: 50, max: 60, unit: 'мм' },
+    thickness: { min: 40, max: 50, unit: 'мм' },
+  },
+  urinaryBladder: {
+    volume: { min: 200, max: 400, unit: 'мл' },
+    wallThickness: { min: 3, max: 5, unit: 'мм' },
   },
 };
 
