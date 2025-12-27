@@ -28,10 +28,10 @@
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
-
       "@components/*": ["components/*"],
       "@common": ["components/common/index.ts"],
       "@common/*": ["components/common/*"],
+      "@contexts": ["contexts/index.ts"],
       "@contexts/*": ["contexts/*"],
       "@hooks/*": ["hooks/*"],
       "@layout/*": ["layout/*"],
@@ -39,6 +39,7 @@
       "@assets/*": ["assets/*"],
       "@organs/*": ["components/organs/*"]
     }
+
 
   },
   "include": ["src"]

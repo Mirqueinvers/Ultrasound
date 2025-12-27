@@ -1,55 +1,70 @@
 import React from "react";
-
-export interface PatientInfo {
-  fullName: string;
-  dateOfBirth: string;
-}
+import { useResearch } from "@contexts";
 
 export interface ResearchHeaderProps {
-  organizationName?: string;
   researchType: string;
-  patientInfo: PatientInfo;
-  researchDate: string;
 }
 
 export const ResearchHeader: React.FC<ResearchHeaderProps> = ({
-  organizationName = "Медицинское учреждение",
   researchType,
-  patientInfo,
-  researchDate,
 }) => {
+  const {
+    patientFullName,
+    setPatientFullName,
+    patientDateOfBirth,
+    setPatientDateOfBirth,
+    researchDate,
+    setResearchDate,
+  } = useResearch();
+
   return (
     <div className="border-b-2 border-slate-200 pb-6 mb-6">
-      {/* Организация */}
-      <div className="text-center mb-4">
-        <h1 className="m-0 text-slate-900 text-2xl font-bold">
-          {organizationName}
-        </h1>
-      </div>
-
       {/* Вид исследования */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-6">
         <h2 className="m-0 text-slate-700 text-lg font-semibold">
           {researchType}
         </h2>
       </div>
 
-      {/* Информация о пациенте и дата */}
-      <div className="flex justify-between items-center text-sm text-slate-600">
+      {/* Информация о пациенте в столбик */}
+      <div className="flex flex-col gap-4">
+        {/* ФИО */}
         <div>
-          <p className="m-0">
-            <span className="font-semibold">ФИО:</span> {patientInfo.fullName}
-          </p>
-          <p className="m-0 mt-1">
-            <span className="font-semibold">Дата рождения:</span>{" "}
-            {patientInfo.dateOfBirth}
-          </p>
+          <label className="block text-xs font-semibold text-slate-600 mb-1">
+            ФИО
+          </label>
+          <input
+            type="text"
+            value={patientFullName}
+            onChange={(e) => setPatientFullName(e.target.value)}
+            className="w-48 px-2 py-1 border border-slate-300 rounded text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
-        <div className="text-right">
-          <p className="m-0">
-            <span className="font-semibold">Дата исследования:</span>{" "}
-            {researchDate}
-          </p>
+
+        {/* Дата рождения */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 mb-1">
+            Дата рождения
+          </label>
+          <input
+            type="text"
+            value={patientDateOfBirth}
+            onChange={(e) => setPatientDateOfBirth(e.target.value)}
+            className="w-48 px-2 py-1 border border-slate-300 rounded text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+
+        {/* Дата исследования */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 mb-1">
+            Дата исследования
+          </label>
+          <input
+            type="date"
+            value={researchDate}
+            onChange={(e) => setResearchDate(e.target.value)}
+            className="w-48 px-2 py-1 border border-slate-300 rounded text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
       </div>
     </div>

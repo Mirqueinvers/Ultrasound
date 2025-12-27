@@ -20,7 +20,7 @@ interface RightPanelContextType {
   setAddTextCallback: (callback: ((text: string) => void) | undefined) => void;
 }
 
-const RightPanelContext = createContext<RightPanelContextType | undefined>(undefined);
+export const RightPanelContext = createContext<RightPanelContextType | undefined>(undefined);
 
 export const useRightPanel = () => {
   const context = useContext(RightPanelContext);

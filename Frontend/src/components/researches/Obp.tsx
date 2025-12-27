@@ -15,15 +15,12 @@ export interface ObpProtocol {
 interface ObpProps {
   value?: ObpProtocol;
   onChange?: (value: ObpProtocol) => void;
-  patientFullName?: string;
-  patientDateOfBirth?: string;
-  researchDate?: string;
 }
 
 const defaultState: ObpProtocol = {
   liver: {
-    rightLobeAPI: "",
-    leftLobeAPI: "",
+    rightLobeAP: "",
+    leftLobeAP: "",
     echogenicity: "",
     homogeneity: "",
     contours: "",
@@ -80,13 +77,7 @@ const defaultState: ObpProtocol = {
   },
 };
 
-export const Obp: React.FC<ObpProps> = ({
-  value,
-  onChange,
-  patientFullName = "Пациент не указан",
-  patientDateOfBirth = "Дата не указана",
-  researchDate = new Date().toLocaleDateString("ru-RU"),
-}) => {
+export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultState);
 
   const updateLiver = (liverData: LiverProtocol) => {
@@ -115,22 +106,12 @@ export const Obp: React.FC<ObpProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Шапка исследования */}
-      <ResearchHeader
-        researchType="УЗИ органов брюшной полости"
-        patientInfo={{
-          fullName: patientFullName,
-          dateOfBirth: patientDateOfBirth,
-        }}
-        researchDate={researchDate}
-      />
+      <ResearchHeader researchType="Ультразвуковое исследование органов брюшной полости" />
 
-      {/* Печень */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
       </div>
 
-      {/* Желчный пузырь */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Gallbladder
           value={form.gallbladder ?? undefined}
@@ -138,7 +119,6 @@ export const Obp: React.FC<ObpProps> = ({
         />
       </div>
 
-      {/* Поджелудочная железа */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Pancreas 
           value={form.pancreas ?? undefined} 
@@ -146,7 +126,6 @@ export const Obp: React.FC<ObpProps> = ({
         />
       </div>
 
-      {/* Селезенка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Spleen 
           value={form.spleen ?? undefined} 

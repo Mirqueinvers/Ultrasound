@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import type { KidneyProtocol as KidneyCommonProtocol } from "@organs/Kidney/KidneyCommon";
 import type { UrinaryBladderProtocol } from "@organs/UrinaryBladder";
+import { ResearchHeader } from "@common";
 
 export interface KidneyProtocol {
   rightKidney: KidneyCommonProtocol;
@@ -16,7 +16,6 @@ interface KidneyProps {
   onChange?: (value: KidneyProtocol) => void;
 }
 
-// Функция для создания дефолтного состояния почки
 const createDefaultKidneyState = (): KidneyCommonProtocol => ({
   length: "",
   width: "",
@@ -49,8 +48,6 @@ const createDefaultKidneyState = (): KidneyCommonProtocol => ({
   contour: "",
   additional: "",
 });
-
-
 
 const defaultState: KidneyProtocol = {
   rightKidney: createDefaultKidneyState(),
@@ -89,17 +86,8 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Заголовок исследования */}
-      <div className="border-b-2 border-slate-200 pb-4 mb-6">
-        <h2 className="m-0 text-slate-800 text-xl font-bold">
-          УЗИ почек и мочевого пузыря
-        </h2>
-        <p className="mt-2 mb-0 text-slate-500 text-sm">
-          Ультразвуковое исследование почек и мочевого пузыря
-        </p>
-      </div>
+      <ResearchHeader researchType="Ультразвуковое исследование почек и мочевого пузыря" />
 
-      {/* Правая почка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <KidneyCommon 
           side="right"
@@ -108,7 +96,6 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
         />
       </div>
 
-      {/* Левая почка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <KidneyCommon 
           side="left"
@@ -117,7 +104,6 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
         />
       </div>
 
-      {/* Мочевой пузырь */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <UrinaryBladder 
           value={form.urinaryBladder} 
