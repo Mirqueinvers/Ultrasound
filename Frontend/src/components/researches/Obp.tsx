@@ -1,27 +1,29 @@
 import React, { useState } from "react";
-
 import Hepat, { type LiverProtocol } from "@organs/Hepat";
 import Gallbladder, { type GallbladderProtocol } from "@organs/Gallbladder";
 import Pancreas, { type PancreasProtocol } from "@organs/Pancreas";
 import Spleen, { type SpleenProtocol } from "@organs/Spleen";
+import { ResearchHeader } from "@common";
 
 export interface ObpProtocol {
-  liver: LiverProtocol;
+  liver: LiverProtocol | null;
   gallbladder: GallbladderProtocol | null;
   pancreas: PancreasProtocol | null;
   spleen: SpleenProtocol | null;
-
 }
 
 interface ObpProps {
   value?: ObpProtocol;
   onChange?: (value: ObpProtocol) => void;
+  patientFullName?: string;
+  patientDateOfBirth?: string;
+  researchDate?: string;
 }
 
 const defaultState: ObpProtocol = {
   liver: {
-    rightLobeAP: "",
-    leftLobeAP: "",
+    rightLobeAPI: "",
+    leftLobeAPI: "",
     echogenicity: "",
     homogeneity: "",
     contours: "",
@@ -30,54 +32,61 @@ const defaultState: ObpProtocol = {
     focalLesions: "",
     vascularPattern: "",
     portalVeinDiameter: "",
-    ivc: "",
-    conclusion: "",
+    hepaticVeinDiameter: "",
+    vascularity: "",
+    additional: "",
   },
   gallbladder: {
     length: "",
     width: "",
+    volume: "",
     wallThickness: "",
-    shape: "",
-    constriction: "",
-    contentType: "",
-    concretions: "Не определяются",
-    concretionsList: [],
-    polyps: "Не определяются",
-    polypsList: [],
-    content: "",
-    cysticDuct: "",
-    commonBileDuct: "",
-    conclusion: "",
+    wallStructure: "",
+    contents: "",
+    concrements: "не определяются",
+    concrementslist: [],
+    polyps: "не определяются",
+    polypslist: [],
+    multiplePolyps: false,
+    multiplePol: "",
+    pathologicalFormations: "не определяются",
+    pathologicalFormationsText: "",
+    additional: "",
   },
   pancreas: {
-    head: "",
-    body: "",
-    tail: "",
+    length: "",
+    width: "",
+    height: "",
     echogenicity: "",
-    echostructure: "",
-    contour: "",
-    pathologicalFormations: "Не определяются",
+    homogeneity: "",
+    edges: "",
+    mainDuct: "",
+    vascularity: "",
+    pathologicalFormations: "не определяются",
     pathologicalFormationsText: "",
-    wirsungDuct: "",
     additional: "",
-    conclusion: "",
   },
   spleen: {
     length: "",
     width: "",
+    thickness: "",
     echogenicity: "",
-    echostructure: "",
-    contours: "",
-    pathologicalFormations: "Не определяются",
-    pathologicalFormationsText: "",
-    splenicVein: "",
-    splenicArtery: "",
+    homogeneity: "",
+    edges: "",
+    portaHepatica: "",
+    focalLesions: "",
+    vascularity: "",
     additional: "",
-    conclusion: "",
   },
 };
 
-export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
+export const Obp: React.FC<ObpProps> = ({
+  value,
+  onChange,
+  patientFullName = "Пациент не указан",
+  patientDateOfBirth = "Дата не указана",
+  researchDate = new Date().toLocaleDateString("ru-RU"),
+}) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultState);
 
   const updateLiver = (liverData: LiverProtocol) => {
@@ -97,7 +106,7 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
     setForm(updated);
     onChange?.(updated);
   };
-  
+
   const updateSpleen = (spleenData: SpleenProtocol) => {
     const updated = { ...form, spleen: spleenData };
     setForm(updated);
@@ -106,36 +115,33 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Заголовок исследования */}
-      <div className="border-b-2 border-slate-200 pb-4 mb-6">
-        <h2 className="m-0 text-slate-800 text-xl font-bold">
-          УЗИ органов брюшной полости (ОБП)
-        </h2>
-        <p className="mt-2 mb-0 text-slate-500 text-sm">
-          Комплексное ультразвуковое исследование органов брюшной полости
-        </p>
-      </div>
+      {/* Шапка исследования */}
+      <ResearchHeader
+        researchType="УЗИ органов брюшной полости"
+        patientInfo={{
+          fullName: patientFullName,
+          dateOfBirth: patientDateOfBirth,
+        }}
+        researchDate={researchDate}
+      />
 
       {/* Печень */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <Hepat 
-          value={form.liver} 
-          onChange={updateLiver} 
-        />
+        <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
       </div>
 
       {/* Желчный пузырь */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <Gallbladder 
-          value={form.gallbladder || undefined} 
-          onChange={updateGallbladder} 
+        <Gallbladder
+          value={form.gallbladder ?? undefined}
+          onChange={updateGallbladder}
         />
       </div>
 
       {/* Поджелудочная железа */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Pancreas 
-          value={form.pancreas || undefined} 
+          value={form.pancreas ?? undefined} 
           onChange={updatePancreas} 
         />
       </div>
@@ -143,7 +149,7 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
       {/* Селезенка */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Spleen 
-          value={form.spleen || undefined} 
+          value={form.spleen ?? undefined} 
           onChange={updateSpleen} 
         />
       </div>
