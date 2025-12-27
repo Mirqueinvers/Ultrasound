@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea } from "@common";
+import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 
@@ -117,55 +116,38 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
 
       {/* Структура */}
       <Fieldset title="Структура">
-        <div>
-          <label className={labelClasses}>
-            Эхогенность
-            <select
-              className={inputClasses}
-              value={form.echogenicity}
-              onChange={e => updateField("echogenicity", e.target.value)}
-            >
-              <option value="" />
-              <option value="норма">средняя</option>
-              <option value="повышена">повышена</option>
-              <option value="снижена">снижена</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхогенность"
+          value={form.echogenicity}
+          onChange={(val) => updateField("echogenicity", val)}
+          options={[
+            { value: "норма", label: "средняя" },
+            { value: "повышена", label: "повышена" },
+            { value: "снижена", label: "снижена" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Эхоструктура
-            <select
-              className={inputClasses}
-              value={form.echostructure}
-              onChange={e => updateField("echostructure", e.target.value)}
-            >
-              <option value="" />
-              <option value="однородная">однородная</option>
-              <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">
-                диффузно-неоднородная
-              </option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхоструктура"
+          value={form.echostructure}
+          onChange={(val) => updateField("echostructure", val)}
+          options={[
+            { value: "однородная", label: "однородная" },
+            { value: "неоднородная", label: "неоднородная" },
+            { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Контур
-            <select
-              className={inputClasses}
-              value={form.contours}
-              onChange={e => updateField("contours", e.target.value)}
-            >
-              <option value="" />
-              <option value="ровные">четкий, ровный</option>
-              <option value="неровные">четкий, неровный</option>
-              <option value="бугристые">бугристый</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Контур"
+          value={form.contours}
+          onChange={(val) => updateField("contours", val)}
+          options={[
+            { value: "ровные", label: "четкий, ровный" },
+            { value: "неровные", label: "четкий, неровный" },
+            { value: "бугристые", label: "бугристый" },
+          ]}
+        />
 
         <SelectWithTextarea
           label="Патологические образования"

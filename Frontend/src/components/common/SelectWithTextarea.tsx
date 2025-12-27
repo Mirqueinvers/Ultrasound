@@ -1,4 +1,5 @@
 import React from "react";
+import { ButtonSelect } from "./ButtonSelect";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 
 interface Option {
@@ -8,17 +9,13 @@ interface Option {
 
 interface SelectWithTextareaProps {
   label: string;
-
   selectValue: string;
   textareaValue: string;
-
   onSelectChange: (val: string) => void;
   onTextareaChange: (val: string) => void;
-
   options: Option[];
   triggerValue: string;
   textareaLabel: string;
-
   rows?: number;
   disabled?: boolean;
 }
@@ -37,8 +34,7 @@ export const SelectWithTextarea: React.FC<SelectWithTextareaProps> = ({
 }) => {
   const showTextarea = selectValue === triggerValue;
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleSelectChange = (value: string) => {
     onSelectChange(value);
 
     if (value !== triggerValue && textareaValue) {
@@ -47,23 +43,14 @@ export const SelectWithTextarea: React.FC<SelectWithTextareaProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className={labelClasses}>
-        {label}
-        <select
-          className={inputClasses}
-          value={selectValue}
-          onChange={handleSelectChange}
-          disabled={disabled}
-        >
-          <option value="" />
-          {options.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className="flex flex-col gap-3">
+      <ButtonSelect
+        label={label}
+        value={selectValue}
+        onChange={handleSelectChange}
+        options={options}
+        disabled={disabled}
+      />
 
       {showTextarea && (
         <label className={labelClasses}>
@@ -80,3 +67,5 @@ export const SelectWithTextarea: React.FC<SelectWithTextareaProps> = ({
     </div>
   );
 };
+
+export default SelectWithTextarea;

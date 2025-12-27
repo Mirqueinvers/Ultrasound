@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea} from "@components/common";
+import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@components/common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
@@ -19,7 +19,6 @@ export interface KidneyProtocol {
   length: string;
   width: string;
   thickness: string;
-
   parenchymaSize: string;
   parenchymaEchogenicity: string;
   parenchymaStructure: string;
@@ -31,7 +30,6 @@ export interface KidneyProtocol {
   parenchymaMultipleCystsSize: string;
   parenchymaPathologicalFormations: string;
   parenchymaPathologicalFormationsText: string;
-
   pcsSize: string;
   pcsMicroliths: string;
   pcsMicrolithsSize: string;
@@ -43,14 +41,10 @@ export interface KidneyProtocol {
   pcsMultipleCystsSize: string;
   pcsPathologicalFormations: string;
   pcsPathologicalFormationsText: string;
-
   sinus: string;
-
   adrenalArea: string;
   adrenalAreaText: string;
-
   contour: string;
-
   additional: string;
 }
 
@@ -67,24 +61,24 @@ const defaultState: KidneyProtocol = {
   parenchymaSize: "",
   parenchymaEchogenicity: "",
   parenchymaStructure: "",
-  parenchymaConcrements: "",
+  parenchymaConcrements: "не определяются",
   parenchymaConcrementslist: [],
-  parenchymaCysts: "",
+  parenchymaCysts: "не определяются",
   parenchymaCystslist: [],
   parenchymaMultipleCysts: false,
   parenchymaMultipleCystsSize: "",
-  parenchymaPathologicalFormations: "",
+  parenchymaPathologicalFormations: "не определяются",
   parenchymaPathologicalFormationsText: "",
   pcsSize: "",
-  pcsMicroliths: "",
+  pcsMicroliths: "не определяются",
   pcsMicrolithsSize: "",
-  pcsConcrements: "",
+  pcsConcrements: "не определяются",
   pcsConcrementslist: [],
-  pcsCysts: "",
+  pcsCysts: "не определяются",
   pcsCystslist: [],
   pcsMultipleCysts: false,
   pcsMultipleCystsSize: "",
-  pcsPathologicalFormations: "",
+  pcsPathologicalFormations: "не определяются",
   pcsPathologicalFormationsText: "",
   sinus: "",
   adrenalArea: "",
@@ -94,13 +88,11 @@ const defaultState: KidneyProtocol = {
 };
 
 const pushItem = <T,>(list: T[], item: T) => [...list, item];
-
 const updateListItem = <T,>(
   list: T[],
   index: number,
   patch: Partial<T>,
 ): T[] => list.map((item, i) => (i === index ? { ...item, ...patch } : item));
-
 const removeListItem = <T,>(list: T[], index: number): T[] =>
   list.filter((_, i) => i !== index);
 
@@ -360,21 +352,16 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       </Fieldset>
 
       <Fieldset title="Контур почки">
-        <div>
-          <label className={labelClasses}>
-            Характеристика
-            <select
-              className={inputClasses}
-              value={form.contour}
-              onChange={e => updateField("contour", e.target.value)}
-            >
-              <option value="" />
-              <option value="четкий ровный">четкий, ровный</option>
-              <option value="четкий неровный">четкий, неровный</option>
-              <option value="нечеткий">нечеткий</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Характеристика"
+          value={form.contour}
+          onChange={(val) => updateField("contour", val)}
+          options={[
+            { value: "четкий ровный", label: "четкий ровный" },
+            { value: "четкий неровный", label: "четкий неровный" },
+            { value: "нечеткий", label: "нечеткий" },
+          ]}
+        />
       </Fieldset>
 
       <Fieldset title="Паренхима">
@@ -386,57 +373,36 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           range={ranges.parenchyma}
         />
 
-        <div>
-          <label className={labelClasses}>
-            Эхогенность
-            <select
-              className={inputClasses}
-              value={form.parenchymaEchogenicity}
-              onChange={e =>
-                updateField("parenchymaEchogenicity", e.target.value)
-              }
-            >
-              <option value="" />
-              <option value="средняя">средняя</option>
-              <option value="повышена">повышена</option>
-              <option value="понижена">понижена</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхогенность"
+          value={form.parenchymaEchogenicity}
+          onChange={(val) => updateField("parenchymaEchogenicity", val)}
+          options={[
+            { value: "средняя", label: "средняя" },
+            { value: "повышена", label: "повышена" },
+            { value: "понижена", label: "понижена" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Структура
-            <select
-              className={inputClasses}
-              value={form.parenchymaStructure}
-              onChange={e =>
-                updateField("parenchymaStructure", e.target.value)
-              }
-            >
-              <option value="" />
-              <option value="однородная">однородная</option>
-              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Структура"
+          value={form.parenchymaStructure}
+          onChange={(val) => updateField("parenchymaStructure", val)}
+          options={[
+            { value: "однородная", label: "однородная" },
+            { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Конкременты
-            <select
-              className={inputClasses}
-              value={form.parenchymaConcrements}
-              onChange={e =>
-                updateSelect("parenchymaConcrements", e.target.value)
-              }
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
+                <ButtonSelect
+          label="Конкременты"
+          value={form.parenchymaConcrements}
+          onChange={(val) => updateSelect("parenchymaConcrements", val)}
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+        />
 
         {form.parenchymaConcrements === "определяются" && (
           <Concrements
@@ -447,20 +413,15 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           />
         )}
 
-        <div>
-          <label className={labelClasses}>
-            Кисты
-            <select
-              className={inputClasses}
-              value={form.parenchymaCysts}
-              onChange={e => updateSelect("parenchymaCysts", e.target.value)}
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Кисты"
+          value={form.parenchymaCysts}
+          onChange={(val) => updateSelect("parenchymaCysts", val)}
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+        />
 
         {form.parenchymaCysts === "определяются" && (
           <Cysts
@@ -497,41 +458,31 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       </Fieldset>
 
       <Fieldset title="Чашечно-лоханочная система">
-        <div>
-          <label className={labelClasses}>
-            Размер
-            <select
-              className={inputClasses}
-              value={form.pcsSize}
-              onChange={e => updateField("pcsSize", e.target.value)}
-            >
-              <option value="" />
-              <option value="не изменена">не изменена</option>
-              <option value="расширена">расширена</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Размер"
+          value={form.pcsSize}
+          onChange={(val) => updateField("pcsSize", val)}
+          options={[
+            { value: "не изменена", label: "не изменена" },
+            { value: "расширена", label: "расширена" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Микролиты
-            <select
-              className={inputClasses}
-              value={form.pcsMicroliths}
-              onChange={e =>
-                updateSelect("pcsMicroliths", e.target.value, draft => {
-                  if (draft.pcsMicroliths === "не определяются") {
-                    draft.pcsMicrolithsSize = "";
-                  }
-                })
+        <ButtonSelect
+          label="Микролиты"
+          value={form.pcsMicroliths}
+          onChange={(val) =>
+            updateSelect("pcsMicroliths", val, draft => {
+              if (draft.pcsMicroliths === "не определяются") {
+                draft.pcsMicrolithsSize = "";
               }
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
+            })
+          }
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+        />
 
         {showMicrolithsSize && (
           <div>
@@ -549,22 +500,17 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           </div>
         )}
 
-        <div>
-          <label className={labelClasses}>
-            Конкременты
-            <select
-              className={inputClasses}
-              value={form.pcsConcrements}
-              onChange={e =>
-                updateSelect("pcsConcrements", e.target.value)
-              }
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Конкременты"
+          value={form.pcsConcrements}
+          onChange={(val) =>
+            updateSelect("pcsConcrements", val)
+          }
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+        />
 
         {form.pcsConcrements === "определяются" && (
           <Concrements
@@ -575,20 +521,15 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           />
         )}
 
-        <div>
-          <label className={labelClasses}>
-            Кисты
-            <select
-              className={inputClasses}
-              value={form.pcsCysts}
-              onChange={e => updateSelect("pcsCysts", e.target.value)}
-            >
-              <option value="" />
-              <option value="не определяются">не определяются</option>
-              <option value="определяются">определяются</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Кисты"
+          value={form.pcsCysts}
+          onChange={(val) => updateSelect("pcsCysts", val)}
+          options={[
+            { value: "не определяются", label: "не определяются" },
+            { value: "определяются", label: "определяются" },
+          ]}
+        />
 
         {form.pcsCysts === "определяются" && (
           <Cysts
@@ -625,20 +566,15 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       </Fieldset>
 
       <Fieldset title="Синус">
-        <div>
-          <label className={labelClasses}>
-            Состояние
-            <select
-              className={inputClasses}
-              value={form.sinus}
-              onChange={e => updateField("sinus", e.target.value)}
-            >
-              <option value="" />
-              <option value="без включений">без включений</option>
-              <option value="с включениями">с включениями</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Состояние"
+          value={form.sinus}
+          onChange={(val) => updateField("sinus", val)}
+          options={[
+            { value: "без включений", label: "без включений" },
+            { value: "с включениями", label: "с включениями" },
+          ]}
+        />
       </Fieldset>
 
       <Fieldset title="Область надпочечников">

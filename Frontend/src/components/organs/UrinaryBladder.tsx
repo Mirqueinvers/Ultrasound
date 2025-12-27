@@ -216,22 +216,28 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       {/* Содержимое */}
       <Fieldset title="Содержимое">
         <div>
-          <label className={labelClasses}>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
             Характер содержимого
-            <select
-              className={inputClasses}
-              value={form.contents}
-              onChange={e => updateField("contents", e.target.value)}
-            >
-              <option value="" />
-              <option value="однородное">однородное</option>
-              <option value="неоднородное">неоднородное</option>
-            </select>
           </label>
+          <div className="flex flex-wrap gap-2">
+            {["однородное", "неоднородное"].map((option) => (
+              <button
+                key={option}
+                onClick={() => updateField("contents", option)}
+                className={`px-3 py-1 text-sm rounded font-medium transition-colors ${
+                  form.contents === option
+                    ? "bg-blue-500 text-white"
+                    : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
         </div>
 
         {showContentsText && (
-          <div>
+          <div className="mt-4">
             <label className={labelClasses}>
               Описание содержимого
               <textarea

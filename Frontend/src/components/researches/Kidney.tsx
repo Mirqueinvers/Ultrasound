@@ -3,12 +3,12 @@ import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import type { KidneyProtocol as KidneyCommonProtocol } from "@organs/Kidney/KidneyCommon";
 import type { UrinaryBladderProtocol } from "@organs/UrinaryBladder";
-import { ResearchHeader } from "@common";
+import { ResearchHeader, Conclusion } from "@common";
 
 export interface KidneyProtocol {
-  rightKidney: KidneyCommonProtocol;
-  leftKidney: KidneyCommonProtocol;
-  urinaryBladder: UrinaryBladderProtocol;
+  rightKidney: KidneyCommonProtocol | null;
+  leftKidney: KidneyCommonProtocol | null;
+  urinaryBladder: UrinaryBladderProtocol | null;
 }
 
 interface KidneyProps {
@@ -16,55 +16,18 @@ interface KidneyProps {
   onChange?: (value: KidneyProtocol) => void;
 }
 
-const createDefaultKidneyState = (): KidneyCommonProtocol => ({
-  length: "",
-  width: "",
-  thickness: "",
-  parenchymaSize: "",
-  parenchymaEchogenicity: "",
-  parenchymaStructure: "",
-  parenchymaConcrements: "не определяются",
-  parenchymaConcrementslist: [],
-  parenchymaCysts: "не определяются",
-  parenchymaCystslist: [],
-  parenchymaMultipleCysts: false,
-  parenchymaMultipleCystsSize: "",
-  parenchymaPathologicalFormations: "не определяются",
-  parenchymaPathologicalFormationsText: "",
-  pcsSize: "",
-  pcsMicroliths: "не определяются",
-  pcsMicrolithsSize: "",
-  pcsConcrements: "не определяются",
-  pcsConcrementslist: [],
-  pcsCysts: "не определяются",
-  pcsCystslist: [],
-  pcsMultipleCysts: false,
-  pcsMultipleCystsSize: "",
-  pcsPathologicalFormations: "не определяются",
-  pcsPathologicalFormationsText: "",
-  sinus: "",
-  adrenalArea: "",
-  adrenalAreaText: "",
-  contour: "",
-  additional: "",
-});
-
 const defaultState: KidneyProtocol = {
-  rightKidney: createDefaultKidneyState(),
-  leftKidney: createDefaultKidneyState(),
-  urinaryBladder: {
-    volume: "",
-    wallThickness: "",
-    wallStructure: "",
-    contents: "",
-    ureteralOrifices: "",
-    additional: "",
-    conclusion: "",
-  },
+  rightKidney: null,
+  leftKidney: null,
+  urinaryBladder: null,
 };
 
 export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<KidneyProtocol>(value ?? defaultState);
+  const [conclusion, setConclusion] = useState({
+    conclusion: "",
+    recommendations: "",
+  });
 
   const updateRightKidney = (rightKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, rightKidney: rightKidneyData };
@@ -89,27 +52,29 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
       <ResearchHeader researchType="Ультразвуковое исследование почек и мочевого пузыря" />
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <KidneyCommon 
+        <KidneyCommon
           side="right"
-          value={form.rightKidney} 
-          onChange={updateRightKidney} 
+          value={form.rightKidney ?? undefined}
+          onChange={updateRightKidney}
         />
       </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <KidneyCommon 
+        <KidneyCommon
           side="left"
-          value={form.leftKidney} 
-          onChange={updateLeftKidney} 
+          value={form.leftKidney ?? undefined}
+          onChange={updateLeftKidney}
         />
       </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <UrinaryBladder 
-          value={form.urinaryBladder} 
-          onChange={updateUrinaryBladder} 
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
         />
       </div>
+
+      <Conclusion value={conclusion} onChange={setConclusion} />
     </div>
   );
 };

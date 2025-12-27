@@ -4,3 +4,6 @@ export type { NormalRange, RangeIndicatorProps } from './NormalRange';
 export { SelectWithTextarea } from './SelectWithTextarea';
 export { SizeRow } from './SizeRow';
 export { ResearchHeader } from './ResearchHeader';
+export { Conclusion } from './Conclusion';
+export { ButtonSelect } from './ButtonSelect';
+

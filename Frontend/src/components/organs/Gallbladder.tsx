@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-
-import { normalRanges, SizeRow, Fieldset } from "@common";
+import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses, buttonClasses } from "@utils/formClasses";
-
 
 export interface Concretion {
   size: string;    // мм
@@ -216,64 +214,53 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
       {/* Форма */}
       <Fieldset title="Форма">
         <div className="space-y-2">
-          <label className={labelClasses}>
-            Форма желчного пузыря
-            <select
-              className={inputClasses}
-              value={form.shape}
-              onChange={e => updateField("shape", e.target.value)}
-            >
-              <option value="" />
-              <option value="Правильная">Правильная</option>
-              <option value="S-образная">S-образная</option>
-              <option value="С загибом">С загибом</option>
-            </select>
-          </label>
+          <ButtonSelect
+            label="Форма желчного пузыря"
+            value={form.shape}
+            onChange={(val) => updateField("shape", val)}
+            options={[
+              { value: "Правильная", label: "Правильная" },
+              { value: "S-образная", label: "S-образная" },
+              { value: "С загибом", label: "С загибом" },
+            ]}
+          />
 
-          <label className={labelClasses}>
-            Перетяжка
-            <select
-              className={inputClasses}
-              value={form.constriction}
-              onChange={e => updateField("constriction", e.target.value)}
-            >
-              <option value="" />
-              <option value="шейка">шейка</option>
-              <option value="тело">тело</option>
-              <option value="дно">дно</option>
-            </select>
-          </label>
+          <ButtonSelect
+            label="Перетяжка"
+            value={form.constriction}
+            onChange={(val) => updateField("constriction", val)}
+            options={[
+              { value: "шейка", label: "шейка" },
+              { value: "тело", label: "тело" },
+              { value: "дно", label: "дно" },
+            ]}
+          />
         </div>
       </Fieldset>
 
       {/* Содержимое */}
       <Fieldset title="Содержимое">
         <div className="space-y-2">
-          <label className={labelClasses}>
-            Тип содержимого
-            <select
-              className={inputClasses}
-              value={form.contentType}
-              onChange={e => updateField("contentType", e.target.value)}
-            >
-              <option value="" />
-              <option value="Однородное">Однородное</option>
-              <option value="Взвесь">Взвесь</option>
-              <option value="Сладж">Сладж</option>
-            </select>
-          </label>
+          <ButtonSelect
+            label="Тип содержимого"
+            value={form.contentType}
+            onChange={(val) => updateField("contentType", val)}
+            options={[
+              { value: "Однородное", label: "Однородное" },
+              { value: "Взвесь", label: "Взвесь" },
+              { value: "Сладж", label: "Сладж" },
+            ]}
+          />
 
-          <label className={labelClasses}>
-            Конкременты
-            <select
-              className={inputClasses}
-              value={form.concretions}
-              onChange={e => updateField("concretions", e.target.value)}
-            >
-              <option value="Не определяются">Не определяются</option>
-              <option value="Определяются">Определяются</option>
-            </select>
-          </label>
+          <ButtonSelect
+            label="Конкременты"
+            value={form.concretions}
+            onChange={(val) => updateField("concretions", val)}
+            options={[
+              { value: "Не определяются", label: "Не определяются" },
+              { value: "Определяются", label: "Определяются" },
+            ]}
+          />
 
           {form.concretions === "Определяются" && (
             <div className="space-y-2 ml-4">
@@ -344,17 +331,15 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             </div>
           )}
 
-          <label className={labelClasses}>
-            Полипы
-            <select
-              className={inputClasses}
-              value={form.polyps}
-              onChange={e => updateField("polyps", e.target.value)}
-            >
-              <option value="Не определяются">Не определяются</option>
-              <option value="Определяются">Определяются</option>
-            </select>
-          </label>
+          <ButtonSelect
+            label="Полипы"
+            value={form.polyps}
+            onChange={(val) => updateField("polyps", val)}
+            options={[
+              { value: "Не определяются", label: "Не определяются" },
+              { value: "Определяются", label: "Определяются" },
+            ]}
+          />
 
           {form.polyps === "Определяются" && (
             <div className="space-y-2 ml-4">
@@ -437,7 +422,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
         </div>
       </Fieldset>
 
-      {/* Протоки */}
+            {/* Протоки */}
       <Fieldset title="Протоки">
         <SizeRow
           label="Пузырный проток (мм)"
@@ -486,3 +471,4 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 };
 
 export default Gallbladder;
+

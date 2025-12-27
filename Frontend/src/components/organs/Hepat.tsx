@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea } from "@common";
+import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 
@@ -255,70 +254,48 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
       {/* Структура */}
       <Fieldset title="Структура">
-        <div>
-          <label className={labelClasses}>
-            Эхогенность
-            <select
-              className={inputClasses}
-              value={form.echogenicity}
-              onChange={e => updateField("echogenicity", e.target.value)}
-            >
-              <option value="" />
-              <option value="норма">средняя</option>
-              <option value="повышена">повышена</option>
-              <option value="снижена">снижена</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхогенность"
+          value={form.echogenicity}
+          onChange={(val) => updateField("echogenicity", val)}
+          options={[
+            { value: "норма", label: "средняя" },
+            { value: "повышена", label: "повышена" },
+            { value: "снижена", label: "снижена" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Эхоструктура
-            <select
-              className={inputClasses}
-              value={form.homogeneity}
-              onChange={e => updateField("homogeneity", e.target.value)}
-            >
-              <option value="" />
-              <option value="однородная">однородная</option>
-              <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">
-                диффузно-неоднородная
-              </option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхоструктура"
+          value={form.homogeneity}
+          onChange={(val) => updateField("homogeneity", val)}
+          options={[
+            { value: "однородная", label: "однородная" },
+            { value: "неоднородная", label: "неоднородная" },
+            { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Контур
-            <select
-              className={inputClasses}
-              value={form.contours}
-              onChange={e => updateField("contours", e.target.value)}
-            >
-              <option value="" />
-              <option value="ровные">четкий, ровный</option>
-              <option value="неровные">четкий, неровный</option>
-              <option value="бугристые">бугристый</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Контур"
+          value={form.contours}
+          onChange={(val) => updateField("contours", val)}
+          options={[
+            { value: "ровные", label: "четкий, ровный" },
+            { value: "неровные", label: "четкий, неровный" },
+            { value: "бугристые", label: "бугристый" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Угол нижнего края
-            <select
-              className={inputClasses}
-              value={form.lowerEdgeAngle}
-              onChange={e => updateField("lowerEdgeAngle", e.target.value)}
-            >
-              <option value="" />
-              <option value="заострён">заострён</option>
-              <option value="закруглён">закруглён</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Угол нижнего края"
+          value={form.lowerEdgeAngle}
+          onChange={(val) => updateField("lowerEdgeAngle", val)}
+          options={[
+            { value: "заострён", label: "заострён" },
+            { value: "закруглён", label: "закруглён" },
+          ]}
+        />
 
         <SelectWithTextarea
           label="Патологические образования"
@@ -337,21 +314,16 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 
       {/* Сосуды */}
       <Fieldset title="Сосуды">
-        <div>
-          <label className={labelClasses}>
-            Сосудистый рисунок
-            <select
-              className={inputClasses}
-              value={form.vascularPattern}
-              onChange={e => updateField("vascularPattern", e.target.value)}
-            >
-              <option value="" />
-              <option value="не изменен">не изменен</option>
-              <option value="обеднен">обеднен</option>
-              <option value="усилен">усилен</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Сосудистый рисунок"
+          value={form.vascularPattern}
+          onChange={(val) => updateField("vascularPattern", val)}
+          options={[
+            { value: "не изменен", label: "не изменен" },
+            { value: "обеднен", label: "обеднен" },
+            { value: "усилен", label: "усилен" },
+          ]}
+        />
 
         <SizeRow
           label="Воротная вена, диаметр (мм)"
@@ -400,3 +372,4 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 };
 
 export default Hepat;
+

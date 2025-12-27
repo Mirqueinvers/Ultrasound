@@ -3,7 +3,7 @@ import Hepat, { type LiverProtocol } from "@organs/Hepat";
 import Gallbladder, { type GallbladderProtocol } from "@organs/Gallbladder";
 import Pancreas, { type PancreasProtocol } from "@organs/Pancreas";
 import Spleen, { type SpleenProtocol } from "@organs/Spleen";
-import { ResearchHeader } from "@common";
+import { ResearchHeader, Conclusion } from "@common";
 
 export interface ObpProtocol {
   liver: LiverProtocol | null;
@@ -18,67 +18,18 @@ interface ObpProps {
 }
 
 const defaultState: ObpProtocol = {
-  liver: {
-    rightLobeAP: "",
-    leftLobeAP: "",
-    echogenicity: "",
-    homogeneity: "",
-    contours: "",
-    lowerEdgeAngle: "",
-    focalLesionsPresence: "",
-    focalLesions: "",
-    vascularPattern: "",
-    portalVeinDiameter: "",
-    hepaticVeinDiameter: "",
-    vascularity: "",
-    additional: "",
-  },
-  gallbladder: {
-    length: "",
-    width: "",
-    volume: "",
-    wallThickness: "",
-    wallStructure: "",
-    contents: "",
-    concrements: "не определяются",
-    concrementslist: [],
-    polyps: "не определяются",
-    polypslist: [],
-    multiplePolyps: false,
-    multiplePol: "",
-    pathologicalFormations: "не определяются",
-    pathologicalFormationsText: "",
-    additional: "",
-  },
-  pancreas: {
-    length: "",
-    width: "",
-    height: "",
-    echogenicity: "",
-    homogeneity: "",
-    edges: "",
-    mainDuct: "",
-    vascularity: "",
-    pathologicalFormations: "не определяются",
-    pathologicalFormationsText: "",
-    additional: "",
-  },
-  spleen: {
-    length: "",
-    width: "",
-    thickness: "",
-    echogenicity: "",
-    homogeneity: "",
-    edges: "",
-    portaHepatica: "",
-    focalLesions: "",
-    vascularity: "",
-    additional: "",
-  },
+  liver: null,
+  gallbladder: null,
+  pancreas: null,
+  spleen: null,
 };
 
 export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultState);
+  const [conclusion, setConclusion] = useState({
+    conclusion: "",
+    recommendations: "",
+  });
 
   const updateLiver = (liverData: LiverProtocol) => {
     const updated = { ...form, liver: liverData };
@@ -120,18 +71,20 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
       </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <Pancreas 
-          value={form.pancreas ?? undefined} 
-          onChange={updatePancreas} 
+        <Pancreas
+          value={form.pancreas ?? undefined}
+          onChange={updatePancreas}
         />
       </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <Spleen 
-          value={form.spleen ?? undefined} 
-          onChange={updateSpleen} 
+        <Spleen
+          value={form.spleen ?? undefined}
+          onChange={updateSpleen}
         />
       </div>
+
+      <Conclusion value={conclusion} onChange={setConclusion} />
     </div>
   );
 };

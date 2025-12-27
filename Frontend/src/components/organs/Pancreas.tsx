@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-import { normalRanges, SizeRow, SelectWithTextarea } from "@common";
+import { normalRanges, SizeRow, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 
 export interface PancreasProtocol {
@@ -102,11 +101,10 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
 
   const inputClasses =
     "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const labelClasses = "block text-xs font-medium text-gray-700 w-1/3";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
   const legendClasses =
     "px-1 text-sm font-semibold text-gray-800";
+  const fieldsetClasses =
+    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
 
   return (
     <div className="flex flex-col gap-4">
@@ -147,54 +145,39 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
       <fieldset className={fieldsetClasses}>
         <legend className={legendClasses}>Структура</legend>
 
-        <div>
-          <label className={labelClasses}>
-            Эхогенность
-            <select
-              className={inputClasses}
-              value={form.echogenicity}
-              onChange={e => updateField("echogenicity", e.target.value)}
-            >
-              <option value=""></option>
-              <option value="норма">средняя</option>
-              <option value="повышена">повышена</option>
-              <option value="снижена">снижена</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхогенность"
+          value={form.echogenicity}
+          onChange={(val) => updateField("echogenicity", val)}
+          options={[
+            { value: "норма", label: "средняя" },
+            { value: "повышена", label: "повышена" },
+            { value: "снижена", label: "снижена" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Эхоструктура
-            <select
-              className={inputClasses}
-              value={form.echostructure}
-              onChange={e => updateField("echostructure", e.target.value)}
-            >
-              <option value=""></option>
-              <option value="однородная">однородная</option>
-              <option value="неоднородная">неоднородная</option>
-              <option value="диффузно-неоднородная">диффузно-неоднородная</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Эхоструктура"
+          value={form.echostructure}
+          onChange={(val) => updateField("echostructure", val)}
+          options={[
+            { value: "однородная", label: "однородная" },
+            { value: "неоднородная", label: "неоднородная" },
+            { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+          ]}
+        />
 
-        <div>
-          <label className={labelClasses}>
-            Контур
-            <select
-              className={inputClasses}
-              value={form.contour}
-              onChange={e => updateField("contour", e.target.value)}
-            >
-              <option value=""></option>
-              <option value="четкий, ровный">четкий, ровный</option>
-              <option value="четкий, не ровный">четкий, не ровный</option>
-              <option value="не четкий">не четкий</option>
-              <option value="бугристый">бугристый</option>
-            </select>
-          </label>
-        </div>
+        <ButtonSelect
+          label="Контур"
+          value={form.contour}
+          onChange={(val) => updateField("contour", val)}
+          options={[
+            { value: "четкий, ровный", label: "четкий, ровный" },
+            { value: "четкий, не ровный", label: "четкий, не ровный" },
+            { value: "не четкий", label: "не четкий" },
+            { value: "бугристый", label: "бугристый" },
+          ]}
+        />
 
         <SelectWithTextarea
           label="Патологические образования"
