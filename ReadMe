@@ -1,0 +1,4 @@
+После восстановления репозитория в корне проекта выполнить 
+npm install --save-dev @types/node vite @vitejs/plugin-react
+это исправит ошибку типов TypeScript
+
