@@ -39,8 +39,6 @@
       "@assets/*": ["assets/*"],
       "@organs/*": ["components/organs/*"]
     }
-
-
   },
   "include": ["src"]
 }
