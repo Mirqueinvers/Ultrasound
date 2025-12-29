@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-
+import React from "react";
 import { Fieldset, normalRanges, SizeRow } from "@common";
+import { useFormState, useFieldFocus } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import { useFieldFocus } from "@hooks/useFieldFocus";
 import type { UrinaryBladderProtocol, UrinaryBladderProps } from "@types";
 import { defaultUrinaryBladderState } from "@types";
 
@@ -10,8 +9,10 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   value,
   onChange,
 }) => {
-  const [form, setForm] = useState<UrinaryBladderProtocol>(
-    value ?? defaultUrinaryBladderState,
+  // Используем кастомный хук для управления состоянием формы
+  const [form, setForm] = useFormState<UrinaryBladderProtocol>(
+    defaultUrinaryBladderState,
+    value,
   );
 
   // Создаём фокусы для всех полей с размерами
@@ -25,10 +26,11 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   const residualDepthFocus = useFieldFocus("urinaryBladder", "residualDepth");
   const residualVolumeFocus = useFieldFocus("urinaryBladder", "residualVolume");
 
+  // Кастомная функция обновления с автоматическим расчетом объема
   const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
     const updated: UrinaryBladderProtocol = { ...form, [field]: val };
 
-    // пересчет объема основного мочевого пузыря
+    // Пересчет объема основного мочевого пузыря
     if (field === "length" || field === "width" || field === "depth") {
       const length = parseFloat(
         field === "length" ? val : updated.length || "0",
@@ -41,14 +43,14 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       );
 
       if (length > 0 && width > 0 && depth > 0) {
-        const volume = (length * width * depth * 0.523)/1000;
+        const volume = (length * width * depth * 0.523) / 1000;
         updated.volume = volume.toFixed(0); // целое значение мл
       } else {
         updated.volume = "";
       }
     }
 
-    // пересчет объема остаточной мочи
+    // Пересчет объема остаточной мочи
     if (
       field === "residualLength" ||
       field === "residualWidth" ||
@@ -65,14 +67,14 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       );
 
       if (length > 0 && width > 0 && depth > 0) {
-        const volume = (length * width * depth * 0.523)/1000;
+        const volume = (length * width * depth * 0.523) / 1000;
         updated.residualVolume = volume.toFixed(0);
       } else {
         updated.residualVolume = "";
       }
     }
 
-    // если содержимое однородное – очищаем описание
+    // Если содержимое однородное – очищаем описание
     if (field === "contents" && val === "однородное") {
       updated.contentsText = "";
     }

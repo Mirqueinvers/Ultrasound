@@ -1,53 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
-import { useFieldFocus } from "@hooks/useFieldFocus";
-import { inputClasses, labelClasses } from "@utils/formClasses";
+import { useFormState, useFieldUpdate, useFieldFocus, useConclusion } from "@hooks";
+import { inputClasses } from "@utils/formClasses";
 import type { SpleenProtocol, SpleenProps } from "@types";
 import { defaultSpleenState } from "@types";
 
 export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<SpleenProtocol>(value ?? defaultSpleenState);
+  // Используем кастомный хук для управления состоянием формы
+  const [form, setForm] = useFormState<SpleenProtocol>(defaultSpleenState, value);
 
+  // Используем хук для обновления полей
+  const updateField = useFieldUpdate(form, setForm, onChange);
+
+  // Используем хук для автоматического добавления текста в заключение
+  useConclusion(setForm, "spleen");
+
+  // Хуки для фокуса на различных полях
   const conclusionFocus = useFieldFocus("spleen", "conclusion");
   const lengthFocus = useFieldFocus("spleen", "spleenLength");
   const widthFocus = useFieldFocus("spleen", "spleenWidth");
   const splenicVeinFocus = useFieldFocus("spleen", "splenicVein");
   const splenicArteryFocus = useFieldFocus("spleen", "splenicArtery");
-
-  const updateField = (field: keyof SpleenProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  useEffect(() => {
-    const handleAddText = (event: CustomEvent) => {
-      const { text, organ } = event.detail;
-
-      if (organ === "spleen") {
-        setForm(prev => ({
-          ...prev,
-          conclusion: prev.conclusion
-            ? prev.conclusion +
-              (prev.conclusion.endsWith(".") ? " " : ". ") +
-              text
-            : text,
-        }));
-      }
-    };
-
-    window.addEventListener(
-      "add-conclusion-text",
-      handleAddText as EventListener,
-    );
-
-    return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddText as EventListener,
-      );
-    };
-  }, []);
 
   return (
     <div className="flex flex-col gap-4">
@@ -79,7 +52,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
         <ButtonSelect
           label="Эхогенность"
           value={form.echogenicity}
-          onChange={(val) => updateField("echogenicity", val)}
+          onChange={val => updateField("echogenicity", val)}
           options={[
             { value: "норма", label: "средняя" },
             { value: "повышена", label: "повышена" },
@@ -90,7 +63,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
         <ButtonSelect
           label="Эхоструктура"
           value={form.echostructure}
-          onChange={(val) => updateField("echostructure", val)}
+          onChange={val => updateField("echostructure", val)}
           options={[
             { value: "однородная", label: "однородная" },
             { value: "неоднородная", label: "неоднородная" },
@@ -101,7 +74,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
         <ButtonSelect
           label="Контур"
           value={form.contours}
-          onChange={(val) => updateField("contours", val)}
+          onChange={val => updateField("contours", val)}
           options={[
             { value: "ровные", label: "четкий, ровный" },
             { value: "неровные", label: "четкий, неровный" },

@@ -1,13 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
-import { useFieldFocus } from "@hooks/useFieldFocus";
-import { inputClasses, labelClasses, buttonClasses } from "@utils/formClasses";
+import { useFormState, useFieldUpdate, useFieldFocus, useConclusion, useListManager } from "@hooks";
+import { inputClasses, buttonClasses } from "@utils/formClasses";
 import type { Concretion, Polyp, GallbladderProtocol, GallbladderProps } from "@types";
 import { defaultGallbladderState } from "@types";
 
 export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<GallbladderProtocol>(value ?? defaultGallbladderState);
+  // Используем кастомный хук для управления состоянием формы
+  const [form, setForm] = useFormState<GallbladderProtocol>(defaultGallbladderState, value);
 
+  // Используем хук для обновления полей
+  const updateField = useFieldUpdate(form, setForm, onChange);
+
+  // Используем хук для автоматического добавления текста в заключение
+  useConclusion(setForm, "gallbladder");
+
+  // Хуки для фокуса на различных полях
   const conclusionFocus = useFieldFocus("gallbladder", "conclusion");
   const lengthFocus = useFieldFocus("gallbladder", "gallbladderLength");
   const widthFocus = useFieldFocus("gallbladder", "gallbladderWidth");
@@ -15,103 +23,23 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
   const cysticDuctFocus = useFieldFocus("gallbladder", "cysticDuct");
   const commonBileDuctFocus = useFieldFocus("gallbladder", "commonBileDuct");
 
-  const updateField = (field: keyof GallbladderProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
-    setForm(updated);
-    onChange?.(updated);
-  };
+  // Используем хук для управления списком конкрементов
+  const concretionsManager = useListManager<Concretion>(
+    form.concretionsList,
+    form,
+    setForm,
+    onChange,
+    "concretionsList"
+  );
 
-  const addConcretion = () => {
-    const updated = {
-      ...form,
-      concretionsList: [...form.concretionsList, { size: "", position: "" }],
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const updateConcretion = (
-    index: number,
-    field: keyof Concretion,
-    val: string,
-  ) => {
-    const updatedList = form.concretionsList.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, concretionsList: updatedList };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const removeConcretion = (index: number) => {
-    const updatedList = form.concretionsList.filter((_, i) => i !== index);
-    const updated = { ...form, concretionsList: updatedList };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const addPolyp = () => {
-    const updated = {
-      ...form,
-      polypsList: [...form.polypsList, { size: "", position: "" }],
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const updatePolyp = (index: number, field: keyof Polyp, val: string) => {
-    const updatedList = form.polypsList.map((item, i) =>
-      i === index ? { ...item, [field]: val } : item,
-    );
-    const updated = { ...form, polypsList: updatedList };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const removePolyp = (index: number) => {
-    const updatedList = form.polypsList.filter((_, i) => i !== index);
-    const updated = { ...form, polypsList: updatedList };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  // добавление текста в заключение для органа gallbladder
-  useEffect(() => {
-    const handleAddText = (event: CustomEvent) => {
-      const { text, organ } = event.detail;
-
-      if (organ === "gallbladder") {
-        setForm(prev => ({
-          ...prev,
-          conclusion: prev.conclusion
-            ? prev.conclusion +
-              (prev.conclusion.endsWith(".") ? " " : ". ") +
-              text
-            : text,
-        }));
-      }
-    };
-
-    window.addEventListener(
-      "add-conclusion-text",
-      handleAddText as EventListener,
-    );
-
-    return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddText as EventListener,
-      );
-    };
-  }, []);
-
-  const handleConclusionFocus = () => {
-    conclusionFocus.handleFocus();
-  };
-
-  const handleConclusionBlur = () => {
-    conclusionFocus.handleBlur();
-  };
+  // Используем хук для управления списком полипов
+  const polypsManager = useListManager<Polyp>(
+    form.polypsList,
+    form,
+    setForm,
+    onChange,
+    "polypsList"
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -205,7 +133,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               <button
                 type="button"
                 className={buttonClasses}
-                onClick={addConcretion}
+                onClick={() => concretionsManager.addItem({ size: "", position: "" })}
               >
                 Добавить
               </button>
@@ -223,7 +151,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                       className={`${inputClasses} text-xs py-1`}
                       value={concretion.size}
                       onChange={e =>
-                        updateConcretion(index, "size", e.target.value)
+                        concretionsManager.updateItem(index, "size", e.target.value)
                       }
                     />
                   </label>
@@ -234,7 +162,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                       className={`${inputClasses} text-xs py-1`}
                       value={concretion.position}
                       onChange={e =>
-                        updateConcretion(index, "position", e.target.value)
+                        concretionsManager.updateItem(index, "position", e.target.value)
                       }
                     >
                       <option value="" />
@@ -247,7 +175,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                   <button
                     type="button"
                     className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                    onClick={() => removeConcretion(index)}
+                    onClick={() => concretionsManager.removeItem(index)}
                     title="Удалить"
                   >
                     <svg
@@ -284,7 +212,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               <button
                 type="button"
                 className={buttonClasses}
-                onClick={addPolyp}
+                onClick={() => polypsManager.addItem({ size: "", position: "" })}
               >
                 Добавить
               </button>
@@ -302,7 +230,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                       className={`${inputClasses} text-xs py-1`}
                       value={polyp.size}
                       onChange={e =>
-                        updatePolyp(index, "size", e.target.value)
+                        polypsManager.updateItem(index, "size", e.target.value)
                       }
                     />
                   </label>
@@ -313,7 +241,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                       className={`${inputClasses} text-xs py-1`}
                       value={polyp.position}
                       onChange={e =>
-                        updatePolyp(index, "position", e.target.value)
+                        polypsManager.updateItem(index, "position", e.target.value)
                       }
                     >
                       <option value="" />
@@ -326,7 +254,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                   <button
                     type="button"
                     className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                    onClick={() => removePolyp(index)}
+                    onClick={() => polypsManager.removeItem(index)}
                     title="Удалить"
                   >
                     <svg
@@ -360,7 +288,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
         </div>
       </Fieldset>
 
-            {/* Протоки */}
+      {/* Протоки */}
       <Fieldset title="Протоки">
         <SizeRow
           label="Пузырный проток (мм)"
@@ -399,8 +327,8 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             className={inputClasses + " resize-y"}
             value={form.conclusion}
             onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={handleConclusionFocus}
-            onBlur={handleConclusionBlur}
+            onFocus={conclusionFocus.handleFocus}
+            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>
@@ -409,4 +337,3 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 };
 
 export default Gallbladder;
-

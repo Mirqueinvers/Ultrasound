@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
-import { useFieldFocus } from "@hooks/useFieldFocus";
-import { inputClasses, labelClasses } from "@utils/formClasses";
+import { useFormState, useFieldFocus, useConclusion } from "@hooks";
+import { inputClasses } from "@utils/formClasses";
 import type { LiverProtocol, HepatProps } from "@types";
 import { defaultLiverState } from "@types";
 
 export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<LiverProtocol>(value ?? defaultLiverState);
+  // Используем кастомный хук для управления состоянием формы
+  const [form, setForm] = useFormState<LiverProtocol>(defaultLiverState, value);
 
+  // Используем хук для автоматического добавления текста в заключение
+  useConclusion(setForm, "liver");
+
+  // Хуки для фокуса на различных полях
   const conclusionFocus = useFieldFocus("liver", "conclusion");
   const rightLobeFocus = useFieldFocus("liver", "rightLobeAP");
   const leftLobeFocus = useFieldFocus("liver", "leftLobeAP");
   const portalVeinFocus = useFieldFocus("liver", "portalVeinDiameter");
   const ivcFocus = useFieldFocus("liver", "ivc");
 
-  // дополнительные поля
+  // Дополнительные поля
   const rightLobeCCRFocus = useFieldFocus("liver", "rightLobeCCR");
   const rightLobeCVRFocus = useFieldFocus("liver", "rightLobeCVR");
   const leftLobeCCRFocus = useFieldFocus("liver", "leftLobeCCR");
   const rightLobeTotalFocus = useFieldFocus("liver", "rightLobeTotal");
   const leftLobeTotalFocus = useFieldFocus("liver", "leftLobeTotal");
 
+  // Кастомная функция обновления с автоматическим расчетом сумм
   const updateField = (field: keyof LiverProtocol, val: string) => {
     const updated: LiverProtocol = { ...form, [field]: val };
 
-    // авторасчет сумм (ККР + ПЗР), только когда оба значения есть
+    // Авторасчет сумм (ККР + ПЗР), только когда оба значения есть
     if (field === "rightLobeAP" || field === "rightLobeCCR") {
       const ap =
         parseFloat(field === "rightLobeAP" ? val : form.rightLobeAP) || 0;
@@ -47,7 +53,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     onChange?.(updated);
   };
 
-  // значения для логики показа доп. полей
+  // Значения для логики показа доп. полей
   const rightLobeAPValue = parseFloat(form.rightLobeAP) || 0;
   const leftLobeAPValue = parseFloat(form.leftLobeAP) || 0;
   const rightLobeCCRValue = parseFloat(form.rightLobeCCR) || 0;
@@ -74,44 +80,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     leftLobeAPValue > normalLeftLobeAP ||
     leftLobeCCRValue > normalLeftLobeCCR ||
     leftLobeTotalValue > normalLeftLobeTotal;
-
-  const handleConclusionFocus = () => {
-    conclusionFocus.handleFocus();
-  };
-
-  const handleConclusionBlur = () => {
-    conclusionFocus.handleBlur();
-  };
-
-  // обработчик добавления текста в заключение для печени
-  useEffect(() => {
-    const handleAddText = (event: CustomEvent) => {
-      const { text, organ } = event.detail;
-
-      if (organ === "liver") {
-        setForm(prev => ({
-          ...prev,
-          conclusion: prev.conclusion
-            ? prev.conclusion +
-              (prev.conclusion.endsWith(".") ? " " : ". ") +
-              text
-            : text,
-        }));
-      }
-    };
-
-    window.addEventListener(
-      "add-conclusion-text",
-      handleAddText as EventListener,
-    );
-
-    return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddText as EventListener,
-      );
-    };
-  }, []);
 
   return (
     <div className="flex flex-col gap-4">
@@ -306,8 +274,8 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.conclusion}
             onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={handleConclusionFocus}
-            onBlur={handleConclusionBlur}
+            onFocus={conclusionFocus.handleFocus}
+            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>
@@ -316,4 +284,3 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 };
 
 export default Hepat;
-

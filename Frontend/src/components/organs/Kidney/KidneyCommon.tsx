@@ -1,20 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@components/common";
-import { useFieldFocus } from "@hooks/useFieldFocus";
+import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { Concrement, Cyst, KidneyProtocol, KidneyCommonProps } from "@types";
 import { defaultKidneyState } from "@types";
-
-const pushItem = <T,>(list: T[], item: T) => [...list, item];
-const updateListItem = <T,>(
-  list: T[],
-  index: number,
-  patch: Partial<T>,
-): T[] => list.map((item, i) => (i === index ? { ...item, ...patch } : item));
-const removeListItem = <T,>(list: T[], index: number): T[] =>
-  list.filter((_, i) => i !== index);
 
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   side,
@@ -34,27 +25,58 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
   };
 
-  const [form, setForm] = useState<KidneyProtocol>(initialValue);
+  // Используем кастомный хук для управления состоянием формы
+  const [form, setForm] = useFormState<KidneyProtocol>(initialValue, value);
+
+  // Используем хук для обновления полей
+  const updateField = useFieldUpdate(form, setForm, onChange);
 
   const organName = side === "left" ? "leftKidney" : "rightKidney";
   const title = side === "left" ? "Левая почка" : "Правая почка";
   const ranges =
     side === "left" ? normalRanges.leftKidney : normalRanges.rightKidney;
 
+  // Хуки для фокуса на полях размеров
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const thicknessFocus = useFieldFocus(organName, "thickness");
   const parenchymaSizeFocus = useFieldFocus(organName, "parenchymaSize");
 
-  const setAndNotify = (draft: KidneyProtocol) => {
-    setForm(draft);
-    onChange?.(draft);
-  };
+  // Используем хук для управления списком конкрементов паренхимы
+  const parenchymaConcrementsManager = useListManager<Concrement>(
+    form.parenchymaConcrementslist,
+    form,
+    setForm,
+    onChange,
+    "parenchymaConcrementslist"
+  );
 
-  const updateField = (field: keyof KidneyProtocol, value: string) => {
-    const draft: KidneyProtocol = { ...form, [field]: value };
-    setAndNotify(draft);
-  };
+  // Используем хук для управления списком кист паренхимы
+  const parenchymaCystsManager = useListManager<Cyst>(
+    form.parenchymaCystslist,
+    form,
+    setForm,
+    onChange,
+    "parenchymaCystslist"
+  );
+
+  // Используем хук для управления списком конкрементов ЧЛС
+  const pcsConcrementsManager = useListManager<Concrement>(
+    form.pcsConcrementslist,
+    form,
+    setForm,
+    onChange,
+    "pcsConcrementslist"
+  );
+
+  // Используем хук для управления списком кист ЧЛС
+  const pcsCystsManager = useListManager<Cyst>(
+    form.pcsCystslist,
+    form,
+    setForm,
+    onChange,
+    "pcsCystslist"
+  );
 
   const updateSelect = (
     field: keyof KidneyProtocol,
@@ -77,7 +99,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     }
 
     cleanup?.(draft);
-    setAndNotify(draft);
+    setForm(draft);
+    onChange?.(draft);
   };
 
   const toggleParenchymaMultipleCysts = () => {
@@ -88,7 +111,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         ? form.parenchymaMultipleCystsSize
         : "",
     };
-    setAndNotify(draft);
+    setForm(draft);
+    onChange?.(draft);
   };
 
   const togglePcsMultipleCysts = () => {
@@ -99,146 +123,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         ? form.pcsMultipleCystsSize
         : "",
     };
-    setAndNotify(draft);
-  };
-
-  const addParenchymaConcrement = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaConcrementslist: pushItem(form.parenchymaConcrementslist, {
-        size: "",
-        location: "",
-      }),
-    };
-    setAndNotify(draft);
-  };
-
-  const updateParenchymaConcrement = (
-    index: number,
-    field: keyof Concrement,
-    value: string,
-  ) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaConcrementslist: updateListItem(
-        form.parenchymaConcrementslist,
-        index,
-        { [field]: value } as Partial<Concrement>,
-      ),
-    };
-    setAndNotify(draft);
-  };
-
-  const removeParenchymaConcrement = (index: number) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaConcrementslist: removeListItem(
-        form.parenchymaConcrementslist,
-        index,
-      ),
-    };
-    setAndNotify(draft);
-  };
-
-  const addParenchymaCyst = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaCystslist: pushItem(form.parenchymaCystslist, {
-        size: "",
-        location: "",
-      }),
-    };
-    setAndNotify(draft);
-  };
-
-  const updateParenchymaCyst = (
-    index: number,
-    field: keyof Cyst,
-    value: string,
-  ) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaCystslist: updateListItem(
-        form.parenchymaCystslist,
-        index,
-        { [field]: value } as Partial<Cyst>,
-      ),
-    };
-    setAndNotify(draft);
-  };
-
-  const removeParenchymaCyst = (index: number) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaCystslist: removeListItem(form.parenchymaCystslist, index),
-    };
-    setAndNotify(draft);
-  };
-
-  const addPcsConcrement = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsConcrementslist: pushItem(form.pcsConcrementslist, {
-        size: "",
-        location: "",
-      }),
-    };
-    setAndNotify(draft);
-  };
-
-  const updatePcsConcrement = (
-    index: number,
-    field: keyof Concrement,
-    value: string,
-  ) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsConcrementslist: updateListItem(
-        form.pcsConcrementslist,
-        index,
-        { [field]: value } as Partial<Concrement>,
-      ),
-    };
-    setAndNotify(draft);
-  };
-
-  const removePcsConcrement = (index: number) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsConcrementslist: removeListItem(form.pcsConcrementslist, index),
-    };
-    setAndNotify(draft);
-  };
-
-  const addPcsCyst = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsCystslist: pushItem(form.pcsCystslist, {
-        size: "",
-        location: "",
-      }),
-    };
-    setAndNotify(draft);
-  };
-
-  const updatePcsCyst = (index: number, field: keyof Cyst, value: string) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsCystslist: updateListItem(
-        form.pcsCystslist,
-        index,
-        { [field]: value } as Partial<Cyst>,
-      ),
-    };
-    setAndNotify(draft);
-  };
-
-  const removePcsCyst = (index: number) => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsCystslist: removeListItem(form.pcsCystslist, index),
-    };
-    setAndNotify(draft);
+    setForm(draft);
+    onChange?.(draft);
   };
 
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
@@ -314,7 +200,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
           ]}
         />
 
-                <ButtonSelect
+        <ButtonSelect
           label="Конкременты"
           value={form.parenchymaConcrements}
           onChange={(val) => updateSelect("parenchymaConcrements", val)}
@@ -327,9 +213,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         {form.parenchymaConcrements === "определяются" && (
           <Concrements
             items={form.parenchymaConcrementslist}
-            onAdd={addParenchymaConcrement}
-            onUpdate={updateParenchymaConcrement}
-            onRemove={removeParenchymaConcrement}
+            onAdd={() => parenchymaConcrementsManager.addItem({ size: "", location: "" })}
+            onUpdate={parenchymaConcrementsManager.updateItem}
+            onRemove={parenchymaConcrementsManager.removeItem}
           />
         )}
 
@@ -346,9 +232,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         {form.parenchymaCysts === "определяются" && (
           <Cysts
             items={form.parenchymaCystslist}
-            onAdd={addParenchymaCyst}
-            onUpdate={updateParenchymaCyst}
-            onRemove={removeParenchymaCyst}
+            onAdd={() => parenchymaCystsManager.addItem({ size: "", location: "" })}
+            onUpdate={parenchymaCystsManager.updateItem}
+            onRemove={parenchymaCystsManager.removeItem}
             multiple={form.parenchymaMultipleCysts}
             multipleSize={form.parenchymaMultipleCystsSize}
             onToggleMultiple={toggleParenchymaMultipleCysts}
@@ -435,9 +321,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         {form.pcsConcrements === "определяются" && (
           <Concrements
             items={form.pcsConcrementslist}
-            onAdd={addPcsConcrement}
-            onUpdate={updatePcsConcrement}
-            onRemove={removePcsConcrement}
+            onAdd={() => pcsConcrementsManager.addItem({ size: "", location: "" })}
+            onUpdate={pcsConcrementsManager.updateItem}
+            onRemove={pcsConcrementsManager.removeItem}
           />
         )}
 
@@ -454,9 +340,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
         {form.pcsCysts === "определяются" && (
           <Cysts
             items={form.pcsCystslist}
-            onAdd={addPcsCyst}
-            onUpdate={updatePcsCyst}
-            onRemove={removePcsCyst}
+            onAdd={() => pcsCystsManager.addItem({ size: "", location: "" })}
+            onUpdate={pcsCystsManager.updateItem}
+            onRemove={pcsCystsManager.removeItem}
             multiple={form.pcsMultipleCysts}
             multipleSize={form.pcsMultipleCystsSize}
             onToggleMultiple={togglePcsMultipleCysts}
