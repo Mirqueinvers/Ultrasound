@@ -3,55 +3,15 @@ import React, { useState } from "react";
 import { Fieldset, normalRanges, SizeRow } from "@common";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { useFieldFocus } from "@hooks/useFieldFocus";
-
-export interface UrinaryBladderProtocol {
-  // Размеры до мочеиспускания
-  length: string;
-  width: string;
-  depth: string;
-  volume: string; // рассчитывается из length * width * depth * 0.523
-  wallThickness: string;
-
-  // Объем остаточной мочи
-  residualLength: string;
-  residualWidth: string;
-  residualDepth: string;
-  residualVolume: string; // рассчитывается так же
-
-  // Содержимое
-  contents: string;            // однородное / неоднородное
-  contentsText: string;        // описание, если неоднородное
-
-  // Дополнительно
-  additional: string;
-}
-
-interface UrinaryBladderProps {
-  value?: UrinaryBladderProtocol;
-  onChange?: (value: UrinaryBladderProtocol) => void;
-}
-
-const defaultState: UrinaryBladderProtocol = {
-  length: "",
-  width: "",
-  depth: "",
-  volume: "",
-  wallThickness: "",
-  residualLength: "",
-  residualWidth: "",
-  residualDepth: "",
-  residualVolume: "",
-  contents: "",
-  contentsText: "",
-  additional: "",
-};
+import type { UrinaryBladderProtocol, UrinaryBladderProps } from "@types";
+import { defaultUrinaryBladderState } from "@types";
 
 export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   value,
   onChange,
 }) => {
   const [form, setForm] = useState<UrinaryBladderProtocol>(
-    value ?? defaultState,
+    value ?? defaultUrinaryBladderState,
   );
 
   // Создаём фокусы для всех полей с размерами

@@ -2,73 +2,11 @@ import React, { useState, useEffect } from "react";
 import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses, buttonClasses } from "@utils/formClasses";
-
-export interface Concretion {
-  size: string;    // мм
-  position: string; // проксимальная треть / средняя треть / дистальная треть
-}
-
-export interface Polyp {
-  size: string;    // мм
-  position: string; // проксимальная треть / средняя треть / дистальная треть
-}
-
-export interface GallbladderProtocol {
-  // Размеры
-  length: string;
-  width: string;
-
-  // Стенка
-  wallThickness: string;
-
-  // Форма
-  shape: string;
-  constriction: string;
-
-  // Содержимое
-  contentType: string;
-  concretions: string;
-  concretionsList: Concretion[];
-  polyps: string;
-  polypsList: Polyp[];
-  content: string;
-
-  // Протоки
-  cysticDuct: string;
-  commonBileDuct: string;
-
-  // Дополнительно
-  additional: string;
-
-  // Заключение
-  conclusion: string;
-}
-
-interface GallbladderProps {
-  value?: GallbladderProtocol;
-  onChange?: (value: GallbladderProtocol) => void;
-}
-
-const defaultState: GallbladderProtocol = {
-  length: "",
-  width: "",
-  wallThickness: "",
-  shape: "",
-  constriction: "",
-  contentType: "",
-  concretions: "Не определяются",
-  concretionsList: [],
-  polyps: "Не определяются",
-  polypsList: [],
-  content: "",
-  cysticDuct: "",
-  commonBileDuct: "",
-  additional: "",
-  conclusion: "",
-};
+import type { Concretion, Polyp, GallbladderProtocol, GallbladderProps } from "@types";
+import { defaultGallbladderState } from "@types";
 
 export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<GallbladderProtocol>(value ?? defaultState);
+  const [form, setForm] = useState<GallbladderProtocol>(value ?? defaultGallbladderState);
 
   const conclusionFocus = useFieldFocus("gallbladder", "conclusion");
   const lengthFocus = useFieldFocus("gallbladder", "gallbladderLength");

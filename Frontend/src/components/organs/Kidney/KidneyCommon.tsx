@@ -4,88 +4,8 @@ import { useFieldFocus } from "@hooks/useFieldFocus";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-
-export interface Concrement {
-  size: string;
-  location: string;
-}
-
-export interface Cyst {
-  size: string;
-  location: string;
-}
-
-export interface KidneyProtocol {
-  length: string;
-  width: string;
-  thickness: string;
-  parenchymaSize: string;
-  parenchymaEchogenicity: string;
-  parenchymaStructure: string;
-  parenchymaConcrements: string;
-  parenchymaConcrementslist: Concrement[];
-  parenchymaCysts: string;
-  parenchymaCystslist: Cyst[];
-  parenchymaMultipleCysts: boolean;
-  parenchymaMultipleCystsSize: string;
-  parenchymaPathologicalFormations: string;
-  parenchymaPathologicalFormationsText: string;
-  pcsSize: string;
-  pcsMicroliths: string;
-  pcsMicrolithsSize: string;
-  pcsConcrements: string;
-  pcsConcrementslist: Concrement[];
-  pcsCysts: string;
-  pcsCystslist: Cyst[];
-  pcsMultipleCysts: boolean;
-  pcsMultipleCystsSize: string;
-  pcsPathologicalFormations: string;
-  pcsPathologicalFormationsText: string;
-  sinus: string;
-  adrenalArea: string;
-  adrenalAreaText: string;
-  contour: string;
-  additional: string;
-}
-
-interface KidneyCommonProps {
-  side: "left" | "right";
-  value?: KidneyProtocol;
-  onChange?: (value: KidneyProtocol) => void;
-}
-
-const defaultState: KidneyProtocol = {
-  length: "",
-  width: "",
-  thickness: "",
-  parenchymaSize: "",
-  parenchymaEchogenicity: "",
-  parenchymaStructure: "",
-  parenchymaConcrements: "не определяются",
-  parenchymaConcrementslist: [],
-  parenchymaCysts: "не определяются",
-  parenchymaCystslist: [],
-  parenchymaMultipleCysts: false,
-  parenchymaMultipleCystsSize: "",
-  parenchymaPathologicalFormations: "не определяются",
-  parenchymaPathologicalFormationsText: "",
-  pcsSize: "",
-  pcsMicroliths: "не определяются",
-  pcsMicrolithsSize: "",
-  pcsConcrements: "не определяются",
-  pcsConcrementslist: [],
-  pcsCysts: "не определяются",
-  pcsCystslist: [],
-  pcsMultipleCysts: false,
-  pcsMultipleCystsSize: "",
-  pcsPathologicalFormations: "не определяются",
-  pcsPathologicalFormationsText: "",
-  sinus: "",
-  adrenalArea: "",
-  adrenalAreaText: "",
-  contour: "",
-  additional: "",
-};
+import type { Concrement, Cyst, KidneyProtocol, KidneyCommonProps } from "@types";
+import { defaultKidneyState } from "@types";
 
 const pushItem = <T,>(list: T[], item: T) => [...list, item];
 const updateListItem = <T,>(
@@ -102,7 +22,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   onChange,
 }) => {
   const initialValue: KidneyProtocol = {
-    ...defaultState,
+    ...defaultKidneyState,
     ...(value || {}),
     parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
     parenchymaCystslist: value?.parenchymaCystslist || [],

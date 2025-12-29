@@ -1,7 +1,7 @@
 // Frontend/src/components/organs/Kidney/Cysts.tsx
 import React from "react";
-import type { Cyst } from "./KidneyCommon";
-import { inputClasses, buttonClasses } from "../../../utils/formClasses";
+import type { Cyst } from "@types";
+import { inputClasses, buttonClasses } from "@utils/formClasses";
 
 interface CystsProps {
   items: Cyst[];

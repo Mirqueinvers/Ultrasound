@@ -2,67 +2,11 @@ import React, { useState, useEffect } from "react";
 import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-
-export interface LiverProtocol {
-  // Размеры
-  rightLobeAP: string;      // мм (ПЗР правая)
-  leftLobeAP: string;       // мм (ПЗР левая)
-
-  // Дополнительные размеры (скрытые по умолчанию)
-  rightLobeCCR: string;     // мм (ККР правая)
-  rightLobeCVR: string;     // мм (КВР правая)
-  leftLobeCCR: string;      // мм (ККР левая)
-  rightLobeTotal: string;   // мм (ККР + ПЗР правая, авторасчет)
-  leftLobeTotal: string;    // мм (ККР + ПЗР левая, авторасчет)
-
-  // Структура
-  echogenicity: string;
-  homogeneity: string;      // Эхоструктура
-  contours: string;
-  lowerEdgeAngle: string;
-  focalLesionsPresence: string; // определяются / не определяются
-  focalLesions: string;         // описание, если определяются
-
-  // Сосуды
-  vascularPattern: string;
-  portalVeinDiameter: string;   // мм
-  ivc: string;
-
-  // Дополнительно
-  additional: string;
-
-  // Заключение
-  conclusion: string;
-}
-
-interface HepatProps {
-  value?: LiverProtocol;
-  onChange?: (value: LiverProtocol) => void;
-}
-
-const defaultState: LiverProtocol = {
-  rightLobeAP: "",
-  leftLobeAP: "",
-  rightLobeCCR: "",
-  rightLobeCVR: "",
-  leftLobeCCR: "",
-  rightLobeTotal: "",
-  leftLobeTotal: "",
-  echogenicity: "",
-  homogeneity: "",
-  contours: "",
-  lowerEdgeAngle: "",
-  focalLesionsPresence: "",
-  focalLesions: "",
-  vascularPattern: "",
-  portalVeinDiameter: "",
-  ivc: "",
-  additional: "",
-  conclusion: "",
-};
+import type { LiverProtocol, HepatProps } from "@types";
+import { defaultLiverState } from "@types";
 
 export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<LiverProtocol>(value ?? defaultState);
+  const [form, setForm] = useState<LiverProtocol>(value ?? defaultLiverState);
 
   const conclusionFocus = useFieldFocus("liver", "conclusion");
   const rightLobeFocus = useFieldFocus("liver", "rightLobeAP");

@@ -1,53 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { normalRanges, SizeRow, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
-
-export interface PancreasProtocol {
-  // Размеры
-  head: string;                    // мм (головка)
-  body: string;                    // мм (тело)
-  tail: string;                    // мм (хвост)
-
-  // Структура
-  echogenicity: string;            // Эхогенность
-  echostructure: string;           // Эхоструктура
-  contour: string;                 // Контур
-  pathologicalFormations: string;  // Не определяются / Определяются
-  pathologicalFormationsText: string; // описание патологических образований
-
-  // Вирсунгов проток
-  wirsungDuct: string;             // мм (диаметр)
-
-  // Дополнительно
-  additional: string;
-
-  // Заключение
-  conclusion: string;
-}
-
-interface PancreasProps {
-  value?: PancreasProtocol;
-  onChange?: (value: PancreasProtocol) => void;
-}
-
-const defaultState: PancreasProtocol = {
-  head: "",
-  body: "",
-  tail: "",
-  echogenicity: "",
-  echostructure: "",
-  contour: "",
-  pathologicalFormations: "Не определяются",
-  pathologicalFormationsText: "",
-  wirsungDuct: "",
-  additional: "",
-  conclusion: "",
-};
+import { inputClasses, labelClasses, fieldsetClasses, legendClasses } from "@utils/formClasses";
+import type { PancreasProps } from "@types";
+import { defaultPancreasState } from "@types";
+import {
+  useFormState,
+  useFieldUpdate,
+  useConclusion,
+} from "@hooks";
 
 export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<PancreasProtocol>(value ?? defaultState);
+  // 🔥 ХУКИ - 3 строки вместо 50+!
+  const [form, setForm] = useFormState(defaultPancreasState, value);
+  const updateField = useFieldUpdate(form, setForm, onChange);
+  useConclusion(setForm, "pancreas");
 
-  // Безопасное получение нормальных значений для поджелудочной железы
+  // Безопасное получение нормальных значений
   const pancreasRanges = normalRanges?.pancreas || {
     head: { min: 0, max: 32, unit: 'мм' },
     body: { min: 0, max: 21, unit: 'мм' },
@@ -55,56 +24,15 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
     wirsungDuct: { min: 0, max: 3, unit: 'мм' },
   };
 
-  // Добавляем useFieldFocus для полей поджелудочной железы
+  // Фокусы
   const conclusionFocus = useFieldFocus('pancreas', 'conclusion');
   const headFocus = useFieldFocus('pancreas', 'head');
   const bodyFocus = useFieldFocus('pancreas', 'body');
   const tailFocus = useFieldFocus('pancreas', 'tail');
   const wirsungDuctFocus = useFieldFocus('pancreas', 'wirsungDuct');
 
-  const updateField = (field: keyof PancreasProtocol, val: string) => {
-    const updated = { ...form, [field]: val };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  // Глобальный обработчик для добавления текста только в заключение поджелудочной железы
-  useEffect(() => {
-    const handleAddText = (event: CustomEvent) => {
-      const { text, organ } = event.detail;
-      
-      // Проверяем, что текст предназначен для поджелудочной железы
-      if (organ === 'pancreas') {
-        setForm(prev => ({
-          ...prev,
-          conclusion: prev.conclusion 
-            ? prev.conclusion + (prev.conclusion.endsWith('.') ? ' ' : '. ') + text
-            : text
-        }));
-      }
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddText as EventListener);
-
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddText as EventListener);
-    };
-  }, []);
-
-  const handleConclusionFocus = () => {
-    conclusionFocus.handleFocus();
-  };
-
-  const handleConclusionBlur = () => {
-    conclusionFocus.handleBlur();
-  };
-
-  const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
-  const legendClasses =
-    "px-1 text-sm font-semibold text-gray-800";
-  const fieldsetClasses =
-    "rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3";
+  const handleConclusionFocus = () => conclusionFocus.handleFocus();
+  const handleConclusionBlur = () => conclusionFocus.handleBlur();
 
   return (
     <div className="flex flex-col gap-4">
@@ -184,9 +112,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
           selectValue={form.pathologicalFormations}
           textareaValue={form.pathologicalFormationsText}
           onSelectChange={val => updateField("pathologicalFormations", val)}
-          onTextareaChange={val =>
-            updateField("pathologicalFormationsText", val)
-          }
+          onTextareaChange={val => updateField("pathologicalFormationsText", val)}
           options={[
             { value: "Не определяются", label: "Не определяются" },
             { value: "Определяются", label: "Определяются" },

@@ -2,51 +2,11 @@ import React, { useState, useEffect } from "react";
 import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-
-export interface SpleenProtocol {
-  // Размеры
-  length: string; // мм (длина)
-  width: string;  // мм (ширина)
-
-  // Структура
-  echogenicity: string;              // Эхогенность
-  echostructure: string;            // Эхоструктура
-  contours: string;                 // Контур
-  pathologicalFormations: string;   // Патологические образования
-  pathologicalFormationsText: string; // описание, если определяются
-
-  // Сосуды
-  splenicVein: string;   // мм (селезеночная вена)
-  splenicArtery: string; // мм (селезеночная артерия)
-
-  // Дополнительно
-  additional: string;
-
-  // Заключение
-  conclusion: string;
-}
-
-interface SpleenProps {
-  value?: SpleenProtocol;
-  onChange?: (value: SpleenProtocol) => void;
-}
-
-const defaultState: SpleenProtocol = {
-  length: "",
-  width: "",
-  echogenicity: "",
-  echostructure: "",
-  contours: "",
-  pathologicalFormations: "",
-  pathologicalFormationsText: "",
-  splenicVein: "",
-  splenicArtery: "",
-  additional: "",
-  conclusion: "",
-};
+import type { SpleenProtocol, SpleenProps } from "@types";
+import { defaultSpleenState } from "@types";
 
 export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<SpleenProtocol>(value ?? defaultState);
+  const [form, setForm] = useState<SpleenProtocol>(value ?? defaultSpleenState);
 
   const conclusionFocus = useFieldFocus("spleen", "conclusion");
   const lengthFocus = useFieldFocus("spleen", "spleenLength");

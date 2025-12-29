@@ -2,3 +2,6 @@
 npm install --save-dev @types/node vite @vitejs/plugin-react
 это исправит ошибку типов TypeScript
 
+cd Frontend
+npm install --save-dev @types/react @types/react-dom
+Это добавит интерфейс JSX.IntrinsicElements для всех HTML-элементов
