@@ -1,6 +1,6 @@
 // Frontend/src/types/ovary.ts
-export interface Follicle {
-  size: string; // мм
+export interface OvaryCyst {
+  size: string; // формат: "10x15" (мм)
 }
 
 export interface OvaryProtocol {
@@ -9,13 +9,13 @@ export interface OvaryProtocol {
   width: string;
   thickness: string;
   volume: string;
-  // Эхоструктура
-  echostructure: string;
-  echostructureText: string;
-  // Фолликулы
-  follicles: string;
-  folliclesList: Follicle[];
-  dominantFollicle: string;
+  // Форма
+  shape: string;
+  // Контур
+  contour: string;
+  // Кисты
+  cysts: string;
+  cystsList: OvaryCyst[];
   // Образования
   formations: string;
   formationsText: string;

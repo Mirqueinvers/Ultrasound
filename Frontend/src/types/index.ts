@@ -8,3 +8,4 @@ export * from './urinarybladder';
 export * from './defaultStates';
 export * from './ovary';
 export * from './uterus';
+export type { OvaryCyst } from './ovary';

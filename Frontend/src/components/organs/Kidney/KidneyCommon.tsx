@@ -159,7 +159,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
       <Fieldset title="Контур почки">
         <ButtonSelect
-          label="Характеристика"
+          label=""
           value={form.contour}
           onChange={(val) => updateField("contour", val)}
           options={[
@@ -373,7 +373,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
       <Fieldset title="Синус">
         <ButtonSelect
-          label="Состояние"
+          label=""
           value={form.sinus}
           onChange={(val) => updateField("sinus", val)}
           options={[
@@ -385,7 +385,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
       <Fieldset title="Область надпочечников">
         <SelectWithTextarea
-          label="Состояние"
+          label=""
           selectValue={form.adrenalArea}
           textareaValue={form.adrenalAreaText}
           onSelectChange={val => updateField("adrenalArea", val)}

@@ -129,18 +129,22 @@ export const defaultOvaryState: OvaryProtocol = {
   width: "",
   thickness: "",
   volume: "",
-  echostructure: "",
-  echostructureText: "",
-  follicles: "",
-  folliclesList: [],
-  dominantFollicle: "",
+  shape: "",
+  contour: "",
+  cysts: "",
+  cystsList: [],
   formations: "",
   formationsText: "",
   additional: "",
   conclusion: "",
 };
 
+
 export const defaultUterusState: UterusProtocol = {
+  studyType: "",
+  lastMenstruationDate: "",
+  cycleDay: "",
+  menopause: "",
   length: "",
   width: "",
   apDimension: "",
@@ -149,12 +153,22 @@ export const defaultUterusState: UterusProtocol = {
   position: "",
   myometriumStructure: "",
   myometriumStructureText: "",
+  myometriumEchogenicity: "",
+  uterineCavity: "",
+  uterineCavityText: "",
   endometriumSize: "",
   endometriumStructure: "",
   cervixSize: "",
   cervixEchostructure: "",
   cervixEchostructureText: "",
   cervicalCanal: "",
+  cervicalCanalText: "",
+  freeFluid: "",
+  freeFluidText: "",
   additional: "",
   conclusion: "",
 };
+
+
+
+

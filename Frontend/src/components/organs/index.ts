@@ -7,3 +7,11 @@ export { default as SpleenProtocol } from './Spleen';
 export { default as UrinarybladderProtocol } from './UrinaryBladder';
 export { default as UterusProtocol } from './Uterus';
 
+export { default as Ovary } from './Ovary';
+export { default as Gallbladder } from './Gallbladder';
+export { default as Kidney } from './Kidney/KidneyCommon';
+export { default as Hepat } from './Hepat';
+export { default as Pancreas } from './Pancreas';
+export { default as Spleen } from './Spleen';
+export { default as UrinaryBladder } from './UrinaryBladder';
+export { default as Uterus } from './Uterus';

@@ -65,7 +65,7 @@ const Content: React.FC<ContentProps> = ({ selectedStudy, activeSection }) => {
       return <Obp />;
     case 'Почки':
       return <Kidney />;
-    case 'ОМТ(Ж)':
+    case 'ОМТ (Ж)':
       return <OmtFemale />;
 
       

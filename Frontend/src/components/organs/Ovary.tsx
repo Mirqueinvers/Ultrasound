@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion, useListManager } from "@hooks";
 import { inputClasses, buttonClasses } from "@utils/formClasses";
-import type { Follicle, OvaryProtocol, OvaryProps } from "@types";
+import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";
 import { defaultOvaryState } from "@types";
 
 export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
@@ -16,15 +16,34 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   const thicknessFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryThickness");
   const volumeFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryVolume");
 
-  const folliclesManager = useListManager<Follicle>(
-    form.folliclesList,
+  const cystsManager = useListManager<OvaryCyst>(
+    form.cystsList,
     form,
     setForm,
     onChange,
-    "folliclesList"
+    "cystsList"
   );
 
   const sideLabel = side === 'left' ? 'Левый' : 'Правый';
+
+  // Автоматический расчет объема
+  useEffect(() => {
+    const length = parseFloat(form.length);
+    const width = parseFloat(form.width);
+    const thickness = parseFloat(form.thickness);
+
+    if (!isNaN(length) && !isNaN(width) && !isNaN(thickness) && length > 0 && width > 0 && thickness > 0) {
+      const volume = ((length * width * thickness * 0.523) / 1000).toFixed(2);
+      if (volume !== form.volume) {
+        updateField("volume", volume);
+      }
+    }
+  }, [form.length, form.width, form.thickness]);
+
+  const splitSize = (size: string): [string, string] => {
+    const [s1 = "", s2 = ""] = size.split("x");
+    return [s1, s2];
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -60,111 +79,128 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
 
         <SizeRow
           label="Объем (см³)"
-          value={form.volume}
-          onChange={val => updateField("volume", val)}
+          value={form.volume || ""}
+          onChange={() => {}}
           focus={volumeFocus}
           range={normalRanges.ovary?.volume}
+          readOnly
         />
       </Fieldset>
 
-      {/* Эхоструктура */}
-      <Fieldset title="Эхоструктура">
+      {/* Форма */}
+      <Fieldset title="Форма">
         <ButtonSelect
-          label="Структура"
-          value={form.echostructure}
-          onChange={(val) => updateField("echostructure", val)}
+          label=""
+          value={form.shape}
+          onChange={(val) => updateField("shape", val)}
           options={[
-            { value: "однородная", label: "однородная" },
-            { value: "неоднородная", label: "неоднородная" },
+            { value: "овальная", label: "овальная" },
+            { value: "округлая", label: "округлая" },
+            { value: "неправильная", label: "неправильная" },
           ]}
         />
-
-        {form.echostructure === "неоднородная" && (
-          <label className="block w-full mt-2">
-            <span className="text-sm text-gray-700">Описание</span>
-            <textarea
-              rows={2}
-              className={inputClasses + " resize-y"}
-              value={form.echostructureText}
-              onChange={e => updateField("echostructureText", e.target.value)}
-              placeholder="Опишите характер неоднородности..."
-            />
-          </label>
-        )}
       </Fieldset>
 
-      {/* Фолликулы */}
-      <Fieldset title="Фолликулы">
+      {/* Контур */}
+      <Fieldset title="Контур">
         <ButtonSelect
-          label="Наличие фолликулов"
-          value={form.follicles}
-          onChange={(val) => updateField("follicles", val)}
+          label=""
+          value={form.contour}
+          onChange={(val) => updateField("contour", val)}
+          options={[
+            { value: "четкий ровный", label: "четкий ровный" },
+            { value: "четкий не ровный", label: "четкий не ровный" },
+            { value: "не четкий", label: "не четкий" },
+          ]}
+        />
+      </Fieldset>
+
+      {/* Кисты */}
+      <Fieldset title="Кисты">
+        <ButtonSelect
+          label=""
+          value={form.cysts}
+          onChange={(val) => updateField("cysts", val)}
           options={[
             { value: "Не определяются", label: "Не определяются" },
             { value: "Определяются", label: "Определяются" },
           ]}
         />
 
-        {form.follicles === "Определяются" && (
+        {form.cysts === "Определяются" && (
           <div className="space-y-2 mt-2">
             <button
               type="button"
               className={buttonClasses}
-              onClick={() => folliclesManager.addItem({ size: "" })}
+              onClick={() => cystsManager.addItem({ size: "" })}
             >
-              Добавить фолликул
+              Добавить кисту
             </button>
 
-            {form.folliclesList.map((follicle, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                  {index + 1}.
-                </span>
+            {form.cystsList.map((cyst, index) => {
+              const [size1, size2] = splitSize(cyst.size);
 
-                <label className="flex-1">
-                  <span className="text-xs text-gray-500">Размер (мм)</span>
-                  <input
-                    type="text"
-                    className={`${inputClasses} text-xs py-1`}
-                    value={follicle.size}
-                    onChange={e =>
-                      folliclesManager.updateItem(index, "size", e.target.value)
-                    }
-                  />
-                </label>
+              return (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700 min-w-[20px]">
+                    {index + 1}.
+                  </span>
 
-                <button
-                  type="button"
-                  className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                  onClick={() => folliclesManager.removeItem(index)}
-                  title="Удалить"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <div className="flex-1 flex items-end gap-1">
+                    <label className="flex-1">
+                      <span className="text-xs text-gray-500">Размер 1 (мм)</span>
+                      <input
+                        type="text"
+                        className={`${inputClasses} text-xs py-1`}
+                        value={size1}
+                        onChange={e => {
+                          const newSize1 = e.target.value;
+                          const newSize = newSize1 + (size2 ? `x${size2}` : "");
+                          cystsManager.updateItem(index, "size", newSize);
+                        }}
+                      />
+                    </label>
+
+                    <span className="text-gray-500 pb-1">×</span>
+
+                    <label className="flex-1">
+                      <span className="text-xs text-gray-500">Размер 2 (мм)</span>
+                      <input
+                        type="text"
+                        className={`${inputClasses} text-xs py-1`}
+                        value={size2}
+                        onChange={e => {
+                          const newSize2 = e.target.value;
+                          const newSize = size1 + (newSize2 ? `x${newSize2}` : "");
+                          cystsManager.updateItem(index, "size", newSize);
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
+                    onClick={() => cystsManager.removeItem(index)}
+                    title="Удалить"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-
-            <label className="block w-full mt-2">
-              <span className="text-sm text-gray-700">Доминантный фолликул (мм)</span>
-              <input
-                type="text"
-                className={inputClasses}
-                value={form.dominantFollicle}
-                onChange={e => updateField("dominantFollicle", e.target.value)}
-              />
-            </label>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </Fieldset>
@@ -172,7 +208,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
       {/* Патологические образования */}
       <Fieldset title="Патологические образования">
         <ButtonSelect
-          label="Наличие образований"
+          label=""
           value={form.formations}
           onChange={(val) => updateField("formations", val)}
           options={[
@@ -225,3 +261,4 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
 };
 
 export default Ovary;
+export type { OvaryProtocol } from "@types";

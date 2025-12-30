@@ -53,7 +53,21 @@ export const normalRanges = {
   urinaryBladder: {
     residualVolume: { min: 0, max: 50, unit: "мл" },
     wallThickness: { min: 0, max: 5, unit: "мм" },
-},
+  },
+  uterus: {
+    length: { min: 45, max: 70, unit: "мм" },
+    width: { min: 45, max: 60, unit: "мм" },
+    apDimension: { min: 30, max: 40, unit: "мм" },
+    volume: { min: 30, max: 100, unit: "мл"  },
+    endometriumSize: { min: 3, max: 16, unit: "мм" }, // зависит от фазы цикла
+    cervixSize: { min: 25, max: 35, unit: "мм" },
+  },
+  ovary: {
+    length: { min: 25, max: 40, unit: "мм" },
+    width: { min: 15, max: 30, unit: "мм" },
+    thickness: { min: 15, max: 25, unit: "мм" },
+    volume: { min: 4, max: 10, unit: "мл" },
+  }
 } as const;
 
 export interface RangeIndicatorProps {

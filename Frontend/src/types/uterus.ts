@@ -1,5 +1,10 @@
 // Frontend/src/types/uterus.ts
 export interface UterusProtocol {
+  // Информация об исследовании
+  studyType: string;
+  lastMenstruationDate: string;
+  cycleDay: string;
+  menopause: string;
   // Размеры
   length: string;
   width: string;
@@ -12,6 +17,9 @@ export interface UterusProtocol {
   // Строение миометрия
   myometriumStructure: string;
   myometriumStructureText: string;
+  myometriumEchogenicity: string; // Эхогенность
+  uterineCavity: string; // Полость матки
+  uterineCavityText: string;
   // Эндометрий
   endometriumSize: string;
   // Структура эндометрия
@@ -23,6 +31,10 @@ export interface UterusProtocol {
   cervixEchostructureText: string;
   // Цервикальный канал
   cervicalCanal: string;
+  cervicalCanalText: string;
+  // Свободная жидкость в малом тазу
+  freeFluid: string;
+  freeFluidText: string;
   // Дополнительно
   additional: string;
   // Заключение
