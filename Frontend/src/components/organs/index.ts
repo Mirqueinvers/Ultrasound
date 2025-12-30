@@ -15,3 +15,4 @@ export { default as Pancreas } from './Pancreas';
 export { default as Spleen } from './Spleen';
 export { default as UrinaryBladder } from './UrinaryBladder';
 export { default as Uterus } from './Uterus';
+export { default as ThyroidCommon } from './Thyroid/ThyroidCommon';

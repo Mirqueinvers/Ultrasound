@@ -11,6 +11,8 @@ import type { UterusProtocol } from './uterus';
 import type { ProstateProtocol } from "./prostate";
 import type { TestisProtocol } from "./testis";
 import type { SingleTestisProtocol } from "./testis";
+import type { ThyroidLobeProtocol } from "./thyroid";
+import type { ThyroidProtocol } from "./thyroid";
 
 
 
@@ -234,3 +236,27 @@ export const defaultTestisState: TestisProtocol = {
   rightTestis: null,
   leftTestis: null,
 };
+
+export const defaultThyroidLobeState: ThyroidLobeProtocol = {
+  length: "",
+  width: "",
+  depth: "",
+  volume: "",
+  volumeFormations: "не определяются",
+  nodesList: [],
+};
+
+export const defaultThyroidState: ThyroidProtocol = {
+  rightLobe: { ...defaultThyroidLobeState },
+  leftLobe: { ...defaultThyroidLobeState },
+  isthmusSize: "",
+  totalVolume: "",
+  rightToLeftRatio: "",
+  echogenicity: "средняя",
+  echostructure: "однородная",
+  contour: "четкий ровный",
+  symmetry: "сохранена",
+  position: "обычное",
+};
+
+

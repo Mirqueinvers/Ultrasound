@@ -5,6 +5,7 @@ import Kidney from "@components/researches/Kidney";
 import OmtFemale from "@components/researches/OmtFemale";
 import OmtMale from "@components/researches/OmtMale";
 import Scrotum from "@components/researches/Scrotum";
+import Thyroid from "@components/researches/Thyroid";
 
 interface ContentProps {
   selectedStudy: string;
@@ -72,6 +73,8 @@ const Content: React.FC<ContentProps> = ({ selectedStudy, activeSection }) => {
       return <OmtMale />;
     case 'Органы мошонки':
       return <Scrotum />;
+    case 'Щитовидная железа':
+      return <Thyroid />;
 
     default:
       return (

@@ -80,6 +80,12 @@ export const normalRanges = {
     depth: { min: 15, max: 30, unit: "мм" },
     volume: { min: 12, max: 30, unit: "см³" },
   },
+  thyroid: {
+    length: { min: 40, max: 60, unit: "мм" },
+    width: { min: 13, max: 18, unit: "мм" },
+    depth: { min: 15, max: 20, unit: "мм" },
+    isthmus: { min: 3, max: 6, unit: "мм" },
+  },
 } as const;
 
 export interface RangeIndicatorProps {
