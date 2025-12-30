@@ -7,6 +7,7 @@ import type { SpleenProtocol } from './spleen';
 import type { PancreasProtocol } from './pancreas';
 import type { UrinaryBladderProtocol } from './urinarybladder';
 import type { OvaryProtocol } from './ovary';
+import type { UterusProtocol } from './uterus';
 
 export const defaultKidneyState: KidneyProtocol = {
   length: "",
@@ -135,6 +136,25 @@ export const defaultOvaryState: OvaryProtocol = {
   dominantFollicle: "",
   formations: "",
   formationsText: "",
+  additional: "",
+  conclusion: "",
+};
+
+export const defaultUterusState: UterusProtocol = {
+  length: "",
+  width: "",
+  apDimension: "",
+  volume: "",
+  shape: "",
+  position: "",
+  myometriumStructure: "",
+  myometriumStructureText: "",
+  endometriumSize: "",
+  endometriumStructure: "",
+  cervixSize: "",
+  cervixEchostructure: "",
+  cervixEchostructureText: "",
+  cervicalCanal: "",
   additional: "",
   conclusion: "",
 };

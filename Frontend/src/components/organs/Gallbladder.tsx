@@ -337,3 +337,4 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
 };
 
 export default Gallbladder;
+export type { GallbladderProtocol } from "@types";

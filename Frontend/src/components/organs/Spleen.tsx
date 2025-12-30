@@ -148,3 +148,4 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
 };
 
 export default Spleen;
+export type { SpleenProtocol } from "@types";

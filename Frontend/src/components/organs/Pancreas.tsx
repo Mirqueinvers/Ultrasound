@@ -167,3 +167,4 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
 };
 
 export default Pancreas;
+export type { PancreasProtocol } from "@types";

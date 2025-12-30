@@ -284,3 +284,5 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
 };
 
 export default Hepat;
+export type { LiverProtocol } from "@types";
+
