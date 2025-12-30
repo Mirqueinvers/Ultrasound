@@ -6,6 +6,9 @@ import OmtFemale from "@components/researches/OmtFemale";
 import OmtMale from "@components/researches/OmtMale";
 import Scrotum from "@components/researches/Scrotum";
 import Thyroid from "@components/researches/Thyroid";
+import Breast from "@components/researches/Breast";
+import ChildDispensary from "@components/researches/ChildDispensary";
+import SoftTissue from "@components/researches/SoftTissue";
 
 interface ContentProps {
   selectedStudy: string;
@@ -75,6 +78,12 @@ const Content: React.FC<ContentProps> = ({ selectedStudy, activeSection }) => {
       return <Scrotum />;
     case 'Щитовидная железа':
       return <Thyroid />;
+    case 'Молочные железы':
+      return <Breast />;
+    case 'Детская диспансеризация':
+      return <ChildDispensary />;
+    case 'Мягких тканей':
+      return <SoftTissue />;
 
     default:
       return (

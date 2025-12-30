@@ -12,3 +12,6 @@ export type { OvaryCyst } from './ovary';
 export * from "./prostate";
 export * from "./testis";
 export * from "./thyroid";
+export * from "./breast";
+export * from "./childDispensary";
+export * from "./softTissue";

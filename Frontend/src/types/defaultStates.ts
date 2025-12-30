@@ -13,8 +13,10 @@ import type { TestisProtocol } from "./testis";
 import type { SingleTestisProtocol } from "./testis";
 import type { ThyroidLobeProtocol } from "./thyroid";
 import type { ThyroidProtocol } from "./thyroid";
-
-
+import type { BreastSideProtocol } from "./breast";
+import type { BreastProtocol } from "./breast";
+import type { ChildDispensaryProtocol } from "./childDispensary";
+import type { SoftTissueProtocol } from "./softTissue";
 
 export const defaultKidneyState: KidneyProtocol = {
   length: "",
@@ -259,4 +261,39 @@ export const defaultThyroidState: ThyroidProtocol = {
   position: "обычное",
 };
 
+export const defaultBreastSideState: BreastSideProtocol = {
+  skin: "не изменена",
+  skinComment: "",
+  nipples: "не изменены",
+  nipplesComment: "",
+  milkDucts: "не расширены",
+  volumeFormations: "не определяются",
+  nodesList: [],
+};
 
+export const defaultBreastState: BreastProtocol = {
+  lastMenstruationDate: "",
+  cycleDay: "",
+  rightBreast: { ...defaultBreastSideState },
+  leftBreast: { ...defaultBreastSideState },
+  structure: "преимущественно жировая ткань",
+};
+
+export const defaultChildDispensaryState: ChildDispensaryProtocol = {
+  liverStatus: "без патологии",
+  liver: null,
+  gallbladderStatus: "без патологии",
+  gallbladder: null,
+  pancreasStatus: "без патологии",
+  pancreas: null,
+  spleenStatus: "без патологии",
+  spleen: null,
+  kidneysStatus: "без патологии",
+  rightKidney: null,
+  leftKidney: null,
+};
+
+export const defaultSoftTissueState: SoftTissueProtocol = {
+  researchArea: "",
+  description: "",
+};
