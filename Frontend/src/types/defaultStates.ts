@@ -6,6 +6,7 @@ import type { LiverProtocol } from './hepat';
 import type { SpleenProtocol } from './spleen';
 import type { PancreasProtocol } from './pancreas';
 import type { UrinaryBladderProtocol } from './urinarybladder';
+import type { OvaryProtocol } from './ovary';
 
 export const defaultKidneyState: KidneyProtocol = {
   length: "",
@@ -120,4 +121,20 @@ export const defaultUrinaryBladderState: UrinaryBladderProtocol = {
   contents: "",
   contentsText: "",
   additional: "",
+};
+
+export const defaultOvaryState: OvaryProtocol = {
+  length: "",
+  width: "",
+  thickness: "",
+  volume: "",
+  echostructure: "",
+  echostructureText: "",
+  follicles: "",
+  folliclesList: [],
+  dominantFollicle: "",
+  formations: "",
+  formationsText: "",
+  additional: "",
+  conclusion: "",
 };

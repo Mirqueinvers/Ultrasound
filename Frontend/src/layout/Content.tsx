@@ -2,6 +2,7 @@ import React from "react";
 
 import Obp from "@components/researches/Obp";
 import Kidney from "@components/researches/Kidney";
+import OmtFemale from "@components/researches/OmtFemale";
 
 
 interface ContentProps {
@@ -64,16 +65,11 @@ const Content: React.FC<ContentProps> = ({ selectedStudy, activeSection }) => {
       return <Obp />;
     case 'Почки':
       return <Kidney />;
-    case 'ОМТ (Ж)':
-      return (
-        <div className="content">
-          <h2 className="text-slate-800 mt-0">УЗИ органов малого таза (женщины)</h2>
-          <div className="mt-6 p-8 border-2 border-dashed border-slate-300 rounded-lg text-center">
-            <h3 className="text-slate-600 mb-2">🚧 В разработке</h3>
-            <p className="text-slate-500">Компонент для УЗИ ОМТ (женщины) будет добавлен в следующей версии</p>
-          </div>
-        </div>
-      );
+    case 'ОМТ(Ж)':
+      return <OmtFemale />;
+
+      
+
     case 'ОМТ (М)':
       return (
         <div className="content">

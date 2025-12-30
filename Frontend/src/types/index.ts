@@ -6,3 +6,4 @@ export * from './pancreas';
 export * from './spleen';
 export * from './urinarybladder';
 export * from './defaultStates';
+export * from './ovary';
