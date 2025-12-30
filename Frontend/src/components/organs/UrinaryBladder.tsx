@@ -229,3 +229,4 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
 };
 
 export default UrinaryBladder;
+export type { UrinaryBladderProtocol } from "@types";

@@ -8,6 +8,11 @@ import type { PancreasProtocol } from './pancreas';
 import type { UrinaryBladderProtocol } from './urinarybladder';
 import type { OvaryProtocol } from './ovary';
 import type { UterusProtocol } from './uterus';
+import type { ProstateProtocol } from "./prostate";
+import type { TestisProtocol } from "./testis";
+import type { SingleTestisProtocol } from "./testis";
+
+
 
 export const defaultKidneyState: KidneyProtocol = {
   length: "",
@@ -169,6 +174,63 @@ export const defaultUterusState: UterusProtocol = {
   conclusion: "",
 };
 
+export const defaultProstateState: ProstateProtocol = {
+  studyType: "",
+  length: "",
+  width: "",
+  apDimension: "",
+  volume: "",
 
+  contour: "",
+  symmetry: "",
+  shape: "",
+  echogenicity: "",
 
+  echotexture: "",
+  echotextureText: "",
 
+  bladderProtrusion: "",
+  bladderProtrusionMm: "",
+
+  pathologicLesions: "",
+  pathologicLesionsText: "",
+
+  additional: "",
+  conclusion: "",
+};
+
+export const defaultSingleTestisState: SingleTestisProtocol = {
+  length: "",
+  width: "",
+  depth: "",
+  volume: "",
+
+  location: "",
+  contour: "",
+
+  capsule: "",
+  capsuleText: "",
+
+  echogenicity: "",
+  echotexture: "",
+  echotextureText: "",
+
+  mediastinum: "",
+  mediastinumText: "",
+
+  bloodFlow: "",
+
+  appendage: "",
+  appendageText: "",
+
+  fluidAmount: "",
+  fluidAmountText: "",
+
+  additional: "",
+  conclusion: "",
+};
+
+export const defaultTestisState: TestisProtocol = {
+  rightTestis: null,
+  leftTestis: null,
+};

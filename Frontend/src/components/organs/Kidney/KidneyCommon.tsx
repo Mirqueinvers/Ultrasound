@@ -414,3 +414,4 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 };
 
 export default KidneyCommon;
+export type { KidneyProtocol } from "@types";

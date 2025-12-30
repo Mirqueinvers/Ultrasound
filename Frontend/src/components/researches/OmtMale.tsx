@@ -1,0 +1,70 @@
+import React, { useState } from "react";
+import Prostate, { type ProstateProtocol } from "@organs/Prostate";
+import UrinaryBladder, {
+  type UrinaryBladderProtocol,
+} from "@organs/UrinaryBladder";
+import { ResearchHeader, Conclusion } from "@common";
+
+export interface OmtMaleProtocol {
+  prostate: ProstateProtocol | null;
+  urinaryBladder: UrinaryBladderProtocol | null;
+}
+
+interface OmtMaleProps {
+  value?: OmtMaleProtocol;
+  onChange?: (value: OmtMaleProtocol) => void;
+}
+
+const defaultState: OmtMaleProtocol = {
+  prostate: null,
+  urinaryBladder: null,
+};
+
+export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
+  const [form, setForm] = useState<OmtMaleProtocol>(value ?? defaultState);
+  const [conclusion, setConclusion] = useState({
+    conclusion: "",
+    recommendations: "",
+  });
+
+  const updateProstate = (prostateData: ProstateProtocol) => {
+    const updated: OmtMaleProtocol = { ...form, prostate: prostateData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateUrinaryBladder = (
+    urinaryBladderData: UrinaryBladderProtocol
+  ) => {
+    const updated: OmtMaleProtocol = {
+      ...form,
+      urinaryBladder: urinaryBladderData,
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <ResearchHeader researchType="Ультразвуковое исследование органов малого таза (мужчины)" />
+
+      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+        <Prostate
+          value={form.prostate ?? undefined}
+          onChange={updateProstate}
+        />
+      </div>
+
+      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
+        />
+      </div>
+
+      <Conclusion value={conclusion} onChange={setConclusion} />
+    </div>
+  );
+};
+
+export default OmtMale;

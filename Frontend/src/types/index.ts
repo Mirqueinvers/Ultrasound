@@ -9,3 +9,5 @@ export * from './defaultStates';
 export * from './ovary';
 export * from './uterus';
 export type { OvaryCyst } from './ovary';
+export * from "./prostate";
+export * from "./testis";

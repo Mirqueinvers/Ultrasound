@@ -67,7 +67,19 @@ export const normalRanges = {
     width: { min: 15, max: 30, unit: "мм" },
     thickness: { min: 15, max: 25, unit: "мм" },
     volume: { min: 4, max: 10, unit: "мл" },
-  }
+  },
+  prostate: {
+    length: { min: 25, max: 45, unit: "мм" },      // Норма по УЗИ [web:12]
+    width: { min: 23, max: 41, unit: "мм" },       // Норма по УЗИ [web:12]
+    apPZR: { min: 16, max: 24, unit: "мм" },  // ПЗР норма [web:12]
+    volume: { min: 18, max: 35, unit: "см³" }      // Норма объема [web:2]
+  },
+  testis: {
+    length: { min: 30, max: 50, unit: "мм" },
+    width: { min: 15, max: 30, unit: "мм" },
+    depth: { min: 15, max: 30, unit: "мм" },
+    volume: { min: 12, max: 30, unit: "см³" },
+  },
 } as const;
 
 export interface RangeIndicatorProps {
