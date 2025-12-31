@@ -1,13 +1,9 @@
 import React from "react";
 import { useResearch } from "@contexts";
 
-export interface ResearchHeaderProps {
-  researchType: string;
-}
+export interface ResearchHeaderProps {}
 
-export const ResearchHeader: React.FC<ResearchHeaderProps> = ({
-  researchType,
-}) => {
+export const ResearchHeader: React.FC<ResearchHeaderProps> = () => {
   const {
     patientFullName,
     setPatientFullName,
@@ -19,13 +15,6 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({
 
   return (
     <div className="border-b-2 border-slate-200 pb-6 mb-6">
-      {/* Вид исследования */}
-      <div className="text-center mb-6">
-        <h2 className="m-0 text-slate-700 text-lg font-semibold">
-          {researchType}
-        </h2>
-      </div>
-
       {/* Информация о пациенте в столбик */}
       <div className="flex flex-col gap-4">
         {/* ФИО */}

@@ -1,7 +1,7 @@
 // Frontend/src/components/researches/Breast.tsx
 import React, { useState } from "react";
 import BreastCommon, { type BreastProtocol } from "@organs/Breast/BreastCommon";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface BreastResearchProtocol {
   breast: BreastProtocol | null;
@@ -31,7 +31,9 @@ export const Breast: React.FC<BreastProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование молочных желез" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование молочных желез
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <BreastCommon

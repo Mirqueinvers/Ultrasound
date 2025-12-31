@@ -3,7 +3,7 @@ import Hepat, { type LiverProtocol } from "@organs/Hepat";
 import Gallbladder, { type GallbladderProtocol } from "@organs/Gallbladder";
 import Pancreas, { type PancreasProtocol } from "@organs/Pancreas";
 import Spleen, { type SpleenProtocol } from "@organs/Spleen";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface ObpProtocol {
   liver: LiverProtocol | null;
@@ -57,7 +57,9 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование органов брюшной полости" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование органов брюшной полости
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Hepat value={form.liver ?? undefined} onChange={updateLiver} />

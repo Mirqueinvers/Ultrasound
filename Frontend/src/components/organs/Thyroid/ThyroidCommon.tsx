@@ -64,10 +64,6 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ value, onChange })
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">
-        Щитовидная железа
-      </h2>
-
       <ThyroidLobe
         side="right"
         value={form.rightLobe}

@@ -3,7 +3,7 @@ import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import type { KidneyProtocol as KidneyCommonProtocol } from "@organs/Kidney/KidneyCommon";
 import type { UrinaryBladderProtocol } from "@organs/UrinaryBladder";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface KidneyProtocol {
   rightKidney: KidneyCommonProtocol | null;
@@ -49,7 +49,9 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование почек и мочевого пузыря" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование почек
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <KidneyCommon

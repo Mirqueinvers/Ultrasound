@@ -1,6 +1,6 @@
 // Frontend/src/components/researches/SoftTissue.tsx
 import React, { useState } from "react";
-import { ResearchHeader, Conclusion, Fieldset } from "@common";
+import { Conclusion, Fieldset } from "@common";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { SoftTissueProtocol, SoftTissueProps } from "@types";
@@ -20,10 +20,11 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование мягких тканей" />
+        <div className="text-2xl font-semibold text-center mt-2 mb-4">
+          Ультразвуковое исследование мягких тканей
+        </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
-        <Fieldset title="Исследование мягких тканей">
+        <Fieldset title="">
           <div className="w-full">
             <label className={labelClasses + " w-full"}>
               Область исследования
@@ -50,8 +51,7 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
             </label>
           </div>
         </Fieldset>
-      </div>
-
+      
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>
   );

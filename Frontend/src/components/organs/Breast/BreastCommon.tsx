@@ -60,10 +60,6 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">
-        Молочные железы
-      </h2>
-
       <Fieldset title="Общая информация">
         <div>
           <label className={labelClasses}>

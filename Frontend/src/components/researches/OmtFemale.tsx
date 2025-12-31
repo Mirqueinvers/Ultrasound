@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Uterus, { type UterusProtocol } from "@organs/Uterus";
 import Ovary, { type OvaryProtocol } from "@organs/Ovary";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface OmtFemaleProtocol {
   uterus: UterusProtocol | null;
@@ -47,7 +47,9 @@ export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование органов малого таза (женщины)" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование органов малого таза
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />

@@ -3,7 +3,7 @@ import Prostate, { type ProstateProtocol } from "@organs/Prostate";
 import UrinaryBladder, {
   type UrinaryBladderProtocol,
 } from "@organs/UrinaryBladder";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface OmtMaleProtocol {
   prostate: ProstateProtocol | null;
@@ -46,7 +46,9 @@ export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование органов малого таза (мужчины)" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование органов малого таза
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Prostate

@@ -5,7 +5,7 @@ import Gallbladder from "@organs/Gallbladder";
 import Pancreas from "@organs/Pancreas";
 import Spleen from "@organs/Spleen";
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
-import { ResearchHeader, Conclusion, ButtonSelect } from "@common";
+import { Conclusion, ButtonSelect } from "@common";
 import type { 
   ChildDispensaryProtocol,
   ChildDispensaryProps,
@@ -78,7 +78,9 @@ export const ChildDispensary: React.FC<ChildDispensaryProps> = ({ value, onChang
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="УЗИ в рамках детской диспансеризации" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Детская диспансеризация
+      </div>
 
       {/* Печень */}
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">

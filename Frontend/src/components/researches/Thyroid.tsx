@@ -1,7 +1,7 @@
 // Frontend/src/components/researches/Thyroid.tsx
 import React, { useState } from "react";
 import ThyroidCommon, { type ThyroidProtocol } from "@organs/Thyroid/ThyroidCommon";
-import { ResearchHeader, Conclusion } from "@common";
+import { Conclusion } from "@common";
 
 export interface ThyroidResearchProtocol {
   thyroid: ThyroidProtocol | null;
@@ -31,7 +31,9 @@ export const Thyroid: React.FC<ThyroidProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ResearchHeader researchType="Ультразвуковое исследование щитовидной железы" />
+      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+        Ультразвуковое исследование щитовидной железы
+      </div>
 
       <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <ThyroidCommon
