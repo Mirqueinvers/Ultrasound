@@ -1,2 +1,3 @@
-export { ResearchContext, ResearchProvider, useResearch } from "./ResearchContext";
-export { RightPanelContext, RightPanelProvider, useRightPanel } from "./RightPanelContext";
+export { ResearchProvider, useResearch } from './ResearchContext';
+export { RightPanelProvider, useRightPanel } from './RightPanelContext';
+export { AuthProvider, useAuth } from './AuthContext';

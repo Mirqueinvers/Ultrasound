@@ -2,10 +2,15 @@ import { useState } from "react";
 
 import { RightPanelProvider } from "@contexts/RightPanelContext";
 import { ResearchProvider } from "@contexts/ResearchContext";
+import { AuthProvider, useAuth } from "@contexts/AuthContext";
 import Content from "@layout/Content";
 import MainLayout from "@layout/MainLayout";
+import AuthForm from "@/components/auth/AuthForm";
 
-function App() {
+// Внутренний компонент приложения
+function AppContent() {
+  const { isAuthenticated, isLoading, login, register } = useAuth();
+  
   const [activeSection, setActiveSection] = useState<string>('uzi-protocols');
   const [selectedStudy, setSelectedStudy] = useState<string>('');
   const [selectedStudies, setSelectedStudies] = useState<string[]>([]);
@@ -42,6 +47,26 @@ function App() {
     setSelectedStudies([]);
   };
 
+  // Показываем загрузку при проверке сессии
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        Загрузка...
+      </div>
+    );
+  }
+
+  // Если не авторизован - показываем форму входа
+  if (!isAuthenticated) {
+    return <AuthForm onLogin={login} onRegister={register} />;
+  }
+
+  // Если авторизован - показываем основное приложение
   return (
     <ResearchProvider>
       <RightPanelProvider>
@@ -66,6 +91,15 @@ function App() {
         </MainLayout>
       </RightPanelProvider>
     </ResearchProvider>
+  );
+}
+
+// Основной компонент App с провайдером
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

@@ -6,4 +6,5 @@ export { SizeRow } from './SizeRow';
 export { ResearchHeader } from './ResearchHeader';
 export { Conclusion } from './Conclusion';
 export { ButtonSelect } from './ButtonSelect';
+export { default as UserMenu } from './UserMenu';
 

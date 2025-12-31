@@ -1,4 +1,5 @@
 import React from 'react';
+import UserMenu from '@/components/common/UserMenu';
 
 interface HeaderProps {
   activeSection: string;
@@ -31,8 +32,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
           </button>
         ))}
       </nav>
-      {/* Пустое пространство справа для баланса */}
-      <div></div>
+      <UserMenu />
     </header>
   );
 };
