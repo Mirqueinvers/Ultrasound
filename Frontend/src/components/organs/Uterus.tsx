@@ -10,7 +10,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "uterus");
 
-  const conclusionFocus = useFieldFocus("uterus", "conclusion");
   const lengthFocus = useFieldFocus("uterus", "uterusLength");
   const widthFocus = useFieldFocus("uterus", "uterusWidth");
   const apDimensionFocus = useFieldFocus("uterus", "uterusApDimension");
@@ -344,20 +343,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

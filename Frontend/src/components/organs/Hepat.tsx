@@ -13,7 +13,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   useConclusion(setForm, "liver");
 
   // Хуки для фокуса на различных полях
-  const conclusionFocus = useFieldFocus("liver", "conclusion");
   const rightLobeFocus = useFieldFocus("liver", "rightLobeAP");
   const leftLobeFocus = useFieldFocus("liver", "leftLobeAP");
   const portalVeinFocus = useFieldFocus("liver", "portalVeinDiameter");
@@ -262,20 +261,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={4}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

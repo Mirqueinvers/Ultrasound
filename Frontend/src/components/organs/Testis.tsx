@@ -33,7 +33,6 @@ const TestisSide: React.FC<{
   const widthFocus = useFieldFocus(key, "width");
   const depthFocus = useFieldFocus(key, "depth");
   const volumeFocus = useFieldFocus(key, "volume");
-  const conclusionFocus = useFieldFocus(key, "conclusion");
 
   useEffect(() => {
     const length = parseFloat(form.length);
@@ -303,19 +302,6 @@ const TestisSide: React.FC<{
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={(e) => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={(e) => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

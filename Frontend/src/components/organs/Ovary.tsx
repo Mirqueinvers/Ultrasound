@@ -10,7 +10,6 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, side === 'left' ? "leftOvary" : "rightOvary");
 
-  const conclusionFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "conclusion");
   const lengthFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryLength");
   const widthFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryWidth");
   const thicknessFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryThickness");
@@ -239,20 +238,6 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

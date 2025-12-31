@@ -16,7 +16,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
   useConclusion(setForm, "gallbladder");
 
   // Хуки для фокуса на различных полях
-  const conclusionFocus = useFieldFocus("gallbladder", "conclusion");
   const lengthFocus = useFieldFocus("gallbladder", "gallbladderLength");
   const widthFocus = useFieldFocus("gallbladder", "gallbladderWidth");
   const wallThicknessFocus = useFieldFocus("gallbladder", "wallThickness");
@@ -315,20 +314,6 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

@@ -16,7 +16,6 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
   useConclusion(setForm, "spleen");
 
   // Хуки для фокуса на различных полях
-  const conclusionFocus = useFieldFocus("spleen", "conclusion");
   const lengthFocus = useFieldFocus("spleen", "spleenLength");
   const widthFocus = useFieldFocus("spleen", "spleenWidth");
   const splenicVeinFocus = useFieldFocus("spleen", "splenicVein");
@@ -126,20 +125,6 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={4}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>

@@ -25,14 +25,10 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   };
 
   // Фокусы
-  const conclusionFocus = useFieldFocus('pancreas', 'conclusion');
   const headFocus = useFieldFocus('pancreas', 'head');
   const bodyFocus = useFieldFocus('pancreas', 'body');
   const tailFocus = useFieldFocus('pancreas', 'tail');
   const wirsungDuctFocus = useFieldFocus('pancreas', 'wirsungDuct');
-
-  const handleConclusionFocus = () => conclusionFocus.handleFocus();
-  const handleConclusionBlur = () => conclusionFocus.handleBlur();
 
   return (
     <div className="flex flex-col gap-4">
@@ -144,21 +140,6 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={e => updateField("additional", e.target.value)}
-          />
-        </div>
-      </fieldset>
-
-      {/* Заключение */}
-      <fieldset className={fieldsetClasses}>
-        <legend className={legendClasses}>Заключение</legend>
-        <div>
-          <textarea
-            rows={4}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={e => updateField("conclusion", e.target.value)}
-            onFocus={handleConclusionFocus}
-            onBlur={handleConclusionBlur}
           />
         </div>
       </fieldset>

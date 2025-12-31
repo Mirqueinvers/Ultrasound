@@ -5,12 +5,14 @@ import Header from "@layout/Header";
 import LeftSidePanel from "@layout/LeftSidePanel";
 import RightSidePanel from "@layout/RightSidePanel";
 
-
 type MainLayoutProps = PropsWithChildren<{
   activeSection: string;
   setActiveSection: (value: string) => void;
   selectedStudy: string;
   onStudySelect: (value: string) => void;
+  isMultiSelectMode?: boolean;
+  selectedStudies?: string[];
+  onToggleStudy?: (value: string) => void;
 }>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -19,6 +21,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   setActiveSection,
   selectedStudy,
   onStudySelect,
+  isMultiSelectMode = false,
+  selectedStudies = [],
+  onToggleStudy,
 }) => {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -33,6 +38,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             activeSection={activeSection}
             selectedStudy={selectedStudy}
             onStudySelect={onStudySelect}
+            isMultiSelectMode={isMultiSelectMode}
+            selectedStudies={selectedStudies}
+            onToggleStudy={onToggleStudy}
           />
 
           <div className="w-[70%] bg-white border border-slate-300 px-6 py-6 shadow-lg rounded-lg">

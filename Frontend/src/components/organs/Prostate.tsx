@@ -23,7 +23,6 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
   const widthFocus = useFieldFocus("prostate", "width");
   const apDimensionFocus = useFieldFocus("prostate", "apDimension");
   const volumeFocus = useFieldFocus("prostate", "volume");
-  const conclusionFocus = useFieldFocus("prostate", "conclusion");
 
   // Автоматический расчет объема (как в матке)
   useEffect(() => {
@@ -262,20 +261,6 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={(e) => updateField("additional", e.target.value)}
-          />
-        </div>
-      </Fieldset>
-
-      {/* Заключение */}
-      <Fieldset title="Заключение">
-        <div>
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.conclusion}
-            onChange={(e) => updateField("conclusion", e.target.value)}
-            onFocus={conclusionFocus.handleFocus}
-            onBlur={conclusionFocus.handleBlur}
           />
         </div>
       </Fieldset>
