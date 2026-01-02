@@ -20,6 +20,15 @@ export const ButtonSelect: React.FC<ButtonSelectProps> = ({
   options,
   disabled = false,
 }) => {
+  const handleClick = (optionValue: string) => {
+    // Если кликнули по уже выбранной кнопке - отменяем выбор
+    if (value === optionValue) {
+      onChange("");
+    } else {
+      onChange(optionValue);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2">
       {label && (
@@ -32,7 +41,7 @@ export const ButtonSelect: React.FC<ButtonSelectProps> = ({
         {options.map((option) => (
           <button
             key={option.value}
-            onClick={() => onChange(option.value)}
+            onClick={() => handleClick(option.value)}
             disabled={disabled}
             className={`px-3 py-1 text-sm rounded font-medium transition-colors ${
               value === option.value
