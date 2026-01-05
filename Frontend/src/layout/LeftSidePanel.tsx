@@ -48,37 +48,72 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   };
 
   return (
-    <aside className="w-[15%] min-h-[calc(100vh-4rem)] bg-white border border-slate-300 px-4 py-4 box-border sticky top-16 shadow-lg rounded-lg">
-      <div className="content">
+    <aside className="w-[15%] min-h-[calc(100vh-4rem)] bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
         {activeSection === 'uzi-protocols' ? (
-          <>
-            <h3 className="mt-0 text-slate-800 mb-4">УЗИ исследования</h3>
-            <div className="border-t border-slate-300 mb-4"></div>
-            <nav className="flex flex-col gap-2">
-              {studiesList.map((study, index) => (
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 m-0">УЗИ исследования</h3>
+            <p className="text-xs text-slate-500 m-0 mt-1">Выберите тип протокола</p>
+          </div>
+        ) : (
+          <h3 className="text-lg font-bold text-slate-800 m-0">Левая панель</h3>
+        )}
+      </div>
+
+      {activeSection === 'uzi-protocols' && (
+        <nav className="p-3">
+          <div className="flex flex-col gap-1.5">
+            {studiesList.map((study, index) => {
+              const selected = isStudySelected(study);
+              
+              return (
                 <button
                   key={index}
                   onClick={() => handleStudyClick(study)}
-                  className={`text-left no-underline px-3 py-2 rounded transition-colors text-sm relative ${
-                    isStudySelected(study)
-                      ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' 
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
+                  className={`
+                    group relative flex items-center justify-between px-3.5 py-3 rounded-xl 
+                    text-left transition-all duration-200 text-sm font-medium
+                    ${selected
+                      ? 'bg-sky-50 text-sky-700 shadow-md shadow-sky-100/50 scale-[1.02]'
+                      : 'text-slate-700 hover:bg-slate-50 hover:scale-[1.01]'
+                    }
+                  `}
                 >
-                  <span className="flex items-center justify-between">
-                    <span>{study}</span>
-                    {isMultiSelectMode && selectedStudies.includes(study) && (
-                      <span className="text-blue-600 font-bold">✓</span>
-                    )}
+                  {/* Левый акцент */}
+                  {selected && (
+                    <div 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3/4 rounded-r-full"
+                      style={{
+                        background: 'linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))'
+                      }}
+                    />
+                  )}
+
+                  {/* Название */}
+                  <span className="flex-1 leading-tight">
+                    {study}
                   </span>
+
+                  {/* Индикатор выбора в мультирежиме */}
+                  {isMultiSelectMode && selectedStudies.includes(study) && (
+                    <div 
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                      style={{ backgroundColor: 'rgb(14 165 233)' }}
+                    >
+                      ✓
+                    </div>
+                  )}
+
+                  {/* Hover эффект свечения */}
+                  {!selected && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-slate-100/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
                 </button>
-              ))}
-            </nav>
-          </>
-        ) : (
-          <h3 className="mt-0 text-slate-800 mb-4">Левая панель</h3>
-        )}
-      </div>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </aside>
   );
 };
