@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { Fieldset, SizeRow, ButtonSelect, normalRanges } from "@common";
+import { normalRanges } from "@common";
+import { ButtonSelect, Fieldset, SizeRow } from "@/UI";
 import {
   useFormState,
   useFieldUpdate,

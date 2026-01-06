@@ -1,6 +1,6 @@
 // Frontend/src/components/organs/Breast/BreastSide.tsx
 import React from "react";
-import { Fieldset, ButtonSelect } from "@components/common";
+import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate, useListManager } from "@hooks";
 import { BreastNodeComponent } from "./BreastNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";

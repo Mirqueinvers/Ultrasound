@@ -1,5 +1,6 @@
 import React from "react";
-import { normalRanges, SizeRow, SelectWithTextarea, ButtonSelect } from "@common";
+import { normalRanges } from "@common";
+import { SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses, fieldsetClasses, legendClasses } from "@utils/formClasses";
 import type { PancreasProps } from "@types";

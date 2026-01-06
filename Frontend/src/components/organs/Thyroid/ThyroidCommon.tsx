@@ -1,6 +1,6 @@
 // Frontend/src/components/organs/thyroid/ThyroidCommon.tsx
 import React, { useEffect } from "react";
-import { Fieldset, ButtonSelect } from "@components/common";
+import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { ThyroidLobe } from "./ThyroidLobe";
 import { inputClasses, labelClasses } from "@utils/formClasses";

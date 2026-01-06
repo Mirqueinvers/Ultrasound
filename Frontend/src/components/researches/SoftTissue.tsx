@@ -1,6 +1,7 @@
 // Frontend/src/components/researches/SoftTissue.tsx
 import React, { useState } from "react";
-import { Conclusion, Fieldset } from "@common";
+import { Conclusion } from "@common";
+import { Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { SoftTissueProtocol, SoftTissueProps } from "@types";

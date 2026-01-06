@@ -1,5 +1,6 @@
 import React from "react";
-import { Fieldset, normalRanges, SizeRow } from "@common";
+import { normalRanges } from "@common";
+import { Fieldset, SizeRow } from "@/UI";
 import { useFormState, useFieldFocus } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { UrinaryBladderProtocol, UrinaryBladderProps } from "@types";

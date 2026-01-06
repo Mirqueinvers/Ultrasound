@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
+import { normalRanges } from "@common";
+import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
 import type { UterusProtocol, UterusProps } from "@types";

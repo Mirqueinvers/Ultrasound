@@ -1,5 +1,6 @@
 import React from "react";
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@common";
+import { normalRanges } from "@common";
+import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { useFormState, useFieldFocus, useConclusion } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
 import type { LiverProtocol, HepatProps } from "@types";

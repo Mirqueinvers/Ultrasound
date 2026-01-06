@@ -1,6 +1,6 @@
 // Frontend/src/components/organs/Breast/BreastNode.tsx
 import React from "react";
-import { ButtonSelect } from "@components/common";
+import { ButtonSelect } from "@/UI";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { BreastNode } from "@types";
 

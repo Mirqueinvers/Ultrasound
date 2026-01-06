@@ -1,6 +1,7 @@
 // Frontend/src/components/researches/Thyroid/ThyroidLobe.tsx
 import React, { useEffect } from "react";
-import { Fieldset, SizeRow, ButtonSelect, normalRanges } from "@components/common";
+import { normalRanges } from "@components/common";
+import {  ButtonSelect, SizeRow, Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { ThyroidNodeComponent } from "./ThyroidNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";

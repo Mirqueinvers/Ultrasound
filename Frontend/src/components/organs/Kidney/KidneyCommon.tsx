@@ -1,5 +1,6 @@
 import React from "react";
-import { normalRanges, SizeRow, Fieldset, SelectWithTextarea, ButtonSelect } from "@components/common";
+import { normalRanges } from "@components/common";
+import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";

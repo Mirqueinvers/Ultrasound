@@ -1,4 +1,4 @@
-// Frontend/src/components/common/Fieldset.tsx
+// src/UI/Fieldset.tsx
 import React from "react";
 import { fieldsetClasses, legendClasses } from "@utils/formClasses";
 
@@ -20,3 +20,5 @@ export const Fieldset: React.FC<FieldsetProps> = ({
     </fieldset>
   );
 };
+
+export default Fieldset;

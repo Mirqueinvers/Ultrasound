@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { normalRanges, SizeRow, Fieldset, ButtonSelect } from "@common";
+import { normalRanges } from "@common";
+import { SizeRow, Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion, useListManager } from "@hooks";
 import { inputClasses, buttonClasses } from "@utils/formClasses";
 import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";

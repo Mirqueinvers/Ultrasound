@@ -5,7 +5,9 @@ import Gallbladder from "@organs/Gallbladder";
 import Pancreas from "@organs/Pancreas";
 import Spleen from "@organs/Spleen";
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
-import { Conclusion, ButtonSelect } from "@common";
+import { Conclusion } from "@common";
+import { ButtonSelect } from "@/UI";
+
 import type { 
   ChildDispensaryProtocol,
   ChildDispensaryProps,
