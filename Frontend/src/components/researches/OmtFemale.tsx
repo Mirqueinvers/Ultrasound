@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import Uterus, { type UterusProtocol } from "@organs/Uterus";
 import Ovary, { type OvaryProtocol } from "@organs/Ovary";
 import { Conclusion } from "@common";
+import UrinaryBladder from "@organs/UrinaryBladder";
+import type { UrinaryBladderProtocol } from "@organs/UrinaryBladder";
 
 export interface OmtFemaleProtocol {
   uterus: UterusProtocol | null;
   leftOvary: OvaryProtocol | null;
   rightOvary: OvaryProtocol | null;
+  urinaryBladder: UrinaryBladderProtocol | null;
 }
 
 interface OmtFemaleProps {
@@ -18,6 +21,7 @@ const defaultState: OmtFemaleProtocol = {
   uterus: null,
   leftOvary: null,
   rightOvary: null,
+  urinaryBladder: null,
 };
 
 export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
@@ -45,31 +49,35 @@ export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
     onChange?.(updated);
   };
 
+  const updateUrinaryBladder = (urinaryBladderData: UrinaryBladderProtocol) => {
+    const updated = { ...form, urinaryBladder: urinaryBladderData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование органов малого таза
       </div>
-
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Ovary
           value={form.rightOvary ?? undefined}
           onChange={updateRightOvary}
           side="right"
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Ovary
           value={form.leftOvary ?? undefined}
           onChange={updateLeftOvary}
           side="left"
         />
-      </div>
+
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
+        />
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

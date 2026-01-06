@@ -9,7 +9,10 @@ import Thyroid from "@components/researches/Thyroid";
 import Breast from "@components/researches/Breast";
 import ChildDispensary from "@components/researches/ChildDispensary";
 import SoftTissue from "@components/researches/SoftTissue";
+import UrinaryBladderResearch from "@components/researches/UrinaryBladderResearch";
 import ResearchHeader from "@components/common/ResearchHeader";
+
+
 
 interface ContentProps {
   selectedStudy: string;
@@ -126,7 +129,7 @@ function renderStudyComponent(study: string) {
       return <OmtFemale />;
     case 'ОМТ (М)':
       return <OmtMale />;
-    case 'Органы мoshonки':
+    case 'Органы мошонки':
       return <Scrotum />;
     case 'Щитовидная железа':
       return <Thyroid />;
@@ -136,6 +139,8 @@ function renderStudyComponent(study: string) {
       return <ChildDispensary />;
     case 'Мягких тканей':
       return <SoftTissue />;
+    case 'Мочевой пузырь':
+      return <UrinaryBladderResearch />;
 
     default:
       return (

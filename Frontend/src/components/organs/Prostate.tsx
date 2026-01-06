@@ -1,22 +1,24 @@
 import React, { useEffect } from "react";
-import { normalRanges } from "@common";
-import { ButtonSelect, Fieldset, SizeRow } from "@/UI";
+import { normalRanges } from "@components/common";
+import { ButtonSelect, Fieldset, SizeRow, SelectWithTextarea } from "@/UI";
+import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import {
   useFormState,
   useFieldUpdate,
   useFieldFocus,
   useConclusion,
 } from "@hooks";
-import { inputClasses } from "@utils/formClasses";
+import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { ProstateProtocol, ProstateProps } from "@types";
 import { defaultProstateState } from "@types";
 
-
 export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState<ProstateProtocol>(
-    defaultProstateState,
-    value
-  );
+  const initialValue: ProstateProtocol = {
+    ...defaultProstateState,
+    ...(value || {}),
+  };
+
+  const [form, setForm] = useFormState<ProstateProtocol>(initialValue, value);
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "prostate");
 
@@ -50,14 +52,10 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
   }, [form.length, form.width, form.apDimension]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        Простата
-      </h3>
-
-      {/* Информация об исследовании */}
-      <Fieldset title="Информация об исследовании">
-        <div className="space-y-3">
+    <ResearchSectionCard title="Простата" headerClassName="bg-sky-500">
+      <div className="flex flex-col gap-6">
+        {/* Информация об исследовании */}
+        <Fieldset title="Информация об исследовании">
           <ButtonSelect
             label="Вид исследования"
             value={form.studyType}
@@ -67,107 +65,108 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
               { value: "трансректальное", label: "трансректальное" },
             ]}
           />
-        </div>
-      </Fieldset>
+        </Fieldset>
 
-      {/* Размеры */}
-      <Fieldset title="Размеры">
-        <SizeRow
-          label="Длина (мм)"
-          value={form.length}
-          onChange={(val) => updateField("length", val)}
-          focus={lengthFocus}
-          range={normalRanges.prostate?.length}
-        />
+        {/* Размеры */}
+        <Fieldset title="Размеры">
+          <SizeRow
+            label="Длина (мм)"
+            value={form.length}
+            onChange={(val) => updateField("length", val)}
+            focus={lengthFocus}
+            range={normalRanges.prostate?.length}
+          />
 
-        <SizeRow
-          label="Ширина (мм)"
-          value={form.width}
-          onChange={(val) => updateField("width", val)}
-          focus={widthFocus}
-          range={normalRanges.prostate?.width}
-        />
+          <SizeRow
+            label="Ширина (мм)"
+            value={form.width}
+            onChange={(val) => updateField("width", val)}
+            focus={widthFocus}
+            range={normalRanges.prostate?.width}
+          />
 
-        <SizeRow
-          label="ПЗР (мм)"
-          value={form.apDimension}
-          onChange={(val) => updateField("apDimension", val)}
-          focus={apDimensionFocus}
-          range={normalRanges.prostate?.apPZR}
-        />
+          <SizeRow
+            label="ПЗР (мм)"
+            value={form.apDimension}
+            onChange={(val) => updateField("apDimension", val)}
+            focus={apDimensionFocus}
+            range={normalRanges.prostate?.apPZR}
+          />
 
-        <SizeRow
-          label="Объем (см³)"
-          value={form.volume || ""}
-          onChange={() => {}}
-          focus={volumeFocus}
-          readOnly
-          range={normalRanges.prostate?.volume}
-        />
-      </Fieldset>
+          <SizeRow
+            label="Объем (см³)"
+            value={form.volume || ""}
+            onChange={() => {}}
+            focus={volumeFocus}
+            readOnly
+            range={normalRanges.prostate?.volume}
+            autoCalculated={true}
+            customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
+          />
+        </Fieldset>
 
-
-      {/* Контур */}
-      <Fieldset title="Контур">
-        <ButtonSelect
-          label=""
-          value={form.contour}
-          onChange={(val) => updateField("contour", val)}
-          options={[
-            { value: "четкий ровный", label: "четкий ровный" },
-            { value: "четкий не ровный", label: "четкий не ровный" },
-            { value: "не четкий", label: "не четкий" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Симметричность */}
-      <Fieldset title="Симметричность">
-        <ButtonSelect
-          label=""
-          value={form.symmetry}
-          onChange={(val) => updateField("symmetry", val)}
-          options={[
-            { value: "сохранена", label: "сохранена" },
-            { value: "ассиметрична", label: "ассиметрична" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Форма */}
-      <Fieldset title="Форма">
-        <ButtonSelect
-          label=""
-          value={form.shape}
-          onChange={(val) => updateField("shape", val)}
-          options={[
-            { value: "овальная", label: "овальная" },
-            { value: "треугольная", label: "треугольная" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Эхогенность */}
-      <Fieldset title="Эхогенность">
-        <ButtonSelect
-          label=""
-          value={form.echogenicity}
-          onChange={(val) => updateField("echogenicity", val)}
-          options={[
-            { value: "средняя", label: "средняя" },
-            { value: "повышенная", label: "повышенная" },
-            { value: "пониженная", label: "пониженная" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Эхоструктура */}
-      <Fieldset title="Эхоструктура">
-        <div className="space-y-3">
+        {/* Контур */}
+        <Fieldset title="Контур">
           <ButtonSelect
             label=""
-            value={form.echotexture}
-            onChange={(val) => updateField("echotexture", val)}
+            value={form.contour}
+            onChange={(val) => updateField("contour", val)}
+            options={[
+              { value: "четкий ровный", label: "четкий ровный" },
+              { value: "четкий неровный", label: "четкий неровный" },
+              { value: "нечеткий", label: "нечеткий" },
+            ]}
+          />
+        </Fieldset>
+
+        {/* Симметричность */}
+        <Fieldset title="Симметричность">
+          <ButtonSelect
+            label=""
+            value={form.symmetry}
+            onChange={(val) => updateField("symmetry", val)}
+            options={[
+              { value: "сохранена", label: "сохранена" },
+              { value: "ассиметрична", label: "ассиметрична" },
+            ]}
+          />
+        </Fieldset>
+
+        {/* Форма */}
+        <Fieldset title="Форма">
+          <ButtonSelect
+            label=""
+            value={form.shape}
+            onChange={(val) => updateField("shape", val)}
+            options={[
+              { value: "овальная", label: "овальная" },
+              { value: "треугольная", label: "треугольная" },
+            ]}
+          />
+        </Fieldset>
+
+        {/* Эхогенность */}
+        <Fieldset title="Эхогенность">
+          <ButtonSelect
+            label=""
+            value={form.echogenicity}
+            onChange={(val) => updateField("echogenicity", val)}
+            options={[
+              { value: "средняя", label: "средняя" },
+              { value: "повышенная", label: "повышенная" },
+              { value: "пониженная", label: "пониженная" },
+            ]}
+          />
+        </Fieldset>
+
+        {/* Эхоструктура */}
+        <Fieldset title="Эхоструктура">
+          <SelectWithTextarea
+            label=""
+            selectValue={form.echotexture}
+            textareaValue={form.echotextureText}
+            onSelectChange={(val) => updateField("echotexture", val)}
+            onTextareaChange={(val) => updateField("echotextureText", val)}
             options={[
               { value: "однородная", label: "однородная" },
               { value: "неоднородная", label: "неоднородная" },
@@ -176,28 +175,13 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
                 label: "диффузно-неоднородная",
               },
             ]}
+            triggerValue="неоднородная"
+            textareaLabel="Описание"
           />
+        </Fieldset>
 
-          {form.echotexture === "неоднородная" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.echotextureText}
-                onChange={(e) =>
-                  updateField("echotextureText", e.target.value)
-                }
-                placeholder="Опишите характер неоднородности..."
-              />
-            </label>
-          )}
-        </div>
-      </Fieldset>
-
-      {/* В просвет мочевого пузыря */}
-      <Fieldset title="В просвет мочевого пузыря">
-        <div className="space-y-3">
+        {/* В просвет мочевого пузыря */}
+        <Fieldset title="В просвет мочевого пузыря">
           <ButtonSelect
             label=""
             value={form.bladderProtrusion}
@@ -209,8 +193,8 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
           />
 
           {form.bladderProtrusion === "выступает" && (
-            <label className="block w-full max-w-[25%]">
-              <span className="text-sm text-gray-700">Выступает на (мм)</span>
+            <label className={labelClasses + " mt-3 max-w-[25%]"}>
+              Выступает на (мм)
               <input
                 type="number"
                 className={inputClasses}
@@ -221,51 +205,36 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
               />
             </label>
           )}
-        </div>
-      </Fieldset>
+        </Fieldset>
 
-      {/* Патологические образования */}
-      <Fieldset title="Патологические образования">
-        <div className="space-y-3">
-          <ButtonSelect
+        {/* Патологические образования */}
+        <Fieldset title="Патологические образования">
+          <SelectWithTextarea
             label=""
-            value={form.pathologicLesions}
-            onChange={(val) => updateField("pathologicLesions", val)}
+            selectValue={form.pathologicLesions}
+            textareaValue={form.pathologicLesionsText}
+            onSelectChange={(val) => updateField("pathologicLesions", val)}
+            onTextareaChange={(val) => updateField("pathologicLesionsText", val)}
             options={[
               { value: "не определяются", label: "не определяются" },
               { value: "определяются", label: "определяются" },
             ]}
+            triggerValue="определяются"
+            textareaLabel="Описание"
           />
+        </Fieldset>
 
-          {form.pathologicLesions === "определяются" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.pathologicLesionsText}
-                onChange={(e) =>
-                  updateField("pathologicLesionsText", e.target.value)
-                }
-                placeholder="Опишите характер образований..."
-              />
-            </label>
-          )}
-        </div>
-      </Fieldset>
-
-      {/* Дополнительно */}
-      <Fieldset title="Дополнительно">
-        <div>
+        {/* Дополнительно */}
+        <Fieldset title="Дополнительно">
           <textarea
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
             onChange={(e) => updateField("additional", e.target.value)}
           />
-        </div>
-      </Fieldset>
-    </div>
+        </Fieldset>
+      </div>
+    </ResearchSectionCard>
   );
 };
 

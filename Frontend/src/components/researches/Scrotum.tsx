@@ -34,9 +34,7 @@ export const Scrotum: React.FC<ScrotumProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов мошонки
       </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Testis value={form.testis ?? undefined} onChange={updateTestis} />
-      </div>
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

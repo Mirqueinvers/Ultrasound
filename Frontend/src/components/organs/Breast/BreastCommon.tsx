@@ -1,4 +1,3 @@
-// Frontend/src/components/organs/Breast/BreastCommon.tsx
 import React, { useEffect } from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
@@ -13,10 +12,12 @@ interface BreastCommonProps {
 }
 
 export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState<BreastProtocol>(
-    defaultBreastState,
-    value
-  );
+  const initialValue: BreastProtocol = {
+    ...defaultBreastState,
+    ...(value || {}),
+  };
+
+  const [form, setForm] = useFormState<BreastProtocol>(initialValue, value);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
 
     const lastMenstruation = new Date(form.lastMenstruationDate);
     const today = new Date();
-    
+
     if (isNaN(lastMenstruation.getTime())) {
       return;
     }
@@ -60,45 +61,46 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Общая информация */}
       <Fieldset title="Общая информация">
-        <div>
-          <label className={labelClasses}>
-            Дата последней менструации
-            <input
-              type="date"
-              className={inputClasses}
-              value={form.lastMenstruationDate}
-              onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
-            />
-          </label>
-        </div>
+        <label className={labelClasses}>
+          Дата последней менструации
+          <input
+            type="date"
+            className={inputClasses}
+            value={form.lastMenstruationDate}
+            onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
+          />
+        </label>
 
-        <div>
-          <label className={labelClasses}>
-            День цикла
-            <input
-              type="text"
-              className={inputClasses + " bg-gray-100"}
-              value={form.cycleDay}
-              readOnly
-              disabled
-            />
-          </label>
-        </div>
+        <label className={labelClasses}>
+          День цикла
+          <input
+            type="text"
+            className={inputClasses + " bg-gray-50"}
+            value={form.cycleDay}
+            readOnly
+            disabled
+            placeholder="Рассчитывается автоматически"
+          />
+        </label>
       </Fieldset>
 
+      {/* Правая молочная железа */}
       <BreastSide
         side="right"
         value={form.rightBreast}
         onChange={handleBreastChange("right")}
       />
 
+      {/* Левая молочная железа */}
       <BreastSide
         side="left"
         value={form.leftBreast}
         onChange={handleBreastChange("left")}
       />
 
+      {/* Структура молочных желез */}
       <Fieldset title="Структура молочных желез">
         <ButtonSelect
           label=""

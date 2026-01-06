@@ -1,5 +1,5 @@
 export { default as OvaryProtocol } from './Ovary';
-export { default as GallbladderProtocol } from './Gallbladder';
+export { default as GallbladderProtocol } from './Gallbladder/Gallbladder';
 export { default as KidneyProtocol } from './Kidney/KidneyCommon';
 export { default as LiverProtocol } from './Hepat';
 export { default as PancreasProtocol } from './Pancreas';
@@ -8,7 +8,7 @@ export { default as UrinarybladderProtocol } from './UrinaryBladder';
 export { default as UterusProtocol } from './Uterus';
 
 export { default as Ovary } from './Ovary';
-export { default as Gallbladder } from './Gallbladder';
+export { default as Gallbladder } from './Gallbladder/Gallbladder';
 export { default as Kidney } from './Kidney/KidneyCommon';
 export { default as Hepat } from './Hepat';
 export { default as Pancreas } from './Pancreas';

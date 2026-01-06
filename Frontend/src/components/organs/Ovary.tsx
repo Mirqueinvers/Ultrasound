@@ -1,20 +1,31 @@
 import React, { useEffect } from "react";
-import { normalRanges } from "@common";
-import { SizeRow, Fieldset, ButtonSelect } from "@/UI";
+import { normalRanges } from "@components/common";
+import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
+import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion, useListManager } from "@hooks";
-import { inputClasses, buttonClasses } from "@utils/formClasses";
+import { inputClasses, labelClasses } from "@utils/formClasses";
+import { Plus, Trash2 } from "lucide-react";
 import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";
 import { defaultOvaryState } from "@types";
 
 export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
-  const [form, setForm] = useFormState<OvaryProtocol>(defaultOvaryState, value);
-  const updateField = useFieldUpdate(form, setForm, onChange);
-  useConclusion(setForm, side === 'left' ? "leftOvary" : "rightOvary");
+  const initialValue: OvaryProtocol = {
+    ...defaultOvaryState,
+    ...(value || {}),
+  };
 
-  const lengthFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryLength");
-  const widthFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryWidth");
-  const thicknessFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryThickness");
-  const volumeFocus = useFieldFocus(side === 'left' ? "leftOvary" : "rightOvary", "ovaryVolume");
+  const [form, setForm] = useFormState<OvaryProtocol>(initialValue, value);
+  const updateField = useFieldUpdate(form, setForm, onChange);
+  
+  const organName = side === "left" ? "leftOvary" : "rightOvary";
+  const title = side === "left" ? "Левый яичник" : "Правый яичник";
+  
+  useConclusion(setForm, organName);
+
+  const lengthFocus = useFieldFocus(organName, "length");
+  const widthFocus = useFieldFocus(organName, "width");
+  const thicknessFocus = useFieldFocus(organName, "thickness");
+  const volumeFocus = useFieldFocus(organName, "volume");
 
   const cystsManager = useListManager<OvaryCyst>(
     form.cystsList,
@@ -23,8 +34,6 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
     onChange,
     "cystsList"
   );
-
-  const sideLabel = side === 'left' ? 'Левый' : 'Правый';
 
   // Автоматический расчет объема
   useEffect(() => {
@@ -46,203 +55,191 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        {sideLabel} яичник
-      </h3>
+    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+      <div className="flex flex-col gap-6">
+        {/* Размеры */}
+        <Fieldset title="Размеры">
+          <SizeRow
+            label="Длина (мм)"
+            value={form.length}
+            onChange={(val) => updateField("length", val)}
+            focus={lengthFocus}
+            range={normalRanges.ovary?.length}
+          />
 
-      {/* Размеры */}
-      <Fieldset title="Размеры">
-        <SizeRow
-          label="Длина (мм)"
-          value={form.length}
-          onChange={val => updateField("length", val)}
-          focus={lengthFocus}
-          range={normalRanges.ovary?.length}
-        />
+          <SizeRow
+            label="Ширина (мм)"
+            value={form.width}
+            onChange={(val) => updateField("width", val)}
+            focus={widthFocus}
+            range={normalRanges.ovary?.width}
+          />
 
-        <SizeRow
-          label="Ширина (мм)"
-          value={form.width}
-          onChange={val => updateField("width", val)}
-          focus={widthFocus}
-          range={normalRanges.ovary?.width}
-        />
+          <SizeRow
+            label="Толщина (мм)"
+            value={form.thickness}
+            onChange={(val) => updateField("thickness", val)}
+            focus={thicknessFocus}
+            range={normalRanges.ovary?.thickness}
+          />
 
-        <SizeRow
-          label="Толщина (мм)"
-          value={form.thickness}
-          onChange={val => updateField("thickness", val)}
-          focus={thicknessFocus}
-          range={normalRanges.ovary?.thickness}
-        />
+          <SizeRow
+            label="Объем (см³)"
+            value={form.volume || ""}
+            onChange={() => {}}
+            focus={volumeFocus}
+            range={normalRanges.ovary?.volume}
+            readOnly
+          />
+        </Fieldset>
 
-        <SizeRow
-          label="Объем (см³)"
-          value={form.volume || ""}
-          onChange={() => {}}
-          focus={volumeFocus}
-          range={normalRanges.ovary?.volume}
-          readOnly
-        />
-      </Fieldset>
+        {/* Форма */}
+        <Fieldset title="Форма">
+          <ButtonSelect
+            label=""
+            value={form.shape}
+            onChange={(val) => updateField("shape", val)}
+            options={[
+              { value: "овальная", label: "овальная" },
+              { value: "округлая", label: "округлая" },
+              { value: "неправильная", label: "неправильная" },
+            ]}
+          />
+        </Fieldset>
 
-      {/* Форма */}
-      <Fieldset title="Форма">
-        <ButtonSelect
-          label=""
-          value={form.shape}
-          onChange={(val) => updateField("shape", val)}
-          options={[
-            { value: "овальная", label: "овальная" },
-            { value: "округлая", label: "округлая" },
-            { value: "неправильная", label: "неправильная" },
-          ]}
-        />
-      </Fieldset>
+        {/* Контур */}
+        <Fieldset title="Контур">
+          <ButtonSelect
+            label=""
+            value={form.contour}
+            onChange={(val) => updateField("contour", val)}
+            options={[
+              { value: "четкий ровный", label: "четкий ровный" },
+              { value: "четкий неровный", label: "четкий неровный" },
+              { value: "нечеткий", label: "нечеткий" },
+            ]}
+          />
+        </Fieldset>
 
-      {/* Контур */}
-      <Fieldset title="Контур">
-        <ButtonSelect
-          label=""
-          value={form.contour}
-          onChange={(val) => updateField("contour", val)}
-          options={[
-            { value: "четкий ровный", label: "четкий ровный" },
-            { value: "четкий не ровный", label: "четкий не ровный" },
-            { value: "не четкий", label: "не четкий" },
-          ]}
-        />
-      </Fieldset>
+        {/* Кисты */}
+        <Fieldset title="Кисты">
+          <ButtonSelect
+            label=""
+            value={form.cysts}
+            onChange={(val) => updateField("cysts", val)}
+            options={[
+              { value: "не определяются", label: "не определяются" },
+              { value: "определяются", label: "определяются" },
+            ]}
+          />
 
-      {/* Кисты */}
-      <Fieldset title="Кисты">
-        <ButtonSelect
-          label=""
-          value={form.cysts}
-          onChange={(val) => updateField("cysts", val)}
-          options={[
-            { value: "Не определяются", label: "Не определяются" },
-            { value: "Определяются", label: "Определяются" },
-          ]}
-        />
-
-        {form.cysts === "Определяются" && (
-          <div className="space-y-2 mt-2">
-            <button
-              type="button"
-              className={buttonClasses}
-              onClick={() => cystsManager.addItem({ size: "" })}
-            >
-              Добавить кисту
-            </button>
-
-            {form.cystsList.map((cyst, index) => {
-              const [size1, size2] = splitSize(cyst.size);
-
-              return (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-                    {index + 1}.
-                  </span>
-
-                  <div className="flex-1 flex items-end gap-1">
-                    <label className="flex-1">
-                      <span className="text-xs text-gray-500">Размер 1 (мм)</span>
-                      <input
-                        type="text"
-                        className={`${inputClasses} text-xs py-1`}
-                        value={size1}
-                        onChange={e => {
-                          const newSize1 = e.target.value;
-                          const newSize = newSize1 + (size2 ? `x${size2}` : "");
-                          cystsManager.updateItem(index, "size", newSize);
-                        }}
-                      />
-                    </label>
-
-                    <span className="text-gray-500 pb-1">×</span>
-
-                    <label className="flex-1">
-                      <span className="text-xs text-gray-500">Размер 2 (мм)</span>
-                      <input
-                        type="text"
-                        className={`${inputClasses} text-xs py-1`}
-                        value={size2}
-                        onChange={e => {
-                          const newSize2 = e.target.value;
-                          const newSize = size1 + (newSize2 ? `x${newSize2}` : "");
-                          cystsManager.updateItem(index, "size", newSize);
-                        }}
-                      />
-                    </label>
-                  </div>
-
+          {form.cysts === "определяются" && (
+            <div className="mt-4 space-y-4">
+              {/* Кнопка добавления (когда нет кист) */}
+              {form.cystsList.length === 0 && (
+                <div className="w-full text-center py-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+                  <p className="text-slate-500 text-sm mb-4">Кисты не добавлены</p>
                   <button
                     type="button"
-                    className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-                    onClick={() => cystsManager.removeItem(index)}
-                    title="Удалить"
+                    onClick={() => cystsManager.addItem({ size: "" })}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <Plus size={18} />
+                    Добавить кисту
                   </button>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </Fieldset>
+              )}
 
-      {/* Патологические образования */}
-      <Fieldset title="Патологические образования">
-        <ButtonSelect
-          label=""
-          value={form.formations}
-          onChange={(val) => updateField("formations", val)}
-          options={[
-            { value: "Не определяются", label: "Не определяются" },
-            { value: "Определяются", label: "Определяются" },
-          ]}
-        />
+              {/* Список кист */}
+              {form.cystsList.map((cyst, index) => {
+                const [size1, size2] = splitSize(cyst.size);
 
-        {form.formations === "Определяются" && (
-          <label className="block w-full mt-2">
-            <span className="text-sm text-gray-700">Описание</span>
-            <textarea
-              rows={2}
-              className={inputClasses + " resize-y"}
-              value={form.formationsText}
-              onChange={e => updateField("formationsText", e.target.value)}
-              placeholder="Опишите локализацию, размеры, структуру образований..."
-            />
-          </label>
-        )}
-      </Fieldset>
+                return (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg"
+                  >
+                    <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
+                      <span className="text-white font-bold text-sm">
+                        Киста #{index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => cystsManager.removeItem(index)}
+                        className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                        title="Удалить кисту"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
 
-      {/* Дополнительно */}
-      <Fieldset title="Дополнительно">
-        <div>
+                    <div className="p-4 flex flex-col gap-4">
+                      {/* Размеры */}
+                      <SizeRow
+                        label="Размер 1 (мм)"
+                        value={size1}
+                        onChange={(val) => {
+                          const newSize = val + (size2 ? `x${size2}` : "");
+                          cystsManager.updateItem(index, "size", newSize);
+                        }}
+                      />
+
+                      <SizeRow
+                        label="Размер 2 (мм)"
+                        value={size2}
+                        onChange={(val) => {
+                          const newSize = size1 + (val ? `x${val}` : "");
+                          cystsManager.updateItem(index, "size", newSize);
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Кнопка добавления (когда есть кисты) */}
+              {form.cystsList.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => cystsManager.addItem({ size: "" })}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
+                >
+                  <Plus size={18} />
+                  Добавить кисту
+                </button>
+              )}
+            </div>
+          )}
+        </Fieldset>
+
+        {/* Патологические образования */}
+        <Fieldset title="Патологические образования">
+          <SelectWithTextarea
+            label=""
+            selectValue={form.formations}
+            textareaValue={form.formationsText}
+            onSelectChange={(val) => updateField("formations", val)}
+            onTextareaChange={(val) => updateField("formationsText", val)}
+            options={[
+              { value: "не определяются", label: "не определяются" },
+              { value: "определяются", label: "определяются" },
+            ]}
+            triggerValue="определяются"
+            textareaLabel="Описание"
+          />
+        </Fieldset>
+
+        {/* Дополнительно */}
+        <Fieldset title="Дополнительно">
           <textarea
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
-            onChange={e => updateField("additional", e.target.value)}
+            onChange={(e) => updateField("additional", e.target.value)}
           />
-        </div>
-      </Fieldset>
-    </div>
+        </Fieldset>
+      </div>
+    </ResearchSectionCard>
   );
 };
 

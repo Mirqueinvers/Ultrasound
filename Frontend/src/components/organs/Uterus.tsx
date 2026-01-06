@@ -1,13 +1,19 @@
 import React, { useEffect } from "react";
-import { normalRanges } from "@common";
-import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
+import { normalRanges } from "@components/common";
+import { Fieldset, SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
+import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion } from "@hooks";
-import { inputClasses } from "@utils/formClasses";
+import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { UterusProtocol, UterusProps } from "@types";
 import { defaultUterusState } from "@types";
 
 export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState<UterusProtocol>(defaultUterusState, value);
+  const initialValue: UterusProtocol = {
+    ...defaultUterusState,
+    ...(value || {}),
+  };
+
+  const [form, setForm] = useFormState<UterusProtocol>(initialValue, value);
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "uterus");
 
@@ -47,14 +53,9 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   }, [form.length, form.width, form.apDimension]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">
-        Матка
-      </h3>
-
-      {/* Информация об исследовании */}
-      <Fieldset title="Информация об исследовании">
-        <div className="space-y-3">
+    <ResearchSectionCard title="Матка" headerClassName="bg-sky-500">
+      <div className="flex flex-col gap-6">
+        <Fieldset title="Информация об исследовании">
           <ButtonSelect
             label="Вид исследования"
             value={form.studyType}
@@ -65,27 +66,31 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
             ]}
           />
 
-          <label className="block w-full max-w-[25%]">
-            <span className="text-sm text-gray-700">Дата последней менструации</span>
-            <input
-              type="date"
-              className={inputClasses}
-              value={form.lastMenstruationDate}
-              onChange={e => updateField("lastMenstruationDate", e.target.value)}
-            />
-          </label>
+          <div>
+            <label className={labelClasses}>
+              Дата последней менструации
+              <input
+                type="date"
+                className={inputClasses}
+                value={form.lastMenstruationDate}
+                onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
+              />
+            </label>
+          </div>
 
-          <label className="block w-full max-w-[25%]">
-            <span className="text-sm text-gray-700">День цикла</span>
-            <input
-              type="text"
-              className={inputClasses + " bg-gray-50"}
-              value={form.cycleDay || ""}
-              readOnly
-              disabled
-              placeholder="Рассчитывается автоматически"
-            />
-          </label>
+          <div>
+            <label className={labelClasses}>
+              День цикла
+              <input
+                type="text"
+                className={inputClasses + " bg-gray-50"}
+                value={form.cycleDay || ""}
+                readOnly
+                disabled
+                placeholder="Рассчитывается автоматически"
+              />
+            </label>
+          </div>
 
           <ButtonSelect
             label="Менопауза"
@@ -97,76 +102,67 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
               { value: "постменопауза", label: "постменопауза" },
             ]}
           />
-        </div>
-      </Fieldset>
+        </Fieldset>
 
-      {/* Размеры */}
-      <Fieldset title="Размеры">
-        <SizeRow
-          label="Длина (мм)"
-          value={form.length}
-          onChange={val => updateField("length", val)}
-          focus={lengthFocus}
-          range={normalRanges.uterus?.length}
-        />
+        <Fieldset title="Размеры">
+          <SizeRow
+            label="Длина (мм)"
+            value={form.length}
+            onChange={(val) => updateField("length", val)}
+            focus={lengthFocus}
+            range={normalRanges.uterus?.length}
+          />
+          <SizeRow
+            label="Ширина (мм)"
+            value={form.width}
+            onChange={(val) => updateField("width", val)}
+            focus={widthFocus}
+            range={normalRanges.uterus?.width}
+          />
+          <SizeRow
+            label="ПЗР (мм)"
+            value={form.apDimension}
+            onChange={(val) => updateField("apDimension", val)}
+            focus={apDimensionFocus}
+            range={normalRanges.uterus?.apDimension}
+          />
+          <SizeRow
+            label="Объем (см³)"
+            value={form.volume || ""}
+            onChange={() => {}}
+            focus={volumeFocus}
+            range={normalRanges.uterus?.volume}
+            readOnly
+          />
+        </Fieldset>
 
-        <SizeRow
-          label="Ширина (мм)"
-          value={form.width}
-          onChange={val => updateField("width", val)}
-          focus={widthFocus}
-          range={normalRanges.uterus?.width}
-        />
+        <Fieldset title="Форма матки">
+          <ButtonSelect
+            label=""
+            value={form.shape}
+            onChange={(val) => updateField("shape", val)}
+            options={[
+              { value: "грушевидная", label: "грушевидная" },
+              { value: "округлая", label: "округлая" },
+            ]}
+          />
+        </Fieldset>
 
-        <SizeRow
-          label="ПЗР (мм)"
-          value={form.apDimension}
-          onChange={val => updateField("apDimension", val)}
-          focus={apDimensionFocus}
-          range={normalRanges.uterus?.apDimension}
-        />
+        <Fieldset title="Положение">
+          <ButtonSelect
+            label=""
+            value={form.position}
+            onChange={(val) => updateField("position", val)}
+            options={[
+              { value: "Антефлексио", label: "Антефлексио" },
+              { value: "Ретрофлексио", label: "Ретрофлексио" },
+              { value: "Антеверзия", label: "Антеверзия" },
+              { value: "Ретроверзия", label: "Ретроверзия" },
+            ]}
+          />
+        </Fieldset>
 
-        <SizeRow
-          label="Объем (см³)"
-          value={form.volume || ""}
-          onChange={() => {}}
-          focus={volumeFocus}
-          range={normalRanges.uterus?.volume}
-          readOnly
-        />
-      </Fieldset>
-
-      {/* Форма матки */}
-      <Fieldset title="Форма матки">
-        <ButtonSelect
-          label=""
-          value={form.shape}
-          onChange={(val) => updateField("shape", val)}
-          options={[
-            { value: "грушевидная", label: "грушевидная" },
-            { value: "округлая", label: "округлая" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Положение */}
-      <Fieldset title="Положение">
-        <ButtonSelect
-          label=""
-          value={form.position}
-          onChange={(val) => updateField("position", val)}
-          options={[
-            { value: "Антефлексио", label: "Антефлексио" },
-            { value: "Ретрофлексио", label: "Ретрофлексио" },
-            { value: "Антеверзия", label: "Антеверзия" },
-            { value: "Ретроверзия", label: "Ретроверзия" },
-          ]}
-        />
-      </Fieldset>
-
-      {/* Строение миометрия */}
-      <Fieldset title="Строение миометрия">
-        <div className="space-y-3">
+        <Fieldset title="Строение миометрия">
           <ButtonSelect
             label="Структура"
             value={form.myometriumStructure}
@@ -178,16 +174,18 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
           />
 
           {form.myometriumStructure === "неоднородное" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.myometriumStructureText}
-                onChange={e => updateField("myometriumStructureText", e.target.value)}
-                placeholder="Опишите характер неоднородности..."
-              />
-            </label>
+            <div>
+              <label className={labelClasses}>
+                Описание
+                <textarea
+                  rows={2}
+                  className={inputClasses + " resize-y"}
+                  value={form.myometriumStructureText}
+                  onChange={(e) => updateField("myometriumStructureText", e.target.value)}
+                  placeholder="Опишите характер неоднородности..."
+                />
+              </label>
+            </div>
           )}
 
           <ButtonSelect
@@ -201,42 +199,30 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
             ]}
           />
 
-          <ButtonSelect
+          <SelectWithTextarea
             label="Полость матки"
-            value={form.uterineCavity}
-            onChange={(val) => updateField("uterineCavity", val)}
+            selectValue={form.uterineCavity}
+            textareaValue={form.uterineCavityText}
+            onSelectChange={(val) => updateField("uterineCavity", val)}
+            onTextareaChange={(val) => updateField("uterineCavityText", val)}
             options={[
               { value: "не расширена", label: "не расширена" },
               { value: "расширена", label: "расширена" },
             ]}
+            triggerValue="расширена"
+            textareaLabel="Описание расширения"
+          />
+        </Fieldset>
+
+        <Fieldset title="Эндометрий">
+          <SizeRow
+            label="Размер (мм)"
+            value={form.endometriumSize}
+            onChange={(val) => updateField("endometriumSize", val)}
+            focus={endometriumSizeFocus}
+            range={normalRanges.uterus?.endometriumSize}
           />
 
-          {form.uterineCavity === "расширена" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.uterineCavityText}
-                onChange={e => updateField("uterineCavityText", e.target.value)}
-                placeholder="Опишите характер расширения..."
-              />
-            </label>
-          )}
-        </div>
-      </Fieldset>
-
-      {/* Эндометрий */}
-      <Fieldset title="Эндометрий">
-        <SizeRow
-          label="Размер (мм)"
-          value={form.endometriumSize}
-          onChange={val => updateField("endometriumSize", val)}
-          focus={endometriumSizeFocus}
-          range={normalRanges.uterus?.endometriumSize}
-        />
-
-        <div className="mt-2">
           <ButtonSelect
             label="Структура эндометрия"
             value={form.endometriumStructure}
@@ -247,107 +233,72 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
               { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
             ]}
           />
-        </div>
-      </Fieldset>
+        </Fieldset>
 
-      {/* Шейка матки */}
-      <Fieldset title="Шейка матки">
-        <SizeRow
-          label="Размер (мм)"
-          value={form.cervixSize}
-          onChange={val => updateField("cervixSize", val)}
-          focus={cervixSizeFocus}
-          range={normalRanges.uterus?.cervixSize}
-        />
+        <Fieldset title="Шейка матки">
+          <SizeRow
+            label="Размер (мм)"
+            value={form.cervixSize}
+            onChange={(val) => updateField("cervixSize", val)}
+            focus={cervixSizeFocus}
+            range={normalRanges.uterus?.cervixSize}
+          />
 
-        <div className="mt-2 space-y-3">
-          <ButtonSelect
+          <SelectWithTextarea
             label="Эхоструктура шейки матки"
-            value={form.cervixEchostructure}
-            onChange={(val) => updateField("cervixEchostructure", val)}
+            selectValue={form.cervixEchostructure}
+            textareaValue={form.cervixEchostructureText}
+            onSelectChange={(val) => updateField("cervixEchostructure", val)}
+            onTextareaChange={(val) => updateField("cervixEchostructureText", val)}
             options={[
               { value: "однородная", label: "однородная" },
               { value: "неоднородная", label: "неоднородная" },
             ]}
+            triggerValue="неоднородная"
+            textareaLabel="Описание неоднородности"
           />
 
-          {form.cervixEchostructure === "неоднородная" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.cervixEchostructureText}
-                onChange={e => updateField("cervixEchostructureText", e.target.value)}
-                placeholder="Опишите характер неоднородности..."
-              />
-            </label>
-          )}
-
-          <ButtonSelect
+          <SelectWithTextarea
             label="Цервикальный канал"
-            value={form.cervicalCanal}
-            onChange={(val) => updateField("cervicalCanal", val)}
+            selectValue={form.cervicalCanal}
+            textareaValue={form.cervicalCanalText}
+            onSelectChange={(val) => updateField("cervicalCanal", val)}
+            onTextareaChange={(val) => updateField("cervicalCanalText", val)}
             options={[
               { value: "сомкнут", label: "сомкнут" },
               { value: "расширен", label: "расширен" },
             ]}
+            triggerValue="расширен"
+            textareaLabel="Описание расширения"
           />
+        </Fieldset>
 
-          {form.cervicalCanal === "расширен" && (
-            <label className="block w-full">
-              <span className="text-sm text-gray-700">Описание</span>
-              <textarea
-                rows={2}
-                className={inputClasses + " resize-y"}
-                value={form.cervicalCanalText}
-                onChange={e => updateField("cervicalCanalText", e.target.value)}
-                placeholder="Опишите характер расширения..."
-              />
-            </label>
-          )}
-        </div>
-      </Fieldset>
+        <Fieldset title="Свободная жидкость в малом тазу">
+          <SelectWithTextarea
+            label=""
+            selectValue={form.freeFluid}
+            textareaValue={form.freeFluidText}
+            onSelectChange={(val) => updateField("freeFluid", val)}
+            onTextareaChange={(val) => updateField("freeFluidText", val)}
+            options={[
+              { value: "не определяется", label: "не определяется" },
+              { value: "определяется", label: "определяется" },
+            ]}
+            triggerValue="определяется"
+            textareaLabel="Описание"
+          />
+        </Fieldset>
 
-
-      {/* Свободная жидкость в малом тазу */}
-      <Fieldset title="Свободная жидкость в малом тазу">
-        <ButtonSelect
-          label=""
-          value={form.freeFluid}
-          onChange={(val) => updateField("freeFluid", val)}
-          options={[
-            { value: "не определяется", label: "не определяется" },
-            { value: "определяется", label: "определяется" },
-          ]}
-        />
-
-        {form.freeFluid === "определяется" && (
-          <label className="block w-full mt-2">
-            <span className="text-sm text-gray-700">Описание</span>
-            <textarea
-              rows={2}
-              className={inputClasses + " resize-y"}
-              value={form.freeFluidText}
-              onChange={e => updateField("freeFluidText", e.target.value)}
-              placeholder="Опишите локализацию и количество жидкости..."
-            />
-          </label>
-        )}
-      </Fieldset>
-
-      {/* Дополнительно */}
-      <Fieldset title="Дополнительно">
-        <div>
+        <Fieldset title="Дополнительно">
           <textarea
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
-            onChange={e => updateField("additional", e.target.value)}
+            onChange={(e) => updateField("additional", e.target.value)}
           />
-        </div>
-      </Fieldset>
-    </div>
+        </Fieldset>
+      </div>
+    </ResearchSectionCard>
   );
 };
 

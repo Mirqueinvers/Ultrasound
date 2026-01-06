@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Hepat, { type LiverProtocol } from "@organs/Hepat";
-import Gallbladder, { type GallbladderProtocol } from "@organs/Gallbladder";
+import Gallbladder, { type GallbladderProtocol } from "@/components/organs/Gallbladder/Gallbladder";
 import Pancreas, { type PancreasProtocol } from "@organs/Pancreas";
 import Spleen, { type SpleenProtocol } from "@organs/Spleen";
 import { Conclusion } from "@common";

@@ -50,19 +50,15 @@ export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов малого таза
       </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Prostate
           value={form.prostate ?? undefined}
           onChange={updateProstate}
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <UrinaryBladder
           value={form.urinaryBladder ?? undefined}
           onChange={updateUrinaryBladder}
         />
-      </div>
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

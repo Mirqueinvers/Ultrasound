@@ -35,12 +35,10 @@ export const Breast: React.FC<BreastProps> = ({ value, onChange }) => {
         Ультразвуковое исследование молочных желез
       </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <BreastCommon
           value={form.breast ?? undefined}
           onChange={updateBreast}
         />
-      </div>
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

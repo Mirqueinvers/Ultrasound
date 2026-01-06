@@ -1,9 +1,10 @@
-// Frontend/src/components/organs/Breast/BreastSide.tsx
 import React from "react";
-import { Fieldset, ButtonSelect } from "@/UI";
+import { Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
+import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useListManager } from "@hooks";
 import { BreastNodeComponent } from "./BreastNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { Plus } from "lucide-react";
 import type { BreastSideProtocol, BreastNode, BreastSideProps } from "@types";
 
 const defaultSideState: BreastSideProtocol = {
@@ -69,23 +70,22 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">{title}</h3>
+    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+      <div className="flex flex-col gap-6">
+        {/* Общие характеристики */}
+        <Fieldset title="Общие характеристики">
+          <ButtonSelect
+            label="Кожа"
+            value={form.skin}
+            onChange={(val) => updateSelect("skin", val)}
+            options={[
+              { value: "не изменена", label: "не изменена" },
+              { value: "изменена", label: "изменена" },
+            ]}
+          />
 
-      <Fieldset title="Общие характеристики">
-        <ButtonSelect
-          label="Кожа"
-          value={form.skin}
-          onChange={(val) => updateSelect("skin", val)}
-          options={[
-            { value: "не изменена", label: "не изменена" },
-            { value: "изменена", label: "изменена" },
-          ]}
-        />
-
-        {form.skin === "изменена" && (
-          <div>
-            <label className={labelClasses}>
+          {form.skin === "изменена" && (
+            <label className={labelClasses + " w-full"}>
               Описание изменений кожи
               <textarea
                 rows={2}
@@ -94,22 +94,20 @@ export const BreastSide: React.FC<BreastSideProps> = ({
                 onChange={(e) => updateField("skinComment", e.target.value)}
               />
             </label>
-          </div>
-        )}
+          )}
 
-        <ButtonSelect
-          label="Соски и ареолы"
-          value={form.nipples}
-          onChange={(val) => updateSelect("nipples", val)}
-          options={[
-            { value: "не изменены", label: "не изменены" },
-            { value: "изменены", label: "изменены" },
-          ]}
-        />
+          <ButtonSelect
+            label="Соски и ареолы"
+            value={form.nipples}
+            onChange={(val) => updateSelect("nipples", val)}
+            options={[
+              { value: "не изменены", label: "не изменены" },
+              { value: "изменены", label: "изменены" },
+            ]}
+          />
 
-        {form.nipples === "изменены" && (
-          <div>
-            <label className={labelClasses}>
+          {form.nipples === "изменены" && (
+            <label className={labelClasses + " w-full"}>
               Описание изменений сосков и ареол
               <textarea
                 rows={2}
@@ -118,63 +116,72 @@ export const BreastSide: React.FC<BreastSideProps> = ({
                 onChange={(e) => updateField("nipplesComment", e.target.value)}
               />
             </label>
-          </div>
-        )}
+          )}
 
-        <ButtonSelect
-          label="Млечные протоки"
-          value={form.milkDucts}
-          onChange={(val) => updateField("milkDucts", val)}
-          options={[
-            { value: "не расширены", label: "не расширены" },
-            { value: "расширены", label: "расширены" },
-          ]}
-        />
-      </Fieldset>
+          <ButtonSelect
+            label="Млечные протоки"
+            value={form.milkDucts}
+            onChange={(val) => updateField("milkDucts", val)}
+            options={[
+              { value: "не расширены", label: "не расширены" },
+              { value: "расширены", label: "расширены" },
+            ]}
+          />
+        </Fieldset>
 
-      <Fieldset title="Объемные образования">
-        <ButtonSelect
-          label=""
-          value={form.volumeFormations}
-          onChange={(val) => updateSelect("volumeFormations", val)}
-          options={[
-            { value: "не определяются", label: "не определяются" },
-            { value: "определяются", label: "определяются" },
-          ]}
-        />
+        {/* Объемные образования */}
+        <Fieldset title="Объемные образования">
+          <ButtonSelect
+            label=""
+            value={form.volumeFormations}
+            onChange={(val) => updateSelect("volumeFormations", val)}
+            options={[
+              { value: "не определяются", label: "не определяются" },
+              { value: "определяются", label: "определяются" },
+            ]}
+          />
 
-        {form.volumeFormations === "определяются" && (
-          <div className="mt-3">
-            {form.nodesList.map((node, index) => (
-              <BreastNodeComponent
-                key={index}
-                node={node}
-                onUpdate={(field, value) => {
-                  nodesManager.updateItem(index, field, value);
-                }}
-                onRemove={() => {
-                  nodesManager.removeItem(index);
-                  const updatedNodes = form.nodesList
-                    .filter((_, i) => i !== index)
-                    .map((n, i) => ({ ...n, number: i + 1 }));
-                  const draft = { ...form, nodesList: updatedNodes };
-                  setForm(draft);
-                  onChange?.(draft);
-                }}
-              />
-            ))}
+          {form.volumeFormations === "определяются" && (
+            <div className="space-y-3">
+              {form.nodesList.length === 0 && (
+                <div className="w-full text-center py-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+                  <p className="text-slate-500 text-sm mb-4">Узлы не добавлены</p>
+                  <button
+                    type="button"
+                    onClick={addNode}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
+                  >
+                    <Plus size={18} />
+                    Добавить узел
+                  </button>
+                </div>
+              )}
 
-            <button
-              type="button"
-              onClick={addNode}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Добавить узел
-            </button>
-          </div>
-        )}
-      </Fieldset>
-    </div>
+              {form.nodesList.map((node, index) => (
+                <BreastNodeComponent
+                  key={index}
+                  node={node}
+                  onUpdate={(field, value) => {
+                    nodesManager.updateItem(index, field, value);
+                  }}
+                  onRemove={() => {
+                    nodesManager.removeItem(index);
+                    const updatedNodes = form.nodesList
+                      .filter((_, i) => i !== index)
+                      .map((n, i) => ({ ...n, number: i + 1 }));
+                    const draft = { ...form, nodesList: updatedNodes };
+                    setForm(draft);
+                    onChange?.(draft);
+                  }}
+                  onAdd={addNode}
+                  isLast={index === form.nodesList.length - 1}
+                />
+              ))}
+            </div>
+          )}
+        </Fieldset>
+      </div>
+    </ResearchSectionCard>
   );
 };
 
