@@ -6,55 +6,45 @@ import type { ThyroidNode } from "@types";
 
 interface ThyroidNodeProps {
   node: ThyroidNode;
-  onUpdate: (field: keyof ThyroidNode, value: string) => void;
+  onUpdate: (field: keyof ThyroidNode, value: string | number) => void;
   onRemove: () => void;
 }
 
 export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
   node,
   onUpdate,
-  onRemove,
 }) => {
   return (
-    <div className="border border-gray-300 rounded-lg p-4 mb-3 bg-gray-50">
-      <div className="flex justify-between items-center mb-3">
-        <h4 className="text-sm font-semibold text-slate-700">
-          Узел №{node.number}
-        </h4>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="text-red-600 hover:text-red-800 text-sm"
-        >
-          Удалить
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-3">
+    <div className="space-y-4">
+      {/* Размеры узла */}
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClasses}>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
             Размер 1 (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={node.size1}
-              onChange={(e) => onUpdate("size1", e.target.value)}
-            />
           </label>
+          <input
+            type="text"
+            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+            value={node.size1}
+            onChange={(e) => onUpdate("size1", e.target.value)}
+            placeholder="0.0"
+          />
         </div>
         <div>
-          <label className={labelClasses}>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
             Размер 2 (мм)
-            <input
-              type="text"
-              className={inputClasses}
-              value={node.size2}
-              onChange={(e) => onUpdate("size2", e.target.value)}
-            />
           </label>
+          <input
+            type="text"
+            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+            value={node.size2}
+            onChange={(e) => onUpdate("size2", e.target.value)}
+            placeholder="0.0"
+          />
         </div>
       </div>
 
+      {/* Характеристики */}
       <div className="space-y-3">
         <ButtonSelect
           label="Эхогенность"
@@ -63,8 +53,8 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
           options={[
             { value: "повышенная", label: "повышенная" },
             { value: "пониженная", label: "пониженная" },
-            { value: "анэхогенный", label: "анэхогенный" },
-            { value: "смешанная", label: "смешанная" },
+            { value: "изоэхогенная", label: "изоэхогенная" },
+            { value: "анэхогенная", label: "анэхогенная" },
           ]}
         />
 
@@ -75,7 +65,6 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
           options={[
             { value: "однородная", label: "однородная" },
             { value: "неоднородная", label: "неоднородная" },
-            { value: "смешанная", label: "смешанная" },
           ]}
         />
 
@@ -85,8 +74,8 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
           onChange={(val) => onUpdate("contour", val)}
           options={[
             { value: "четкий ровный", label: "четкий ровный" },
-            { value: "четкий не ровный", label: "четкий не ровный" },
-            { value: "не четкий", label: "не четкий" },
+            { value: "четкий неровный", label: "четкий неровный" },
+            { value: "нечеткий", label: "нечеткий" },
           ]}
         />
 
@@ -107,22 +96,26 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
           options={[
             { value: "не изменен", label: "не изменен" },
             { value: "усилен", label: "усилен" },
-            { value: "усилен периферический", label: "усилен периферический" },
+            { value: "обеднен", label: "обеднен" },
           ]}
         />
+      </div>
 
-        <div>
-          <label className={labelClasses}>
-            Комментарий к узлу
-            <textarea
-              rows={2}
-              className={inputClasses + " resize-y"}
-              value={node.comment}
-              onChange={(e) => onUpdate("comment", e.target.value)}
-            />
-          </label>
-        </div>
+      {/* Комментарий */}
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-2">
+          Комментарий
+        </label>
+        <textarea
+          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+          rows={3}
+          value={node.comment}
+          onChange={(e) => onUpdate("comment", e.target.value)}
+          placeholder="Дополнительные заметки..."
+        />
       </div>
     </div>
   );
 };
+
+export default ThyroidNodeComponent;

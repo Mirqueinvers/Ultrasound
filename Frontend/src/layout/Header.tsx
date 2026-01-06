@@ -3,8 +3,7 @@ import {
   FileText, 
   BookOpen, 
   Search, 
-  BarChart3, 
-  User 
+  BarChart3
 } from 'lucide-react';
 import UserMenu from '@/components/common/UserMenu';
 
@@ -35,15 +34,10 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
       label: 'Статистика',
       icon: BarChart3 
     },
-    { 
-      id: 'profile', 
-      label: 'Личный кабинет',
-      icon: User 
-    },
   ];
 
   return (
-    <header className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-white shadow-xl border-b border-slate-700/50 backdrop-blur-sm">
+    <header className="relative z-50 bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-white shadow-xl border-b border-slate-700/50 backdrop-blur-sm">
       <div className="px-8 py-4 flex justify-between items-center">
         {/* Logo / Brand */}
         <div className="flex items-center gap-3 mr-8">
@@ -92,23 +86,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
           })}
         </nav>
 
-        {/* Right side - Search + User Menu */}
-        <div className="flex items-center gap-4 ml-4">
-          {/* Quick Search */}
-          <div className="relative group">
-            <Search 
-              size={18} 
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-sky-400 transition-colors" 
-            />
-            <input
-              type="text"
-              placeholder="Быстрый поиск..."
-              className="w-64 bg-slate-700/50 text-white placeholder-slate-400 pl-10 pr-4 py-2 rounded-lg 
-                border border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 
-                focus:outline-none transition-all duration-200 text-sm"
-            />
-          </div>
-
+        {/* Right side - User Menu */}
+        <div className="relative z-[100]">
           <UserMenu />
         </div>
       </div>

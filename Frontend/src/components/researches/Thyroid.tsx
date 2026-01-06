@@ -35,12 +35,12 @@ export const Thyroid: React.FC<ThyroidProps> = ({ value, onChange }) => {
         Ультразвуковое исследование щитовидной железы
       </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+
         <ThyroidCommon
           value={form.thyroid ?? undefined}
           onChange={updateThyroid}
         />
-      </div>
+
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

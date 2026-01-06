@@ -17,7 +17,7 @@ export const useListManager = <T>(
   const updateItem = useCallback((
     index: number,
     field: keyof T,
-    val: string
+    val: string | number // Изменили тип
   ) => {
     const updatedList = list.map((item: T, i: number) =>
       i === index ? { ...item, [field]: val } : item

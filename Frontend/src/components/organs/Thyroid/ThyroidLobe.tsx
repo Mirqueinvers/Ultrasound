@@ -5,6 +5,7 @@ import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@ho
 import { ThyroidNodeComponent } from "./ThyroidNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@types";
+import { Plus, Trash2 } from "lucide-react";
 
 const defaultLobeState: ThyroidLobeProtocol = {
   length: "",
@@ -29,7 +30,6 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   const [form, setForm] = useFormState<ThyroidLobeProtocol>(initialValue, value);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
-  const title = side === "left" ? "Левая доля" : "Правая доля";
   const organName = side === "left" ? "leftThyroidLobe" : "rightThyroidLobe";
 
   // Хуки для фокуса на полях размеров
@@ -92,46 +92,51 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="m-0 mb-4 text-slate-700 text-lg font-semibold">{title}</h3>
+    <div className="flex flex-col gap-6">
+      {/* Размеры */}
+      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+        <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">Размеры</h4>
+        <div className="space-y-3">
+          <SizeRow
+            label="Длина (мм)"
+            value={form.length}
+            onChange={(val) => updateField("length", val)}
+            focus={lengthFocus}
+            range={normalRanges.thyroid.length}
+          />
+          <SizeRow
+            label="Ширина (мм)"
+            value={form.width}
+            onChange={(val) => updateField("width", val)}
+            focus={widthFocus}
+            range={normalRanges.thyroid.width}
+          />
+          <SizeRow
+            label="Глубина (мм)"
+            value={form.depth}
+            onChange={(val) => updateField("depth", val)}
+            focus={depthFocus}
+            range={normalRanges.thyroid.depth}
+          />
+          <SizeRow
+            label="Объем (мл)"
+            value={form.volume}
+            onChange={(val) => updateField("volume", val)}
+            focus={useFieldFocus(organName, "volume")}
+            readOnly={true}
+            autoCalculated={true}
+            customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
+          />
 
-      <Fieldset title="Размеры">
-        <SizeRow
-          label="Длина (мм)"
-          value={form.length}
-          onChange={(val) => updateField("length", val)}
-          focus={lengthFocus}
-          range={normalRanges.thyroid.length}
-        />
-        <SizeRow
-          label="Ширина (мм)"
-          value={form.width}
-          onChange={(val) => updateField("width", val)}
-          focus={widthFocus}
-          range={normalRanges.thyroid.width}
-        />
-        <SizeRow
-          label="Глубина (мм)"
-          value={form.depth}
-          onChange={(val) => updateField("depth", val)}
-          focus={depthFocus}
-          range={normalRanges.thyroid.depth}
-        />
-        <div>
-          <label className={labelClasses}>
-            Объем (мл)
-            <input
-              type="text"
-              className={inputClasses + " bg-gray-100"}
-              value={form.volume}
-              readOnly
-              disabled
-            />
-          </label>
         </div>
-      </Fieldset>
+      </div>
 
-      <Fieldset title="Объемные образования">
+      {/* Объемные образования */}
+      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">
+          Объемные образования
+        </h4>
+        
         <ButtonSelect
           label=""
           value={form.volumeFormations}
@@ -143,37 +148,80 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
         />
 
         {form.volumeFormations === "определяются" && (
-          <div className="mt-3">
-            {form.nodesList.map((node, index) => (
-              <ThyroidNodeComponent
-                key={index}
-                node={node}
-                onUpdate={(field, value) => {
-                  nodesManager.updateItem(index, field, value);
-                }}
-                onRemove={() => {
-                  nodesManager.removeItem(index);
-                  // Перенумеруем оставшиеся узлы
-                  const updatedNodes = form.nodesList
-                    .filter((_, i) => i !== index)
-                    .map((n, i) => ({ ...n, number: i + 1 }));
-                  const draft = { ...form, nodesList: updatedNodes };
-                  setForm(draft);
-                  onChange?.(draft);
-                }}
-              />
-            ))}
+          <div className="mt-6 space-y-4">
+            {form.nodesList.length === 0 ? (
+              <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+                <p className="text-slate-500 text-sm mb-4">Узлы не добавлены</p>
+                <button
+                  type="button"
+                  onClick={addNode}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
+                >
+                  <Plus size={18} />
+                  Добавить узел
+                </button>
+              </div>
+            ) : (
+              <>
+                {form.nodesList.map((node, index) => (
+                  <div 
+                    key={index}
+                    className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg"
+                  >
+                    <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
+                      <span className="text-white font-bold text-sm">
+                        Узел #{node.number}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          nodesManager.removeItem(index);
+                          const updatedNodes = form.nodesList
+                            .filter((_, i) => i !== index)
+                            .map((n, i) => ({ ...n, number: i + 1 }));
+                          const draft = { ...form, nodesList: updatedNodes };
+                          setForm(draft);
+                          onChange?.(draft);
+                        }}
+                        className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                        title="Удалить узел"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <div className="p-4">
+                      <ThyroidNodeComponent
+                        node={node}
+                        onUpdate={(field, value) => {
+                          nodesManager.updateItem(index, field, value);
+                        }}
+                        onRemove={() => {
+                          nodesManager.removeItem(index);
+                          const updatedNodes = form.nodesList
+                            .filter((_, i) => i !== index)
+                            .map((n, i) => ({ ...n, number: i + 1 }));
+                          const draft = { ...form, nodesList: updatedNodes };
+                          setForm(draft);
+                          onChange?.(draft);
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
 
-            <button
-              type="button"
-              onClick={addNode}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Добавить узел
-            </button>
+                <button
+                  type="button"
+                  onClick={addNode}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
+                >
+                  <Plus size={18} />
+                  Добавить узел
+                </button>
+              </>
+            )}
           </div>
         )}
-      </Fieldset>
+      </div>
     </div>
   );
 };
