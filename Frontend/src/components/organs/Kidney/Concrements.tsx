@@ -1,7 +1,10 @@
 // Frontend/src/components/organs/Kidney/Concrements.tsx
 import React from "react";
 import type { Concrement } from "@types";
+import { ButtonSelect, SizeRow } from "@/UI";
 import { inputClasses, buttonClasses } from "@utils/formClasses";
+import { Plus, Trash2 } from "lucide-react";
+
 
 interface ConcrementsProps {
   items: Concrement[];
@@ -11,6 +14,7 @@ interface ConcrementsProps {
   addLabel?: string;
 }
 
+
 export const Concrements: React.FC<ConcrementsProps> = ({
   items,
   onAdd,
@@ -19,67 +23,78 @@ export const Concrements: React.FC<ConcrementsProps> = ({
   addLabel = "Добавить конкремент",
 }) => {
   return (
-    <div className="space-y-2 ml-4">
-      <button
-        type="button"
-        className={buttonClasses}
-        onClick={onAdd}
-      >
-        {addLabel}
-      </button>
-
-      {items.map((concrement, index) => (
-        <div key={index} className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700 min-w-[20px]">
-            {index + 1}.
-          </span>
-
-          <label className="flex-1">
-            <span className="text-xs text-gray-500">Размер (мм)</span>
-            <input
-              type="text"
-              className={`${inputClasses} text-xs py-1`}
-              value={concrement.size}
-              onChange={e => onUpdate(index, "size", e.target.value)}
-            />
-          </label>
-
-          <label className="flex-1">
-            <span className="text-xs text-gray-500">Локализация</span>
-            <select
-              className={`${inputClasses} text-xs py-1`}
-              value={concrement.location}
-              onChange={e => onUpdate(index, "location", e.target.value)}
+    <div className="mt-4 space-y-4">
+      {items.length === 0 ? (
+        <div className="text-center py-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+          <p className="text-slate-500 text-sm mb-4">Конкременты не добавлены</p>
+          <button
+            type="button"
+            onClick={onAdd}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
+          >
+            <Plus size={18} />
+            {addLabel}
+          </button>
+        </div>
+      ) : (
+        <>
+          {items.map((concrement, index) => (
+            <div
+              key={index}
+              className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg"
             >
-              <option value="" />
-              <option value="верхний полюс">верхний полюс</option>
-              <option value="нижний полюс">нижний полюс</option>
-              <option value="в центре">в центре</option>
-            </select>
-          </label>
+              <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
+                <span className="text-white font-bold text-sm">
+                  Конкремент #{index + 1}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(index)}
+                  className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                  title="Удалить конкремент"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+              <div className="p-4 flex flex-col gap-3">
+                <SizeRow
+                  label="Размер (мм)"
+                  value={concrement.size}
+                  onChange={(val) => onUpdate(index, "size", val)}
+                />
+
+                <label className="flex-1">
+                  <span className="text-xs text-gray-500 block mb-1">
+                    Локализация
+                  </span>
+                  <ButtonSelect
+                    label=""
+                    value={concrement.location}
+                    onChange={(val) => onUpdate(index, "location", val)}
+                    options={[
+                      { value: "верхний полюс", label: "верхний полюс" },
+                      { value: "нижний полюс", label: "нижний полюс" },
+                      { value: "в центре", label: "в центре" },
+                    ]}
+                  />
+                </label>
+              </div>
+            </div>
+          ))}
 
           <button
             type="button"
-            className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600 transition-colors"
-            onClick={() => onRemove(index)}
-            title="Удалить"
+            onClick={onAdd}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <Plus size={18} />
+            {addLabel}
           </button>
-        </div>
-      ))}
+        </>
+      )}
     </div>
   );
 };
+
+
+export default Concrements;

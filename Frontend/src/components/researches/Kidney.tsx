@@ -52,29 +52,22 @@ export const Kidney: React.FC<KidneyProps> = ({ value, onChange }) => {
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование почек
       </div>
-
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <KidneyCommon
           side="right"
           value={form.rightKidney ?? undefined}
           onChange={updateRightKidney}
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <KidneyCommon
           side="left"
           value={form.leftKidney ?? undefined}
           onChange={updateLeftKidney}
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <UrinaryBladder
           value={form.urinaryBladder ?? undefined}
           onChange={updateUrinaryBladder}
         />
-      </div>
 
       <Conclusion value={conclusion} onChange={setConclusion} />
     </div>

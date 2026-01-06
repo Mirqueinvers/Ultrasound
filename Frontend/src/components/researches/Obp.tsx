@@ -60,33 +60,24 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование органов брюшной полости
       </div>
-
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Gallbladder
           value={form.gallbladder ?? undefined}
           onChange={updateGallbladder}
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Pancreas
           value={form.pancreas ?? undefined}
           onChange={updatePancreas}
         />
-      </div>
 
-      <div className="border border-slate-200 rounded-lg p-5 bg-slate-50">
         <Spleen
           value={form.spleen ?? undefined}
           onChange={updateSpleen}
         />
-      </div>
-
-      <Conclusion value={conclusion} onChange={setConclusion} />
+        
+        <Conclusion value={conclusion} onChange={setConclusion} />
     </div>
   );
 };

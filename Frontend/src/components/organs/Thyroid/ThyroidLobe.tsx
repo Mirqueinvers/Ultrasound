@@ -1,10 +1,9 @@
 // Frontend/src/components/researches/Thyroid/ThyroidLobe.tsx
 import React, { useEffect } from "react";
 import { normalRanges } from "@components/common";
-import {  ButtonSelect, SizeRow, Fieldset } from "@/UI";
+import { ButtonSelect, SizeRow, Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { ThyroidNodeComponent } from "./ThyroidNode";
-import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@types";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -33,12 +32,10 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
 
   const organName = side === "left" ? "leftThyroidLobe" : "rightThyroidLobe";
 
-  // Хуки для фокуса на полях размеров
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const depthFocus = useFieldFocus(organName, "depth");
 
-  // Автоматический расчет объема
   useEffect(() => {
     const length = parseFloat(form.length) || 0;
     const width = parseFloat(form.width) || 0;
@@ -95,8 +92,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   return (
     <div className="flex flex-col gap-6">
       {/* Размеры */}
-      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-        <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">Размеры</h4>
+      <Fieldset title="Размеры">
         <div className="space-y-3">
           <SizeRow
             label="Длина (мм)"
@@ -128,16 +124,11 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
             autoCalculated={true}
             customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
           />
-
         </div>
-      </div>
+      </Fieldset>
 
       {/* Объемные образования */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-        <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">
-          Объемные образования
-        </h4>
-        
+      <Fieldset title="Объемные образования">
         <ButtonSelect
           label=""
           value={form.volumeFormations}
@@ -165,7 +156,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
             ) : (
               <>
                 {form.nodesList.map((node, index) => (
-                  <div 
+                  <div
                     key={index}
                     className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg"
                   >
@@ -222,7 +213,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
             )}
           </div>
         )}
-      </div>
+      </Fieldset>
     </div>
   );
 };

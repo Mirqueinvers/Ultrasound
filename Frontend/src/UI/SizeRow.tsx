@@ -8,7 +8,7 @@ interface SizeRowProps {
   label: string;
   value: string;
   onChange: (val: string) => void;
-  focus: ReturnType<typeof useFieldFocus>;
+  focus?: ReturnType<typeof useFieldFocus>;
   range?: NormalRange;
   readOnly?: boolean;
   autoCalculated?: boolean; // Новый проп для авто-вычисляемых полей
@@ -41,8 +41,8 @@ export const SizeRow: React.FC<SizeRowProps> = ({
             className={inputClassNames}
             value={value}
             onChange={e => onChange(e.target.value)}
-            onFocus={focus.handleFocus}
-            onBlur={focus.handleBlur}
+            onFocus={focus?.handleFocus}
+            onBlur={focus?.handleBlur}
             readOnly={readOnly}
             disabled={readOnly}
           />

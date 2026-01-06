@@ -53,7 +53,7 @@ export const SelectWithTextarea: React.FC<SelectWithTextareaProps> = ({
       />
 
       {showTextarea && (
-        <label className={labelClasses}>
+        <label className={labelClasses + " w-full"}>
           {textareaLabel}
           <textarea
             rows={rows}

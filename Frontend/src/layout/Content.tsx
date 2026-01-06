@@ -50,7 +50,7 @@ const Content: React.FC<ContentProps> = ({
           {selectedStudies.length > 0 && (
             <div className="mt-6 space-y-6">
               {selectedStudies.map((study, index) => (
-                <div key={index} className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm">
+                <div key={index} className="rounded-lg p-4 bg-white shadow-sm">
                   {renderStudyComponent(study)}
                 </div>
               ))}
