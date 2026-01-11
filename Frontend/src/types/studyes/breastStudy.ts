@@ -1,4 +1,4 @@
-import type { BreastProtocol } from './breast';
+import type { BreastProtocol } from '../organs/breast';
 
 export interface BreastStudyProtocol {
   breast: BreastProtocol | null;

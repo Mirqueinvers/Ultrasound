@@ -1,5 +1,5 @@
-import type { ProstateProtocol } from './prostate';
-import type { UrinaryBladderProtocol } from './urinarybladder';
+import type { ProstateProtocol } from '../organs/prostate';
+import type { UrinaryBladderProtocol } from '../organs/urinarybladder';
 
 export interface OmtMaleProtocol {
   prostate: ProstateProtocol | null;

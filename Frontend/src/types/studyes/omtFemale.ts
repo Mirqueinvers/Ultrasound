@@ -1,6 +1,6 @@
-import type { UterusProtocol } from './uterus';
-import type { OvaryProtocol } from './ovary';
-import type { UrinaryBladderProtocol } from './urinarybladder';
+import type { UterusProtocol } from '../organs/uterus';
+import type { OvaryProtocol } from '../organs/ovary';
+import type { UrinaryBladderProtocol } from '../organs/urinarybladder';
 
 export interface OmtFemaleProtocol {
   uterus: UterusProtocol | null;

@@ -1,4 +1,4 @@
-import type { ThyroidProtocol } from './thyroid';
+import type { ThyroidProtocol } from '../organs/thyroid';
 
 export interface ThyroidStudyProtocol {
   thyroid: ThyroidProtocol | null;

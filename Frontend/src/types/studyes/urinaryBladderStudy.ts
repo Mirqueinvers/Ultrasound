@@ -1,4 +1,4 @@
-import type { UrinaryBladderProtocol } from './urinarybladder';
+import type { UrinaryBladderProtocol } from '../organs/urinarybladder';
 
 export interface UrinaryBladderStudyProtocol {
   urinaryBladder: UrinaryBladderProtocol | null;

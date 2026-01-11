@@ -1,9 +1,9 @@
 // Frontend/src/types/childDispensary.ts
-import type { LiverProtocol } from "./hepat";
-import type { GallbladderProtocol } from "./gallbladder";
-import type { PancreasProtocol } from "./pancreas";
-import type { SpleenProtocol } from "./spleen";
-import type { KidneyProtocol } from "./kidney";
+import type { LiverProtocol } from "../organs/hepat";
+import type { GallbladderProtocol } from "../organs/gallbladder";
+import type { PancreasProtocol } from "../organs/pancreas";
+import type { SpleenProtocol } from "../organs/spleen";
+import type { KidneyProtocol } from "../organs/kidney";
 
 export interface ChildDispensaryProtocol {
   liverStatus: string;

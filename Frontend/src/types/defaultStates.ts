@@ -1,30 +1,30 @@
 // Frontend/src/types/defaultStates.ts
 
-import type { KidneyProtocol } from './kidney';
-import type { GallbladderProtocol } from './gallbladder';
-import type { LiverProtocol } from './hepat';
-import type { SpleenProtocol } from './spleen';
-import type { PancreasProtocol } from './pancreas';
-import type { UrinaryBladderProtocol } from './urinarybladder';
-import type { OvaryProtocol } from './ovary';
-import type { UterusProtocol } from './uterus';
-import type { ProstateProtocol } from "./prostate";
-import type { TestisProtocol } from "./testis";
-import type { SingleTestisProtocol } from "./testis";
-import type { ThyroidLobeProtocol } from "./thyroid";
-import type { ThyroidProtocol } from "./thyroid";
-import type { BreastSideProtocol } from "./breast";
-import type { BreastProtocol } from "./breast";
-import type { ChildDispensaryProtocol } from "./childDispensary";
-import type { SoftTissueProtocol } from "./softTissue";
-import type { ObpProtocol } from "./obp";
-import type { KidneyStudyProtocol } from "./kidneyStudy";
-import type { OmtFemaleProtocol } from "./omtFemale";
-import type { OmtMaleProtocol } from "./omtMale";
-import type { BreastStudyProtocol } from "./breastStudy";
-import type { ScrotumProtocol } from "./scrotum";
-import type { ThyroidStudyProtocol } from "./thyroidStudy";
-import type { UrinaryBladderStudyProtocol } from "./urinaryBladderStudy";
+import type { KidneyProtocol } from './organs/kidney';
+import type { GallbladderProtocol } from './organs/gallbladder';
+import type { LiverProtocol } from './organs/hepat';
+import type { SpleenProtocol } from './organs/spleen';
+import type { PancreasProtocol } from './organs/pancreas';
+import type { UrinaryBladderProtocol } from './organs/urinarybladder';
+import type { OvaryProtocol } from './organs/ovary';
+import type { UterusProtocol } from './organs/uterus';
+import type { ProstateProtocol } from "./organs/prostate";
+import type { TestisProtocol } from "./organs/testis";
+import type { SingleTestisProtocol } from "./organs/testis";
+import type { ThyroidLobeProtocol } from "./organs/thyroid";
+import type { ThyroidProtocol } from "./organs/thyroid";
+import type { BreastSideProtocol } from "./organs/breast";
+import type { BreastProtocol } from "./organs/breast";
+import type { ChildDispensaryProtocol } from "./studyes/childDispensary";
+import type { SoftTissueProtocol } from "./studyes/softTissue";
+import type { ObpProtocol } from "./studyes/obp";
+import type { KidneyStudyProtocol } from "./studyes/kidneyStudy";
+import type { OmtFemaleProtocol } from "./studyes/omtFemale";
+import type { OmtMaleProtocol } from "./studyes/omtMale";
+import type { BreastStudyProtocol } from "./studyes/breastStudy";
+import type { ScrotumProtocol } from "./studyes/scrotum";
+import type { ThyroidStudyProtocol } from "./studyes/thyroidStudy";
+import type { UrinaryBladderStudyProtocol } from "./studyes/urinaryBladderStudy";
 
 
 export const defaultKidneyState: KidneyProtocol = {

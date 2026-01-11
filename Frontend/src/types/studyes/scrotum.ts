@@ -1,4 +1,4 @@
-import type { TestisProtocol } from './testis';
+import type { TestisProtocol } from '../organs/testis';
 
 export interface ScrotumProtocol {
   testis: TestisProtocol | null;

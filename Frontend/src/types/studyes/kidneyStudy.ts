@@ -1,5 +1,5 @@
-import type { KidneyProtocol as KidneyCommonProtocol } from './kidney';
-import type { UrinaryBladderProtocol } from './urinarybladder';
+import type { KidneyProtocol as KidneyCommonProtocol } from '../organs/kidney';
+import type { UrinaryBladderProtocol } from '../organs/urinarybladder';
 
 export interface KidneyStudyProtocol {
   rightKidney: KidneyCommonProtocol | null;
