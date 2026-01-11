@@ -3,7 +3,6 @@ import type { FormEvent } from 'react';
 import type { LoginFormData } from '@/types/auth';
 import './Auth.css';
 
-
 interface LoginProps {
   onLogin: (data: LoginFormData) => Promise<void>;
   onSwitchToRegister: () => void;
@@ -15,9 +14,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
     password: '',
   });
   const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isSubmitting) return; // Игнорируем изменения во время отправки
+    
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -28,15 +29,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (isSubmitting) return;
+    
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       await onLogin(formData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка входа');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -44,7 +48,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Вход в систему</h2>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form" style={{ opacity: isSubmitting ? 0.6 : 1 }}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -56,7 +60,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
               placeholder="example@mail.com"
               required
               autoComplete="email"
-              disabled={isLoading}
             />
           </div>
 
@@ -71,7 +74,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
               placeholder="Введите пароль"
               required
               autoComplete="current-password"
-              disabled={isLoading}
               minLength={6}
             />
           </div>
@@ -81,9 +83,9 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
           <button 
             type="submit" 
             className="auth-button"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            {isLoading ? 'Вход...' : 'Войти'}
+            {isSubmitting ? 'Вход...' : 'Войти'}
           </button>
         </form>
 
@@ -94,7 +96,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
               type="button" 
               className="link-button"
               onClick={onSwitchToRegister}
-              disabled={isLoading}
             >
               Зарегистрироваться
             </button>

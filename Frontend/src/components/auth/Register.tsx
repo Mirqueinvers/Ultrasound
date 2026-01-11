@@ -16,9 +16,11 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
     name: '',
   });
   const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isSubmitting) return; // Игнорируем изменения во время отправки
+    
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -45,20 +47,23 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (isSubmitting) return;
+    
     setError('');
 
     if (!validateForm()) {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       await onRegister(formData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -66,7 +71,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Регистрация</h2>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form" style={{ opacity: isSubmitting ? 0.6 : 1 }}>
           <div className="form-group">
             <label htmlFor="name">Имя</label>
             <input
@@ -78,7 +83,6 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
               placeholder="Иван Иванов"
               required
               autoComplete="name"
-              disabled={isLoading}
               minLength={2}
             />
           </div>
@@ -94,7 +98,6 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
               placeholder="example@mail.com"
               required
               autoComplete="email"
-              disabled={isLoading}
             />
           </div>
 
@@ -109,7 +112,6 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
               placeholder="Минимум 6 символов"
               required
               autoComplete="new-password"
-              disabled={isLoading}
               minLength={6}
             />
           </div>
@@ -125,7 +127,6 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
               placeholder="Повторите пароль"
               required
               autoComplete="new-password"
-              disabled={isLoading}
               minLength={6}
             />
           </div>
@@ -135,9 +136,9 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           <button 
             type="submit" 
             className="auth-button"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+            {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
 
@@ -148,7 +149,6 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
               type="button" 
               className="link-button"
               onClick={onSwitchToLogin}
-              disabled={isLoading}
             >
               Войти
             </button>

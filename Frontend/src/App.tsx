@@ -63,7 +63,13 @@ function AppContent() {
 
   // Если не авторизован - показываем форму входа
   if (!isAuthenticated) {
-    return <AuthForm onLogin={login} onRegister={register} />;
+    return (
+      <AuthForm 
+        key={`auth-${Date.now()}`} // Уникальный key при каждом рендере
+        onLogin={login} 
+        onRegister={register} 
+      />
+    );
   }
 
   // Если авторизован - показываем основное приложение

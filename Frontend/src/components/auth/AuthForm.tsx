@@ -17,11 +17,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLogin, onRegister }) => {
     <>
       {mode === 'login' ? (
         <Login 
+          key="login-form" // Добавили key
           onLogin={onLogin}
           onSwitchToRegister={() => setMode('register')}
         />
       ) : (
         <Register 
+          key="register-form" // Добавили key
           onRegister={onRegister}
           onSwitchToLogin={() => setMode('login')}
         />

@@ -6,4 +6,8 @@ const authAPI = {
     login: (data) => electron_1.ipcRenderer.invoke('auth:login', data),
     getUser: (userId) => electron_1.ipcRenderer.invoke('auth:getUser', userId)
 };
+const windowAPI = {
+    focus: () => electron_1.ipcRenderer.send('window:focus')
+};
 electron_1.contextBridge.exposeInMainWorld('authAPI', authAPI);
+electron_1.contextBridge.exposeInMainWorld('windowAPI', windowAPI);

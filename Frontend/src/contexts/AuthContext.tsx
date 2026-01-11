@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import type { User, LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
+import type { User, LoginFormData, RegisterFormData } from '@/types/auth';
 
 export interface AuthContextType {
   user: User | null;
@@ -19,18 +19,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Проверка сохраненной сессии при загрузке
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('token');
-
-        if (storedUser && storedToken) {
-          setUser(JSON.parse(storedUser));
+        const storedUserId = localStorage.getItem('userId');
+        
+        if (storedUserId && window.authAPI) {
+          // Загружаем данные пользователя из БД
+          const userData = await window.authAPI.getUser(parseInt(storedUserId));
+          
+          if (userData) {
+            const user: User = {
+              id: userData.id.toString(),
+              email: userData.username, // username используется как email
+              name: userData.name,
+              role: 'user',
+            };
+            setUser(user);
+          } else {
+            // Если пользователь не найден, очищаем localStorage
+            localStorage.removeItem('userId');
+          }
         }
       } catch (error) {
         console.error('Ошибка восстановления сессии:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
       } finally {
         setIsLoading(false);
       }
@@ -41,81 +53,100 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData): Promise<void> => {
     try {
-      // TODO: Заменить на реальный API запрос
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // });
-      // const result: AuthResponse = await response.json();
+      if (!window.authAPI) {
+        throw new Error('Auth API недоступен');
+      }
 
-      // Временная заглушка для демонстрации
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockResponse: AuthResponse = {
-        user: {
-          id: '1',
-          email: data.email,
-          name: 'Тестовый Пользователь',
-          role: 'doctor',
-        },
-        token: 'mock-jwt-token',
+      const response = await window.authAPI.login({
+        username: data.email, // используем email как username
+        password: data.password,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Ошибка входа');
+      }
+
+      if (!response.user) {
+        throw new Error('Пользователь не найден');
+      }
+
+      const user: User = {
+        id: response.user.id.toString(),
+        email: response.user.username,
+        name: response.user.name,
+        role: 'user',
       };
 
-      // Сохраняем в localStorage
-      localStorage.setItem('user', JSON.stringify(mockResponse.user));
-      localStorage.setItem('token', mockResponse.token);
+      // Сохраняем только userId
+      localStorage.setItem('userId', response.user.id.toString());
       
-      setUser(mockResponse.user);
+      setUser(user);
     } catch (error) {
       console.error('Ошибка входа:', error);
-      throw new Error('Не удалось войти в систему');
+      throw error;
     }
   };
 
   const register = async (data: RegisterFormData): Promise<void> => {
     try {
-      // TODO: Заменить на реальный API запрос
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // });
-      // const result: AuthResponse = await response.json();
+      if (!window.authAPI) {
+        throw new Error('Auth API недоступен');
+      }
 
-      // Временная заглушка для демонстрации
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockResponse: AuthResponse = {
-        user: {
-          id: '2',
-          email: data.email,
-          name: data.name,
-          role: 'user',
-        },
-        token: 'mock-jwt-token-new',
+      const response = await window.authAPI.register({
+        username: data.email, // используем email как username
+        password: data.password,
+        name: data.name,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Ошибка регистрации');
+      }
+
+      if (!response.userId) {
+        throw new Error('Не удалось создать пользователя');
+      }
+
+      // После регистрации загружаем данные пользователя
+      const userData = await window.authAPI.getUser(response.userId);
+
+      if (!userData) {
+        throw new Error('Не удалось загрузить данные пользователя');
+      }
+
+      const user: User = {
+        id: userData.id.toString(),
+        email: userData.username,
+        name: userData.name,
+        role: 'user',
       };
 
-      // Сохраняем в localStorage
-      localStorage.setItem('user', JSON.stringify(mockResponse.user));
-      localStorage.setItem('token', mockResponse.token);
+      // Сохраняем userId
+      localStorage.setItem('userId', userData.id.toString());
       
-      setUser(mockResponse.user);
+      setUser(user);
     } catch (error) {
       console.error('Ошибка регистрации:', error);
-      throw new Error('Не удалось зарегистрироваться');
+      throw error;
     }
   };
 
   const logout = (): void => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setUser(null);
+    
+    // Принудительно фокусируем окно после выхода
+    setTimeout(() => {
+      if (window.windowAPI) {
+        window.windowAPI.focus();
+      }
+    }, 100);
   };
+
 
   const updateUser = (updatedUser: User): void => {
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    // userId не меняется, поэтому не обновляем localStorage
   };
 
   return (
