@@ -6,8 +6,8 @@ import { AuthProvider, useAuth } from "@contexts/AuthContext";
 import Content from "@layout/Content";
 import MainLayout from "@layout/MainLayout";
 import AuthForm from "@/components/auth/AuthForm";
+import ProfilePage from "@/components/profile/ProfilePage";
 
-// Внутренний компонент приложения
 function AppContent() {
   const { isAuthenticated, isLoading, login, register } = useAuth();
   
@@ -47,7 +47,10 @@ function AppContent() {
     setSelectedStudies([]);
   };
 
-  // Показываем загрузку при проверке сессии
+  const handleNavigateToProfile = () => {
+    setActiveSection('profile');
+  };
+
   if (isLoading) {
     return (
       <div style={{ 
@@ -61,18 +64,37 @@ function AppContent() {
     );
   }
 
-  // Если не авторизован - показываем форму входа
   if (!isAuthenticated) {
     return (
       <AuthForm 
-        key={`auth-${Date.now()}`} // Уникальный key при каждом рендере
+        key={`auth-${Date.now()}`}
         onLogin={login} 
         onRegister={register} 
       />
     );
   }
 
-  // Если авторизован - показываем основное приложение
+  // Если активна секция профиля - показываем ProfilePage
+  // ИСПРАВЛЕНИЕ: оборачиваем в RightPanelProvider
+  if (activeSection === 'profile') {
+    return (
+      <RightPanelProvider>
+        <MainLayout
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          selectedStudy={selectedStudy}
+          onStudySelect={handleStudySelect}
+          isMultiSelectMode={isMultiSelectMode}
+          selectedStudies={selectedStudies}
+          onToggleStudy={handleToggleStudy}
+          onNavigateToProfile={handleNavigateToProfile}
+        >
+          <ProfilePage />
+        </MainLayout>
+      </RightPanelProvider>
+    );
+  }
+
   return (
     <ResearchProvider>
       <RightPanelProvider>
@@ -84,6 +106,7 @@ function AppContent() {
           isMultiSelectMode={isMultiSelectMode}
           selectedStudies={selectedStudies}
           onToggleStudy={handleToggleStudy}
+          onNavigateToProfile={handleNavigateToProfile}
         >
           <Content
             selectedStudy={selectedStudy}
@@ -100,7 +123,6 @@ function AppContent() {
   );
 }
 
-// Основной компонент App с провайдером
 function App() {
   return (
     <AuthProvider>

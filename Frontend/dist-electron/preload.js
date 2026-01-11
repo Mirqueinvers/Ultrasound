@@ -4,7 +4,9 @@ const electron_1 = require("electron");
 const authAPI = {
     register: (data) => electron_1.ipcRenderer.invoke('auth:register', data),
     login: (data) => electron_1.ipcRenderer.invoke('auth:login', data),
-    getUser: (userId) => electron_1.ipcRenderer.invoke('auth:getUser', userId)
+    getUser: (userId) => electron_1.ipcRenderer.invoke('auth:getUser', userId),
+    updateUser: (data) => electron_1.ipcRenderer.invoke('auth:updateUser', data),
+    changePassword: (data) => electron_1.ipcRenderer.invoke('auth:changePassword', data)
 };
 const windowAPI = {
     focus: () => electron_1.ipcRenderer.send('window:focus')

@@ -49,6 +49,7 @@ class DatabaseManager {
         console.log('📁 Путь к БД:', dbPath);
         this.db = new better_sqlite3_1.default(dbPath);
         this.initializeDatabase();
+        this.runMigrations();
         console.log('✅ База данных инициализирована');
     }
     static getInstance() {
@@ -61,15 +62,25 @@ class DatabaseManager {
         this.db.exec(schema_1.CREATE_USERS_TABLE);
         this.db.exec(schema_1.CREATE_USERNAME_INDEX);
     }
-    async registerUser(username, password, name) {
+    runMigrations() {
+        // Проверяем существует ли колонка organization
+        const tableInfo = this.db.pragma('table_info(users)');
+        const hasOrganization = tableInfo.some((col) => col.name === 'organization');
+        if (!hasOrganization) {
+            console.log('🔄 Добавляем колонку organization...');
+            this.db.exec('ALTER TABLE users ADD COLUMN organization TEXT');
+            console.log('✅ Колонка organization добавлена');
+        }
+    }
+    async registerUser(username, password, name, organization) {
         try {
             const existingUser = this.db.prepare('SELECT id FROM users WHERE username = ?').get(username);
             if (existingUser) {
                 return { success: false, message: 'Пользователь с таким логином уже существует' };
             }
             const hashedPassword = await bcrypt.hash(password, 10);
-            const insert = this.db.prepare('INSERT INTO users (username, password, name) VALUES (?, ?, ?)');
-            const result = insert.run(username, hashedPassword, name);
+            const insert = this.db.prepare('INSERT INTO users (username, password, name, organization) VALUES (?, ?, ?, ?)');
+            const result = insert.run(username, hashedPassword, name, organization || null);
             return {
                 success: true,
                 message: 'Регистрация успешна',
@@ -83,7 +94,7 @@ class DatabaseManager {
     }
     async loginUser(username, password) {
         try {
-            const user = this.db.prepare('SELECT id, username, password, name, created_at FROM users WHERE username = ?').get(username);
+            const user = this.db.prepare('SELECT id, username, password, name, organization, created_at FROM users WHERE username = ?').get(username);
             if (!user) {
                 return { success: false, message: 'Неверный логин или пароль' };
             }
@@ -105,8 +116,48 @@ class DatabaseManager {
         }
     }
     getUserById(id) {
-        const user = this.db.prepare('SELECT id, username, name, created_at, last_login FROM users WHERE id = ?').get(id);
+        const user = this.db.prepare('SELECT id, username, name, organization, created_at, last_login FROM users WHERE id = ?').get(id);
         return user;
+    }
+    async updateUser(id, name, username, organization) {
+        try {
+            const existingUser = this.db.prepare('SELECT id FROM users WHERE id = ?').get(id);
+            if (!existingUser) {
+                return { success: false, message: 'Пользователь не найден' };
+            }
+            const userWithSameUsername = this.db.prepare('SELECT id FROM users WHERE username = ? AND id != ?').get(username, id);
+            if (userWithSameUsername) {
+                return { success: false, message: 'Этот email уже используется другим пользователем' };
+            }
+            this.db.prepare('UPDATE users SET name = ?, username = ?, organization = ? WHERE id = ?').run(name, username, organization || null, id);
+            return { success: true, message: 'Профиль успешно обновлен' };
+        }
+        catch (error) {
+            console.error('Update user error:', error);
+            return { success: false, message: 'Ошибка при обновлении профиля' };
+        }
+    }
+    async changePassword(userId, currentPassword, newPassword) {
+        try {
+            const user = this.db.prepare('SELECT id, password FROM users WHERE id = ?').get(userId);
+            if (!user) {
+                return { success: false, message: 'Пользователь не найден' };
+            }
+            const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+            if (!isPasswordValid) {
+                return { success: false, message: 'Неверный текущий пароль' };
+            }
+            if (newPassword.length < 6) {
+                return { success: false, message: 'Новый пароль должен содержать минимум 6 символов' };
+            }
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            this.db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hashedPassword, userId);
+            return { success: true, message: 'Пароль успешно изменен' };
+        }
+        catch (error) {
+            console.error('Change password error:', error);
+            return { success: false, message: 'Ошибка при смене пароля' };
+        }
     }
     close() {
         this.db.close();

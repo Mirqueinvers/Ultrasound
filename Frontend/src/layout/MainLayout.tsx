@@ -1,4 +1,3 @@
-// Frontend/src/layouts/MainLayout.tsx
 import type { PropsWithChildren } from "react";
 
 import Header from "@layout/Header";
@@ -13,6 +12,7 @@ type MainLayoutProps = PropsWithChildren<{
   isMultiSelectMode?: boolean;
   selectedStudies?: string[];
   onToggleStudy?: (value: string) => void;
+  onNavigateToProfile: () => void; // Добавляем новый пропс
 }>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -24,6 +24,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   isMultiSelectMode = false,
   selectedStudies = [],
   onToggleStudy,
+  onNavigateToProfile, // Добавляем в деструктуризацию
 }) => {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -31,6 +32,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Header
           activeSection={activeSection}
           setActiveSection={setActiveSection}
+          onNavigateToProfile={onNavigateToProfile} // Передаем в Header
         />
 
         <div className="flex gap-3">

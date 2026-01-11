@@ -17,7 +17,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isSubmitting) return; // Игнорируем изменения во время отправки
+    if (isSubmitting) return;
     
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -48,7 +48,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Вход в систему</h2>
-        <form onSubmit={handleSubmit} className="auth-form" style={{ opacity: isSubmitting ? 0.6 : 1 }}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -60,6 +60,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
               placeholder="example@mail.com"
               required
               autoComplete="email"
+              autoFocus
             />
           </div>
 

@@ -4,11 +4,13 @@ export interface User {
   name: string;
   role?: 'admin' | 'doctor' | 'user';
   createdAt?: string;
+  organization?: string;
 }
 
 export interface LoginFormData {
   email: string;
   password: string;
+  organization?: string;
 }
 
 export interface RegisterFormData {
@@ -16,6 +18,7 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
   name: string;
+  organization?: string;
 }
 
 export interface AuthResponse {

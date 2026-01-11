@@ -1,30 +1,51 @@
-interface AuthAPI {
-  register: (data: { username: string; password: string; name: string }) => Promise<{
+export interface AuthAPI {
+  register: (data: { 
+    username: string; 
+    password: string; 
+    name: string; 
+    organization?: string;
+  }) => Promise<{
     success: boolean;
     message: string;
     userId?: number;
   }>;
-  login: (data: { username: string; password: string }) => Promise<{
+  login: (data: { 
+    username: string; 
+    password: string;
+  }) => Promise<{
     success: boolean;
     message: string;
-    user?: {
-      id: number;
-      username: string;
-      name: string;
-    };
+    user?: any;
   }>;
-  getUser: (userId: number) => Promise<{
-    id: number;
-    username: string;
-    name: string;
-  } | null>;
+  getUser: (userId: number) => Promise<any>;
+  updateUser: (data: { 
+    id: number; 
+    name: string; 
+    username: string; 
+    organization?: string;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
+  changePassword: (data: { 
+    userId: number; 
+    currentPassword: string; 
+    newPassword: string;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
 
-interface WindowAPI {
+export interface WindowAPI {
   focus: () => void;
 }
 
-interface Window {
-  authAPI: AuthAPI;
-  windowAPI: WindowAPI;
+declare global {
+  interface Window {
+    authAPI: AuthAPI;
+    windowAPI: WindowAPI;
+  }
 }
+
+export {};

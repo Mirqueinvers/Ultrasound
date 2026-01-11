@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: userData.id.toString(),
               email: userData.username, // username используется как email
               name: userData.name,
+              organization: userData.organization || undefined,
               role: 'user',
             };
             setUser(user);
@@ -74,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: response.user.id.toString(),
         email: response.user.username,
         name: response.user.name,
+        organization: response.user.organization || undefined,
         role: 'user',
       };
 
@@ -97,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: data.email, // используем email как username
         password: data.password,
         name: data.name,
+        organization: data.organization,
       });
 
       if (!response.success) {
@@ -118,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: userData.id.toString(),
         email: userData.username,
         name: userData.name,
+        organization: userData.organization || undefined,
         role: 'user',
       };
 
@@ -143,10 +147,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 100);
   };
 
-
-  const updateUser = (updatedUser: User): void => {
+  const updateUser = async (updatedUser: User): Promise<void> => {
+    // Обновляем состояние
     setUser(updatedUser);
-    // userId не меняется, поэтому не обновляем localStorage
+    
+    // Перезагружаем данные из БД для синхронизации
+    if (window.authAPI && updatedUser.id) {
+      try {
+        const userData = await window.authAPI.getUser(parseInt(updatedUser.id));
+        if (userData) {
+          const freshUser: User = {
+            id: userData.id.toString(),
+            email: userData.username,
+            name: userData.name,
+            organization: userData.organization || undefined,
+            role: 'user',
+          };
+          setUser(freshUser);
+        }
+      } catch (error) {
+        console.error('Ошибка обновления данных пользователя:', error);
+      }
+    }
   };
 
   return (

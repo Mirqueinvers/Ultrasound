@@ -7,10 +7,11 @@ exports.CREATE_USERS_TABLE = `
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     name TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_login TEXT
+    organization TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_login DATETIME
   )
 `;
 exports.CREATE_USERNAME_INDEX = `
-  CREATE INDEX IF NOT EXISTS idx_username ON users(username)
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users(username)
 `;

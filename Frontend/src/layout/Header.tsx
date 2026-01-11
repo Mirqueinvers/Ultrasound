@@ -10,9 +10,14 @@ import UserMenu from '@/components/common/UserMenu';
 interface HeaderProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
+  onNavigateToProfile: () => void; // Добавляем новый пропс
 }
 
-const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  activeSection, 
+  setActiveSection,
+  onNavigateToProfile // Добавляем в деструктуризацию
+}) => {
   const menuItems = [
     { 
       id: 'uzi-protocols', 
@@ -39,7 +44,6 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
   return (
     <header className="relative z-50 bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-white shadow-xl border-b border-slate-700/50 backdrop-blur-sm">
       <div className="px-8 py-4 flex justify-between items-center">
-        {/* Logo / Brand */}
         <div className="flex items-center gap-3 mr-8">
           <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/30">
             <span className="text-white font-bold text-xl">U</span>
@@ -50,7 +54,6 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="flex gap-2 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -77,7 +80,6 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
                 />
                 <span>{item.label}</span>
                 
-                {/* Active indicator line */}
                 {isActive && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent rounded-full animate-pulse" />
                 )}
@@ -86,9 +88,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, setActiveSection }) => {
           })}
         </nav>
 
-        {/* Right side - User Menu */}
         <div className="relative z-[100]">
-          <UserMenu />
+          <UserMenu onNavigateToProfile={onNavigateToProfile} /> {/* Передаем пропс */}
         </div>
       </div>
     </header>
