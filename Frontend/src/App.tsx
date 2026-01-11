@@ -3,23 +3,26 @@ import { useState } from "react";
 import { RightPanelProvider } from "@contexts/RightPanelContext";
 import { ResearchProvider } from "@contexts/ResearchContext";
 import { AuthProvider, useAuth } from "@contexts/AuthContext";
+
 import Content from "@layout/Content";
 import MainLayout from "@layout/MainLayout";
+
 import AuthForm from "@/components/auth/AuthForm";
 import ProfilePage from "@/components/profile/ProfilePage";
+import Journal from "@/components/journal/Journal";
 
 function AppContent() {
   const { isAuthenticated, isLoading, login, register } = useAuth();
-  
-  const [activeSection, setActiveSection] = useState<string>('uzi-protocols');
-  const [selectedStudy, setSelectedStudy] = useState<string>('');
+
+  const [activeSection, setActiveSection] = useState<string>("uzi-protocols");
+  const [selectedStudy, setSelectedStudy] = useState<string>("");
   const [selectedStudies, setSelectedStudies] = useState<string[]>([]);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
 
   const handleToggleStudy = (study: string) => {
-    setSelectedStudies(prev => {
+    setSelectedStudies((prev) => {
       if (prev.includes(study)) {
-        return prev.filter(s => s !== study);
+        return prev.filter((s) => s !== study);
       } else {
         return [...prev, study];
       }
@@ -27,7 +30,7 @@ function AppContent() {
   };
 
   const handleRemoveStudy = (study: string) => {
-    setSelectedStudies(prev => prev.filter(s => s !== study));
+    setSelectedStudies((prev) => prev.filter((s) => s !== study));
   };
 
   const handleStudySelect = (study: string) => {
@@ -38,7 +41,7 @@ function AppContent() {
 
   const handleStartNewResearch = () => {
     setIsMultiSelectMode(true);
-    setSelectedStudy('');
+    setSelectedStudy("");
     setSelectedStudies([]);
   };
 
@@ -48,17 +51,19 @@ function AppContent() {
   };
 
   const handleNavigateToProfile = () => {
-    setActiveSection('profile');
+    setActiveSection("profile");
   };
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         Загрузка...
       </div>
     );
@@ -66,17 +71,16 @@ function AppContent() {
 
   if (!isAuthenticated) {
     return (
-      <AuthForm 
+      <AuthForm
         key={`auth-${Date.now()}`}
-        onLogin={login} 
-        onRegister={register} 
+        onLogin={login}
+        onRegister={register}
       />
     );
   }
 
-  // Если активна секция профиля - показываем ProfilePage
-  // ИСПРАВЛЕНИЕ: оборачиваем в RightPanelProvider
-  if (activeSection === 'profile') {
+  // Профиль
+  if (activeSection === "profile") {
     return (
       <RightPanelProvider>
         <MainLayout
@@ -95,6 +99,29 @@ function AppContent() {
     );
   }
 
+  // Журнал
+  if (activeSection === "journal") {
+    return (
+      <ResearchProvider>
+        <RightPanelProvider>
+          <MainLayout
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            selectedStudy={selectedStudy}
+            onStudySelect={handleStudySelect}
+            isMultiSelectMode={isMultiSelectMode}
+            selectedStudies={selectedStudies}
+            onToggleStudy={handleToggleStudy}
+            onNavigateToProfile={handleNavigateToProfile}
+          >
+            <Journal />
+          </MainLayout>
+        </RightPanelProvider>
+      </ResearchProvider>
+    );
+  }
+
+  // Остальные секции (протоколы, поиск, статистика и т.п.)
   return (
     <ResearchProvider>
       <RightPanelProvider>

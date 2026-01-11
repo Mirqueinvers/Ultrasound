@@ -1,43 +1,38 @@
-import React from 'react';
-import { 
-  FileText, 
-  BookOpen, 
-  Search, 
-  BarChart3
-} from 'lucide-react';
-import UserMenu from '@/components/common/UserMenu';
+import React from "react";
+import { FileText, BookOpen, Search, BarChart3 } from "lucide-react";
+import UserMenu from "@/components/common/UserMenu";
 
 interface HeaderProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
-  onNavigateToProfile: () => void; // Добавляем новый пропс
+  onNavigateToProfile: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  activeSection, 
+const Header: React.FC<HeaderProps> = ({
+  activeSection,
   setActiveSection,
-  onNavigateToProfile // Добавляем в деструктуризацию
+  onNavigateToProfile,
 }) => {
   const menuItems = [
-    { 
-      id: 'uzi-protocols', 
-      label: 'УЗИ протоколы',
-      icon: FileText 
+    {
+      id: "uzi-protocols",
+      label: "УЗИ протоколы",
+      icon: FileText,
     },
-    { 
-      id: 'journal', 
-      label: 'Журнал',
-      icon: BookOpen 
+    {
+      id: "journal",
+      label: "Журнал",
+      icon: BookOpen,
     },
-    { 
-      id: 'search', 
-      label: 'Поиск',
-      icon: Search 
+    {
+      id: "search",
+      label: "Поиск",
+      icon: Search,
     },
-    { 
-      id: 'statistics', 
-      label: 'Статистика',
-      icon: BarChart3 
+    {
+      id: "statistics",
+      label: "Статистика",
+      icon: BarChart3,
     },
   ];
 
@@ -49,8 +44,12 @@ const Header: React.FC<HeaderProps> = ({
             <span className="text-white font-bold text-xl">U</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold tracking-tight">Ultrasound</span>
-            <span className="text-xs text-slate-400">Протоколирование УЗИ</span>
+            <span className="text-lg font-semibold tracking-tight">
+              Ultrasound
+            </span>
+            <span className="text-xs text-slate-400">
+              Протоколирование УЗИ
+            </span>
           </div>
         </div>
 
@@ -58,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
-            
+
             return (
               <button
                 key={item.id}
@@ -66,20 +65,21 @@ const Header: React.FC<HeaderProps> = ({
                 className={`
                   relative group flex items-center gap-2 px-4 py-2.5 rounded-lg 
                   font-medium text-sm transition-all duration-200 
-                  ${isActive 
-                    ? 'bg-sky-500/20 text-sky-300 shadow-lg shadow-sky-500/20' 
-                    : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  ${
+                    isActive
+                      ? "bg-sky-500/20 text-sky-300 shadow-lg shadow-sky-500/20"
+                      : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
                   }
                 `}
               >
-                <Icon 
-                  size={18} 
+                <Icon
+                  size={18}
                   className={`transition-transform duration-200 ${
-                    isActive ? 'scale-110' : 'group-hover:scale-110'
+                    isActive ? "scale-110" : "group-hover:scale-110"
                   }`}
                 />
                 <span>{item.label}</span>
-                
+
                 {isActive && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent rounded-full animate-pulse" />
                 )}
@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({
         </nav>
 
         <div className="relative z-[100]">
-          <UserMenu onNavigateToProfile={onNavigateToProfile} /> {/* Передаем пропс */}
+          <UserMenu onNavigateToProfile={onNavigateToProfile} />
         </div>
       </div>
     </header>

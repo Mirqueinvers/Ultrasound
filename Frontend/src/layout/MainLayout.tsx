@@ -12,7 +12,7 @@ type MainLayoutProps = PropsWithChildren<{
   isMultiSelectMode?: boolean;
   selectedStudies?: string[];
   onToggleStudy?: (value: string) => void;
-  onNavigateToProfile: () => void; // Добавляем новый пропс
+  onNavigateToProfile: () => void;
 }>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -24,7 +24,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   isMultiSelectMode = false,
   selectedStudies = [],
   onToggleStudy,
-  onNavigateToProfile, // Добавляем в деструктуризацию
+  onNavigateToProfile,
 }) => {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -32,7 +32,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Header
           activeSection={activeSection}
           setActiveSection={setActiveSection}
-          onNavigateToProfile={onNavigateToProfile} // Передаем в Header
+          onNavigateToProfile={onNavigateToProfile}
         />
 
         <div className="flex gap-3">

@@ -1,6 +1,4 @@
-// Frontend/src/components/journal/Journal.tsx
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 interface Patient {
   id: number;
@@ -16,11 +14,12 @@ interface Research {
   id: number;
   patient_id: number;
   research_date: string;
-  payment_type: 'oms' | 'paid';
+  payment_type: "oms" | "paid";
   doctor_name?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
+  study_types?: string[];
 }
 
 interface JournalEntry {
@@ -37,12 +36,10 @@ declare global {
 }
 
 const formatPatientName = (p: Patient) =>
-  `${p.last_name} ${p.first_name}${p.middle_name ? ` ${p.middle_name}` : ''}`;
+  `${p.last_name} ${p.first_name}${p.middle_name ? ` ${p.middle_name}` : ""}`;
 
 const Journal: React.FC = () => {
-  const [date, setDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedPatientIds, setExpandedPatientIds] = useState<number[]>([]);
@@ -61,7 +58,7 @@ const Journal: React.FC = () => {
       const result = await window.journalAPI.getByDate(d);
       setEntries(result);
     } catch (e) {
-      console.error('Ошибка загрузки журнала', e);
+      console.error("Ошибка загрузки журнала", e);
       setEntries([]);
     } finally {
       setLoading(false);
@@ -122,7 +119,7 @@ const Journal: React.FC = () => {
                       </span>
                       <span
                         className={`text-xs transition-transform ${
-                          isExpanded ? 'rotate-90' : ''
+                          isExpanded ? "rotate-90" : ""
                         }`}
                       >
                         ▶
@@ -140,8 +137,15 @@ const Journal: React.FC = () => {
                           >
                             <div className="flex flex-col">
                               <span className="text-slate-900">
-                                Врач: {r.doctor_name || '—'}
+                                Врач: {r.doctor_name || "—"}
                               </span>
+
+                              {r.study_types && r.study_types.length > 0 && (
+                                <span className="text-xs text-slate-600">
+                                  Исследования: {r.study_types.join(", ")}
+                                </span>
+                              )}
+
                               {r.notes && (
                                 <span className="text-xs text-slate-500">
                                   Заметки: {r.notes}
@@ -150,8 +154,8 @@ const Journal: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-3 text-xs text-slate-500">
                               <span>
-                                Тип оплаты:{' '}
-                                {r.payment_type === 'oms' ? 'ОМС' : 'Платно'}
+                                Тип оплаты:{" "}
+                                {r.payment_type === "oms" ? "ОМС" : "Платно"}
                               </span>
                               <span>Время: {r.research_date}</span>
                             </div>
