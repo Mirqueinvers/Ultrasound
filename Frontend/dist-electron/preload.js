@@ -6,14 +6,14 @@ const authAPI = {
     login: (data) => electron_1.ipcRenderer.invoke('auth:login', data),
     getUser: (userId) => electron_1.ipcRenderer.invoke('auth:getUser', userId),
     updateUser: (data) => electron_1.ipcRenderer.invoke('auth:updateUser', data),
-    changePassword: (data) => electron_1.ipcRenderer.invoke('auth:changePassword', data)
+    changePassword: (data) => electron_1.ipcRenderer.invoke('auth:changePassword', data),
 };
 const patientAPI = {
     findOrCreate: (data) => electron_1.ipcRenderer.invoke('patient:findOrCreate', data),
     search: (query, limit) => electron_1.ipcRenderer.invoke('patient:search', query, limit),
     getAll: (limit, offset) => electron_1.ipcRenderer.invoke('patient:getAll', limit, offset),
     getById: (id) => electron_1.ipcRenderer.invoke('patient:getById', id),
-    update: (data) => electron_1.ipcRenderer.invoke('patient:update', data)
+    update: (data) => electron_1.ipcRenderer.invoke('patient:update', data),
 };
 const researchAPI = {
     create: (data) => electron_1.ipcRenderer.invoke('research:create', data),
@@ -23,12 +23,16 @@ const researchAPI = {
     getAll: (limit, offset) => electron_1.ipcRenderer.invoke('research:getAll', limit, offset),
     update: (data) => electron_1.ipcRenderer.invoke('research:update', data),
     delete: (id) => electron_1.ipcRenderer.invoke('research:delete', id),
-    search: (query, limit) => electron_1.ipcRenderer.invoke('research:search', query, limit)
+    search: (query, limit) => electron_1.ipcRenderer.invoke('research:search', query, limit),
+};
+const journalAPI = {
+    getByDate: (date) => electron_1.ipcRenderer.invoke('journal:getByDate', date),
 };
 const windowAPI = {
-    focus: () => electron_1.ipcRenderer.send('window:focus')
+    focus: () => electron_1.ipcRenderer.send('window:focus'),
 };
 electron_1.contextBridge.exposeInMainWorld('authAPI', authAPI);
 electron_1.contextBridge.exposeInMainWorld('patientAPI', patientAPI);
 electron_1.contextBridge.exposeInMainWorld('researchAPI', researchAPI);
+electron_1.contextBridge.exposeInMainWorld('journalAPI', journalAPI);
 electron_1.contextBridge.exposeInMainWorld('windowAPI', windowAPI);

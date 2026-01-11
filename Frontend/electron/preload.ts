@@ -1,22 +1,39 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 export interface AuthAPI {
-  register: (data: { username: string; password: string; name: string; organization?: string }) => Promise<{
+  register: (data: {
+    username: string;
+    password: string;
+    name: string;
+    organization?: string;
+  }) => Promise<{
     success: boolean;
     message: string;
     userId?: number;
   }>;
-  login: (data: { username: string; password: string }) => Promise<{
+  login: (data: {
+    username: string;
+    password: string;
+  }) => Promise<{
     success: boolean;
     message: string;
     user?: any;
   }>;
   getUser: (userId: number) => Promise<any>;
-  updateUser: (data: { id: number; name: string; username: string; organization?: string }) => Promise<{
+  updateUser: (data: {
+    id: number;
+    name: string;
+    username: string;
+    organization?: string;
+  }) => Promise<{
     success: boolean;
     message: string;
   }>;
-  changePassword: (data: { userId: number; currentPassword: string; newPassword: string }) => Promise<{
+  changePassword: (data: {
+    userId: number;
+    currentPassword: string;
+    newPassword: string;
+  }) => Promise<{
     success: boolean;
     message: string;
   }>;
@@ -32,6 +49,30 @@ export interface Patient {
   updated_at: string;
 }
 
+export interface Research {
+  id: number;
+  patient_id: number;
+  research_date: string;
+  payment_type: 'oms' | 'paid';
+  doctor_name?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResearchStudy {
+  id: number;
+  research_id: number;
+  study_type: string;
+  study_data: any;
+  created_at: string;
+}
+
+export interface JournalEntry {
+  patient: Patient;
+  researches: Research[];
+}
+
 export interface PatientAPI {
   findOrCreate: (data: {
     lastName: string;
@@ -43,9 +84,9 @@ export interface PatientAPI {
     message: string;
     patient?: Patient;
   }>;
-  search: (query: string, limit?: number) => Promise<Patient[]>;
-  getAll: (limit?: number, offset?: number) => Promise<Patient[]>;
-  getById: (id: number) => Promise<Patient | undefined>;
+  search: (query: string, limit?: number) => Promise<any>;
+  getAll: (limit?: number, offset?: number) => Promise<any>;
+  getById: (id: number) => Promise<any>;
   update: (data: {
     id: number;
     lastName: string;
@@ -56,26 +97,6 @@ export interface PatientAPI {
     success: boolean;
     message: string;
   }>;
-}
-
-export interface Research {
-  id: number;
-  patient_id: number;
-  research_date: string;
-  payment_type: 'oms' | 'paid';
-  doctor_name?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-  studies?: ResearchStudy[];
-}
-
-export interface ResearchStudy {
-  id: number;
-  research_id: number;
-  study_type: string;
-  study_data: any; // parsed JSON
-  created_at: string;
 }
 
 export interface ResearchAPI {
@@ -99,9 +120,9 @@ export interface ResearchAPI {
     message: string;
     studyId?: number;
   }>;
-  getById: (id: number) => Promise<Research | null>;
-  getByPatientId: (patientId: number, limit?: number, offset?: number) => Promise<Research[]>;
-  getAll: (limit?: number, offset?: number) => Promise<Research[]>;
+  getById: (id: number) => Promise<any>;
+  getByPatientId: (patientId: number, limit?: number, offset?: number) => Promise<any>;
+  getAll: (limit?: number, offset?: number) => Promise<any>;
   update: (data: {
     id: number;
     researchDate?: string;
@@ -116,7 +137,11 @@ export interface ResearchAPI {
     success: boolean;
     message: string;
   }>;
-  search: (query: string, limit?: number) => Promise<Research[]>;
+  search: (query: string, limit?: number) => Promise<any>;
+}
+
+export interface JournalAPI {
+  getByDate: (date: string) => Promise<JournalEntry[]>;
 }
 
 export interface WindowAPI {
@@ -128,7 +153,7 @@ const authAPI: AuthAPI = {
   login: (data) => ipcRenderer.invoke('auth:login', data),
   getUser: (userId) => ipcRenderer.invoke('auth:getUser', userId),
   updateUser: (data) => ipcRenderer.invoke('auth:updateUser', data),
-  changePassword: (data) => ipcRenderer.invoke('auth:changePassword', data)
+  changePassword: (data) => ipcRenderer.invoke('auth:changePassword', data),
 };
 
 const patientAPI: PatientAPI = {
@@ -136,25 +161,31 @@ const patientAPI: PatientAPI = {
   search: (query, limit) => ipcRenderer.invoke('patient:search', query, limit),
   getAll: (limit, offset) => ipcRenderer.invoke('patient:getAll', limit, offset),
   getById: (id) => ipcRenderer.invoke('patient:getById', id),
-  update: (data) => ipcRenderer.invoke('patient:update', data)
+  update: (data) => ipcRenderer.invoke('patient:update', data),
 };
 
 const researchAPI: ResearchAPI = {
   create: (data) => ipcRenderer.invoke('research:create', data),
   addStudy: (data) => ipcRenderer.invoke('research:addStudy', data),
   getById: (id) => ipcRenderer.invoke('research:getById', id),
-  getByPatientId: (patientId, limit, offset) => ipcRenderer.invoke('research:getByPatientId', patientId, limit, offset),
+  getByPatientId: (patientId, limit, offset) =>
+    ipcRenderer.invoke('research:getByPatientId', patientId, limit, offset),
   getAll: (limit, offset) => ipcRenderer.invoke('research:getAll', limit, offset),
   update: (data) => ipcRenderer.invoke('research:update', data),
   delete: (id) => ipcRenderer.invoke('research:delete', id),
-  search: (query, limit) => ipcRenderer.invoke('research:search', query, limit)
+  search: (query, limit) => ipcRenderer.invoke('research:search', query, limit),
+};
+
+const journalAPI: JournalAPI = {
+  getByDate: (date) => ipcRenderer.invoke('journal:getByDate', date),
 };
 
 const windowAPI: WindowAPI = {
-  focus: () => ipcRenderer.send('window:focus')
+  focus: () => ipcRenderer.send('window:focus'),
 };
 
 contextBridge.exposeInMainWorld('authAPI', authAPI);
 contextBridge.exposeInMainWorld('patientAPI', patientAPI);
 contextBridge.exposeInMainWorld('researchAPI', researchAPI);
+contextBridge.exposeInMainWorld('journalAPI', journalAPI);
 contextBridge.exposeInMainWorld('windowAPI', windowAPI);
