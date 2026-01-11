@@ -3,6 +3,8 @@
 export interface SoftTissueProtocol {
   researchArea: string;
   description: string;
+  conclusion: string;  // Добавить
+  recommendations: string;  // Добавить
 }
 
 export interface SoftTissueProps {

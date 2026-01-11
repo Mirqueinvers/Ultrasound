@@ -11,8 +11,7 @@ import ChildDispensary from "@components/researches/ChildDispensary";
 import SoftTissue from "@components/researches/SoftTissue";
 import UrinaryBladderResearch from "@components/researches/UrinaryBladderResearch";
 import ResearchHeader from "@components/common/ResearchHeader";
-
-
+import { useResearch } from "@contexts";
 
 interface ContentProps {
   selectedStudy: string;
@@ -32,6 +31,116 @@ const Content: React.FC<ContentProps> = ({
   onStartNewResearch,
   onCancelNewResearch
 }) => {
+  const {
+    patientFullName,
+    patientDateOfBirth,
+    researchDate,
+    studiesData,
+    clearStudiesData,
+  } = useResearch();
+
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveMessage, setSaveMessage] = React.useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
+
+  const handleSaveResearch = async () => {
+    // Валидация данных пациента
+    const fullNameParts = patientFullName.split(" ");
+    const lastName = fullNameParts[0] || "";
+    const firstName = fullNameParts[1] || "";
+    const middleName = fullNameParts[2] || "";
+
+    if (!lastName.trim()) {
+      setSaveMessage({ type: 'error', text: 'Введите фамилию пациента' });
+      return;
+    }
+    if (!firstName.trim()) {
+      setSaveMessage({ type: 'error', text: 'Введите имя пациента' });
+      return;
+    }
+    if (!patientDateOfBirth.trim()) {
+      setSaveMessage({ type: 'error', text: 'Введите дату рождения' });
+      return;
+    }
+    if (!researchDate.trim()) {
+      setSaveMessage({ type: 'error', text: 'Введите дату исследования' });
+      return;
+    }
+    if (selectedStudies.length === 0) {
+      setSaveMessage({ type: 'error', text: 'Выберите хотя бы одно исследование' });
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveMessage(null);
+
+    try {
+      // 1. Создаём или находим пациента
+      const patientResult = await window.patientAPI.findOrCreate({
+        lastName: lastName.trim(),
+        firstName: firstName.trim(),
+        middleName: middleName.trim() || null,
+        dateOfBirth: patientDateOfBirth.trim()
+      });
+
+      if (!patientResult.success || !patientResult.patient) {
+        setSaveMessage({ type: 'error', text: 'Ошибка при сохранении пациента' });
+        return;
+      }
+
+      const patientId = patientResult.patient.id;
+
+      // 2. Создаём исследование
+      const researchResult = await window.researchAPI.create({
+        patientId,
+        researchDate: researchDate,
+        paymentType: paymentType
+      });
+
+      if (!researchResult.success || !researchResult.researchId) {
+        setSaveMessage({ type: 'error', text: 'Ошибка при создании исследования' });
+        return;
+      }
+
+      const researchId = researchResult.researchId;
+
+      // 3. Сохраняем каждое исследование с реальными данными из context
+      for (const studyType of selectedStudies) {
+        const studyData = studiesData[studyType] || {};
+        
+        console.log(`Сохранение ${studyType}:`, studyData); // Для отладки
+        
+        const studyResult = await window.researchAPI.addStudy({
+          researchId,
+          studyType,
+          studyData
+        });
+
+        if (!studyResult.success) {
+          console.error(`Ошибка сохранения ${studyType}:`, studyResult.message);
+        }
+      }
+
+      setSaveMessage({ 
+        type: 'success', 
+        text: `Исследование успешно сохранено (ID: ${researchId})` 
+      });
+
+      // Очищаем данные и возвращаемся в начальное состояние
+      setTimeout(() => {
+        setSaveMessage(null);
+        clearStudiesData(); // Очищаем данные исследований
+        onCancelNewResearch();
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error saving research:', error);
+      setSaveMessage({ type: 'error', text: 'Произошла ошибка при сохранении' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Показываем исследование только если выбрана секция "УЗИ протоколы"
   if (activeSection !== 'uzi-protocols') {
     return (
@@ -47,8 +156,19 @@ const Content: React.FC<ContentProps> = ({
     return (
       <div className="content">
         <div className="mt-6">
-          <ResearchHeader />
+          <ResearchHeader paymentType={paymentType} setPaymentType={setPaymentType} />
           
+          {/* Сообщение о сохранении */}
+          {saveMessage && (
+            <div className={`mb-4 px-4 py-3 rounded-lg ${
+              saveMessage.type === 'success' 
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                : 'bg-red-50 text-red-800 border border-red-200'
+            }`}>
+              {saveMessage.text}
+            </div>
+          )}
+
           {/* Выбранные исследования */}
           {selectedStudies.length > 0 && (
             <div className="mt-6 space-y-6">
@@ -71,19 +191,22 @@ const Content: React.FC<ContentProps> = ({
           <div className="mt-6 flex gap-3">
             <button
               onClick={onCancelNewResearch}
-              className="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors"
+              disabled={isSaving}
+              className="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Отменить
             </button>
             {selectedStudies.length > 0 && (
               <button
-                onClick={() => {
-                  // Здесь будет логика сохранения
-                  console.log('Сохранение исследований:', selectedStudies);
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                onClick={handleSaveResearch}
+                disabled={isSaving}
+                className={`px-4 py-2 rounded transition-colors font-medium ${
+                  isSaving
+                    ? 'bg-slate-400 text-slate-200 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
               >
-                Сохранить исследование
+                {isSaving ? 'Сохранение...' : 'Сохранить исследование'}
               </button>
             )}
           </div>

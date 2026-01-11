@@ -17,6 +17,15 @@ import type { BreastSideProtocol } from "./breast";
 import type { BreastProtocol } from "./breast";
 import type { ChildDispensaryProtocol } from "./childDispensary";
 import type { SoftTissueProtocol } from "./softTissue";
+import type { ObpProtocol } from "./obp";
+import type { KidneyStudyProtocol } from "./kidneyStudy";
+import type { OmtFemaleProtocol } from "./omtFemale";
+import type { OmtMaleProtocol } from "./omtMale";
+import type { BreastStudyProtocol } from "./breastStudy";
+import type { ScrotumProtocol } from "./scrotum";
+import type { ThyroidStudyProtocol } from "./thyroidStudy";
+import type { UrinaryBladderStudyProtocol } from "./urinaryBladderStudy";
+
 
 export const defaultKidneyState: KidneyProtocol = {
   length: "",
@@ -291,9 +300,70 @@ export const defaultChildDispensaryState: ChildDispensaryProtocol = {
   kidneysStatus: "без патологии",
   rightKidney: null,
   leftKidney: null,
+  conclusion: "",
+  recommendations: "",
 };
 
 export const defaultSoftTissueState: SoftTissueProtocol = {
   researchArea: "",
   description: "",
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultObpState: ObpProtocol = {
+  liver: null,
+  gallbladder: null,
+  pancreas: null,
+  spleen: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultKidneyStudyState: KidneyStudyProtocol = {
+  rightKidney: null,
+  leftKidney: null,
+  urinaryBladder: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultOmtFemaleState: OmtFemaleProtocol = {
+  uterus: null,
+  leftOvary: null,
+  rightOvary: null,
+  urinaryBladder: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultOmtMaleState: OmtMaleProtocol = {
+  prostate: null,
+  urinaryBladder: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultBreastStudyState: BreastStudyProtocol = {
+  breast: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultScrotumState: ScrotumProtocol = {
+  testis: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultThyroidStudyState: ThyroidStudyProtocol = {
+  thyroid: null,
+  conclusion: "",
+  recommendations: "",
+};
+
+export const defaultUrinaryBladderStudyState: UrinaryBladderStudyProtocol = {
+  urinaryBladder: null,
+  conclusion: "",
+  recommendations: "",
 };

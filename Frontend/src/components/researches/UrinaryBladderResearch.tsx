@@ -1,39 +1,42 @@
-// Frontend/src/components/researches/UrinaryBladderResearch.tsx
-import React, { useState } from "react";
-import UrinaryBladder, {
-  type UrinaryBladderProtocol,
-} from "@organs/UrinaryBladder";
+import React, { useState, useEffect } from "react";
+import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
+import { useResearch } from "@contexts";
+import type {
+  UrinaryBladderStudyProtocol,
+  UrinaryBladderStudyProps,
+  UrinaryBladderProtocol
+} from "@/types";
+import { defaultUrinaryBladderStudyState } from "@/types";
 
-export interface UrinaryBladderResearchProtocol {
-  urinaryBladder: UrinaryBladderProtocol | null;
-}
-
-interface UrinaryBladderResearchProps {
-  value?: UrinaryBladderResearchProtocol;
-  onChange?: (value: UrinaryBladderResearchProtocol) => void;
-}
-
-const defaultState: UrinaryBladderResearchProtocol = {
-  urinaryBladder: null,
-};
-
-export const UrinaryBladderResearch: React.FC<UrinaryBladderResearchProps> = ({
+export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   value,
   onChange,
 }) => {
-  const [form, setForm] = useState<UrinaryBladderResearchProtocol>(
-    value ?? defaultState,
+  const [form, setForm] = useState<UrinaryBladderStudyProtocol>(
+    value ?? defaultUrinaryBladderStudyState,
   );
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  
+  const { setStudyData } = useResearch();
+
+  useEffect(() => {
+    setStudyData("Мочевой пузырь", form);
+  }, [form, setStudyData]);
 
   const updateUrinaryBladder = (bladderData: UrinaryBladderProtocol) => {
-    const updated: UrinaryBladderResearchProtocol = {
+    const updated: UrinaryBladderStudyProtocol = {
       ...form,
       urinaryBladder: bladderData,
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated: UrinaryBladderStudyProtocol = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
     };
     setForm(updated);
     onChange?.(updated);
@@ -50,7 +53,10 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderResearchProps> = ({
         onChange={updateUrinaryBladder}
       />
 
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };

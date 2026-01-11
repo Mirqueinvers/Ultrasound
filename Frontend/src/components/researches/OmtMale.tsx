@@ -1,31 +1,24 @@
-import React, { useState } from "react";
-import Prostate, { type ProstateProtocol } from "@organs/Prostate";
-import UrinaryBladder, {
-  type UrinaryBladderProtocol,
-} from "@organs/UrinaryBladder";
+import React, { useState, useEffect } from "react";
+import Prostate from "@organs/Prostate";
+import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
-
-export interface OmtMaleProtocol {
-  prostate: ProstateProtocol | null;
-  urinaryBladder: UrinaryBladderProtocol | null;
-}
-
-interface OmtMaleProps {
-  value?: OmtMaleProtocol;
-  onChange?: (value: OmtMaleProtocol) => void;
-}
-
-const defaultState: OmtMaleProtocol = {
-  prostate: null,
-  urinaryBladder: null,
-};
+import { useResearch } from "@contexts";
+import type {
+  OmtMaleProtocol,
+  OmtMaleProps,
+  ProstateProtocol,
+  UrinaryBladderProtocol
+} from "@/types";
+import { defaultOmtMaleState } from "@/types";
 
 export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<OmtMaleProtocol>(value ?? defaultState);
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  const [form, setForm] = useState<OmtMaleProtocol>(value ?? defaultOmtMaleState);
+  
+  const { setStudyData } = useResearch();
+
+  useEffect(() => {
+    setStudyData("ОМТ (М)", form);
+  }, [form, setStudyData]);
 
   const updateProstate = (prostateData: ProstateProtocol) => {
     const updated: OmtMaleProtocol = { ...form, prostate: prostateData };
@@ -33,12 +26,20 @@ export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
     onChange?.(updated);
   };
 
-  const updateUrinaryBladder = (
-    urinaryBladderData: UrinaryBladderProtocol
-  ) => {
+  const updateUrinaryBladder = (urinaryBladderData: UrinaryBladderProtocol) => {
     const updated: OmtMaleProtocol = {
       ...form,
       urinaryBladder: urinaryBladderData,
+    };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
     };
     setForm(updated);
     onChange?.(updated);
@@ -50,17 +51,20 @@ export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов малого таза
       </div>
 
-        <Prostate
-          value={form.prostate ?? undefined}
-          onChange={updateProstate}
-        />
+      <Prostate
+        value={form.prostate ?? undefined}
+        onChange={updateProstate}
+      />
 
-        <UrinaryBladder
-          value={form.urinaryBladder ?? undefined}
-          onChange={updateUrinaryBladder}
-        />
+      <UrinaryBladder
+        value={form.urinaryBladder ?? undefined}
+        onChange={updateUrinaryBladder}
+      />
 
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };

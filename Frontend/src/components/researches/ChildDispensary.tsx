@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/ChildDispensary.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
 import Pancreas from "@organs/Pancreas";
@@ -7,6 +7,7 @@ import Spleen from "@organs/Spleen";
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import { Conclusion } from "@common";
 import { ButtonSelect } from "@/UI";
+import { useResearch } from "@contexts";
 
 import type { 
   ChildDispensaryProtocol,
@@ -21,10 +22,13 @@ import { defaultChildDispensaryState } from "@types";
 
 export const ChildDispensary: React.FC<ChildDispensaryProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<ChildDispensaryProtocol>(value ?? defaultChildDispensaryState);
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  
+  const { setStudyData } = useResearch();
+
+  // Сохраняем данные в context при каждом изменении
+  useEffect(() => {
+    setStudyData("Детская диспансеризация", form);
+  }, [form, setStudyData]);
 
   const updateField = (field: keyof ChildDispensaryProtocol, value: any) => {
     const updated = { ...form, [field]: value };
@@ -74,6 +78,16 @@ export const ChildDispensary: React.FC<ChildDispensaryProps> = ({ value, onChang
       updated.rightKidney = null;
       updated.leftKidney = null;
     }
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
+    };
     setForm(updated);
     onChange?.(updated);
   };
@@ -204,7 +218,10 @@ export const ChildDispensary: React.FC<ChildDispensaryProps> = ({ value, onChang
         )}
       </div>
 
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion || "", recommendations: form.recommendations || "" }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };

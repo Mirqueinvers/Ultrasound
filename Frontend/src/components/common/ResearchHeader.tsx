@@ -1,9 +1,12 @@
 import React from "react";
 import { useResearch } from "@contexts";
 
-export interface ResearchHeaderProps {}
+export interface ResearchHeaderProps {
+  paymentType: "oms" | "paid";
+  setPaymentType: (type: "oms" | "paid") => void;
+}
 
-export const ResearchHeader: React.FC<ResearchHeaderProps> = () => {
+export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, setPaymentType }) => {
   const {
     patientFullName,
     setPatientFullName,
@@ -17,8 +20,6 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = () => {
   const lastName = fullNameParts[0] || "";
   const firstName = fullNameParts[1] || "";
   const middleName = fullNameParts[2] || "";
-
-  const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
 
   const capitalizeFirstLetter = (str: string): string => {
     if (!str) return str;
@@ -75,7 +76,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = () => {
 
   return (
     <div className="mb-6">
-      {/* Заголовок – темнее */}
+      {/* Заголовок */}
       <div className="bg-sky-700 rounded-t-2xl px-6 py-3">
         <h2 className="text-white font-semibold text-lg">
           Данные пациента
@@ -154,7 +155,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = () => {
               />
             </div>
 
-            {/* Переключатель оплаты под датой исследования */}
+            {/* Переключатель оплаты */}
             <div className="pt-1">
               <label className="block text-xs font-semibold text-slate-600 mb-1">
                 Тип оплаты

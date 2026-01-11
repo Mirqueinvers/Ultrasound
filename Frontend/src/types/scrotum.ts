@@ -1,0 +1,12 @@
+import type { TestisProtocol } from './testis';
+
+export interface ScrotumProtocol {
+  testis: TestisProtocol | null;
+  conclusion: string;
+  recommendations: string;
+}
+
+export interface ScrotumProps {
+  value?: ScrotumProtocol;
+  onChange?: (value: ScrotumProtocol) => void;
+}

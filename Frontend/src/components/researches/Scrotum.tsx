@@ -1,29 +1,35 @@
-import React, { useState } from "react";
-import Testis, { type TestisProtocol } from "@organs/Testis";
+import React, { useState, useEffect } from "react";
+import Testis from "@organs/Testis";
 import { Conclusion } from "@common";
-
-export interface ScrotumProtocol {
-  testis: TestisProtocol | null;
-}
-
-interface ScrotumProps {
-  value?: ScrotumProtocol;
-  onChange?: (value: ScrotumProtocol) => void;
-}
-
-const defaultState: ScrotumProtocol = {
-  testis: null,
-};
+import { useResearch } from "@contexts";
+import type {
+  ScrotumProtocol,
+  ScrotumProps,
+  TestisProtocol
+} from "@/types";
+import { defaultScrotumState } from "@/types";
 
 export const Scrotum: React.FC<ScrotumProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<ScrotumProtocol>(value ?? defaultState);
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  const [form, setForm] = useState<ScrotumProtocol>(value ?? defaultScrotumState);
+  
+  const { setStudyData } = useResearch();
+
+  useEffect(() => {
+    setStudyData("Органы мошонки", form);
+  }, [form, setStudyData]);
 
   const updateTestis = (testisData: TestisProtocol) => {
     const updated: ScrotumProtocol = { ...form, testis: testisData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
+    };
     setForm(updated);
     onChange?.(updated);
   };
@@ -34,9 +40,12 @@ export const Scrotum: React.FC<ScrotumProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов мошонки
       </div>
 
-        <Testis value={form.testis ?? undefined} onChange={updateTestis} />
+      <Testis value={form.testis ?? undefined} onChange={updateTestis} />
 
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };

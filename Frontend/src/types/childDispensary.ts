@@ -17,6 +17,8 @@ export interface ChildDispensaryProtocol {
   kidneysStatus: string;
   rightKidney: KidneyProtocol | null;
   leftKidney: KidneyProtocol | null;
+  conclusion: string;  // Добавить
+  recommendations: string;  // Добавить
 }
 
 export interface ChildDispensaryProps {

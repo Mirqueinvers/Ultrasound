@@ -1,30 +1,35 @@
-// Frontend/src/components/researches/Breast.tsx
-import React, { useState } from "react";
-import BreastCommon, { type BreastProtocol } from "@organs/Breast/BreastCommon";
+import React, { useState, useEffect } from "react";
+import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
+import { useResearch } from "@contexts";
+import type {
+  BreastStudyProtocol,
+  BreastStudyProps,
+  BreastProtocol
+} from "@/types";
+import { defaultBreastStudyState } from "@/types";
 
-export interface BreastResearchProtocol {
-  breast: BreastProtocol | null;
-}
+export const Breast: React.FC<BreastStudyProps> = ({ value, onChange }) => {
+  const [form, setForm] = useState<BreastStudyProtocol>(value ?? defaultBreastStudyState);
+  
+  const { setStudyData } = useResearch();
 
-interface BreastProps {
-  value?: BreastResearchProtocol;
-  onChange?: (value: BreastResearchProtocol) => void;
-}
-
-const defaultState: BreastResearchProtocol = {
-  breast: null,
-};
-
-export const Breast: React.FC<BreastProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<BreastResearchProtocol>(value ?? defaultState);
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  useEffect(() => {
+    setStudyData("Молочные железы", form);
+  }, [form, setStudyData]);
 
   const updateBreast = (breastData: BreastProtocol) => {
     const updated = { ...form, breast: breastData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
+    };
     setForm(updated);
     onChange?.(updated);
   };
@@ -35,12 +40,15 @@ export const Breast: React.FC<BreastProps> = ({ value, onChange }) => {
         Ультразвуковое исследование молочных желез
       </div>
 
-        <BreastCommon
-          value={form.breast ?? undefined}
-          onChange={updateBreast}
-        />
+      <BreastCommon
+        value={form.breast ?? undefined}
+        onChange={updateBreast}
+      />
 
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };

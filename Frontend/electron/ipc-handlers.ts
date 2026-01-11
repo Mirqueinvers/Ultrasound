@@ -4,6 +4,8 @@ import { DatabaseManager } from './database/database';
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   const db = DatabaseManager.getInstance();
 
+  // ==================== AUTH HANDLERS ====================
+  
   ipcMain.handle('auth:register', async (_, { username, password, name, organization }: { 
     username: string; 
     password: string; 
@@ -40,6 +42,91 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   }) => {
     return await db.changePassword(userId, currentPassword, newPassword);
   });
+
+  // ==================== PATIENT HANDLERS ====================
+
+  ipcMain.handle('patient:findOrCreate', async (_, { lastName, firstName, middleName, dateOfBirth }: {
+    lastName: string;
+    firstName: string;
+    middleName: string | null;
+    dateOfBirth: string;
+  }) => {
+    return db.findOrCreatePatient(lastName, firstName, middleName, dateOfBirth);
+  });
+
+  ipcMain.handle('patient:search', async (_, query: string, limit?: number) => {
+    return db.searchPatients(query, limit);
+  });
+
+  ipcMain.handle('patient:getAll', async (_, limit?: number, offset?: number) => {
+    return db.getAllPatients(limit, offset);
+  });
+
+  ipcMain.handle('patient:getById', async (_, id: number) => {
+    return db.findPatientById(id);
+  });
+
+  ipcMain.handle('patient:update', async (_, { id, lastName, firstName, middleName, dateOfBirth }: {
+    id: number;
+    lastName: string;
+    firstName: string;
+    middleName: string | null;
+    dateOfBirth: string;
+  }) => {
+    return db.updatePatient(id, lastName, firstName, middleName, dateOfBirth);
+  });
+
+  // ==================== RESEARCH HANDLERS ====================
+
+  ipcMain.handle('research:create', async (_, { patientId, researchDate, paymentType, doctorName, notes }: {
+    patientId: number;
+    researchDate: string;
+    paymentType: 'oms' | 'paid';
+    doctorName?: string;
+    notes?: string;
+  }) => {
+    return db.createResearch(patientId, researchDate, paymentType, doctorName, notes);
+  });
+
+  ipcMain.handle('research:addStudy', async (_, { researchId, studyType, studyData }: {
+    researchId: number;
+    studyType: string;
+    studyData: object;
+  }) => {
+    return db.addStudyToResearch(researchId, studyType, studyData);
+  });
+
+  ipcMain.handle('research:getById', async (_, id: number) => {
+    return db.getResearchById(id);
+  });
+
+  ipcMain.handle('research:getByPatientId', async (_, patientId: number, limit?: number, offset?: number) => {
+    return db.getResearchesByPatientId(patientId, limit, offset);
+  });
+
+  ipcMain.handle('research:getAll', async (_, limit?: number, offset?: number) => {
+    return db.getAllResearches(limit, offset);
+  });
+
+  ipcMain.handle('research:update', async (_, { id, researchDate, paymentType, doctorName, notes }: {
+    id: number;
+    researchDate?: string;
+    paymentType?: 'oms' | 'paid';
+    doctorName?: string;
+    notes?: string;
+  }) => {
+    return db.updateResearch(id, researchDate, paymentType, doctorName, notes);
+  });
+
+  ipcMain.handle('research:delete', async (_, id: number) => {
+    return db.deleteResearch(id);
+  });
+
+  ipcMain.handle('research:search', async (_, query: string, limit?: number) => {
+    return db.searchResearches(query, limit);
+  });
+
+  // ==================== WINDOW HANDLERS ====================
 
   ipcMain.on('window:focus', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {

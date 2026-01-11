@@ -2,7 +2,19 @@ import Database from 'better-sqlite3';
 import { app } from 'electron';
 import * as path from 'path';
 import * as bcrypt from 'bcryptjs';
-import { CREATE_USERS_TABLE, CREATE_USERNAME_INDEX, User } from './schema';
+import { 
+  CREATE_USERS_TABLE, 
+  CREATE_USERNAME_INDEX,
+  CREATE_PATIENTS_TABLE,
+  CREATE_PATIENTS_INDEXES,
+  CREATE_RESEARCHES_TABLE,
+  CREATE_RESEARCH_STUDIES_TABLE,
+  CREATE_RESEARCHES_INDEXES,
+  User,
+  Patient,
+  Research,
+  ResearchStudy
+} from './schema';
 
 export class DatabaseManager {
   private db: Database.Database;
@@ -31,6 +43,11 @@ export class DatabaseManager {
   private initializeDatabase(): void {
     this.db.exec(CREATE_USERS_TABLE);
     this.db.exec(CREATE_USERNAME_INDEX);
+    this.db.exec(CREATE_PATIENTS_TABLE);
+    this.db.exec(CREATE_PATIENTS_INDEXES);
+    this.db.exec(CREATE_RESEARCHES_TABLE);
+    this.db.exec(CREATE_RESEARCH_STUDIES_TABLE);
+    this.db.exec(CREATE_RESEARCHES_INDEXES);
   }
 
   private runMigrations(): void {
@@ -45,6 +62,7 @@ export class DatabaseManager {
     }
   }
 
+  // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ПОЛЬЗОВАТЕЛЯМИ ====================
 
   public async registerUser(
     username: string,
@@ -179,6 +197,330 @@ export class DatabaseManager {
       return { success: false, message: 'Ошибка при смене пароля' };
     }
   }
+
+  // ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ПАЦИЕНТАМИ ====================
+
+  public createPatient(
+    lastName: string,
+    firstName: string,
+    middleName: string | null,
+    dateOfBirth: string
+  ): { success: boolean; message: string; patientId?: number } {
+    try {
+      const insert = this.db.prepare(
+        'INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)'
+      );
+      const result = insert.run(lastName, firstName, middleName, dateOfBirth);
+
+      return {
+        success: true,
+        message: 'Пациент успешно создан',
+        patientId: result.lastInsertRowid as number
+      };
+    } catch (error) {
+      console.error('Create patient error:', error);
+      return { success: false, message: 'Ошибка при создании пациента' };
+    }
+  }
+
+  public findPatientById(id: number): Patient | undefined {
+    return this.db.prepare('SELECT * FROM patients WHERE id = ?').get(id) as Patient | undefined;
+  }
+
+  public findPatientByFullNameAndDob(
+    lastName: string,
+    firstName: string,
+    middleName: string | null,
+    dateOfBirth: string
+  ): Patient | undefined {
+    return this.db.prepare(`
+      SELECT * FROM patients 
+      WHERE last_name = ? 
+        AND first_name = ? 
+        AND (middle_name = ? OR (middle_name IS NULL AND ? IS NULL))
+        AND date_of_birth = ?
+    `).get(lastName, firstName, middleName, middleName, dateOfBirth) as Patient | undefined;
+  }
+
+  public findOrCreatePatient(
+    lastName: string,
+    firstName: string,
+    middleName: string | null,
+    dateOfBirth: string
+  ): { success: boolean; message: string; patient?: Patient } {
+    try {
+      const existing = this.findPatientByFullNameAndDob(
+        lastName,
+        firstName,
+        middleName,
+        dateOfBirth
+      );
+
+      if (existing) {
+        return {
+          success: true,
+          message: 'Пациент найден',
+          patient: existing
+        };
+      }
+
+      const result = this.createPatient(lastName, firstName, middleName, dateOfBirth);
+      if (result.success && result.patientId) {
+        const patient = this.findPatientById(result.patientId);
+        return {
+          success: true,
+          message: 'Пациент создан',
+          patient
+        };
+      }
+
+      return { success: false, message: 'Ошибка при создании пациента' };
+    } catch (error) {
+      console.error('Find or create patient error:', error);
+      return { success: false, message: 'Ошибка при поиске/создании пациента' };
+    }
+  }
+
+  public searchPatients(query: string, limit: number = 50): Patient[] {
+    const searchPattern = `%${query}%`;
+    return this.db.prepare(`
+      SELECT * FROM patients 
+      WHERE last_name LIKE ? 
+         OR first_name LIKE ? 
+         OR middle_name LIKE ?
+      ORDER BY last_name, first_name
+      LIMIT ?
+    `).all(searchPattern, searchPattern, searchPattern, limit) as Patient[];
+  }
+
+  public getAllPatients(limit: number = 100, offset: number = 0): Patient[] {
+    return this.db.prepare(`
+      SELECT * FROM patients 
+      ORDER BY created_at DESC 
+      LIMIT ? OFFSET ?
+    `).all(limit, offset) as Patient[];
+  }
+
+  public updatePatient(
+    id: number,
+    lastName: string,
+    firstName: string,
+    middleName: string | null,
+    dateOfBirth: string
+  ): { success: boolean; message: string } {
+    try {
+      const result = this.db.prepare(`
+        UPDATE patients 
+        SET last_name = ?, first_name = ?, middle_name = ?, date_of_birth = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(lastName, firstName, middleName, dateOfBirth, id);
+
+      if (result.changes > 0) {
+        return { success: true, message: 'Данные пациента обновлены' };
+      }
+      return { success: false, message: 'Пациент не найден' };
+    } catch (error) {
+      console.error('Update patient error:', error);
+      return { success: false, message: 'Ошибка при обновлении данных пациента' };
+    }
+  }
+
+// ==================== МЕТОДЫ ДЛЯ РАБОТЫ С ИССЛЕДОВАНИЯМИ ====================
+
+public createResearch(
+  patientId: number,
+  researchDate: string,
+  paymentType: 'oms' | 'paid',
+  doctorName?: string,
+  notes?: string
+): { success: boolean; message: string; researchId?: number } {
+  try {
+    const insert = this.db.prepare(
+      'INSERT INTO researches (patient_id, research_date, payment_type, doctor_name, notes) VALUES (?, ?, ?, ?, ?)'
+    );
+    const result = insert.run(patientId, researchDate, paymentType, doctorName || null, notes || null);
+
+    return {
+      success: true,
+      message: 'Исследование создано',
+      researchId: result.lastInsertRowid as number
+    };
+  } catch (error) {
+    console.error('Create research error:', error);
+    return { success: false, message: 'Ошибка при создании исследования' };
+  }
+}
+
+public addStudyToResearch(
+  researchId: number,
+  studyType: string,
+  studyData: object
+): { success: boolean; message: string; studyId?: number } {
+  try {
+    const insert = this.db.prepare(
+      'INSERT INTO research_studies (research_id, study_type, study_data) VALUES (?, ?, ?)'
+    );
+    const result = insert.run(researchId, studyType, JSON.stringify(studyData));
+
+    return {
+      success: true,
+      message: 'Исследование добавлено',
+      studyId: result.lastInsertRowid as number
+    };
+  } catch (error) {
+    console.error('Add study error:', error);
+    return { success: false, message: 'Ошибка при добавлении исследования' };
+  }
+}
+
+public getResearchById(id: number): Research | null {
+  const research = this.db.prepare('SELECT * FROM researches WHERE id = ?').get(id) as Research | undefined;
+  if (!research) return null;
+
+  const studies = this.db.prepare('SELECT * FROM research_studies WHERE research_id = ?').all(id) as ResearchStudy[];
+  
+  return {
+    ...research,
+    studies: studies.map((study) => ({
+      ...study,
+      study_data: JSON.parse(study.study_data)
+    }))
+  } as Research & { studies: Array<Omit<ResearchStudy, 'study_data'> & { study_data: any }> };
+}
+
+public getResearchesByPatientId(patientId: number, limit: number = 50, offset: number = 0): Array<Research & { studies: any[] }> {
+  const researches = this.db.prepare(`
+    SELECT * FROM researches 
+    WHERE patient_id = ? 
+    ORDER BY research_date DESC, created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(patientId, limit, offset) as Research[];
+
+  return researches.map((research) => {
+    const studies = this.db.prepare('SELECT * FROM research_studies WHERE research_id = ?').all(research.id) as ResearchStudy[];
+    return {
+      ...research,
+      studies: studies.map((study) => ({
+        ...study,
+        study_data: JSON.parse(study.study_data)
+      }))
+    };
+  });
+}
+
+public getAllResearches(limit: number = 100, offset: number = 0): Array<Research & { studies: any[], last_name: string, first_name: string, middle_name?: string, date_of_birth: string }> {
+  const researches = this.db.prepare(`
+    SELECT r.*, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM researches r
+    JOIN patients p ON r.patient_id = p.id
+    ORDER BY r.research_date DESC, r.created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset) as Array<Research & { last_name: string, first_name: string, middle_name?: string, date_of_birth: string }>;
+
+  return researches.map((research) => {
+    const studies = this.db.prepare('SELECT * FROM research_studies WHERE research_id = ?').all(research.id) as ResearchStudy[];
+    return {
+      ...research,
+      studies: studies.map((study) => ({
+        ...study,
+        study_data: JSON.parse(study.study_data)
+      }))
+    };
+  });
+}
+
+public updateResearch(
+  id: number,
+  researchDate?: string,
+  paymentType?: 'oms' | 'paid',
+  doctorName?: string,
+  notes?: string
+): { success: boolean; message: string } {
+  try {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (researchDate !== undefined) {
+      fields.push('research_date = ?');
+      values.push(researchDate);
+    }
+    if (paymentType !== undefined) {
+      fields.push('payment_type = ?');
+      values.push(paymentType);
+    }
+    if (doctorName !== undefined) {
+      fields.push('doctor_name = ?');
+      values.push(doctorName);
+    }
+    if (notes !== undefined) {
+      fields.push('notes = ?');
+      values.push(notes);
+    }
+
+    if (fields.length === 0) {
+      return { success: false, message: 'Нет данных для обновления' };
+    }
+
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(id);
+
+    const result = this.db.prepare(`
+      UPDATE researches 
+      SET ${fields.join(', ')}
+      WHERE id = ?
+    `).run(...values);
+
+    if (result.changes > 0) {
+      return { success: true, message: 'Исследование обновлено' };
+    }
+    return { success: false, message: 'Исследование не найдено' };
+  } catch (error) {
+    console.error('Update research error:', error);
+    return { success: false, message: 'Ошибка при обновлении исследования' };
+  }
+}
+
+public deleteResearch(id: number): { success: boolean; message: string } {
+  try {
+    // Благодаря CASCADE удалятся и все связанные studies
+    const result = this.db.prepare('DELETE FROM researches WHERE id = ?').run(id);
+    
+    if (result.changes > 0) {
+      return { success: true, message: 'Исследование удалено' };
+    }
+    return { success: false, message: 'Исследование не найдено' };
+  } catch (error) {
+    console.error('Delete research error:', error);
+    return { success: false, message: 'Ошибка при удалении исследования' };
+  }
+}
+
+public searchResearches(query: string, limit: number = 50): Array<Research & { studies: any[], last_name: string, first_name: string, middle_name?: string }> {
+  const searchPattern = `%${query}%`;
+  const researches = this.db.prepare(`
+    SELECT r.*, p.last_name, p.first_name, p.middle_name
+    FROM researches r
+    JOIN patients p ON r.patient_id = p.id
+    WHERE p.last_name LIKE ? 
+       OR p.first_name LIKE ? 
+       OR p.middle_name LIKE ?
+       OR r.research_date LIKE ?
+    ORDER BY r.research_date DESC
+    LIMIT ?
+  `).all(searchPattern, searchPattern, searchPattern, searchPattern, limit) as Array<Research & { last_name: string, first_name: string, middle_name?: string }>;
+
+  return researches.map((research) => {
+    const studies = this.db.prepare('SELECT * FROM research_studies WHERE research_id = ?').all(research.id) as ResearchStudy[];
+    return {
+      ...research,
+      studies: studies.map((study) => ({
+        ...study,
+        study_data: JSON.parse(study.study_data)
+      }))
+    };
+  });
+}
+
 
   public close(): void {
     this.db.close();

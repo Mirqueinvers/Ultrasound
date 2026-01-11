@@ -1,30 +1,35 @@
-// Frontend/src/components/researches/Thyroid.tsx
-import React, { useState } from "react";
-import ThyroidCommon, { type ThyroidProtocol } from "@organs/Thyroid/ThyroidCommon";
+import React, { useState, useEffect } from "react";
+import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
+import { useResearch } from "@contexts";
+import type {
+  ThyroidStudyProtocol,
+  ThyroidStudyProps,
+  ThyroidProtocol
+} from "@/types";
+import { defaultThyroidStudyState } from "@/types";
 
-export interface ThyroidResearchProtocol {
-  thyroid: ThyroidProtocol | null;
-}
+export const Thyroid: React.FC<ThyroidStudyProps> = ({ value, onChange }) => {
+  const [form, setForm] = useState<ThyroidStudyProtocol>(value ?? defaultThyroidStudyState);
+  
+  const { setStudyData } = useResearch();
 
-interface ThyroidProps {
-  value?: ThyroidResearchProtocol;
-  onChange?: (value: ThyroidResearchProtocol) => void;
-}
-
-const defaultState: ThyroidResearchProtocol = {
-  thyroid: null,
-};
-
-export const Thyroid: React.FC<ThyroidProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<ThyroidResearchProtocol>(value ?? defaultState);
-  const [conclusion, setConclusion] = useState({
-    conclusion: "",
-    recommendations: "",
-  });
+  useEffect(() => {
+    setStudyData("Щитовидная железа", form);
+  }, [form, setStudyData]);
 
   const updateThyroid = (thyroidData: ThyroidProtocol) => {
     const updated = { ...form, thyroid: thyroidData };
+    setForm(updated);
+    onChange?.(updated);
+  };
+
+  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+    const updated = {
+      ...form,
+      conclusion: conclusionData.conclusion,
+      recommendations: conclusionData.recommendations,
+    };
     setForm(updated);
     onChange?.(updated);
   };
@@ -35,14 +40,15 @@ export const Thyroid: React.FC<ThyroidProps> = ({ value, onChange }) => {
         Ультразвуковое исследование щитовидной железы
       </div>
 
+      <ThyroidCommon
+        value={form.thyroid ?? undefined}
+        onChange={updateThyroid}
+      />
 
-        <ThyroidCommon
-          value={form.thyroid ?? undefined}
-          onChange={updateThyroid}
-        />
-
-
-      <Conclusion value={conclusion} onChange={setConclusion} />
+      <Conclusion 
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
+        onChange={updateConclusion} 
+      />
     </div>
   );
 };
