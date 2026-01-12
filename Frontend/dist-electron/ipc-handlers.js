@@ -73,4 +73,24 @@ function setupAuthHandlers(mainWindow) {
             mainWindow.show();
         }
     });
+    electron_1.ipcMain.on('window:minimize', () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.minimize();
+        }
+    });
+    electron_1.ipcMain.on('window:maximize', () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            if (mainWindow.isMaximized()) {
+                mainWindow.unmaximize();
+            }
+            else {
+                mainWindow.maximize();
+            }
+        }
+    });
+    electron_1.ipcMain.on('window:close', () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.close();
+        }
+    });
 }

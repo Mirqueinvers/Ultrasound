@@ -11,6 +11,51 @@ import AuthForm from "@/components/auth/AuthForm";
 import ProfilePage from "@/components/profile/ProfilePage";
 import Journal from "@/components/journal/Journal";
 
+function AppTitlebar() {
+  const handleMinimize = () => {
+    window.windowAPI?.minimize();
+  };
+
+  const handleMaximize = () => {
+    window.windowAPI?.maximize();
+  };
+
+  const handleClose = () => {
+    window.windowAPI?.close();
+  };
+
+  return (
+    <div className="app-titlebar">
+      {/* слева ничего не рисуем — чистая полоска */}
+      <div className="app-titlebar-left" />
+
+      <div className="app-titlebar-buttons">
+        <button
+          className="app-titlebar-button"
+          type="button"
+          onClick={handleMinimize}
+        >
+          &#8211;
+        </button>
+        <button
+          className="app-titlebar-button"
+          type="button"
+          onClick={handleMaximize}
+        >
+          &#9633;
+        </button>
+        <button
+          className="app-titlebar-button close"
+          type="button"
+          onClick={handleClose}
+        >
+          &#10005;
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const { isAuthenticated, isLoading, login, register } = useAuth();
 
@@ -20,13 +65,9 @@ function AppContent() {
   const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
 
   const handleToggleStudy = (study: string) => {
-    setSelectedStudies((prev) => {
-      if (prev.includes(study)) {
-        return prev.filter((s) => s !== study);
-      } else {
-        return [...prev, study];
-      }
-    });
+    setSelectedStudies((prev) =>
+      prev.includes(study) ? prev.filter((s) => s !== study) : [...prev, study]
+    );
   };
 
   const handleRemoveStudy = (study: string) => {
@@ -56,52 +97,84 @@ function AppContent() {
 
   if (isLoading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        Загрузка...
-      </div>
+      <>
+        <AppTitlebar />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          Загрузка...
+        </div>
+      </>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <AuthForm
-        key={`auth-${Date.now()}`}
-        onLogin={login}
-        onRegister={register}
-      />
+      <>
+        <AppTitlebar />
+        <AuthForm
+          key={`auth-${Date.now()}`}
+          onLogin={login}
+          onRegister={register}
+        />
+      </>
     );
   }
 
-  // Профиль
   if (activeSection === "profile") {
     return (
-      <RightPanelProvider>
-        <MainLayout
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          selectedStudy={selectedStudy}
-          onStudySelect={handleStudySelect}
-          isMultiSelectMode={isMultiSelectMode}
-          selectedStudies={selectedStudies}
-          onToggleStudy={handleToggleStudy}
-          onNavigateToProfile={handleNavigateToProfile}
-        >
-          <ProfilePage />
-        </MainLayout>
-      </RightPanelProvider>
+      <>
+        <AppTitlebar />
+        <RightPanelProvider>
+          <MainLayout
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            selectedStudy={selectedStudy}
+            onStudySelect={handleStudySelect}
+            isMultiSelectMode={isMultiSelectMode}
+            selectedStudies={selectedStudies}
+            onToggleStudy={handleToggleStudy}
+            onNavigateToProfile={handleNavigateToProfile}
+          >
+            <ProfilePage />
+          </MainLayout>
+        </RightPanelProvider>
+      </>
     );
   }
 
-  // Журнал
   if (activeSection === "journal") {
     return (
+      <>
+        <AppTitlebar />
+        <ResearchProvider>
+          <RightPanelProvider>
+            <MainLayout
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              selectedStudy={selectedStudy}
+              onStudySelect={handleStudySelect}
+              isMultiSelectMode={isMultiSelectMode}
+              selectedStudies={selectedStudies}
+              onToggleStudy={handleToggleStudy}
+              onNavigateToProfile={handleNavigateToProfile}
+            >
+              <Journal />
+            </MainLayout>
+          </RightPanelProvider>
+        </ResearchProvider>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <AppTitlebar />
       <ResearchProvider>
         <RightPanelProvider>
           <MainLayout
@@ -114,39 +187,19 @@ function AppContent() {
             onToggleStudy={handleToggleStudy}
             onNavigateToProfile={handleNavigateToProfile}
           >
-            <Journal />
+            <Content
+              selectedStudy={selectedStudy}
+              activeSection={activeSection}
+              selectedStudies={selectedStudies}
+              onRemoveStudy={handleRemoveStudy}
+              isMultiSelectMode={isMultiSelectMode}
+              onStartNewResearch={handleStartNewResearch}
+              onCancelNewResearch={handleCancelNewResearch}
+            />
           </MainLayout>
         </RightPanelProvider>
       </ResearchProvider>
-    );
-  }
-
-  // Остальные секции (протоколы, поиск, статистика и т.п.)
-  return (
-    <ResearchProvider>
-      <RightPanelProvider>
-        <MainLayout
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          selectedStudy={selectedStudy}
-          onStudySelect={handleStudySelect}
-          isMultiSelectMode={isMultiSelectMode}
-          selectedStudies={selectedStudies}
-          onToggleStudy={handleToggleStudy}
-          onNavigateToProfile={handleNavigateToProfile}
-        >
-          <Content
-            selectedStudy={selectedStudy}
-            activeSection={activeSection}
-            selectedStudies={selectedStudies}
-            onRemoveStudy={handleRemoveStudy}
-            isMultiSelectMode={isMultiSelectMode}
-            onStartNewResearch={handleStartNewResearch}
-            onCancelNewResearch={handleCancelNewResearch}
-          />
-        </MainLayout>
-      </RightPanelProvider>
-    </ResearchProvider>
+    </>
   );
 }
 

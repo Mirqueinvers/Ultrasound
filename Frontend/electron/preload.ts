@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// ========== AUTH API ==========
+
 export interface AuthAPI {
   register: (data: {
     username: string;
@@ -39,6 +41,8 @@ export interface AuthAPI {
   }>;
 }
 
+// ========== DOMAIN TYPES ==========
+
 export interface Patient {
   id: number;
   last_name: string;
@@ -72,6 +76,8 @@ export interface JournalEntry {
   patient: Patient;
   researches: Research[];
 }
+
+// ========== PATIENT / RESEARCH / JOURNAL API ==========
 
 export interface PatientAPI {
   findOrCreate: (data: {
@@ -144,9 +150,16 @@ export interface JournalAPI {
   getByDate: (date: string) => Promise<JournalEntry[]>;
 }
 
+// ========== WINDOW API (для своей шапки) ==========
+
 export interface WindowAPI {
   focus: () => void;
+  minimize: () => void;
+  maximize: () => void; // toggle max/unmax
+  close: () => void;
 }
+
+// ========== Реализации API ==========
 
 const authAPI: AuthAPI = {
   register: (data) => ipcRenderer.invoke('auth:register', data),
@@ -182,10 +195,27 @@ const journalAPI: JournalAPI = {
 
 const windowAPI: WindowAPI = {
   focus: () => ipcRenderer.send('window:focus'),
+  minimize: () => ipcRenderer.send('window:minimize'),
+  maximize: () => ipcRenderer.send('window:maximize'),
+  close: () => ipcRenderer.send('window:close'),
 };
+
+// ========== Экспорт в window ==========
 
 contextBridge.exposeInMainWorld('authAPI', authAPI);
 contextBridge.exposeInMainWorld('patientAPI', patientAPI);
 contextBridge.exposeInMainWorld('researchAPI', researchAPI);
 contextBridge.exposeInMainWorld('journalAPI', journalAPI);
 contextBridge.exposeInMainWorld('windowAPI', windowAPI);
+
+// Чтобы TypeScript на фронте не ругался, можешь добавить декларацию:
+
+declare global {
+  interface Window {
+    authAPI: AuthAPI;
+    patientAPI: PatientAPI;
+    researchAPI: ResearchAPI;
+    journalAPI: JournalAPI;
+    windowAPI: WindowAPI;
+  }
+}

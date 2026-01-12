@@ -1,3 +1,85 @@
-@tailwind base; 
-@tailwind components; 
-@tailwind utilities; 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* фон страницы + отступ под шапку */
+body {
+  margin: 0;
+  padding-top: 80px; /* высота шапки */
+  background-color: #f9fafb; /* tailwind gray-50 */
+}
+
+/* своя шапка окна */
+.app-titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+  background: #f9fafb;              /* gray-50 */
+  color: #000000;
+  font-size: 13px;
+  -webkit-app-region: drag;
+  z-index: 9999;
+
+  border-bottom: 1px solid #e5e7eb; /* 👈 тонкая граница (gray-200) */
+}
+
+
+/* блок с кнопками */
+.app-titlebar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  -webkit-app-region: no-drag; /* не drag, иначе клик не сработает */
+}
+
+/* сами кнопки */
+.app-titlebar-button {
+  width: 36px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #000000;            /* чёрные */
+  cursor: pointer;
+}
+
+.app-titlebar-button:hover {
+  background: rgba(0, 0, 0, 0.06); /* лёгкий hover, как в Win11 */
+}
+
+.app-titlebar-button.close:hover {
+  background: #ef4444;       /* красный hover */
+  color: #ffffff;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #print-area,
+  #print-area * {
+    visibility: visible;
+  }
+
+  #print-area {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 20px;
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

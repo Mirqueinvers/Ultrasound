@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
+// ========== Реализации API ==========
 const authAPI = {
     register: (data) => electron_1.ipcRenderer.invoke('auth:register', data),
     login: (data) => electron_1.ipcRenderer.invoke('auth:login', data),
@@ -30,7 +31,11 @@ const journalAPI = {
 };
 const windowAPI = {
     focus: () => electron_1.ipcRenderer.send('window:focus'),
+    minimize: () => electron_1.ipcRenderer.send('window:minimize'),
+    maximize: () => electron_1.ipcRenderer.send('window:maximize'),
+    close: () => electron_1.ipcRenderer.send('window:close'),
 };
+// ========== Экспорт в window ==========
 electron_1.contextBridge.exposeInMainWorld('authAPI', authAPI);
 electron_1.contextBridge.exposeInMainWorld('patientAPI', patientAPI);
 electron_1.contextBridge.exposeInMainWorld('researchAPI', researchAPI);

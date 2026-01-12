@@ -1,3 +1,5 @@
+// path: src/components/.../Content.tsx
+
 import React from "react";
 
 import Obp from "@components/researches/Obp";
@@ -23,13 +25,13 @@ interface ContentProps {
   onCancelNewResearch: () => void;
 }
 
-const Content: React.FC<ContentProps> = ({ 
-  selectedStudy, 
+const Content: React.FC<ContentProps> = ({
+  selectedStudy,
   activeSection,
   selectedStudies,
   isMultiSelectMode,
   onStartNewResearch,
-  onCancelNewResearch
+  onCancelNewResearch,
 }) => {
   const {
     patientFullName,
@@ -40,34 +42,36 @@ const Content: React.FC<ContentProps> = ({
   } = useResearch();
 
   const [isSaving, setIsSaving] = React.useState(false);
-  const [saveMessage, setSaveMessage] = React.useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [saveMessage, setSaveMessage] = React.useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
 
   const handleSaveResearch = async () => {
-    // Валидация данных пациента
     const fullNameParts = patientFullName.split(" ");
     const lastName = fullNameParts[0] || "";
     const firstName = fullNameParts[1] || "";
     const middleName = fullNameParts[2] || "";
 
     if (!lastName.trim()) {
-      setSaveMessage({ type: 'error', text: 'Введите фамилию пациента' });
+      setSaveMessage({ type: "error", text: "Введите фамилию пациента" });
       return;
     }
     if (!firstName.trim()) {
-      setSaveMessage({ type: 'error', text: 'Введите имя пациента' });
+      setSaveMessage({ type: "error", text: "Введите имя пациента" });
       return;
     }
     if (!patientDateOfBirth.trim()) {
-      setSaveMessage({ type: 'error', text: 'Введите дату рождения' });
+      setSaveMessage({ type: "error", text: "Введите дату рождения" });
       return;
     }
     if (!researchDate.trim()) {
-      setSaveMessage({ type: 'error', text: 'Введите дату исследования' });
+      setSaveMessage({ type: "error", text: "Введите дату исследования" });
       return;
     }
     if (selectedStudies.length === 0) {
-      setSaveMessage({ type: 'error', text: 'Выберите хотя бы одно исследование' });
+      setSaveMessage({ type: "error", text: "Выберите хотя бы одно исследование" });
       return;
     }
 
@@ -75,45 +79,42 @@ const Content: React.FC<ContentProps> = ({
     setSaveMessage(null);
 
     try {
-      // 1. Создаём или находим пациента
       const patientResult = await window.patientAPI.findOrCreate({
         lastName: lastName.trim(),
         firstName: firstName.trim(),
         middleName: middleName.trim() || null,
-        dateOfBirth: patientDateOfBirth.trim()
+        dateOfBirth: patientDateOfBirth.trim(),
       });
 
       if (!patientResult.success || !patientResult.patient) {
-        setSaveMessage({ type: 'error', text: 'Ошибка при сохранении пациента' });
+        setSaveMessage({ type: "error", text: "Ошибка при сохранении пациента" });
         return;
       }
 
       const patientId = patientResult.patient.id;
 
-      // 2. Создаём исследование
       const researchResult = await window.researchAPI.create({
         patientId,
         researchDate: researchDate,
-        paymentType: paymentType
+        paymentType: paymentType,
       });
 
       if (!researchResult.success || !researchResult.researchId) {
-        setSaveMessage({ type: 'error', text: 'Ошибка при создании исследования' });
+        setSaveMessage({ type: "error", text: "Ошибка при создании исследования" });
         return;
       }
 
       const researchId = researchResult.researchId;
 
-      // 3. Сохраняем каждое исследование с реальными данными из context
       for (const studyType of selectedStudies) {
         const studyData = studiesData[studyType] || {};
-        
-        console.log(`Сохранение ${studyType}:`, studyData); // Для отладки
-        
+
+        console.log(`Сохранение ${studyType}:`, studyData);
+
         const studyResult = await window.researchAPI.addStudy({
           researchId,
           studyType,
-          studyData
+          studyData,
         });
 
         if (!studyResult.success) {
@@ -121,32 +122,32 @@ const Content: React.FC<ContentProps> = ({
         }
       }
 
-      setSaveMessage({ 
-        type: 'success', 
-        text: `Исследование успешно сохранено (ID: ${researchId})` 
+      setSaveMessage({
+        type: "success",
+        text: `Исследование успешно сохранено (ID: ${researchId})`,
       });
 
-      // Очищаем данные и возвращаемся в начальное состояние
       setTimeout(() => {
         setSaveMessage(null);
-        clearStudiesData(); // Очищаем данные исследований
+        clearStudiesData();
         onCancelNewResearch();
       }, 3000);
-
     } catch (error) {
-      console.error('Error saving research:', error);
-      setSaveMessage({ type: 'error', text: 'Произошла ошибка при сохранении' });
+      console.error("Error saving research:", error);
+      setSaveMessage({ type: "error", text: "Произошла ошибка при сохранении" });
     } finally {
       setIsSaving(false);
     }
   };
 
   // Показываем исследование только если выбрана секция "УЗИ протоколы"
-  if (activeSection !== 'uzi-protocols') {
+  if (activeSection !== "uzi-protocols") {
     return (
       <div className="content">
         <h2 className="text-slate-800 mt-0">Основной контент</h2>
-        <p className="text-slate-600">Выберите "УЗИ протоколы" в меню для просмотра исследований</p>
+        <p className="text-slate-600">
+          Выберите "УЗИ протоколы" в меню для просмотра исследований
+        </p>
       </div>
     );
   }
@@ -157,14 +158,16 @@ const Content: React.FC<ContentProps> = ({
       <div className="content">
         <div className="mt-6">
           <ResearchHeader paymentType={paymentType} setPaymentType={setPaymentType} />
-          
+
           {/* Сообщение о сохранении */}
           {saveMessage && (
-            <div className={`mb-4 px-4 py-3 rounded-lg ${
-              saveMessage.type === 'success' 
-                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
-                : 'bg-red-50 text-red-800 border border-red-200'
-            }`}>
+            <div
+              className={`mb-4 px-4 py-3 rounded-lg ${
+                saveMessage.type === "success"
+                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}
+            >
               {saveMessage.text}
             </div>
           )}
@@ -196,18 +199,29 @@ const Content: React.FC<ContentProps> = ({
             >
               Отменить
             </button>
+
             {selectedStudies.length > 0 && (
-              <button
-                onClick={handleSaveResearch}
-                disabled={isSaving}
-                className={`px-4 py-2 rounded transition-colors font-medium ${
-                  isSaving
-                    ? 'bg-slate-400 text-slate-200 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                }`}
-              >
-                {isSaving ? 'Сохранение...' : 'Сохранить исследование'}
-              </button>
+              <>
+                <button
+                  onClick={() => window.print()}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Печать
+                </button>
+
+                <button
+                  onClick={handleSaveResearch}
+                  disabled={isSaving}
+                  className={`px-4 py-2 rounded transition-colors font-medium ${
+                    isSaving
+                      ? "bg-slate-400 text-slate-200 cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
+                >
+                  {isSaving ? "Сохранение..." : "Сохранить исследование"}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -234,42 +248,39 @@ const Content: React.FC<ContentProps> = ({
   }
 
   // Отображаем выбранное исследование (старый режим)
-  return (
-    <div className="content">
-      {renderStudyComponent(selectedStudy)}
-    </div>
-  );
+  return <div className="content">{renderStudyComponent(selectedStudy)}</div>;
 };
 
 // Вспомогательная функция для рендера компонента исследования
 function renderStudyComponent(study: string) {
   switch (study) {
-    case 'ОБП':
+    case "ОБП":
       return <Obp />;
-    case 'Почки':
+    case "Почки":
       return <Kidney />;
-    case 'ОМТ (Ж)':
+    case "ОМТ (Ж)":
       return <OmtFemale />;
-    case 'ОМТ (М)':
+    case "ОМТ (М)":
       return <OmtMale />;
-    case 'Органы мошонки':
+    case "Органы мошонки":
       return <Scrotum />;
-    case 'Щитовидная железа':
+    case "Щитовидная железа":
       return <Thyroid />;
-    case 'Молочные железы':
+    case "Молочные железы":
       return <Breast />;
-    case 'Детская диспансеризация':
+    case "Детская диспансеризация":
       return <ChildDispensary />;
-    case 'Мягких тканей':
+    case "Мягких тканей":
       return <SoftTissue />;
-    case 'Мочевой пузырь':
+    case "Мочевой пузырь":
       return <UrinaryBladderResearch />;
-
     default:
       return (
         <div className="mt-6 p-8 border-2 border-dashed border-slate-300 rounded-lg text-center">
           <h3 className="text-slate-600 mb-2">🚧 В разработке</h3>
-          <p className="text-slate-500">Компонент для "{study}" будет добавлен в следующей версии</p>
+          <p className="text-slate-500">
+            Компонент для "{study}" будет добавлен в следующей версии
+          </p>
         </div>
       );
   }
