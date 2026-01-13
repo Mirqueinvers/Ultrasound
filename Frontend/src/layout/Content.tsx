@@ -1,5 +1,3 @@
-// path: src/components/.../Content.tsx
-
 import React from "react";
 
 import Obp from "@components/researches/Obp";
@@ -14,6 +12,8 @@ import SoftTissue from "@components/researches/SoftTissue";
 import UrinaryBladderResearch from "@components/researches/UrinaryBladderResearch";
 import ResearchHeader from "@components/common/ResearchHeader";
 import { useResearch } from "@contexts";
+
+import HepatPrint from "@components/print/HepatPrint";
 
 interface ContentProps {
   selectedStudy: string;
@@ -71,7 +71,10 @@ const Content: React.FC<ContentProps> = ({
       return;
     }
     if (selectedStudies.length === 0) {
-      setSaveMessage({ type: "error", text: "Выберите хотя бы одно исследование" });
+      setSaveMessage({
+        type: "error",
+        text: "Выберите хотя бы одно исследование",
+      });
       return;
     }
 
@@ -87,7 +90,10 @@ const Content: React.FC<ContentProps> = ({
       });
 
       if (!patientResult.success || !patientResult.patient) {
-        setSaveMessage({ type: "error", text: "Ошибка при сохранении пациента" });
+        setSaveMessage({
+          type: "error",
+          text: "Ошибка при сохранении пациента",
+        });
         return;
       }
 
@@ -100,7 +106,10 @@ const Content: React.FC<ContentProps> = ({
       });
 
       if (!researchResult.success || !researchResult.researchId) {
-        setSaveMessage({ type: "error", text: "Ошибка при создании исследования" });
+        setSaveMessage({
+          type: "error",
+          text: "Ошибка при создании исследования",
+        });
         return;
       }
 
@@ -118,7 +127,10 @@ const Content: React.FC<ContentProps> = ({
         });
 
         if (!studyResult.success) {
-          console.error(`Ошибка сохранения ${studyType}:`, studyResult.message);
+          console.error(
+            `Ошибка сохранения ${studyType}:`,
+            studyResult.message
+          );
         }
       }
 
@@ -134,11 +146,34 @@ const Content: React.FC<ContentProps> = ({
       }, 3000);
     } catch (error) {
       console.error("Error saving research:", error);
-      setSaveMessage({ type: "error", text: "Произошла ошибка при сохранении" });
+      setSaveMessage({
+        type: "error",
+        text: "Произошла ошибка при сохранении",
+      });
     } finally {
       setIsSaving(false);
     }
   };
+
+  // 1) Секция test — то, что вы сейчас тестируете
+  if (activeSection === "test") {
+    const obpData = studiesData["ОБП"];
+    const liverData = obpData?.liver;
+
+    return (
+      <div className="content">
+        <div className="mt-6 bg-white p-6 rounded-xl shadow">
+          {liverData ? (
+            <HepatPrint value={liverData} />
+          ) : (
+            <p className="text-slate-500">
+              Заполни протокол ОБП (раздел Печень), чтобы увидеть печатную версию.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Показываем исследование только если выбрана секция "УЗИ протоколы"
   if (activeSection !== "uzi-protocols") {
@@ -157,7 +192,10 @@ const Content: React.FC<ContentProps> = ({
     return (
       <div className="content">
         <div className="mt-6">
-          <ResearchHeader paymentType={paymentType} setPaymentType={setPaymentType} />
+          <ResearchHeader
+            paymentType={paymentType}
+            setPaymentType={setPaymentType}
+          />
 
           {/* Сообщение о сохранении */}
           {saveMessage && (
@@ -186,7 +224,9 @@ const Content: React.FC<ContentProps> = ({
           {/* Подсказка если нет выбранных исследований */}
           {selectedStudies.length === 0 && (
             <div className="mt-6 p-6 border-2 border-dashed border-slate-300 rounded-lg text-center bg-slate-50">
-              <p className="text-slate-500">Выберите исследования из левого меню</p>
+              <p className="text-slate-500">
+                Выберите исследования из левого меню
+              </p>
             </div>
           )}
 

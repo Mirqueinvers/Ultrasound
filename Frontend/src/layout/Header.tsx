@@ -34,6 +34,12 @@ const Header: React.FC<HeaderProps> = ({
       label: "Статистика",
       icon: BarChart3,
     },
+    // новый пункт Test (справа от Статистика)
+    {
+      id: "test",
+      label: "Test",
+      icon: FileText,
+    },
   ];
 
   return (
