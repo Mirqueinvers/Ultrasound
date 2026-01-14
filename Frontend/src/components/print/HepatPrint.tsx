@@ -14,45 +14,138 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
     leftLobeAP,
     leftLobeCCR,
     leftLobeTotal,
+    echogenicity,
+    homogeneity,
+    contours,
+    lowerEdgeAngle,
+    focalLesionsPresence,
+    focalLesions,
+    vascularPattern,
+    portalVeinDiameter,
+    ivc,
+    additional,
   } = value;
 
-  const hasRightLobeCCR = !!rightLobeCCR?.trim();
-  const hasRightLobeCVR = !!rightLobeCVR?.trim();
-  const hasRightLobeTotal = !!rightLobeTotal?.trim();
+  const rightParts: string[] = [];
 
-  const hasLeftLobeAP = !!leftLobeAP?.trim();
-  const hasLeftLobeCCR = !!leftLobeCCR?.trim();
-  const hasLeftLobeTotal = !!leftLobeTotal?.trim();
+  if (rightLobeAP?.trim()) {
+    rightParts.push(`ПЗР правой доли ${rightLobeAP} мм`);
+  }
+  if (rightLobeCCR?.trim()) {
+    rightParts.push(`ККР правой доли ${rightLobeCCR} мм`);
+  }
+  if (rightLobeCVR?.trim()) {
+    rightParts.push(`КВР правой доли ${rightLobeCVR} мм`);
+  }
+  if (rightLobeTotal?.trim()) {
+    rightParts.push(`Сумма ККР + ПЗР ${rightLobeTotal} мм`);
+  }
+
+  const leftParts: string[] = [];
+
+  if (leftLobeAP?.trim()) {
+    leftParts.push(`ПЗР левой доли ${leftLobeAP} мм`);
+  }
+  if (leftLobeCCR?.trim()) {
+    leftParts.push(`ККР левой доли ${leftLobeCCR} мм`);
+  }
+  if (leftLobeTotal?.trim()) {
+    leftParts.push(`Сумма ККР + ПЗР левой доли ${leftLobeTotal} мм`);
+  }
+
+  const structParts: string[] = [];
+
+  if (echogenicity?.trim()) {
+    structParts.push(`эхогенность ${echogenicity}`);
+  }
+  if (homogeneity?.trim()) {
+    structParts.push(`эхоструктура ${homogeneity}`);
+  }
+  if (contours?.trim()) {
+    structParts.push(`контур ${contours}`);
+  }
+  if (lowerEdgeAngle?.trim()) {
+    structParts.push(`угол нижнего края ${lowerEdgeAngle}`);
+  }
+
+  if (focalLesionsPresence?.trim()) {
+    if (focalLesionsPresence === "не определяются") {
+      structParts.push("патологические объемные образования не определяются");
+    } else if (focalLesionsPresence === "определяются") {
+      if (focalLesions?.trim()) {
+        structParts.push(focalLesions.trim());
+      } else {
+        structParts.push("патологические образования определяются");
+      }
+    }
+  }
+
+  const vesselsParts: string[] = [];
+
+  if (vascularPattern?.trim()) {
+    vesselsParts.push(`сосудистый рисунок ${vascularPattern}`);
+  }
+  if (portalVeinDiameter?.trim()) {
+    vesselsParts.push(`воротная вена ${portalVeinDiameter} мм`);
+  }
+  if (ivc?.trim()) {
+    vesselsParts.push(`нижняя полая вена ${ivc} мм`);
+  }
+
+  const additionalText = additional?.trim();
+
+  const hasAnyContent =
+    rightParts.length > 0 ||
+    leftParts.length > 0 ||
+    structParts.length > 0 ||
+    vesselsParts.length > 0 ||
+    !!additionalText;
+
+  if (!hasAnyContent) {
+    return null;
+  }
 
   return (
-    <div style={{ fontSize: "12px", lineHeight: 1.4 }}>
-      {/* Правая доля */}
+    <div style={{ fontSize: "14px", lineHeight: 1.5, fontFamily: '"Times New Roman", Times, serif', }}>
       <p style={{ margin: 0 }}>
-        <strong>Печень:</strong>{" "}
-        ПЗР правой доли {rightLobeAP || "____"} мм
-        {hasRightLobeCCR && (
-          <> , ККР правой доли {rightLobeCCR} мм</>
+        <span style={{ fontWeight: 700, fontSize: "16px" }}>Печень:</span>{" "}
+        {rightParts.length > 0 && (
+          <>
+            {rightParts.join(", ")}.
+          </>
         )}
-        {hasRightLobeCVR && (
-          <> , КВР правой доли {rightLobeCVR} мм</>
+        {leftParts.length > 0 && (
+          <>
+            {rightParts.length > 0 && " "}
+            {leftParts.join(", ")}.
+          </>
         )}
-        {hasRightLobeTotal && (
-          <> , сумма ККР + ПЗР {rightLobeTotal} мм</>
+        {structParts.length > 0 && (
+          <>
+            {" "}
+            {(() => {
+              const text = structParts.join(", ");
+              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+            })()}
+          </>
+        )}
+        {vesselsParts.length > 0 && (
+          <>
+            {" "}
+            {(() => {
+              const text = vesselsParts.join(", ");
+              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+            })()}
+          </>
+        )}
+        {additionalText && (
+          <>
+            {" "}
+            {additionalText}
+            {!additionalText.endsWith(".") && "."}
+          </>
         )}
       </p>
-
-      {/* Левая доля (отдельной строкой) */}
-      {hasLeftLobeAP && (
-        <p style={{ margin: 0 }}>
-          ПЗР левой доли {leftLobeAP} мм
-          {hasLeftLobeCCR && (
-            <> , ККР левой доли {leftLobeCCR} мм</>
-          )}
-          {hasLeftLobeTotal && (
-            <> , сумма ККР + ПЗР {leftLobeTotal} мм</>
-          )}
-        </p>
-      )}
     </div>
   );
 };

@@ -72,9 +72,9 @@ export const GallbladderConcretions: React.FC<GallbladderConcretionsProps> = ({
                     value={concretion.position}
                     onChange={(val) => onUpdate(index, "position", val)}
                     options={[
-                      { value: "проксимальная треть", label: "проксимальная треть" },
-                      { value: "средняя треть", label: "средняя треть" },
-                      { value: "дистальная треть", label: "дистальная треть" },
+                      { value: "шейки", label: "шейка" },
+                      { value: "тела", label: "тело" },
+                      { value: "дна", label: "дно" },
                     ]}
                   />
                 </label>

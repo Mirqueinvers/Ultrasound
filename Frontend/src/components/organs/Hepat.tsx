@@ -162,7 +162,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             value={form.echogenicity}
             onChange={(val) => updateField("echogenicity", val)}
             options={[
-              { value: "норма", label: "средняя" },
+              { value: "средняя", label: "средняя" },
               { value: "повышена", label: "повышена" },
               { value: "снижена", label: "снижена" },
             ]}
@@ -184,9 +184,9 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             value={form.contours}
             onChange={(val) => updateField("contours", val)}
             options={[
-              { value: "ровные", label: "четкий, ровный" },
-              { value: "неровные", label: "четкий, неровный" },
-              { value: "бугристые", label: "бугристый" },
+              { value: "четкий,ровный", label: "четкий, ровный" },
+              { value: "четкий, неровнй", label: "четкий, неровный" },
+              { value: "бугристый", label: "бугристый" },
             ]}
           />
 

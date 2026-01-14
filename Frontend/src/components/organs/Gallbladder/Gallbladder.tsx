@@ -104,9 +104,9 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
               value={form.constriction}
               onChange={(val) => updateField("constriction", val)}
               options={[
-                { value: "шейка", label: "шейка" },
-                { value: "тело", label: "тело" },
-                { value: "дно", label: "дно" },
+                { value: "шейки", label: "шейка" },
+                { value: "тела", label: "тело" },
+                { value: "дна", label: "дно" },
               ]}
             />
           </div>

@@ -13,7 +13,7 @@ import UrinaryBladderResearch from "@components/researches/UrinaryBladderResearc
 import ResearchHeader from "@components/common/ResearchHeader";
 import { useResearch } from "@contexts";
 
-import HepatPrint from "@components/print/HepatPrint";
+import PrintTestSection from "@components/print/PrintTestSection";
 
 interface ContentProps {
   selectedStudy: string;
@@ -157,22 +157,7 @@ const Content: React.FC<ContentProps> = ({
 
   // 1) Секция test — то, что вы сейчас тестируете
   if (activeSection === "test") {
-    const obpData = studiesData["ОБП"];
-    const liverData = obpData?.liver;
-
-    return (
-      <div className="content">
-        <div className="mt-6 bg-white p-6 rounded-xl shadow">
-          {liverData ? (
-            <HepatPrint value={liverData} />
-          ) : (
-            <p className="text-slate-500">
-              Заполни протокол ОБП (раздел Печень), чтобы увидеть печатную версию.
-            </p>
-          )}
-        </div>
-      </div>
-    );
+    return <PrintTestSection />;
   }
 
   // Показываем исследование только если выбрана секция "УЗИ протоколы"
