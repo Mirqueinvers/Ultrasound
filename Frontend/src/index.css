@@ -20,14 +20,15 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding: 0 8px;
-  background: #f9fafb;              /* gray-50 */
+  /* градиент сверху вниз: gray-50 → gray-100 */
+  background: linear-gradient(to bottom, #f9fafb 0%, #dbdfe4 100%);
   color: #000000;
   font-size: 13px;
   -webkit-app-region: drag;
   z-index: 9999;
-
-  border-bottom: 1px solid #e5e7eb; /* 👈 тонкая граница (gray-200) */
+  border-bottom: 1px solid #e5e7eb; /* граница остаётся */
 }
+
 
 
 /* блок с кнопками */

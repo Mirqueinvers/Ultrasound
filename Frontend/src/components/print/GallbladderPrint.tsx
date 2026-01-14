@@ -1,3 +1,4 @@
+// src/components/GallbladderPrint.tsx
 import React from "react";
 import type { GallbladderProtocol, Concretion, Polyp } from "@types";
 
@@ -42,7 +43,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
     formParts.push(`форма ${shape.toLowerCase()}`);
   }
   if (constriction?.trim()) {
-    formParts.push(`перетяжка в области ${constriction.toLowerCase()}`);
+    formParts.push(`определяется перетяжка в области ${constriction.toLowerCase()}`);
   }
 
   // Содержимое
@@ -54,89 +55,88 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
 
   // Конкременты — фраза по правилам
   const concretionsPhrase = (() => {
-  if (concretions === "Не определяются") {
-    return "конкременты не определяются";
-  }
+    if (concretions === "Не определяются") {
+      return "конкременты не определяются";
+    }
 
-  if (concretions !== "Определяются") {
-    return "";
-  }
+    if (concretions !== "Определяются") {
+      return "";
+    }
 
-  if (!concretionsList || concretionsList.length === 0) {
-    return "конкременты определяются";
-  }
+    if (!concretionsList || concretionsList.length === 0) {
+      return "конкременты определяются";
+    }
 
-  const valid = concretionsList.filter(
-    (c: Concretion) =>
-      (c.size && c.size.toString().trim()) ||
-      (c.position && c.position.trim())
-  );
+    const valid = concretionsList.filter(
+      (c: Concretion) =>
+        (c.size && c.size.toString().trim()) ||
+        (c.position && c.position.trim())
+    );
 
-  if (valid.length === 0) {
-    return "конкременты определяются";
-  }
+    if (valid.length === 0) {
+      return "конкременты определяются";
+    }
 
-  const count = valid.length;
+    const count = valid.length;
 
-  // позиции: шейки, тела, дна
-  const positions = Array.from(
-    new Set(
-      valid
-        .map((c) => c.position?.trim())
-        .filter((p): p is string => !!p)
-    )
-  );
+    // позиции: шейки, тела, дна
+    const positions = Array.from(
+      new Set(
+        valid
+          .map((c) => c.position?.trim())
+          .filter((p): p is string => !!p)
+      )
+    );
 
-  // формируем текст областей: "в области шейки и тела", "в области шейки, тела и дна"
-  let posText = "";
-  if (positions.length === 1) {
-    posText = `В области ${positions[0]}`;
-  } else if (positions.length === 2) {
-    posText = `В области ${positions[0]} и ${positions[1]}`;
-  } else if (positions.length >= 3) {
-    const last = positions[positions.length - 1];
-    const rest = positions.slice(0, -1);
-    posText = `В области ${rest.join(", ")} и ${last}`;
-  }
+    // формируем текст областей: "в области шейки и тела", "в области шейки, тела и дна"
+    let posText = "";
+    if (positions.length === 1) {
+      posText = `В области ${positions[0]}`;
+    } else if (positions.length === 2) {
+      posText = `В области ${positions[0]} и ${positions[1]}`;
+    } else if (positions.length >= 3) {
+      const last = positions[positions.length - 1];
+      const rest = positions.slice(0, -1);
+      posText = `В области ${rest.join(", ")} и ${last}`;
+    }
 
-  // размеры
-  const sizes = valid
-    .map((c) => c.size?.toString().trim())
-    .filter((s): s is string => !!s);
+    // размеры
+    const sizes = valid
+      .map((c) => c.size?.toString().trim())
+      .filter((s): s is string => !!s);
 
-  let sizeText = "";
-  if (sizes.length === 1) {
-    sizeText = `размерами до ${sizes[0]} мм`;
-  } else if (sizes.length > 1) {
-    const last = sizes[sizes.length - 1];
-    const rest = sizes.slice(0, -1);
-    sizeText = `размерами до ${rest.join(" мм, ")} мм и ${last} мм`;
-  }
+    let sizeText = "";
+    if (sizes.length === 1) {
+      sizeText = `размерами до ${sizes[0]} мм`;
+    } else if (sizes.length > 1) {
+      const last = sizes[sizes.length - 1];
+      const rest = sizes.slice(0, -1);
+      sizeText = `размерами до ${rest.join(" мм, ")} мм и ${last} мм`;
+    }
 
-  if (!posText && !sizeText) {
-    return "конкременты определяются";
-  }
+    if (!posText && !sizeText) {
+      return "конкременты определяются";
+    }
 
-  // склонение количества
-  const isSingle = count === 1;
-  const isFew = count >= 2 && count <= 4;
+    // склонение количества - БЕЗ числа если 1 камень
+    const isSingle = count === 1;
+    const isFew = count >= 2 && count <= 4;
 
-  let countText = `${count}`;
-  if (isSingle) {
-    countText += " гиперэхогенное образование";
-  } else if (isFew) {
-    countText += " гиперэхогенных образования";
-  } else {
-    countText += " гиперэхогенных образований";
-  }
+    let countText = "";
+    if (isSingle) {
+      countText = "гиперэхогенное образование";
+    } else if (isFew) {
+      countText = `${count} гиперэхогенных образования`;
+    } else {
+      countText = `${count} гиперэхогенных образований`;
+    }
 
-  const verb = isSingle ? "определяется" : "определяются";
+    const verb = isSingle ? "определяется" : "определяются";
 
-  return `${posText} ${verb} ${countText} с акустической тенью ${sizeText}`;
-})();
+    return `${posText} ${verb} ${countText} с акустической тенью ${sizeText}`;
+  })();
 
-
-  // Полипы — оставим более простой текст (можно потом усложнить по аналогии)
+  // Полипы
   const polypsPhrase = (() => {
     if (polyps === "Не определяются") {
       return "полипы не определяются";
@@ -244,17 +244,14 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
             {" "}
             {(() => {
               const text = formParts.join(", ");
-              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+              return text.charAt(0).toUpperCase() + text.slice(1) + ",";
             })()}
           </>
         )}
         {contentParts.length > 0 && (
           <>
             {" "}
-            {(() => {
-              const text = contentParts.join(", ");
-              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
-            })()}
+            {contentParts.join(", ")}.
           </>
         )}
         {concretionsPhrase && (
