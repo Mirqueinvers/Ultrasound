@@ -1,5 +1,7 @@
 // Frontend/src/types/uterus.ts
 export interface UterusProtocol {
+
+  uterusStatus: string;
   // Информация об исследовании
   studyType: string;
   lastMenstruationDate: string;

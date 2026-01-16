@@ -6,6 +6,7 @@ import ObpPrint from "@/components/print/researches/ObpPrint";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
 import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
 import ConclusionPrint from "@/components/print/ConclusionPrint";
+import OmtFemalePrint from "@/components/print/researches/OmtFemalePrint";
 
 export const PrintTestSection: React.FC = () => {
   const { studiesData } = useResearch();
@@ -13,13 +14,19 @@ export const PrintTestSection: React.FC = () => {
   const obpData = studiesData["ОБП"];
   const kidneysData = studiesData["Почки"];
   const bladderStudyData = studiesData["Мочевой пузырь"];
+  const omtFemaleData = studiesData["ОМТ (Ж)"];
 
   const conclusion =
     (obpData?.conclusion || "") +
     (obpData?.conclusion && kidneysData?.conclusion ? "\n" : "") +
     (kidneysData?.conclusion || "") +
     ((obpData?.conclusion || kidneysData?.conclusion) && bladderStudyData?.conclusion ? "\n" : "") +
-    (bladderStudyData?.conclusion || "");
+    (bladderStudyData?.conclusion || "") +
+    (((obpData?.conclusion || kidneysData?.conclusion || bladderStudyData?.conclusion) &&
+      omtFemaleData?.conclusion)
+      ? "\n"
+      : "") +
+    (omtFemaleData?.conclusion || "");
 
   const recommendations =
     (obpData?.recommendations || "") +
@@ -29,11 +36,15 @@ export const PrintTestSection: React.FC = () => {
     bladderStudyData?.recommendations
       ? "\n"
       : "") +
-    (bladderStudyData?.recommendations || "");
+    (bladderStudyData?.recommendations || "") +
+    (((obpData?.recommendations || kidneysData?.recommendations || bladderStudyData?.recommendations) &&
+      omtFemaleData?.recommendations)
+      ? "\n"
+      : "") +
+    (omtFemaleData?.recommendations || "");
 
   return (
     <div className="flex justify-center py-6 bg-slate-100">
-      {/* Лист A4 */}
       <div
         style={{
           width: "210mm",
@@ -49,6 +60,10 @@ export const PrintTestSection: React.FC = () => {
         <ResearchPrintHeader />
 
         <ObpPrint />
+
+        <div style={{ marginTop: "10mm" }}>
+          <OmtFemalePrint />
+        </div>
 
         <div style={{ marginTop: "10mm" }}>
           <KidneysPrint />

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// /components/organs/OmtFemale.tsx
+import React, { useState } from "react";
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
 import { Conclusion } from "@common";
@@ -9,51 +10,48 @@ import type {
   OmtFemaleProps,
   UterusProtocol,
   OvaryProtocol,
-  UrinaryBladderProtocol
+  UrinaryBladderProtocol,
 } from "@/types";
 import { defaultOmtFemaleState } from "@/types";
 
 export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<OmtFemaleProtocol>(value ?? defaultOmtFemaleState);
-  
+  const [form, setForm] = useState<OmtFemaleProtocol>(
+    value ?? defaultOmtFemaleState
+  );
+
   const { setStudyData } = useResearch();
 
-  useEffect(() => {
-    setStudyData("ОМТ (Ж)", form);
-  }, [form, setStudyData]);
+  const sync = (updated: OmtFemaleProtocol) => {
+    setForm(updated);
+    setStudyData("ОМТ (Ж)", updated);
+    onChange?.(updated);
+  };
 
   const updateUterus = (uterusData: UterusProtocol) => {
-    const updated = { ...form, uterus: uterusData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, uterus: uterusData });
   };
 
   const updateLeftOvary = (leftOvaryData: OvaryProtocol) => {
-    const updated = { ...form, leftOvary: leftOvaryData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, leftOvary: leftOvaryData });
   };
 
   const updateRightOvary = (rightOvaryData: OvaryProtocol) => {
-    const updated = { ...form, rightOvary: rightOvaryData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, rightOvary: rightOvaryData });
   };
 
   const updateUrinaryBladder = (urinaryBladderData: UrinaryBladderProtocol) => {
-    const updated = { ...form, urinaryBladder: urinaryBladderData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, urinaryBladder: urinaryBladderData });
   };
 
-  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
-    const updated = {
+  const updateConclusion = (conclusionData: {
+    conclusion: string;
+    recommendations: string;
+  }) => {
+    sync({
       ...form,
       conclusion: conclusionData.conclusion,
       recommendations: conclusionData.recommendations,
-    };
-    setForm(updated);
-    onChange?.(updated);
+    });
   };
 
   return (
@@ -61,7 +59,7 @@ export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование органов малого таза
       </div>
-      
+
       <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />
 
       <Ovary
@@ -81,9 +79,12 @@ export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
         onChange={updateUrinaryBladder}
       />
 
-      <Conclusion 
-        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
-        onChange={updateConclusion} 
+      <Conclusion
+        value={{
+          conclusion: form.conclusion,
+          recommendations: form.recommendations,
+        }}
+        onChange={updateConclusion}
       />
     </div>
   );

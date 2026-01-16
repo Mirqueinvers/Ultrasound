@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/SoftTissue.tsx
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Conclusion } from "@common";
 import { Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
@@ -10,27 +10,33 @@ import { defaultSoftTissueState } from "@types";
 
 export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
   const [form, setForm] = useFormState<SoftTissueProtocol>(
-    defaultSoftTissueState,
-    value
+    value ?? defaultSoftTissueState
   );
-  
+
   const { setStudyData } = useResearch();
 
-  // Сохраняем данные в context при каждом изменении
-  useEffect(() => {
-    setStudyData("Мягких тканей", form);
-  }, [form, setStudyData]);
+  const sync = (updated: SoftTissueProtocol) => {
+    setForm(updated);
+    setStudyData("Мягких тканей", updated);
+    onChange?.(updated);
+  };
 
-  const updateField = useFieldUpdate(form, setForm, onChange);
+  const updateField = (
+    field: keyof SoftTissueProtocol,
+    fieldValue: SoftTissueProtocol[keyof SoftTissueProtocol]
+  ) => {
+    sync({ ...form, [field]: fieldValue });
+  };
 
-  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
-    const updated = {
+  const updateConclusion = (conclusionData: {
+    conclusion: string;
+    recommendations: string;
+  }) => {
+    sync({
       ...form,
       conclusion: conclusionData.conclusion,
       recommendations: conclusionData.recommendations,
-    };
-    setForm(updated);
-    onChange?.(updated);
+    });
   };
 
   return (
@@ -66,10 +72,13 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
           </label>
         </div>
       </Fieldset>
-      
-      <Conclusion 
-        value={{ conclusion: form.conclusion || "", recommendations: form.recommendations || "" }} 
-        onChange={updateConclusion} 
+
+      <Conclusion
+        value={{
+          conclusion: form.conclusion || "",
+          recommendations: form.recommendations || "",
+        }}
+        onChange={updateConclusion}
       />
     </div>
   );
