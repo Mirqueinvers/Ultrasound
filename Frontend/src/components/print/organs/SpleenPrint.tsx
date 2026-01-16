@@ -45,6 +45,12 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
     );
   }
 
+  // Положение
+  let positionTextPart = "";
+  if (position === "обычное") {
+    positionTextPart = "положение обычное";
+  }
+
   const sizeParts: string[] = [];
 
   if (length?.trim()) {
@@ -88,6 +94,7 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
   }
 
   const hasAnyContent =
+    !!positionTextPart ||
     sizeParts.length > 0 ||
     structParts.length > 0 ||
     vesselsParts.length > 0 ||
@@ -107,8 +114,15 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
     >
       <p style={{ margin: 0 }}>
         <span style={{ fontWeight: 700, fontSize: "16px" }}>Селезенка:</span>{" "}
+        {positionTextPart && (
+          <>
+            {positionTextPart}
+            {sizeParts.length > 0 ? ", " : "."}
+          </>
+        )}
         {sizeParts.length > 0 && (
           <>
+            {!positionTextPart && ""}
             {sizeParts.join(", ")}.
           </>
         )}

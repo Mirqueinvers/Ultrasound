@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+// /components/researches/Kidney.tsx
+import React, { useState } from "react";
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
-import { useResearch } from "@contexts";
 import type { 
   KidneyStudyProtocol, 
   KidneyStudyProps,
@@ -12,13 +12,9 @@ import type {
 import { defaultKidneyStudyState } from "@/types";
 
 export const Kidney: React.FC<KidneyStudyProps> = ({ value, onChange }) => {
-  const [form, setForm] = useState<KidneyStudyProtocol>(value ?? defaultKidneyStudyState);
-  
-  const { setStudyData } = useResearch();
-
-  useEffect(() => {
-    setStudyData("Почки", form);
-  }, [form, setStudyData]);
+  const [form, setForm] = useState<KidneyStudyProtocol>(
+    value ?? defaultKidneyStudyState
+  );
 
   const updateRightKidney = (rightKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, rightKidney: rightKidneyData };
@@ -53,7 +49,7 @@ export const Kidney: React.FC<KidneyStudyProps> = ({ value, onChange }) => {
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование почек
       </div>
-      
+
       <KidneyCommon
         side="right"
         value={form.rightKidney ?? undefined}
@@ -71,9 +67,12 @@ export const Kidney: React.FC<KidneyStudyProps> = ({ value, onChange }) => {
         onChange={updateUrinaryBladder}
       />
 
-      <Conclusion 
-        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
-        onChange={updateConclusion} 
+      <Conclusion
+        value={{
+          conclusion: form.conclusion,
+          recommendations: form.recommendations,
+        }}
+        onChange={updateConclusion}
       />
     </div>
   );

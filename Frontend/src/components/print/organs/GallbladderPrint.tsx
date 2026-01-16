@@ -50,6 +50,12 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
     );
   }
 
+  // Положение
+  let positionTextPart = "";
+  if (position === "обычное") {
+    positionTextPart = "положение обычное";
+  }
+
   // Размеры
   const sizeParts: string[] = [];
 
@@ -161,7 +167,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
     return `${posText} ${verb} ${countText} с акустической тенью ${sizeText}`;
   })();
 
-  // Полипы (оставляем как есть)
+  // Полипы
   const polypsPhrase = (() => {
     if (polyps === "Не определяются") {
       return "полипы не определяются";
@@ -262,6 +268,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
   }
 
   const hasAnyContent =
+    positionTextPart ||
     sizeParts.length > 0 ||
     formParts.length > 0 ||
     contentParts.length > 0 ||
@@ -286,8 +293,15 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
         <span style={{ fontWeight: 700, fontSize: "16px" }}>
           Желчный пузырь:
         </span>{" "}
+        {positionTextPart && (
+          <>
+            {positionTextPart}
+            {sizeParts.length > 0 ? ", " : "."}
+          </>
+        )}
         {sizeParts.length > 0 && (
           <>
+            {!positionTextPart && ""}
             {sizeParts.join(", ")}.
           </>
         )}
@@ -296,7 +310,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
             {" "}
             {(() => {
               const text = formParts.join(", ");
-              return text.charAt(0).toUpperCase() + text.slice(1) + ",";
+              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
             })()}
           </>
         )}

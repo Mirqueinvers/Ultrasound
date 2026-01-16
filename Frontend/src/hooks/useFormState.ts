@@ -1,13 +1,9 @@
 // src/hooks/useFormState.ts
-import { useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';  // ← type-only импорт!
+import { useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 export const useFormState = <T>(
-  defaultState: T, 
-  value?: T
+  defaultState: T,
 ): [T, Dispatch<SetStateAction<T>>] => {
-  return useState<T>({
-    ...defaultState,
-    ...(value || {}),
-  });
+  return useState<T>(defaultState);
 };

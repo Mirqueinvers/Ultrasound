@@ -43,21 +43,28 @@ export const buildKidneyText = (
   const additionalText = additional?.trim();
 
     // --- Положение
-  let positionSentence = "";
-  const positionExtra = positionText?.trim();
+    let positionSentence = "";
+    const positionExtra = positionText?.trim();
 
-  if (position === "обычное") {
+    if (position === "обычное") {
     positionSentence = "Определяется в обычном положении.";
-  } else if (position === "опущение" || position === "нефроптоз") {
+    } else if (position === "опущение" || position === "нефроптоз") {
     if (positionExtra && positionExtra.length > 0) {
-      // используем только текст из поля, с большой буквы и точкой
-      const first =
+        const first =
         positionExtra.charAt(0).toUpperCase() + positionExtra.slice(1);
-      positionSentence = first.endsWith(".") ? first : `${first}.`;
+        positionSentence = first.endsWith(".") ? first : `${first}.`;
     }
-  } else if (position === "нефрэктомия") {
-    positionSentence = "Нефрэктомия.";
-  }
+    } else if (position === "нефрэктомия") {
+    if (positionExtra && positionExtra.length > 0) {
+        // Нефрэктомия + текст из поля
+        const extra =
+        positionExtra.charAt(0).toUpperCase() + positionExtra.slice(1);
+        positionSentence = `Нефрэктомия. ${extra.endsWith(".") ? extra : extra + "."}`;
+    } else {
+        positionSentence = "Нефрэктомия.";
+    }
+    }
+
 
   // --- Размеры и паренхима (предложение 1)
   const sizeParts: string[] = [];

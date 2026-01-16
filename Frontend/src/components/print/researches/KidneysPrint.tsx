@@ -4,7 +4,7 @@ import React from "react";
 import { useResearch } from "@contexts";
 import RightKidneyPrint from "@/components/print/organs/Kidney/RightKidneyPrint";
 import LeftKidneyPrint from "@/components/print/organs/Kidney/LeftKidneyPrint";
-// import BladderPrint from "@/components/print/organs/BladderPrint";
+import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 
 export const KidneysPrint: React.FC = () => {
   const { studiesData } = useResearch();
@@ -12,7 +12,7 @@ export const KidneysPrint: React.FC = () => {
   const kidneysData = studiesData["Почки"];
   const rightKidneyData = kidneysData?.rightKidney;
   const leftKidneyData = kidneysData?.leftKidney;
-  const bladderData = kidneysData?.bladder;
+  const bladderData = kidneysData?.urinaryBladder; 
 
   const hasKidneysData =
     rightKidneyData ||
@@ -33,7 +33,7 @@ export const KidneysPrint: React.FC = () => {
 
       {leftKidneyData && <LeftKidneyPrint value={leftKidneyData} />}
 
-      {bladderData && <BladderPrint value={bladderData} />}
+      {bladderData && <UrinaryBladderPrint value={bladderData} />}
     </>
   );
 };

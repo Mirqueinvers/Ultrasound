@@ -28,7 +28,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
     pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
   };
 
-  const [form, setForm] = useFormState<KidneyProtocol>(initialValue, value);
+  const [form, setForm] = useFormState<KidneyProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const organName = side === "left" ? "leftKidney" : "rightKidney";

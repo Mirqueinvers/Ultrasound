@@ -7,6 +7,7 @@ export interface UrinaryBladderProtocol {
   wallThickness: string;
 
   // Объем остаточной мочи
+  residualStatus: string;
   residualLength: string;
   residualWidth: string;
   residualDepth: string;

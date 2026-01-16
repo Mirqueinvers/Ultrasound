@@ -39,6 +39,7 @@ const Content: React.FC<ContentProps> = ({
     researchDate,
     studiesData,
     clearStudiesData,
+    setStudyData,
   } = useResearch();
 
   const [isSaving, setIsSaving] = React.useState(false);
@@ -200,20 +201,19 @@ const Content: React.FC<ContentProps> = ({
             <div className="mt-6 space-y-6">
               {selectedStudies.map((study, index) => (
                 <div key={index} className="rounded-lg p-4 bg-white shadow-sm">
-                  {renderStudyComponent(study)}
+                  {study === "Почки" ? (
+                    <Kidney
+                      value={studiesData["Почки"]}
+                      onChange={(updated) => setStudyData("Почки", updated)}
+                    />
+                  ) : (
+                    renderStudyComponent(study)
+                  )}
                 </div>
               ))}
             </div>
           )}
 
-          {/* Подсказка если нет выбранных исследований */}
-          {selectedStudies.length === 0 && (
-            <div className="mt-6 p-6 border-2 border-dashed border-slate-300 rounded-lg text-center bg-slate-50">
-              <p className="text-slate-500">
-                Выберите исследования из левого меню
-              </p>
-            </div>
-          )}
 
           {/* Кнопки управления */}
           <div className="mt-6 flex gap-3">

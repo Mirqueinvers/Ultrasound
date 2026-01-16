@@ -1,6 +1,6 @@
 import React from "react";
 import { normalRanges } from "@common";
-import { Fieldset, SizeRow } from "@/UI";
+import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldFocus } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
@@ -11,10 +11,12 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   value,
   onChange,
 }) => {
-  const [form, setForm] = useFormState<UrinaryBladderProtocol>(
-    defaultUrinaryBladderState,
-    value,
-  );
+  const initialValue: UrinaryBladderProtocol = {
+    ...defaultUrinaryBladderState,
+    ...(value ?? {}),
+  };
+
+  const [form, setForm] = useFormState<UrinaryBladderProtocol>(initialValue);
 
   const lengthFocus = useFieldFocus("urinaryBladder", "length");
   const widthFocus = useFieldFocus("urinaryBladder", "width");
@@ -29,7 +31,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
     const updated: UrinaryBladderProtocol = { ...form, [field]: val };
 
-    // Пересчет объема основного мочевого пузыря
+    // Пересчет объёма основного мочевого пузыря
     if (field === "length" || field === "width" || field === "depth") {
       const length = parseFloat(
         field === "length" ? val : updated.length || "0",
@@ -49,7 +51,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       }
     }
 
-    // Пересчет объема остаточной мочи
+    // Пересчёт объёма остаточной мочи
     if (
       field === "residualLength" ||
       field === "residualWidth" ||
@@ -125,7 +127,6 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
             customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
           />
 
-
           <SizeRow
             label="Толщина стенки (мм)"
             value={form.wallThickness}
@@ -137,64 +138,67 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
 
         {/* Объем остаточной мочи */}
         <Fieldset title="Объем остаточной мочи">
-          <SizeRow
-            label="Длина (мм)"
-            value={form.residualLength}
-            onChange={(val) => updateField("residualLength", val)}
-            focus={residualLengthFocus}
-            range={emptyRange}
+          <ButtonSelect
+            label="Мочевой пузырь (после микции)"
+            value={form.residualStatus ?? ""}
+            onChange={(val) => updateField("residualStatus", val)}
+            options={[
+              { value: "определяется", label: "определяется" },
+              { value: "не определяется", label: "не определяется" },
+            ]}
           />
 
-          <SizeRow
-            label="Ширина (мм)"
-            value={form.residualWidth}
-            onChange={(val) => updateField("residualWidth", val)}
-            focus={residualWidthFocus}
-            range={emptyRange}
-          />
+          {form.residualStatus !== "не определяется" && (
+            <>
+              <SizeRow
+                label="Длина (мм)"
+                value={form.residualLength}
+                onChange={(val) => updateField("residualLength", val)}
+                focus={residualLengthFocus}
+                range={emptyRange}
+              />
 
-          <SizeRow
-            label="Передне-задний (мм)"
-            value={form.residualDepth}
-            onChange={(val) => updateField("residualDepth", val)}
-            focus={residualDepthFocus}
-            range={emptyRange}
-          />
+              <SizeRow
+                label="Ширина (мм)"
+                value={form.residualWidth}
+                onChange={(val) => updateField("residualWidth", val)}
+                focus={residualWidthFocus}
+                range={emptyRange}
+              />
 
-          <SizeRow
-            label="Объем остаточной мочи (мл)"
-            value={form.residualVolume}
-            onChange={(val) => updateField("residualVolume", val)}
-            focus={residualVolumeFocus}
-            range={ranges.residualVolume}
-            readOnly={true}
-            autoCalculated={true}
-            customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
-          />
+              <SizeRow
+                label="Передне-задний (мм)"
+                value={form.residualDepth}
+                onChange={(val) => updateField("residualDepth", val)}
+                focus={residualDepthFocus}
+                range={emptyRange}
+              />
+
+              <SizeRow
+                label="Объем остаточной мочи (мл)"
+                value={form.residualVolume}
+                onChange={(val) => updateField("residualVolume", val)}
+                focus={residualVolumeFocus}
+                range={ranges.residualVolume}
+                readOnly={true}
+                autoCalculated={true}
+                customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
+              />
+            </>
+          )}
         </Fieldset>
 
         {/* Содержимое */}
         <Fieldset title="Содержимое">
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Характер содержимого
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {["однородное", "неоднородное"].map((option) => (
-                <button
-                  key={option}
-                  onClick={() => updateField("contents", option)}
-                  className={`px-3 py-1 text-sm rounded font-medium transition-colors ${
-                    form.contents === option
-                      ? "bg-blue-500 text-white"
-                      : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ButtonSelect
+            label="Характер содержимого"
+            value={form.contents ?? ""}
+            onChange={(val) => updateField("contents", val)}
+            options={[
+              { value: "однородное", label: "однородное" },
+              { value: "неоднородное", label: "неоднородное" },
+            ]}
+          />
 
           {showContentsText && (
             <div className="mt-4">
