@@ -72,9 +72,9 @@ export const Concrements: React.FC<ConcrementsProps> = ({
                     value={concrement.location}
                     onChange={(val) => onUpdate(index, "location", val)}
                     options={[
-                      { value: "верхний полюс", label: "верхний полюс" },
-                      { value: "нижний полюс", label: "нижний полюс" },
-                      { value: "в центре", label: "в центре" },
+                      { value: "верхнего полюса", label: "верхний полюс" },
+                      { value: "нижнего полюса", label: "нижний полюс" },
+                      { value: "центральной части", label: "в центре" },
                     ]}
                   />
                 </label>

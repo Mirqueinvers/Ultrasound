@@ -1,3 +1,4 @@
+// /components/print/organs/kidney/KidneyCommon.tsx
 import React from "react";
 import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
@@ -123,9 +124,48 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
 
+  const showPositionTextarea =
+    form.position === "опущение" ||
+    form.position === "нефроптоз" ||
+    form.position === "нефрэктомия";
+
+  const isNephrectomy = form.position === "нефрэктомия";
+
   return (
     <ResearchSectionCard title={title} headerClassName="bg-sky-500">
       <div className="flex flex-col gap-6">
+<Fieldset title="Положение">
+  <div className="flex flex-col gap-3">
+    <ButtonSelect
+      label=""
+      value={form.position}
+      onChange={(val) => updateField("position", val)}
+      options={[
+        { value: "обычное", label: "Обычное" },
+        { value: "опущение", label: "Опущение" },
+        { value: "нефроптоз", label: "Нефроптоз" },
+        { value: "нефрэктомия", label: "Нефрэктомия" },
+      ]}
+    />
+
+    {(form.position === "опущение" ||
+      form.position === "нефроптоз" ||
+      form.position === "нефрэктомия") && (
+      <label className={labelClasses + " w-full"}>
+        Описание положения
+        <textarea
+          rows={2}
+          className={inputClasses + " resize-y"}
+          value={form.positionText || ""}
+          onChange={(e) => updateField("positionText", e.target.value)}
+        />
+      </label>
+    )}
+  </div>
+</Fieldset>
+
+        {isNephrectomy ? null : (
+        <>
         <Fieldset title="Размеры">
           <SizeRow
             label="Длина (мм)"
@@ -266,7 +306,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             value={form.pcsSize}
             onChange={(val) => updateField("pcsSize", val)}
             options={[
-              { value: "не изменена", label: "не изменена" },
+              { value: "не расширена", label: "не расширена" },
               { value: "расширена", label: "расширена" },
             ]}
           />
@@ -406,6 +446,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             onChange={(e) => updateField("additional", e.target.value)}
           />
         </Fieldset>
+        </>
+        )}
       </div>
     </ResearchSectionCard>
   );

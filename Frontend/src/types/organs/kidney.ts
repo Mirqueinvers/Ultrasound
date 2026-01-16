@@ -11,6 +11,8 @@ export interface Cyst {
 }
 
 export interface KidneyProtocol {
+  position: string;
+  positionText: string;
   length: string;
   width: string;
   thickness: string;
