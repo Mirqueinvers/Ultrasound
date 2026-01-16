@@ -66,7 +66,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             value={form.echogenicity}
             onChange={(val) => updateField("echogenicity", val)}
             options={[
-              { value: "норма", label: "средняя" },
+              { value: "средняя", label: "средняя" },
               { value: "повышена", label: "повышена" },
               { value: "снижена", label: "снижена" },
             ]}

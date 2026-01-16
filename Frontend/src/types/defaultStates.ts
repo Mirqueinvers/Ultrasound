@@ -61,6 +61,7 @@ export const defaultKidneyState: KidneyProtocol = {
 };
 
 export const defaultGallbladderState: GallbladderProtocol = {
+  position: "обычное",
   length: "",
   width: "",
   wallThickness: "",
@@ -100,6 +101,7 @@ export const defaultLiverState: LiverProtocol = {
 };
 
 export const defaultSpleenState: SpleenProtocol = {
+  position: "обычное",
   length: "",
   width: "",
   echogenicity: "",
@@ -316,6 +318,8 @@ export const defaultObpState: ObpProtocol = {
   gallbladder: null,
   pancreas: null,
   spleen: null,
+  freeFluid: "",
+  freeFluidDetails: "",
   conclusion: "",
   recommendations: "",
 };

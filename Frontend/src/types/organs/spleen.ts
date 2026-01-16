@@ -1,5 +1,7 @@
 // Frontend/src/types/spleen.ts
 export interface SpleenProtocol {
+  // Положение
+  position: string;
   // Размеры
   length: string; // мм (длина)
   width: string;  // мм (ширина)

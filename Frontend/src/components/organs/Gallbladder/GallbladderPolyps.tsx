@@ -1,4 +1,3 @@
-// Frontend/src/components/organs/Gallbladder/GallbladderPolyps.tsx
 import React from "react";
 import type { Polyp } from "@types";
 import { SizeRow, ButtonSelect } from "@/UI";
@@ -70,9 +69,24 @@ export const GallbladderPolyps: React.FC<GallbladderPolypsProps> = ({
                     value={polyp.position}
                     onChange={(val) => onUpdate(index, "position", val)}
                     options={[
-                      { value: "проксимальная треть", label: "проксимальная треть" },
-                      { value: "средняя треть", label: "средняя треть" },
-                      { value: "дистальная треть", label: "дистальная треть" },
+                      { value: "шейке", label: "шейка" },
+                      { value: "теле", label: "тело" },
+                      { value: "дне", label: "дно" },
+                    ]}
+                  />
+                </label>
+
+                <label className="flex-1">
+                  <span className="text-[11px] text-gray-500 block mb-1">
+                    Стенка
+                  </span>
+                  <ButtonSelect
+                    label=""
+                    value={polyp.wall}
+                    onChange={(val) => onUpdate(index, "wall", val)}
+                    options={[
+                      { value: "по передней", label: "передняя" },
+                      { value: "по задней", label: "задняя" },
                     ]}
                   />
                 </label>

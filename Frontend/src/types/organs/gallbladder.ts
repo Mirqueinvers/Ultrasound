@@ -7,9 +7,12 @@ export interface Concretion {
 export interface Polyp {
   size: string; // мм
   position: string; // проксимальная треть / средняя треть / дистальная треть
+  wall: string;
 }
 
 export interface GallbladderProtocol {
+  //Положение
+  position: string
   // Размеры
   length: string;
   width: string;

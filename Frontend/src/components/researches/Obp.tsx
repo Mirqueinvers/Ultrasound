@@ -1,61 +1,69 @@
-import React, { useState, useEffect } from "react";
+// src/components/researches/Obp.tsx
+import React, { useState } from "react";
+
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
 import Pancreas from "@organs/Pancreas";
 import Spleen from "@organs/Spleen";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
-import type { 
-  ObpProtocol, 
+import { SelectWithTextarea } from "@/UI";
+
+import type {
+  ObpProtocol,
   ObpProps,
   LiverProtocol,
   GallbladderProtocol,
   PancreasProtocol,
-  SpleenProtocol
+  SpleenProtocol,
 } from "@/types";
 import { defaultObpState } from "@/types";
 
+const FREE_FLUID_OPTIONS = [
+  { value: "не определяется", label: "не определяется" },
+  { value: "определяется", label: "определяется" },
+];
+
 export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
-  
   const { setStudyData } = useResearch();
 
-  useEffect(() => {
-    setStudyData("ОБП", form);
-  }, [form, setStudyData]);
+  const sync = (updated: ObpProtocol) => {
+    setForm(updated);
+    setStudyData("ОБП", updated);
+    onChange?.(updated);
+  };
 
   const updateLiver = (liverData: LiverProtocol) => {
-    const updated = { ...form, liver: liverData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, liver: liverData });
   };
 
   const updateGallbladder = (gallbladderData: GallbladderProtocol) => {
-    const updated = { ...form, gallbladder: gallbladderData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, gallbladder: gallbladderData });
   };
 
   const updatePancreas = (pancreasData: PancreasProtocol) => {
-    const updated = { ...form, pancreas: pancreasData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, pancreas: pancreasData });
   };
 
   const updateSpleen = (spleenData: SpleenProtocol) => {
-    const updated = { ...form, spleen: spleenData };
-    setForm(updated);
-    onChange?.(updated);
+    sync({ ...form, spleen: spleenData });
+  };
+
+  const updateFreeFluidSelect = (val: string) => {
+    sync({ ...form, freeFluid: val });
+  };
+
+  const updateFreeFluidDetails = (val: string) => {
+    sync({ ...form, freeFluidDetails: val });
   };
 
   const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
-    const updated = {
+    sync({
       ...form,
       conclusion: conclusionData.conclusion,
       recommendations: conclusionData.recommendations,
-    };
-    setForm(updated);
-    onChange?.(updated);
+    });
   };
 
   return (
@@ -63,27 +71,33 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
         Ультразвуковое исследование органов брюшной полости
       </div>
-      
+
       <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
 
-      <Gallbladder
-        value={form.gallbladder ?? undefined}
-        onChange={updateGallbladder}
-      />
+      <Gallbladder value={form.gallbladder ?? undefined} onChange={updateGallbladder} />
 
-      <Pancreas
-        value={form.pancreas ?? undefined}
-        onChange={updatePancreas}
-      />
+      <Pancreas value={form.pancreas ?? undefined} onChange={updatePancreas} />
 
-      <Spleen
-        value={form.spleen ?? undefined}
-        onChange={updateSpleen}
-      />
-      
-      <Conclusion 
-        value={{ conclusion: form.conclusion, recommendations: form.recommendations }} 
-        onChange={updateConclusion} 
+      <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
+
+      {/* Свободная жидкость в брюшной полости */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-lg px-6 py-4">
+        <SelectWithTextarea
+          label="Свободная жидкость в брюшной полости"
+          selectValue={form.freeFluid ?? ""}
+          textareaValue={form.freeFluidDetails ?? ""}
+          onSelectChange={updateFreeFluidSelect}
+          onTextareaChange={updateFreeFluidDetails}
+          options={FREE_FLUID_OPTIONS}
+          triggerValue="определяется"
+          textareaLabel="Описание свободной жидкости"
+          rows={3}
+        />
+      </div>
+
+      <Conclusion
+        value={{ conclusion: form.conclusion, recommendations: form.recommendations }}
+        onChange={updateConclusion}
       />
     </div>
   );

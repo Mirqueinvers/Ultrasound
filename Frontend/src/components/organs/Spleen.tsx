@@ -2,13 +2,21 @@ import React from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldUpdate, useFieldFocus, useConclusion } from "@hooks";
+import {
+  useFormState,
+  useFieldUpdate,
+  useFieldFocus,
+  useConclusion,
+} from "@hooks";
 import { inputClasses } from "@utils/formClasses";
 import type { SpleenProtocol, SpleenProps } from "@types";
 import { defaultSpleenState } from "@types";
 
 export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState<SpleenProtocol>(defaultSpleenState, value);
+  const [form, setForm] = useFormState<SpleenProtocol>(
+    defaultSpleenState,
+    value
+  );
 
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "spleen");
@@ -18,100 +26,125 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
   const splenicVeinFocus = useFieldFocus("spleen", "splenicVein");
   const splenicArteryFocus = useFieldFocus("spleen", "splenicArtery");
 
+  const isSplenectomy = form.position === "спленэктомия";
+
   return (
     <ResearchSectionCard title="Селезенка" headerClassName="bg-sky-500">
       <div className="flex flex-col gap-6">
-        {/* Размеры */}
-        <Fieldset title="Размеры">
-          <SizeRow
-            label="Длина (мм)"
-            value={form.length}
-            onChange={(val) => updateField("length", val)}
-            focus={lengthFocus}
-            range={normalRanges.spleen.length}
-          />
-
-          <SizeRow
-            label="Ширина (мм)"
-            value={form.width}
-            onChange={(val) => updateField("width", val)}
-            focus={widthFocus}
-            range={normalRanges.spleen.width}
+        {/* Положение */}
+        <Fieldset title="Положение">
+          <ButtonSelect
+            label="Положение селезенки"
+            value={form.position}
+            onChange={(val) => updateField("position", val)}
+            options={[
+              { value: "обычное", label: "Обычное" },
+              { value: "спленэктомия", label: "Спленэктомия" },
+            ]}
           />
         </Fieldset>
 
-        {/* Структура */}
-        <Fieldset title="Структура">
-          <ButtonSelect
-            label="Эхогенность"
-            value={form.echogenicity}
-            onChange={(val) => updateField("echogenicity", val)}
-            options={[
-              { value: "норма", label: "средняя" },
-              { value: "повышена", label: "повышена" },
-              { value: "снижена", label: "снижена" },
-            ]}
-          />
+        {/* Всё, кроме финального Дополнительно, скрывается при спленэктомии */}
+        {!isSplenectomy && (
+          <>
+            {/* Размеры */}
+            <Fieldset title="Размеры">
+              <SizeRow
+                label="Длина (мм)"
+                value={form.length}
+                onChange={(val) => updateField("length", val)}
+                focus={lengthFocus}
+                range={normalRanges.spleen.length}
+              />
 
-          <ButtonSelect
-            label="Эхоструктура"
-            value={form.echostructure}
-            onChange={(val) => updateField("echostructure", val)}
-            options={[
-              { value: "однородная", label: "однородная" },
-              { value: "неоднородная", label: "неоднородная" },
-              { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
-            ]}
-          />
+              <SizeRow
+                label="Ширина (мм)"
+                value={form.width}
+                onChange={(val) => updateField("width", val)}
+                focus={widthFocus}
+                range={normalRanges.spleen.width}
+              />
+            </Fieldset>
 
-          <ButtonSelect
-            label="Контур"
-            value={form.contours}
-            onChange={(val) => updateField("contours", val)}
-            options={[
-              { value: "ровные", label: "четкий, ровный" },
-              { value: "неровные", label: "четкий, неровный" },
-              { value: "бугристые", label: "бугристый" },
-            ]}
-          />
+            {/* Структура */}
+            <Fieldset title="Структура">
+              <ButtonSelect
+                label="Эхогенность"
+                value={form.echogenicity}
+                onChange={(val) => updateField("echogenicity", val)}
+                options={[
+                  { value: "средняя", label: "средняя" },
+                  { value: "повышена", label: "повышена" },
+                  { value: "снижена", label: "снижена" },
+                ]}
+              />
 
-          <SelectWithTextarea
-            label="Патологические образования"
-            selectValue={form.pathologicalFormations}
-            textareaValue={form.pathologicalFormationsText}
-            onSelectChange={(val) => updateField("pathologicalFormations", val)}
-            onTextareaChange={(val) =>
-              updateField("pathologicalFormationsText", val)
-            }
-            options={[
-              { value: "Не определяются", label: "Не определяются" },
-              { value: "Определяются", label: "Определяются" },
-            ]}
-            triggerValue="Определяются"
-            textareaLabel="Описание патологических образований"
-          />
-        </Fieldset>
+              <ButtonSelect
+                label="Эхоструктура"
+                value={form.echostructure}
+                onChange={(val) => updateField("echostructure", val)}
+                options={[
+                  { value: "однородная", label: "однородная" },
+                  { value: "неоднородная", label: "неоднородная" },
+                  {
+                    value: "диффузно-неоднородная",
+                    label: "диффузно-неоднородная",
+                  },
+                ]}
+              />
 
-        {/* Сосуды */}
-        <Fieldset title="Сосуды">
-          <SizeRow
-            label="Селезеночная вена, диаметр (мм)"
-            value={form.splenicVein}
-            onChange={(val) => updateField("splenicVein", val)}
-            focus={splenicVeinFocus}
-            range={normalRanges.spleen.splenicVein}
-          />
+              <ButtonSelect
+                label="Контур"
+                value={form.contours}
+                onChange={(val) => updateField("contours", val)}
+                options={[
+                  { value: "ровные", label: "четкий, ровный" },
+                  { value: "неровные", label: "четкий, неровный" },
+                  { value: "бугристые", label: "бугристый" },
+                ]}
+              />
 
-          <SizeRow
-            label="Селезеночная артерия, диаметр (мм)"
-            value={form.splenicArtery}
-            onChange={(val) => updateField("splenicArtery", val)}
-            focus={splenicArteryFocus}
-            range={normalRanges.spleen.splenicArtery}
-          />
-        </Fieldset>
+              <SelectWithTextarea
+                label="Патологические образования"
+                selectValue={form.pathologicalFormations}
+                textareaValue={form.pathologicalFormationsText}
+                onSelectChange={(val) =>
+                  updateField("pathologicalFormations", val)
+                }
+                onTextareaChange={(val) =>
+                  updateField("pathologicalFormationsText", val)
+                }
+                options={[
+                  { value: "Не определяются", label: "Не определяются" },
+                  { value: "Определяются", label: "Определяются" },
+                ]}
+                triggerValue="Определяются"
+                textareaLabel="Описание патологических образований"
+              />
+            </Fieldset>
 
-        {/* Дополнительно */}
+            {/* Сосуды */}
+            <Fieldset title="Сосуды">
+              <SizeRow
+                label="Селезеночная вена, диаметр (мм)"
+                value={form.splenicVein}
+                onChange={(val) => updateField("splenicVein", val)}
+                focus={splenicVeinFocus}
+                range={normalRanges.spleen.splenicVein}
+              />
+
+              <SizeRow
+                label="Селезеночная артерия, диаметр (мм)"
+                value={form.splenicArtery}
+                onChange={(val) => updateField("splenicArtery", val)}
+                focus={splenicArteryFocus}
+                range={normalRanges.spleen.splenicArtery}
+              />
+            </Fieldset>
+          </>
+        )}
+
+        {/* Дополнительно — всегда */}
         <Fieldset title="Дополнительно">
           <textarea
             rows={3}

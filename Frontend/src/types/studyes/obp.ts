@@ -8,6 +8,8 @@ export interface ObpProtocol {
   gallbladder: GallbladderProtocol | null;
   pancreas: PancreasProtocol | null;
   spleen: SpleenProtocol | null;
+  freeFluid?: string;
+  freeFluidDetails?: string;
   conclusion: string;
   recommendations: string;
 }

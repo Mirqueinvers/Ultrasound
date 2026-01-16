@@ -1,17 +1,8 @@
 // /components/print/PrintTestSection.tsx
 import React from "react";
-import { useResearch } from "@contexts";
-import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
-import HepatPrint from "@components/print/HepatPrint";
-import GallbladderPrint from "@components/print/GallbladderPrint";
+import ObpPrint from "@/components/print/researches/ObpPrint";
 
 export const PrintTestSection: React.FC = () => {
-  const { studiesData } = useResearch();
-
-  const obpData = studiesData["ОБП"];
-  const liverData = obpData?.liver;
-  const gallbladderData = obpData?.gallbladder;
-
   return (
     <div className="flex justify-center py-6 bg-slate-100">
       {/* Лист A4 */}
@@ -27,23 +18,7 @@ export const PrintTestSection: React.FC = () => {
           boxSizing: "border-box",
         }}
       >
-        <ResearchPrintHeader />
-
-        {liverData ? (
-          <HepatPrint value={liverData} />
-        ) : (
-          <p className="text-slate-500 text-sm">
-            Заполни протокол ОБП (раздел Печень), чтобы увидеть печатную версию.
-          </p>
-        )}
-
-        {gallbladderData ? (
-          <GallbladderPrint value={gallbladderData} />
-        ) : (
-          <p className="text-slate-500 text-sm">
-            Заполни протокол ОБП (раздел Желчный пузырь), чтобы увидеть печатную версию.
-          </p>
-        )}
+        <ObpPrint />
       </div>
     </div>
   );
