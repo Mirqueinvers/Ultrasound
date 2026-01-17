@@ -18,7 +18,7 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
     ...(value || {}),
   };
 
-  const [form, setForm] = useFormState<ProstateProtocol>(initialValue, value);
+  const [form, setForm] = useFormState<ProstateProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "prostate");
 

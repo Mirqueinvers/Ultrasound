@@ -3,7 +3,7 @@ import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useFieldFocus, useConclusion, useListManager } from "@hooks";
-import { inputClasses, labelClasses } from "@utils/formClasses";
+import { inputClasses } from "@utils/formClasses";
 import { Plus, Trash2 } from "lucide-react";
 import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";
 import { defaultOvaryState } from "@types";

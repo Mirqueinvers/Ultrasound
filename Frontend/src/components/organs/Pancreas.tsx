@@ -12,8 +12,8 @@ import {
   useConclusion,
 } from "@hooks";
 
-export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState(defaultPancreasState, value);
+export const Pancreas: React.FC<PancreasProps> = ({ onChange }) => {
+  const [form, setForm] = useFormState(defaultPancreasState);
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "pancreas");
 

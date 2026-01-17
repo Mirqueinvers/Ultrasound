@@ -8,7 +8,7 @@ import {
   useFieldFocus,
   useConclusion,
 } from "@hooks";
-import { inputClasses, labelClasses } from "@utils/formClasses";
+import { inputClasses } from "@utils/formClasses";
 import type {
   TestisProtocol,
   TestisProps,
@@ -27,8 +27,7 @@ const TestisSide: React.FC<{
   };
 
   const [form, setForm] = useFormState<SingleTestisProtocol>(
-    initialValue,
-    value ?? undefined
+    initialValue
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
 
@@ -262,10 +261,9 @@ const TestisSide: React.FC<{
   );
 };
 
-export const Testis: React.FC<TestisProps> = ({ value, onChange }) => {
+export const Testis: React.FC<TestisProps> = ({ onChange }) => {
   const [form, setForm] = useFormState<TestisProtocol>(
-    defaultTestisState,
-    value
+    defaultTestisState
   );
 
   const updateRight = (right: SingleTestisProtocol) => {

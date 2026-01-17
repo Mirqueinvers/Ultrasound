@@ -7,8 +7,8 @@ import { inputClasses } from "@utils/formClasses";
 import type { LiverProtocol, HepatProps } from "@types";
 import { defaultLiverState } from "@types";
 
-export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
-  const [form, setForm] = useFormState<LiverProtocol>(defaultLiverState, value);
+export const Hepat: React.FC<HepatProps> = ({ onChange }) => {
+  const [form, setForm] = useFormState<LiverProtocol>(defaultLiverState);
 
   useConclusion(setForm, "liver");
 

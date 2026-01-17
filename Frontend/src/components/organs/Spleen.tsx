@@ -12,10 +12,9 @@ import { inputClasses } from "@utils/formClasses";
 import type { SpleenProtocol, SpleenProps } from "@types";
 import { defaultSpleenState } from "@types";
 
-export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
+export const Spleen: React.FC<SpleenProps> = ({  onChange }) => {
   const [form, setForm] = useFormState<SpleenProtocol>(
-    defaultSpleenState,
-    value
+    defaultSpleenState
   );
 
   const updateField = useFieldUpdate(form, setForm, onChange);
