@@ -1,8 +1,9 @@
-
 // /components/print/researches/OmtFemalePrint.tsx
 import React from "react";
 import { useResearch } from "@contexts";
 import UterusPrint from "@/components/print/organs/UterusPrint";
+import OvaryPrint from "@/components/print/organs/OvaryPrint";
+import type { OmtFemaleProtocol } from "@types";
 
 const formatDateRu = (iso?: string): string | undefined => {
   if (!iso) return undefined;
@@ -17,8 +18,10 @@ const formatDateRu = (iso?: string): string | undefined => {
 
 export const OmtFemalePrint: React.FC = () => {
   const { studiesData } = useResearch();
-  const omtData = studiesData["ОМТ (Ж)"];
+  const omtData = studiesData["ОМТ (Ж)"] as OmtFemaleProtocol | undefined;
   const uterus = omtData?.uterus;
+  const rightOvary = omtData?.rightOvary;
+  const leftOvary = omtData?.leftOvary;
 
   if (!omtData || !uterus) return null;
 
@@ -36,7 +39,7 @@ export const OmtFemalePrint: React.FC = () => {
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        Ультразвуковое исследование органов малого таза 
+        Ультразвуковое исследование органов малого таза
       </p>
 
       <div
@@ -61,9 +64,12 @@ export const OmtFemalePrint: React.FC = () => {
       </div>
 
       <UterusPrint value={uterus} />
+
+      {rightOvary && <OvaryPrint value={rightOvary} side="right" />}
+
+      {leftOvary && <OvaryPrint value={leftOvary} side="left" />}
     </>
   );
 };
 
 export default OmtFemalePrint;
-

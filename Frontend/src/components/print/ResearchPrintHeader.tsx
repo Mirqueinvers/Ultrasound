@@ -3,17 +3,26 @@ import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResearch } from "@contexts";
 
+const formatDateRu = (iso?: string | null): string => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
 export const ResearchPrintHeader: React.FC = () => {
   const { user } = useAuth();
-  const {
-    patientFullName,
-    patientDateOfBirth,
-    researchDate,
-  } = useResearch();
+  const { patientFullName, patientDateOfBirth, researchDate } = useResearch();
 
   if (!user) return null;
 
   const organization = user.organization || "";
+  const formattedResearchDate = formatDateRu(researchDate);
+  const formattedDob = formatDateRu(patientDateOfBirth);
 
   return (
     <div
@@ -23,7 +32,6 @@ export const ResearchPrintHeader: React.FC = () => {
         marginBottom: "16px",
       }}
     >
-      {/* Организация по центру */}
       <div
         style={{
           textAlign: "center",
@@ -34,7 +42,6 @@ export const ResearchPrintHeader: React.FC = () => {
         {organization}
       </div>
 
-      {/* Строка: ФИО слева, дата исследования справа */}
       <div
         style={{
           display: "flex",
@@ -48,14 +55,13 @@ export const ResearchPrintHeader: React.FC = () => {
         </div>
         <div>
           Дата исследования:{" "}
-          <span style={{ fontWeight: 500 }}>{researchDate}</span>
+          <span style={{ fontWeight: 500 }}>{formattedResearchDate}</span>
         </div>
       </div>
 
-      {/* Строка: дата рождения слева */}
       <div>
         Дата рождения:{" "}
-        <span style={{ fontWeight: 500 }}>{patientDateOfBirth}</span>
+        <span style={{ fontWeight: 500 }}>{formattedDob}</span>
       </div>
     </div>
   );

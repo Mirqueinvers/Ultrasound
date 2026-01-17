@@ -1,3 +1,4 @@
+// /components/organs/UrinaryBladder.tsx
 import React from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
@@ -34,13 +35,13 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
     // Пересчет объёма основного мочевого пузыря
     if (field === "length" || field === "width" || field === "depth") {
       const length = parseFloat(
-        field === "length" ? val : updated.length || "0",
+        field === "length" ? val : updated.length || "0"
       );
       const width = parseFloat(
-        field === "width" ? val : updated.width || "0",
+        field === "width" ? val : updated.width || "0"
       );
       const depth = parseFloat(
-        field === "depth" ? val : updated.depth || "0",
+        field === "depth" ? val : updated.depth || "0"
       );
 
       if (length > 0 && width > 0 && depth > 0) {
@@ -58,13 +59,13 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
       field === "residualDepth"
     ) {
       const length = parseFloat(
-        field === "residualLength" ? val : updated.residualLength || "0",
+        field === "residualLength" ? val : updated.residualLength || "0"
       );
       const width = parseFloat(
-        field === "residualWidth" ? val : updated.residualWidth || "0",
+        field === "residualWidth" ? val : updated.residualWidth || "0"
       );
       const depth = parseFloat(
-        field === "residualDepth" ? val : updated.residualDepth || "0",
+        field === "residualDepth" ? val : updated.residualDepth || "0"
       );
 
       if (length > 0 && width > 0 && depth > 0) {
@@ -136,7 +137,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
           />
         </Fieldset>
 
-        {/* Объем остаточной мочи */}
+        {/* Переключатель остаточной мочи */}
         <Fieldset title="Объем остаточной мочи">
           <ButtonSelect
             label="Мочевой пузырь (после микции)"
@@ -148,7 +149,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
             ]}
           />
 
-          {form.residualStatus !== "не определяется" && (
+          {form.residualStatus === "определяется" && (
             <>
               <SizeRow
                 label="Длина (мм)"

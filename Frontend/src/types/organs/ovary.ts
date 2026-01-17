@@ -4,6 +4,7 @@ export interface OvaryCyst {
 }
 
 export interface OvaryProtocol {
+  position: string;
   // Размеры
   length: string;
   width: string;
