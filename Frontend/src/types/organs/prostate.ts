@@ -1,6 +1,7 @@
 export interface ProstateProtocol {
   studyType: "трансабдоминальное" | "трансректальное" | "";
 
+  position: string;
   length: string;
   width: string;
   apDimension: string;
