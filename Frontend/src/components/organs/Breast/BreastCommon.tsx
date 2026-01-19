@@ -17,7 +17,7 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
     ...(value || {}),
   };
 
-  const [form, setForm] = useFormState<BreastProtocol>(initialValue, value);
+  const [form, setForm] = useFormState<BreastProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   useEffect(() => {

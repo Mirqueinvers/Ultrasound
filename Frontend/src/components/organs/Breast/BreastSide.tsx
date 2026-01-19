@@ -28,7 +28,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
     nodesList: value?.nodesList || [],
   };
 
-  const [form, setForm] = useFormState<BreastSideProtocol>(initialValue, value);
+  const [form, setForm] = useFormState<BreastSideProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const title = side === "left" ? "Левая молочная железа" : "Правая молочная железа";

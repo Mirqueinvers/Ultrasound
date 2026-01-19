@@ -74,7 +74,7 @@ const formatLobeNodesList = (lobe: ThyroidLobeProtocol): React.ReactNode[] => {
     if (n.size2?.trim()) sizes.push(n.size2.trim());
     if (sizes.length > 0) {
       const sizesText = sizes.join(" × ");
-      nodeParts.push(`размерами до ${sizesText} мм`);
+      nodeParts.push(`размерами ${sizesText} мм`);
     }
 
     if (n.echogenicity?.trim()) {
