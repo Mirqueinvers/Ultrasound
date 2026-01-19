@@ -48,7 +48,7 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
   // Положение
   let positionTextPart = "";
   if (position === "обычное") {
-    positionTextPart = "положение обычное";
+    positionTextPart = "определяется в обычном положении";
   }
 
   const sizeParts: string[] = [];
@@ -63,10 +63,10 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
   const structParts: string[] = [];
 
   if (echogenicity?.trim()) {
-    structParts.push(`эхогенность ${echogenicity}`);
+    structParts.push(`эхогенность селезенки ${echogenicity}`);
   }
   if (echostructure?.trim()) {
-    structParts.push(`эхоструктура ${echostructure}`);
+    structParts.push(`эхоструктура однородная`.replace("однородная", echostructure));
   }
   if (contours?.trim()) {
     structParts.push(`контуры ${contours}`);
@@ -116,14 +116,13 @@ export const SpleenPrint: React.FC<SpleenPrintProps> = ({ value }) => {
         <span style={{ fontWeight: 700, fontSize: "16px" }}>Селезенка:</span>{" "}
         {positionTextPart && (
           <>
-            {positionTextPart}
-            {sizeParts.length > 0 ? ", " : "."}
+            {positionTextPart}.
           </>
         )}
         {sizeParts.length > 0 && (
           <>
-            {!positionTextPart && ""}
-            {sizeParts.join(", ")}.
+            {" "}
+            Размерами: {sizeParts.join(", ")}.
           </>
         )}
         {structParts.length > 0 && (

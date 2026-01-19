@@ -53,7 +53,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
   // Положение
   let positionTextPart = "";
   if (position === "обычное") {
-    positionTextPart = "положение обычное";
+    positionTextPart = "определяется в обычном положении";
   }
 
   // Размеры
@@ -73,7 +73,7 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
   const formParts: string[] = [];
 
   if (shape?.trim()) {
-    formParts.push(`форма ${shape.toLowerCase()}`);
+    formParts.push(`форма желчного пузыря ${shape.toLowerCase()}`);
   }
   if (constriction?.trim()) {
     formParts.push(
@@ -295,14 +295,13 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
         </span>{" "}
         {positionTextPart && (
           <>
-            {positionTextPart}
-            {sizeParts.length > 0 ? ", " : "."}
+            {positionTextPart}.
           </>
         )}
         {sizeParts.length > 0 && (
           <>
-            {!positionTextPart && ""}
-            {sizeParts.join(", ")}.
+            {" "}
+            Размерами: {sizeParts.join(", ")}.
           </>
         )}
         {formParts.length > 0 && (
@@ -310,11 +309,13 @@ export const GallbladderPrint: React.FC<GallbladderPrintProps> = ({ value }) => 
             {" "}
             {(() => {
               const text = formParts.join(", ");
-              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+              return text.charAt(0).toUpperCase() + text.slice(1) + ",";
             })()}
+            {contentParts.length > 0 && ` ${contentParts.join(", ")}.`}
+            {contentParts.length === 0 && "."}
           </>
         )}
-        {contentParts.length > 0 && (
+        {formParts.length === 0 && contentParts.length > 0 && (
           <>
             {" "}
             {contentParts.join(", ")}.

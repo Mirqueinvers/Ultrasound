@@ -1,4 +1,3 @@
-// /components/print/PrintTestSection.tsx
 import React from "react";
 import { useResearch } from "@contexts";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
@@ -9,7 +8,10 @@ import ConclusionPrint from "@/components/print/ConclusionPrint";
 import OmtFemalePrint from "@/components/print/researches/OmtFemalePrint";
 import OmtMalePrint from "@/components/print/researches/OmtMalePrint";
 import ThyroidResearchPrint from "@/components/print/researches/ThyroidPrint";
-import BreastResearchPrint from "@/components/print/researches/BreastPrint"; // ← добавлено [web:71]
+import BreastResearchPrint from "@/components/print/researches/BreastPrint";
+import ScrotumResearchPrint from "@/components/print/researches/ScrotumPrint";
+import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryPrint";
+import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
 
 export const PrintTestSection: React.FC = () => {
   const { studiesData } = useResearch();
@@ -20,7 +22,10 @@ export const PrintTestSection: React.FC = () => {
   const omtFemaleData = studiesData["ОМТ (Ж)"];
   const omtMaleData = studiesData["ОМТ (М)"];
   const thyroidData = studiesData["Щитовидная железа"];
-  const breastData = studiesData["Молочные железы"]; // ← добавлено [web:71]
+  const breastData = studiesData["Молочные железы"];
+  const scrotumData = studiesData["Органы мошонки"];
+  const childDispensaryData = studiesData["Детская диспансеризация"];
+  const softTissueData = studiesData["Мягких тканей"];
 
   const conclusion =
     (obpData?.conclusion || "") +
@@ -55,7 +60,6 @@ export const PrintTestSection: React.FC = () => {
       ? "\n"
       : "") +
     (thyroidData?.conclusion || "") +
-    // добавляем conclusion из молочных желез
     (((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
@@ -65,7 +69,44 @@ export const PrintTestSection: React.FC = () => {
       breastData?.conclusion)
       ? "\n"
       : "") +
-    (breastData?.conclusion || "");
+    (breastData?.conclusion || "") +
+    (((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      breastData?.conclusion) &&
+      scrotumData?.conclusion)
+      ? "\n"
+      : "") +
+    (scrotumData?.conclusion || "") +
+    (((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      breastData?.conclusion ||
+      scrotumData?.conclusion) &&
+      childDispensaryData?.conclusion)
+      ? "\n"
+      : "") +
+    (childDispensaryData?.conclusion || "") +
+    // добавляем conclusion из мягких тканей
+    (((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      breastData?.conclusion ||
+      scrotumData?.conclusion ||
+      childDispensaryData?.conclusion) &&
+      softTissueData?.conclusion)
+      ? "\n"
+      : "") +
+    (softTissueData?.conclusion || "");
 
   const recommendations =
     (obpData?.recommendations || "") +
@@ -100,7 +141,6 @@ export const PrintTestSection: React.FC = () => {
       ? "\n"
       : "") +
     (thyroidData?.recommendations || "") +
-    // добавляем рекомендации из молочных желез
     (((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
@@ -110,7 +150,44 @@ export const PrintTestSection: React.FC = () => {
       breastData?.recommendations)
       ? "\n"
       : "") +
-    (breastData?.recommendations || "");
+    (breastData?.recommendations || "") +
+    (((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      breastData?.recommendations) &&
+      scrotumData?.recommendations)
+      ? "\n"
+      : "") +
+    (scrotumData?.recommendations || "") +
+    (((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      breastData?.recommendations ||
+      scrotumData?.recommendations) &&
+      childDispensaryData?.recommendations)
+      ? "\n"
+      : "") +
+    (childDispensaryData?.recommendations || "") +
+    // добавляем рекомендации из мягких тканей
+    (((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      breastData?.recommendations ||
+      scrotumData?.recommendations ||
+      childDispensaryData?.recommendations) &&
+      softTissueData?.recommendations)
+      ? "\n"
+      : "") +
+    (softTissueData?.recommendations || "");
 
   return (
     <div className="flex justify-center py-6 bg-slate-100">
@@ -135,7 +212,11 @@ export const PrintTestSection: React.FC = () => {
         </div>
 
         <div style={{ marginTop: "10mm" }}>
-          <BreastResearchPrint /> {/* ← блок молочных желез */}
+          <BreastResearchPrint />
+        </div>
+
+        <div style={{ marginTop: "10mm" }}>
+          <ScrotumResearchPrint />
         </div>
 
         <div style={{ marginTop: "10mm" }}>
@@ -152,6 +233,14 @@ export const PrintTestSection: React.FC = () => {
 
         <div style={{ marginTop: "10mm" }}>
           <UrinaryBladderStudyPrint />
+        </div>
+
+        <div style={{ marginTop: "10mm" }}>
+          <ChildDispensaryPrint />
+        </div>
+
+        <div style={{ marginTop: "10mm" }}>
+          <SoftTissuePrint />
         </div>
 
         <div>

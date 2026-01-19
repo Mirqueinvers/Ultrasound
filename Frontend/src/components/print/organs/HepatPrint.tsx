@@ -56,7 +56,7 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
   const structParts: string[] = [];
 
   if (echogenicity?.trim()) {
-    structParts.push(`эхогенность ${echogenicity}`);
+    structParts.push(`эхогенность печени ${echogenicity}`);
   }
   if (homogeneity?.trim()) {
     structParts.push(`эхоструктура ${homogeneity}`);
