@@ -8,6 +8,7 @@ import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladd
 import ConclusionPrint from "@/components/print/ConclusionPrint";
 import OmtFemalePrint from "@/components/print/researches/OmtFemalePrint";
 import OmtMalePrint from "@/components/print/researches/OmtMalePrint";
+import ThyroidResearchPrint from "@/components/print/researches/ThyroidPrint"; // ← добавлено
 
 export const PrintTestSection: React.FC = () => {
   const { studiesData } = useResearch();
@@ -17,6 +18,7 @@ export const PrintTestSection: React.FC = () => {
   const bladderStudyData = studiesData["Мочевой пузырь"];
   const omtFemaleData = studiesData["ОМТ (Ж)"];
   const omtMaleData = studiesData["ОМТ (М)"];
+  const thyroidData = studiesData["Щитовидная железа"];
 
   const conclusion =
     (obpData?.conclusion || "") +
@@ -41,7 +43,17 @@ export const PrintTestSection: React.FC = () => {
       omtMaleData?.conclusion)
       ? "\n"
       : "") +
-    (omtMaleData?.conclusion || "");
+    (omtMaleData?.conclusion || "") +
+    // при необходимости можно добавить и conclusion из щитовидки:
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion) &&
+      thyroidData?.conclusion
+      ? "\n"
+      : "") +
+    (thyroidData?.conclusion || "");
 
   const recommendations =
     (obpData?.recommendations || "") +
@@ -66,7 +78,17 @@ export const PrintTestSection: React.FC = () => {
       omtMaleData?.recommendations)
       ? "\n"
       : "") +
-    (omtMaleData?.recommendations || "");
+    (omtMaleData?.recommendations || "") +
+    // при необходимости можно добавить и рекомендации из щитовидки:
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations) &&
+      thyroidData?.recommendations
+      ? "\n"
+      : "") +
+    (thyroidData?.recommendations || "");
 
   return (
     <div className="flex justify-center py-6 bg-slate-100">
@@ -85,6 +107,10 @@ export const PrintTestSection: React.FC = () => {
         <ResearchPrintHeader />
 
         <ObpPrint />
+
+        <div style={{ marginTop: "10mm" }}>
+          <ThyroidResearchPrint />
+        </div>
 
         <div style={{ marginTop: "10mm" }}>
           <OmtFemalePrint />

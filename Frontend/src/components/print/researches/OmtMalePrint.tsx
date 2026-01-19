@@ -2,7 +2,7 @@
 import React from "react";
 import { useResearch } from "@contexts";
 import ProstatePrint from "@/components/print/organs/ProstatePrint";
-import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
+import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 import type { OmtMaleProtocol } from "@types";
 
 const formatDateRu = (iso?: string | null): string | undefined => {
@@ -28,7 +28,6 @@ export const OmtMalePrint: React.FC = () => {
   if (!prostate && !urinaryBladder) return null;
 
   const { studyType } = prostate ?? {};
-  // если мочевой пузырь где-то хранит дату/тип отдельно, можно расширить шапку
 
   return (
     <>
@@ -36,7 +35,6 @@ export const OmtMalePrint: React.FC = () => {
         Ультразвуковое исследование органов малого таза
       </p>
 
-      {/* Шапка исследования (пока только вид исследования из простаты, если есть) */}
       {studyType && (
         <div
           style={{
@@ -54,10 +52,9 @@ export const OmtMalePrint: React.FC = () => {
 
       {prostate && <ProstatePrint value={prostate} />}
 
-      {/* Мочевой пузырь уже имеет свою печатную форму в UrinaryBladderStudyPrint */}
       {urinaryBladder && (
-        <div style={{ marginTop: "6px" }}>
-          <UrinaryBladderStudyPrint />
+        <div>
+          <UrinaryBladderPrint value={urinaryBladder} />
         </div>
       )}
     </>

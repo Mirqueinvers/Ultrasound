@@ -3,6 +3,7 @@ import React from "react";
 import { useResearch } from "@contexts";
 import UterusPrint from "@/components/print/organs/UterusPrint";
 import OvaryPrint from "@/components/print/organs/OvaryPrint";
+import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 import type { OmtFemaleProtocol } from "@types";
 
 const formatDateRu = (iso?: string): string | undefined => {
@@ -22,6 +23,7 @@ export const OmtFemalePrint: React.FC = () => {
   const uterus = omtData?.uterus;
   const rightOvary = omtData?.rightOvary;
   const leftOvary = omtData?.leftOvary;
+  const urinaryBladder = omtData?.urinaryBladder;
 
   if (!omtData || !uterus) return null;
 
@@ -68,6 +70,8 @@ export const OmtFemalePrint: React.FC = () => {
       {rightOvary && <OvaryPrint value={rightOvary} side="right" />}
 
       {leftOvary && <OvaryPrint value={leftOvary} side="left" />}
+
+      {urinaryBladder && <UrinaryBladderPrint value={urinaryBladder} />}
     </>
   );
 };

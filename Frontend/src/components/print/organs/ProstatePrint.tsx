@@ -9,7 +9,7 @@ export interface ProstatePrintProps {
 export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
   const {
     position,
-    studyType,
+    // studyType, // больше не используем в тексте
     length,
     width,
     apDimension,
@@ -36,7 +36,9 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
     const base = "простатэктомия";
     const extra =
       additionalText && additionalText.length
-        ? `, ${additionalText.charAt(0).toLowerCase()}${additionalText.slice(1)}`
+        ? `, ${additionalText.charAt(0).toLowerCase()}${additionalText.slice(
+            1
+          )}`
         : "";
     const sentence = base + extra + ".";
 
@@ -49,7 +51,9 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
         }}
       >
         <p style={{ margin: 0 }}>
-          <span style={{ fontWeight: 700, fontSize: "16px" }}>Простата:</span>{" "}
+          <span style={{ fontWeight: 700, fontSize: "16px" }}>
+            Простата:
+          </span>{" "}
           {sentence}
         </p>
       </div>
@@ -67,13 +71,6 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
   }
   infoParts.push(positionText);
 
-  // Вид исследования
-  if (studyType?.trim()) {
-    infoParts.push(
-      `исследование выполнено ${studyType.toLowerCase()} доступом`
-    );
-  }
-
   // Размеры
   const sizeParts: string[] = [];
   if (length?.trim()) sizeParts.push(`длина ${length} мм`);
@@ -83,20 +80,26 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
   if (volume?.trim()) sizeParts.push(`объем ${volume} см³`);
 
   if (sizeParts.length) {
-    infoParts.push(`размерами: ${sizeParts.join(", ")}`);
+    infoParts.push(`Размерами: ${sizeParts.join(", ")}`);
   }
 
   // Контур, симметричность, форма, эхогенность, эхоструктура
   const morphologyParts: string[] = [];
 
   if (contour?.trim()) {
-    morphologyParts.push(`контуры ${contour.toLowerCase()}`);
+    morphologyParts.push(`контур простаты ${contour.toLowerCase()}`);
   }
   if (symmetry?.trim()) {
-    morphologyParts.push(`симметричность ${symmetry.toLowerCase()}`);
+    morphologyParts.push(`симметричность сохранена`.replace(
+      "сохранена",
+      symmetry.toLowerCase()
+    ));
   }
   if (shape?.trim()) {
-    morphologyParts.push(`форма ${shape.toLowerCase()}`);
+    morphologyParts.push(`форма овальная`.replace(
+      "овальная",
+      shape.toLowerCase()
+    ));
   }
   if (echogenicity?.trim()) {
     morphologyParts.push(`эхогенность ${echogenicity.toLowerCase()}`);
@@ -126,7 +129,7 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
     }
     infoParts.push(protr.charAt(0).toUpperCase() + protr.slice(1));
   } else if (bladderProtrusion === "не выступает") {
-    infoParts.push("в просвет мочевого пузыря не выступает");
+    infoParts.push("В просвет мочевого пузыря не выступает.");
   }
 
   // Патологические образования
@@ -136,7 +139,7 @@ export const ProstatePrint: React.FC<ProstatePrintProps> = ({ value }) => {
       lesionsTextTrimmed.slice(1);
     infoParts.push(t.endsWith(".") ? t : `${t}.`);
   } else if (pathologicLesions === "не определяются") {
-    infoParts.push("патологические образования не определяются");
+    infoParts.push("Патологические объемные образования не определяются.");
   }
 
   if (additionalText && position !== "простатэктомия") {

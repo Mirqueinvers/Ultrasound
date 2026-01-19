@@ -12,10 +12,9 @@ interface ThyroidCommonProps {
   onChange?: (value: ThyroidProtocol) => void;
 }
 
-export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ value, onChange }) => {
+export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
   const [form, setForm] = useFormState<ThyroidProtocol>(
-    defaultThyroidState,
-    value
+    defaultThyroidState
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
 
