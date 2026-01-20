@@ -1,6 +1,12 @@
 // /components/print/organs/kidney/kidneyHelpers.ts
 import type { KidneyProtocol } from "@types";
 
+const normalizeSize = (size: string): string =>
+  size
+    .replace(/x/gi, " x ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 export const buildKidneyText = (
   label: string,
   value: KidneyProtocol,
@@ -42,29 +48,29 @@ export const buildKidneyText = (
 
   const additionalText = additional?.trim();
 
-    // --- Положение
-    let positionSentence = "";
-    const positionExtra = positionText?.trim();
+  // --- Положение
+  let positionSentence = "";
+  const positionExtra = positionText?.trim();
 
-    if (position === "обычное") {
-    positionSentence = "Определяется в обычном положении.";
-    } else if (position === "опущение" || position === "нефроптоз") {
+  if (position === "обычное") {
+    positionSentence = "определяется в обычном положении.";
+  } else if (position === "опущение" || position === "нефроптоз") {
     if (positionExtra && positionExtra.length > 0) {
-        const first =
+      const first =
         positionExtra.charAt(0).toUpperCase() + positionExtra.slice(1);
-        positionSentence = first.endsWith(".") ? first : `${first}.`;
+      positionSentence = first.endsWith(".") ? first : `${first}.`;
     }
-    } else if (position === "нефрэктомия") {
+  } else if (position === "нефрэктомия") {
     if (positionExtra && positionExtra.length > 0) {
-        // Нефрэктомия + текст из поля
-        const extra =
+      const extra =
         positionExtra.charAt(0).toUpperCase() + positionExtra.slice(1);
-        positionSentence = `Нефрэктомия. ${extra.endsWith(".") ? extra : extra + "."}`;
+      positionSentence = `Нефрэктомия. ${
+        extra.endsWith(".") ? extra : extra + "."
+      }`;
     } else {
-        positionSentence = "Нефрэктомия.";
+      positionSentence = "Нефрэктомия.";
     }
-    }
-
+  }
 
   // --- Размеры и паренхима (предложение 1)
   const sizeParts: string[] = [];
@@ -76,13 +82,13 @@ export const buildKidneyText = (
   if (sizeParts.length > 0) {
     const base = sizeParts.join(", ");
     if (parenchymaSize?.trim()) {
-      sizeSentence = `${base}, толщина паренхимы ${parenchymaSize} мм.`;
+      sizeSentence = `Размерами: ${base}, толщина паренхимы ${parenchymaSize} мм.`;
     } else {
-      sizeSentence = `${base}.`;
+      sizeSentence = `Размерами: ${base}.`;
     }
   }
 
-  // --- Контур (отдельное предложение) + эхогенность/структура (следующее предложение)
+  // --- Контур + эхогенность/структура
   let contourSentence = "";
   let parenchymaSentence = "";
 
@@ -94,25 +100,24 @@ export const buildKidneyText = (
 
   if (parenchymaEchogenicity?.trim()) {
     parenchymaChunks.push(
-      `эхогенность паренхимы ${parenchymaEchogenicity.toLowerCase()}`
+      `эхогенность паренхимы ${parenchymaEchogenicity.toLowerCase()}`,
     );
   }
   if (parenchymaStructure?.trim()) {
-    parenchymaChunks.push(
-      `структура ${parenchymaStructure.toLowerCase()}`
-    );
+    parenchymaChunks.push(`структура ${parenchymaStructure.toLowerCase()}`);
   }
 
   if (parenchymaChunks.length > 0) {
     const text = parenchymaChunks.join(", ");
-    parenchymaSentence =
-      `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
+    parenchymaSentence = `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
   }
 
-  // --- Билдеры для конкрементов и кист (используем только при находках)
+  // --- Билдеры для конкрементов и кист
   const buildConcrementsPhrase = (
     mode: "паренхима" | "чашечно-лоханочная система",
-    flag: KidneyProtocol["parenchymaConcrements"] | KidneyProtocol["pcsConcrements"],
+    flag:
+      | KidneyProtocol["parenchymaConcrements"]
+      | KidneyProtocol["pcsConcrements"],
     list:
       | KidneyProtocol["parenchymaConcrementslist"]
       | KidneyProtocol["pcsConcrementslist"],
@@ -157,15 +162,16 @@ export const buildKidneyText = (
 
     const sizes = valid
       .map((c) => c.size?.toString().trim())
-      .filter((s): s is string => !!s);
+      .filter((s): s is string => !!s)
+      .map((s) => normalizeSize(s));
 
     let sizeText = "";
     if (sizes.length === 1) {
-      sizeText = `размерами до ${sizes[0]} мм`;
+      sizeText = `размерами ${sizes[0]} мм`;
     } else if (sizes.length > 1) {
       const last = sizes[sizes.length - 1];
       const rest = sizes.slice(0, -1);
-      sizeText = `размерами до ${rest.join(" мм, ")} мм и ${last} мм`;
+      sizeText = `размерами ${rest.join(" мм, ")} мм и ${last} мм`;
     }
 
     const isSingle = count === 1;
@@ -182,7 +188,13 @@ export const buildKidneyText = (
 
     const verb = isSingle ? "определяется" : "определяются";
 
-    const tail = [locText, verb, countText, "с акустической тенью", sizeText]
+    const tail = [
+      locText,
+      verb,
+      countText,
+      "с акустической тенью",
+      sizeText,
+    ]
       .filter(Boolean)
       .join(" ");
 
@@ -207,7 +219,8 @@ export const buildKidneyText = (
     );
 
     if (multiple && multipleSize.trim()) {
-      return `определяются множественные кисты в ${mode} размерами до ${multipleSize} мм`;
+      const normSize = normalizeSize(multipleSize);
+      return `определяются множественные кисты в ${mode} размерами до ${normSize} мм`;
     }
 
     if (!multiple && valid.length === 0) {
@@ -240,15 +253,16 @@ export const buildKidneyText = (
 
     const sizes = valid
       .map((c) => c.size?.toString().trim())
-      .filter((s): s is string => !!s);
+      .filter((s): s is string => !!s)
+      .map((s) => normalizeSize(s));
 
     let sizeText = "";
     if (sizes.length === 1) {
-      sizeText = `размерами до ${sizes[0]} мм`;
+      sizeText = `размерами ${sizes[0]} мм`;
     } else if (sizes.length > 1) {
       const last = sizes[sizes.length - 1];
       const rest = sizes.slice(0, -1);
-      sizeText = `размерами до ${rest.join(" мм, ")} мм и ${last} мм`;
+      sizeText = `размерами ${rest.join(" мм, ")} мм и ${last} мм`;
     }
 
     const isSingle = count === 1;
@@ -265,159 +279,152 @@ export const buildKidneyText = (
   };
 
   // --- Паренхима: выводим кисты/камни/образования только если есть
-const parenchymaFindings: string[] = [];
+  const parenchymaFindings: string[] = [];
 
-// конкременты в паренхиме (как уже сделано)
-const rawParenchymaConcrementsPhrase = buildConcrementsPhrase(
-  "паренхима",
-  parenchymaConcrements,
-  parenchymaConcrementslist,
-);
+  // конкременты в паренхиме
+  const rawParenchymaConcrementsPhrase = buildConcrementsPhrase(
+    "паренхима",
+    parenchymaConcrements,
+    parenchymaConcrementslist,
+  );
 
-let parenchymaConcrementsPhrase = "";
+  let parenchymaConcrementsPhrase = "";
 
-if (rawParenchymaConcrementsPhrase) {
-  const centralVariant = "В области центральной части определяется";
-  if (rawParenchymaConcrementsPhrase.startsWith(centralVariant)) {
-    const rest = rawParenchymaConcrementsPhrase.slice(centralVariant.length);
-    parenchymaConcrementsPhrase =
-      `В паренхиме, в центральной части определяется${rest}`;
-  } else {
-    parenchymaConcrementsPhrase =
-      `В паренхиме, ${rawParenchymaConcrementsPhrase.charAt(0).toLowerCase()}${rawParenchymaConcrementsPhrase.slice(1)}`;
+  if (rawParenchymaConcrementsPhrase) {
+    const centralVariant = "В области центральной части определяется";
+    if (rawParenchymaConcrementsPhrase.startsWith(centralVariant)) {
+      const rest = rawParenchymaConcrementsPhrase.slice(centralVariant.length);
+      parenchymaConcrementsPhrase =
+        `В паренхиме, в центральной части определяется${rest}`;
+    } else {
+      parenchymaConcrementsPhrase = `В паренхиме, ${rawParenchymaConcrementsPhrase
+        .charAt(0)
+        .toLowerCase()}${rawParenchymaConcrementsPhrase.slice(1)}`;
+    }
   }
-}
 
-if (parenchymaConcrementsPhrase) {
-  parenchymaFindings.push(parenchymaConcrementsPhrase);
-}
+  if (parenchymaConcrementsPhrase) {
+    parenchymaFindings.push(parenchymaConcrementsPhrase);
+  }
 
-// кисты в паренхиме — отдельная логика
-let parenchymaCystsPhrase = "";
+  // кисты в паренхиме
+  let parenchymaCystsPhrase = "";
 
-if (parenchymaCysts === "определяются") {
-  if (parenchymaMultipleCysts && parenchymaMultipleCystsSize?.trim()) {
-    // множественные — нужная фраза
-    parenchymaCystsPhrase =
-      `В паренхиме определяются множественные гиперэхогенные образования размерами до ${parenchymaMultipleCystsSize} мм`;
-  } else {
-    // одиночные / список — оборачиваем результат билдера
-    const rawParenchymaCystsPhrase = buildCystsPhrase(
-      "паренхиме",
-      parenchymaCysts,
-      parenchymaCystslist,
-      parenchymaMultipleCysts,
-      parenchymaMultipleCystsSize || "",
-    );
+  if (parenchymaCysts === "определяются") {
+    if (parenchymaMultipleCysts && parenchymaMultipleCystsSize?.trim()) {
+      const normSize = normalizeSize(parenchymaMultipleCystsSize);
+      parenchymaCystsPhrase =
+        `В паренхиме определяются множественные гиперэхогенные образования размерами до ${normSize} мм`;
+    } else {
+      const rawParenchymaCystsPhrase = buildCystsPhrase(
+        "паренхиме",
+        parenchymaCysts,
+        parenchymaCystslist,
+        parenchymaMultipleCysts,
+        parenchymaMultipleCystsSize || "",
+      );
 
-    if (rawParenchymaCystsPhrase) {
-      const centralVariantCyst = "В области центральной части определяется";
-      if (rawParenchymaCystsPhrase.startsWith(centralVariantCyst)) {
-        const rest = rawParenchymaCystsPhrase.slice(centralVariantCyst.length);
-        parenchymaCystsPhrase =
-          `В паренхиме, в центральной части определяется${rest}`;
-      } else {
-        parenchymaCystsPhrase =
-          `В паренхиме, ${rawParenchymaCystsPhrase.charAt(0).toLowerCase()}${rawParenchymaCystsPhrase.slice(1)}`;
+      if (rawParenchymaCystsPhrase) {
+        const centralVariantCyst = "В области центральной части определяется";
+        if (rawParenchymaCystsPhrase.startsWith(centralVariantCyst)) {
+          const rest = rawParenchymaCystsPhrase.slice(
+            centralVariantCyst.length,
+          );
+          parenchymaCystsPhrase =
+            `В паренхиме, в центральной части определяется${rest}`;
+        } else {
+          parenchymaCystsPhrase = `В паренхиме, ${rawParenchymaCystsPhrase
+            .charAt(0)
+            .toLowerCase()}${rawParenchymaCystsPhrase.slice(1)}`;
+        }
       }
     }
   }
-}
 
-if (parenchymaCystsPhrase) {
-  parenchymaFindings.push(parenchymaCystsPhrase);
-}
-
-// Патологические образования в паренхиме
-if (
-  parenchymaPathologicalFormations === "определяются" &&
-  parenchymaPathologicalFormationsText?.trim()
-) {
-  const raw = parenchymaPathologicalFormationsText.trim();
-  const lower = raw.charAt(0).toLowerCase() + raw.slice(1);
-
-  if (parenchymaFindings.length > 0) {
-    const lastIndex = parenchymaFindings.length - 1;
-    parenchymaFindings[lastIndex] =
-      parenchymaFindings[lastIndex] + `, ${lower}`;
-  } else {
-    // ни одной фразы про паренхиму нет — создаём только из текста поля
-    parenchymaFindings.push(lower);
+  if (parenchymaCystsPhrase) {
+    parenchymaFindings.push(parenchymaCystsPhrase);
   }
-}
 
+  // Патологические образования в паренхиме
+  if (
+    parenchymaPathologicalFormations === "определяются" &&
+    parenchymaPathologicalFormationsText?.trim()
+  ) {
+    const raw = parenchymaPathologicalFormationsText.trim();
+    const lower = raw.charAt(0).toLowerCase() + raw.slice(1);
 
-
-// --- ЧЛС: основное предложение + находки
-let pcsSentence = "";
-if (pcsSize === "не расширена") {
-  pcsSentence = "Чашечно-лоханочная система не расширена.";
-} else if (pcsSize === "расширена") {
-  pcsSentence = "Чашечно-лоханочная система расширена.";
-}
-
-// собираем находки (микролиты, конкременты, кисты, пат. образования)
-const pcsFindings: string[] = [];
-
-// микролиты
-if (pcsMicroliths === "определяются") {
-  if (pcsMicrolithsSize?.trim()) {
-    pcsFindings.push(
-      `микролиты, размерами до ${pcsMicrolithsSize} мм`,
-    );
-  } else {
-    pcsFindings.push("микролиты");
+    if (parenchymaFindings.length > 0) {
+      const lastIndex = parenchymaFindings.length - 1;
+      parenchymaFindings[lastIndex] =
+        parenchymaFindings[lastIndex] + `, ${lower}`;
+    } else {
+      parenchymaFindings.push(lower);
+    }
   }
-}
 
-// конкременты ЧЛС
-const rawPcsConcrementsPhrase = buildConcrementsPhrase(
-  "чашечно-лоханочная система",
-  pcsConcrements,
-  pcsConcrementslist,
-);
-if (rawPcsConcrementsPhrase) {
-  pcsFindings.push(rawPcsConcrementsPhrase);
-}
+  // --- ЧЛС
+  let pcsSentence = "";
+  if (pcsSize === "не расширена") {
+    pcsSentence = "Чашечно-лоханочная система не расширена.";
+  } else if (pcsSize === "расширена") {
+    pcsSentence = "Чашечно-лоханочная система расширена.";
+  }
 
-// кисты ЧЛС
-const rawPcsCystsPhrase = buildCystsPhrase(
-  "чашечно-лоханочной системе",
-  pcsCysts,
-  pcsCystslist,
-  pcsMultipleCysts,
-  pcsMultipleCystsSize || "",
-);
-if (rawPcsCystsPhrase) {
-  pcsFindings.push(rawPcsCystsPhrase);
-}
+  const pcsFindings: string[] = [];
 
-// пат. образования ЧЛС — просто текст из поля
-if (
-  pcsPathologicalFormations === "определяются" &&
-  pcsPathologicalFormationsText?.trim()
-) {
-  const raw = pcsPathologicalFormationsText.trim();
-  const lower = raw.charAt(0).toLowerCase() + raw.slice(1);
+  // микролиты
+  if (pcsMicroliths === "определяются") {
+    if (pcsMicrolithsSize?.trim()) {
+      pcsFindings.push(`микролиты, размерами до ${pcsMicrolithsSize} мм`);
+    } else {
+      pcsFindings.push("микролиты");
+    }
+  }
 
+  // конкременты ЧЛС
+  const rawPcsConcrementsPhrase = buildConcrementsPhrase(
+    "чашечно-лоханочная система",
+    pcsConcrements,
+    pcsConcrementslist,
+  );
+  if (rawPcsConcrementsPhrase) {
+    pcsFindings.push(rawPcsConcrementsPhrase);
+  }
+
+  // кисты ЧЛС
+  const rawPcsCystsPhrase = buildCystsPhrase(
+    "чашечно-лоханочной системе",
+    pcsCysts,
+    pcsCystslist,
+    pcsMultipleCysts,
+    pcsMultipleCystsSize ? normalizeSize(pcsMultipleCystsSize) : "",
+  );
+  if (rawPcsCystsPhrase) {
+    pcsFindings.push(rawPcsCystsPhrase);
+  }
+
+  // пат. образования ЧЛС
+  if (
+    pcsPathologicalFormations === "определяются" &&
+    pcsPathologicalFormationsText?.trim()
+  ) {
+    const raw = pcsPathologicalFormationsText.trim();
+    const lower = raw.charAt(0).toLowerCase() + raw.slice(1);
+
+    if (pcsFindings.length > 0) {
+      const lastIndex = pcsFindings.length - 1;
+      pcsFindings[lastIndex] = pcsFindings[lastIndex] + `, ${lower}`;
+    } else {
+      pcsFindings.push(lower);
+    }
+  }
+
+  let pcsDetailsSentence = "";
   if (pcsFindings.length > 0) {
-    const lastIndex = pcsFindings.length - 1;
-    pcsFindings[lastIndex] =
-      pcsFindings[lastIndex] + `, ${lower}`;
-  } else {
-    pcsFindings.push(lower);
+    const findingsText = pcsFindings.join(". ");
+    pcsDetailsSentence =
+      `В чашечно-лоханочной системе определяются ${findingsText}.`;
   }
-}
-
-// итоговая фраза для находок ЧЛС
-let pcsDetailsSentence = "";
-if (pcsFindings.length > 0) {
-  const findingsText = pcsFindings.join(". ");
-  pcsDetailsSentence =
-    `В чашечно-лоханочной системе определяются ${findingsText}.`;
-}
-
-
 
   // --- Синус
   let sinusSentence = "";
@@ -434,9 +441,7 @@ if (pcsFindings.length > 0) {
     adrenalSentence = "Область надпочечников не изменена.";
   } else if (adrenalArea === "изменена") {
     const text = adrenalAreaText?.trim();
-    adrenalSentence = text
-      ? `${text}.`
-      : "Область надпочечников изменена.";
+    adrenalSentence = text ? `${text}.` : "Область надпочечников изменена.";
   }
 
   const hasAnyContent =
@@ -477,4 +482,3 @@ if (pcsFindings.length > 0) {
 
   return `${label}: ${pieces.join(" ")}`;
 };
-

@@ -1,3 +1,4 @@
+// Frontend/src/components/Content.tsx
 import React from "react";
 
 import Obp from "@components/researches/Obp";
@@ -13,7 +14,7 @@ import UrinaryBladderResearch from "@components/researches/UrinaryBladderResearc
 import ResearchHeader from "@components/common/ResearchHeader";
 import { useResearch } from "@contexts";
 
-import PrintTestSection from "@components/print/PrintTestSection";
+import PrintModal from "@components/print/PrintModal";
 
 interface ContentProps {
   selectedStudy: string;
@@ -48,6 +49,8 @@ const Content: React.FC<ContentProps> = ({
     text: string;
   } | null>(null);
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
+
+  const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
 
   const handleSaveResearch = async () => {
     const fullNameParts = patientFullName.split(" ");
@@ -156,9 +159,16 @@ const Content: React.FC<ContentProps> = ({
     }
   };
 
-  // 1) Секция test — то, что вы сейчас тестируете
+  // Тестовая секция, если нужно оставить
   if (activeSection === "test") {
-    return <PrintTestSection />;
+    return (
+      <div className="content">
+        <h2 className="text-slate-800 mt-0">Тестовый режим</h2>
+        <p className="text-slate-600">
+          Здесь можно будет добавить тестовый вывод печати
+        </p>
+      </div>
+    );
   }
 
   // Показываем исследование только если выбрана секция "УЗИ протоколы"
@@ -214,7 +224,6 @@ const Content: React.FC<ContentProps> = ({
             </div>
           )}
 
-
           {/* Кнопки управления */}
           <div className="mt-6 flex gap-3">
             <button
@@ -228,7 +237,7 @@ const Content: React.FC<ContentProps> = ({
             {selectedStudies.length > 0 && (
               <>
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => setIsPrintModalOpen(true)}
                   disabled={isSaving}
                   className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -250,6 +259,12 @@ const Content: React.FC<ContentProps> = ({
             )}
           </div>
         </div>
+
+        {/* Модалка печати с логикой PrintTestSection */}
+        <PrintModal
+          isOpen={isPrintModalOpen}
+          onClose={() => setIsPrintModalOpen(false)}
+        />
       </div>
     );
   }

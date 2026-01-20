@@ -53,7 +53,7 @@ const formatSingleTestisTail = (t?: SingleTestisProtocol | null): string[] => {
 
   if (t.location?.trim()) {
     if (t.location === "в мошонке") {
-      parts.push("Определяется в мошонке.");
+      parts.push("определяется в мошонке.");
     } else {
       parts.push(`Расположение: ${t.location}.`);
     }

@@ -35,7 +35,10 @@ const formatLobeHeader = (label: string, lobe: ThyroidLobeProtocol): string => {
   return `${volumeLabel} ${lobe.volume} мл.`;
 };
 
-const formatLobeNodesIntro = (label: string, lobe: ThyroidLobeProtocol): string => {
+const formatLobeNodesIntro = (
+  label: string,
+  lobe: ThyroidLobeProtocol,
+): string => {
   const lobeLoc = label === "Правая доля" ? "В правой доле" : "В левой доле";
 
   if (lobe.volumeFormations === "не определяются") {
@@ -78,8 +81,16 @@ const formatLobeNodesList = (lobe: ThyroidLobeProtocol): React.ReactNode[] => {
     }
 
     if (n.echogenicity?.trim()) {
-      nodeParts.push(`эхогенность ${n.echogenicity.toLowerCase()}`);
+      const echo = n.echogenicity.trim().toLowerCase();
+
+      if (echo === "анэхогенная") {
+        // специальный случай – только прилагательное, в мужском роде
+        nodeParts.push("анэхогенный");
+      } else {
+        nodeParts.push(`эхогенность ${echo}`);
+      }
     }
+
     if (n.echostructure?.trim()) {
       nodeParts.push(`эхоструктура ${n.echostructure.toLowerCase()}`);
     }
@@ -110,7 +121,7 @@ const formatLobeNodesList = (lobe: ThyroidLobeProtocol): React.ReactNode[] => {
 
 const renderLobeBlock = (
   label: "Правая доля" | "Левая доля",
-  lobe?: ThyroidLobeProtocol
+  lobe?: ThyroidLobeProtocol,
 ) => {
   if (!lobe) return null;
 
@@ -155,7 +166,9 @@ export const ThyroidPrint: React.FC<ThyroidPrintProps> = ({ value }) => {
     tailBlocks.push(`Общий объем железы ${totalVolume} мл.`);
   }
   if (rightToLeftRatio?.trim()) {
-    tailBlocks.push(`Соотношение объема правой и левой долей ${rightToLeftRatio}.`);
+    tailBlocks.push(
+      `Соотношение объема правой и левой долей ${rightToLeftRatio}.`,
+    );
   }
 
   const commonParts: string[] = [];
