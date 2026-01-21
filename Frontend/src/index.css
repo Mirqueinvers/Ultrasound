@@ -29,8 +29,6 @@ body {
   border-bottom: 1px solid #e5e7eb; /* граница остаётся */
 }
 
-
-
 /* блок с кнопками */
 .app-titlebar-buttons {
   display: flex;
@@ -62,25 +60,75 @@ body {
   color: #ffffff;
 }
 
+/* ---------- ПРЕДПРОСМОТР ЛИСТОВ А4 (ЭКРАН) ---------- */
+
+@media screen {
+  /* корень печатного документа (PrintableProtocol) */
+  #print-root {
+    background: #e5e7eb; /* slate-200 */
+    padding: 16px 0;
+  }
+
+  /* отдельный лист А4 */
+  .print-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 16px;
+    background: #ffffff;
+    box-shadow:
+      0 4px 10px rgba(0,0,0,0.15),
+      0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: block;
+  }
+
+  .print-page-inner {
+    padding: 20mm;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ---------- ПЕЧАТЬ ---------- */
+
 @media print {
-  body * {
-    visibility: hidden;
-  }
-
-  #print-area,
-  #print-area * {
-    visibility: visible;
-  }
-
-  #print-area {
-    position: fixed;
-    inset: 0;
-    margin: 0;
-    padding: 20px;
-    background: white;
+  @page {
+    size: A4;
+    margin: 10mm;
   }
 
   .no-print {
     display: none !important;
+  }
+
+  /* корневой контейнер печати */
+  #print-root {
+    padding: 0;
+    background: transparent;
+  }
+
+  /* каждая .print-page = отдельный лист */
+  .print-page {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0;
+    page-break-after: always;
+    display: block;
+  }
+
+  .print-page:last-child {
+    page-break-after: auto;
+  }
+
+  .print-page-inner {
+    padding: 0;
+  }
+
+  .no-break {
+    page-break-inside: avoid;
   }
 }
