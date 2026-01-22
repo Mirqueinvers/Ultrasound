@@ -19,12 +19,26 @@ import type {
 } from "@/types";
 import { defaultObpState } from "@/types";
 
+type SectionKey =
+  | "ОБП:печень"
+  | "ОБП:желчный"
+  | "ОБП:поджелудочная"
+  | "ОБП:селезёнка";
+
 const FREE_FLUID_OPTIONS = [
   { value: "не определяется", label: "не определяется" },
   { value: "определяется", label: "определяется" },
 ];
 
-export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
+interface ObpWithSectionsProps extends ObpProps {
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+}
+
+export const Obp: React.FC<ObpWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
   const { setStudyData } = useResearch();
 
@@ -58,7 +72,10 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
     sync({ ...form, freeFluidDetails: val });
   };
 
-  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+  const updateConclusion = (conclusionData: {
+    conclusion: string;
+    recommendations: string;
+  }) => {
     sync({
       ...form,
       conclusion: conclusionData.conclusion,
@@ -72,15 +89,28 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов брюшной полости
       </div>
 
-      <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
+      <div ref={sectionRefs?.["ОБП:печень"]}>
+        <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
+      </div>
 
-      <Gallbladder value={form.gallbladder ?? undefined} onChange={updateGallbladder} />
+      <div ref={sectionRefs?.["ОБП:желчный"]}>
+        <Gallbladder
+          value={form.gallbladder ?? undefined}
+          onChange={updateGallbladder}
+        />
+      </div>
 
-      <Pancreas value={form.pancreas ?? undefined} onChange={updatePancreas} />
+      <div ref={sectionRefs?.["ОБП:поджелудочная"]}>
+        <Pancreas
+          value={form.pancreas ?? undefined}
+          onChange={updatePancreas}
+        />
+      </div>
 
-      <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
+      <div ref={sectionRefs?.["ОБП:селезёнка"]}>
+        <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
+      </div>
 
-      {/* Свободная жидкость в брюшной полости */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-lg px-6 py-4">
         <SelectWithTextarea
           label="Свободная жидкость в брюшной полости"
@@ -96,7 +126,10 @@ export const Obp: React.FC<ObpProps> = ({ value, onChange }) => {
       </div>
 
       <Conclusion
-        value={{ conclusion: form.conclusion, recommendations: form.recommendations }}
+        value={{
+          conclusion: form.conclusion,
+          recommendations: form.recommendations,
+        }}
         onChange={updateConclusion}
       />
     </div>

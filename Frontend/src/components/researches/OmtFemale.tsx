@@ -1,4 +1,4 @@
-// /components/organs/OmtFemale.tsx
+// /components/researches/OmtFemale.tsx
 import React, { useState } from "react";
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
@@ -14,7 +14,21 @@ import type {
 } from "@/types";
 import { defaultOmtFemaleState } from "@/types";
 
-export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
+type SectionKey =
+  | "ОМТ (Ж):матка"
+  | "ОМТ (Ж):правый яичник"
+  | "ОМТ (Ж):левый яичник"
+  | "ОМТ (Ж):мочевой пузырь";
+
+interface OmtFemaleWithSectionsProps extends OmtFemaleProps {
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+}
+
+export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<OmtFemaleProtocol>(
     value ?? defaultOmtFemaleState
   );
@@ -60,24 +74,32 @@ export const OmtFemale: React.FC<OmtFemaleProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов малого таза
       </div>
 
-      <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />
+      <div ref={sectionRefs?.["ОМТ (Ж):матка"]}>
+        <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />
+      </div>
 
-      <Ovary
-        value={form.rightOvary ?? undefined}
-        onChange={updateRightOvary}
-        side="right"
-      />
+      <div ref={sectionRefs?.["ОМТ (Ж):правый яичник"]}>
+        <Ovary
+          value={form.rightOvary ?? undefined}
+          onChange={updateRightOvary}
+          side="right"
+        />
+      </div>
 
-      <Ovary
-        value={form.leftOvary ?? undefined}
-        onChange={updateLeftOvary}
-        side="left"
-      />
+      <div ref={sectionRefs?.["ОМТ (Ж):левый яичник"]}>
+        <Ovary
+          value={form.leftOvary ?? undefined}
+          onChange={updateLeftOvary}
+          side="left"
+        />
+      </div>
 
-      <UrinaryBladder
-        value={form.urinaryBladder ?? undefined}
-        onChange={updateUrinaryBladder}
-      />
+      <div ref={sectionRefs?.["ОМТ (Ж):мочевой пузырь"]}>
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
+        />
+      </div>
 
       <Conclusion
         value={{

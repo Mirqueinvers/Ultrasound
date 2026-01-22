@@ -26,6 +26,34 @@ interface ContentProps {
   onCancelNewResearch: () => void;
 }
 
+// тип ключей для органных секций
+type SectionKey =
+  | "ОБП:печень"
+  | "ОБП:желчный"
+  | "ОБП:поджелудочная"
+  | "ОБП:селезёнка"
+  | "Почки:правая"
+  | "Почки:левая"
+  | "Почки:мочевой пузырь"
+  | "ОМТ (Ж):матка"
+  | "ОМТ (Ж):правый яичник"
+  | "ОМТ (Ж):левый яичник"
+  | "ОМТ (Ж):мочевой пузырь";
+
+const ORG_LABELS: Record<SectionKey, string> = {
+  "ОБП:печень": "Печень",
+  "ОБП:желчный": "Желчный пузырь",
+  "ОБП:поджелудочная": "Поджелудочная",
+  "ОБП:селезёнка": "Селезёнка",
+  "Почки:правая": "Почка правая",
+  "Почки:левая": "Почка левая",
+  "Почки:мочевой пузырь": "Мочевой пузырь",
+  "ОМТ (Ж):матка": "Матка",
+  "ОМТ (Ж):правый яичник": "Правый яичник",
+  "ОМТ (Ж):левый яичник": "Левый яичник",
+  "ОМТ (Ж):мочевой пузырь": "Мочевой пузырь",
+};
+
 const Content: React.FC<ContentProps> = ({
   selectedStudy,
   activeSection,
@@ -49,8 +77,28 @@ const Content: React.FC<ContentProps> = ({
     text: string;
   } | null>(null);
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
-
   const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
+
+  // refs для органных секций
+  const [sectionRefs] = React.useState<
+    Record<SectionKey, React.RefObject<HTMLDivElement>>
+  >(() => {
+    return {
+      "ОБП:печень": React.createRef<HTMLDivElement>(),
+      "ОБП:желчный": React.createRef<HTMLDivElement>(),
+      "ОБП:поджелудочная": React.createRef<HTMLDivElement>(),
+      "ОБП:селезёнка": React.createRef<HTMLDivElement>(),
+      "Почки:правая": React.createRef<HTMLDivElement>(),
+      "Почки:левая": React.createRef<HTMLDivElement>(),
+      "Почки:мочевой пузырь": React.createRef<HTMLDivElement>(),
+      "ОМТ (Ж):матка": React.createRef<HTMLDivElement>(),
+      "ОМТ (Ж):правый яичник": React.createRef<HTMLDivElement>(),
+      "ОМТ (Ж):левый яичник": React.createRef<HTMLDivElement>(),
+      "ОМТ (Ж):мочевой пузырь": React.createRef<HTMLDivElement>(),
+    };
+  });
+
+  const [isToolbarCollapsed, setIsToolbarCollapsed] = React.useState(false);
 
   const handleSaveResearch = async () => {
     const fullNameParts = patientFullName.split(" ");
@@ -159,7 +207,25 @@ const Content: React.FC<ContentProps> = ({
     }
   };
 
-  // Тестовая секция, если нужно оставить
+    const scrollToSection = (key: SectionKey) => {
+    const ref = sectionRefs[key];
+    if (!ref?.current) return;
+
+    const element = ref.current;
+    const offset = 300; // сколько пикселей оставить сверху
+
+    const rect = element.getBoundingClientRect();
+    const absoluteElementTop = rect.top + window.pageYOffset;
+    const targetY = absoluteElementTop - offset;
+
+    window.scrollTo({
+      top: targetY,
+      behavior: "smooth",
+    });
+  };
+
+
+  // Тестовый режим
   if (activeSection === "test") {
     return (
       <div className="content">
@@ -171,7 +237,7 @@ const Content: React.FC<ContentProps> = ({
     );
   }
 
-  // Показываем исследование только если выбрана секция "УЗИ протоколы"
+  // Не "УЗИ протоколы"
   if (activeSection !== "uzi-protocols") {
     return (
       <div className="content">
@@ -185,15 +251,97 @@ const Content: React.FC<ContentProps> = ({
 
   // Режим создания нового исследования
   if (isMultiSelectMode) {
+    // какие секции есть для выбранных исследований
+    const availableSectionKeys: SectionKey[] = selectedStudies.flatMap(
+      (study): SectionKey[] => {
+        switch (study) {
+          case "ОБП":
+            return [
+              "ОБП:печень",
+              "ОБП:желчный",
+              "ОБП:поджелудочная",
+              "ОБП:селезёнка",
+            ];
+          case "Почки":
+            return [
+              "Почки:правая",
+              "Почки:левая",
+              "Почки:мочевой пузырь",
+            ];
+          case "ОМТ (Ж)":
+            return [
+              "ОМТ (Ж):матка",
+              "ОМТ (Ж):правый яичник",
+              "ОМТ (Ж):левый яичник",
+              "ОМТ (Ж):мочевой пузырь",
+            ];
+          default:
+            return [];
+        }
+      }
+    );
+
     return (
-      <div className="content">
+      <div className="content relative">
+        {/* Правый вертикальный тулбар */}
+        {availableSectionKeys.length > 0 && (
+          <div className="fixed left-[25rem] top-[41rem] z-30">
+            <div
+              className={
+                "bg-slate-900/80 text-slate-50 shadow-lg transform origin-top-right " +
+                (isToolbarCollapsed
+                  ? "rounded-full w-10 h-10 flex items-center justify-center cursor-pointer scale-90"
+                  : "rounded-2xl p-2 max-h-[70vh] flex flex-col")
+              }
+              onClick={() => {
+                if (isToolbarCollapsed) {
+                  setIsToolbarCollapsed(false);
+                }
+              }}
+            >
+              {isToolbarCollapsed ? (
+                <span className="text-sm font-bold select-none">Н</span>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsToolbarCollapsed(true);
+                    }}
+                    className="flex items-center justify-between px-2 py-1 text-xs font-semibold hover:bg-white/10 rounded-lg mb-1"
+                  >
+                    <span>Навигация</span>
+                    <span>×</span>
+                  </button>
+
+                  <div className="mt-1 overflow-y-auto pr-1">
+                    {availableSectionKeys.map((key) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          scrollToSection(key);
+                        }}
+                        className="block w-full text-left px-2 py-1 mb-0.5 text-[11px] rounded-md hover:bg-white/15"
+                      >
+                        {ORG_LABELS[key]}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6">
           <ResearchHeader
             paymentType={paymentType}
             setPaymentType={setPaymentType}
           />
 
-          {/* Сообщение о сохранении */}
           {saveMessage && (
             <div
               className={`mb-4 px-4 py-3 rounded-lg ${
@@ -206,7 +354,6 @@ const Content: React.FC<ContentProps> = ({
             </div>
           )}
 
-          {/* Выбранные исследования */}
           {selectedStudies.length > 0 && (
             <div className="mt-6 space-y-6">
               {selectedStudies.map((study, index) => (
@@ -215,6 +362,19 @@ const Content: React.FC<ContentProps> = ({
                     <Kidney
                       value={studiesData["Почки"]}
                       onChange={(updated) => setStudyData("Почки", updated)}
+                      sectionRefs={sectionRefs}
+                    />
+                  ) : study === "ОБП" ? (
+                    <Obp
+                      value={studiesData["ОБП"]}
+                      onChange={(updated) => setStudyData("ОБП", updated)}
+                      sectionRefs={sectionRefs}
+                    />
+                  ) : study === "ОМТ (Ж)" ? (
+                    <OmtFemale
+                      value={studiesData["ОМТ (Ж)"]}
+                      onChange={(updated) => setStudyData("ОМТ (Ж)", updated)}
+                      sectionRefs={sectionRefs}
                     />
                   ) : (
                     renderStudyComponent(study)
@@ -224,7 +384,6 @@ const Content: React.FC<ContentProps> = ({
             </div>
           )}
 
-          {/* Кнопки управления */}
           <div className="mt-6 flex gap-3">
             <button
               onClick={onCancelNewResearch}
@@ -260,7 +419,6 @@ const Content: React.FC<ContentProps> = ({
           </div>
         </div>
 
-        {/* Модалка печати с логикой PrintTestSection */}
         <PrintModal
           isOpen={isPrintModalOpen}
           onClose={() => setIsPrintModalOpen(false)}
@@ -269,7 +427,6 @@ const Content: React.FC<ContentProps> = ({
     );
   }
 
-  // Если исследование не выбрано, показываем кнопку для начала нового исследования
   if (!selectedStudy) {
     return (
       <div className="content">
@@ -287,11 +444,10 @@ const Content: React.FC<ContentProps> = ({
     );
   }
 
-  // Отображаем выбранное исследование (старый режим)
   return <div className="content">{renderStudyComponent(selectedStudy)}</div>;
 };
 
-// Вспомогательная функция для рендера компонента исследования
+// старый рендер без навигации для одиночного режима
 function renderStudyComponent(study: string) {
   switch (study) {
     case "ОБП":

@@ -11,7 +11,20 @@ import type {
 } from "@/types";
 import { defaultKidneyStudyState } from "@/types";
 
-export const Kidney: React.FC<KidneyStudyProps> = ({ value, onChange }) => {
+type SectionKey =
+  | "Почки:правая"
+  | "Почки:левая"
+  | "Почки:мочевой пузырь";
+
+interface KidneyWithSectionsProps extends KidneyStudyProps {
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+}
+
+export const Kidney: React.FC<KidneyWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<KidneyStudyProtocol>(
     value ?? defaultKidneyStudyState
   );
@@ -50,22 +63,28 @@ export const Kidney: React.FC<KidneyStudyProps> = ({ value, onChange }) => {
         Ультразвуковое исследование почек
       </div>
 
-      <KidneyCommon
-        side="right"
-        value={form.rightKidney ?? undefined}
-        onChange={updateRightKidney}
-      />
+      <div ref={sectionRefs?.["Почки:правая"]}>
+        <KidneyCommon
+          side="right"
+          value={form.rightKidney ?? undefined}
+          onChange={updateRightKidney}
+        />
+      </div>
 
-      <KidneyCommon
-        side="left"
-        value={form.leftKidney ?? undefined}
-        onChange={updateLeftKidney}
-      />
+      <div ref={sectionRefs?.["Почки:левая"]}>
+        <KidneyCommon
+          side="left"
+          value={form.leftKidney ?? undefined}
+          onChange={updateLeftKidney}
+        />
+      </div>
 
-      <UrinaryBladder
-        value={form.urinaryBladder ?? undefined}
-        onChange={updateUrinaryBladder}
-      />
+      <div ref={sectionRefs?.["Почки:мочевой пузырь"]}>
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
+        />
+      </div>
 
       <Conclusion
         value={{
