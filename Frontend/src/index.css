@@ -63,13 +63,11 @@ body {
 /* ---------- ПРЕДПРОСМОТР ЛИСТОВ А4 (ЭКРАН) ---------- */
 
 @media screen {
-  /* корень печатного документа (PrintableProtocol) */
   #print-root {
-    background: #e5e7eb; /* slate-200 */
+    background: #e5e7eb;
     padding: 16px 0;
   }
 
-  /* отдельный лист А4 */
   .print-page {
     width: 210mm;
     min-height: 297mm;
@@ -95,20 +93,18 @@ body {
 @media print {
   @page {
     size: A4;
-    margin: 10mm;
+    margin: 15mm; /* или 10mm, как тебе нужно */
   }
 
   .no-print {
     display: none !important;
   }
 
-  /* корневой контейнер печати */
   #print-root {
     padding: 0;
     background: transparent;
   }
 
-  /* каждая .print-page = отдельный лист */
   .print-page {
     width: auto;
     min-height: auto;
@@ -131,4 +127,18 @@ body {
   .no-break {
     page-break-inside: avoid;
   }
+
+  /* защита от flex внутри печатных страниц */
+  .print-page-inner,
+  .print-page-inner .flex {
+    display: block;
+  }
+
+    .print-conclusion {
+    page-break-before: auto;
+    break-before: auto;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
 }
+

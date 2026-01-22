@@ -228,7 +228,7 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
       {
         id: "conclusion",
         element: (
-          <>
+          <div className="print-conclusion">
             <ConclusionPrint
               value={{ conclusion, recommendations }}
             />
@@ -243,9 +243,10 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
                 Исследование проводил врач {doctorName}
               </div>
             )}
-          </>
+          </div>
         ),
       },
+
     ],
     [
       conclusion,
@@ -275,10 +276,7 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
       measureContainerRef.current.children
     ) as HTMLElement[];
 
-    // ВЫСОТА страниц в px – подбирается под твой шрифт/отступы.
-    // Для А4 при ~96dpi высота около 1122px, но из-за margin @page
-    // можно взять, например, 1000-1050 и подкорректировать визуально.
-    const heightLimit = 1000;
+    const heightLimit = 1120; // или твоё актуальное значение
 
     const newPages: ResearchBlock[][] = [];
     let currentPage: ResearchBlock[] = [];
@@ -288,7 +286,6 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
       const block = blocks[index];
       const blockHeight = child.offsetHeight;
 
-      // Если блок не помещается в текущую страницу, переносим на новую
       if (currentHeight + blockHeight > heightLimit && currentPage.length > 0) {
         newPages.push(currentPage);
         currentPage = [block];
@@ -336,7 +333,11 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
         <div key={pageIndex} className="print-page">
           <div className="print-page-inner">
             {pageBlocks.map((b) => (
-              <div key={b.id} className="no-break" style={{ marginTop: b.id === "header" ? 0 : "10mm" }}>
+              <div
+                key={b.id}
+                className="no-break"
+                style={{ marginTop: b.id === "header" ? 0 : "10mm" }}
+              >
                 {b.element}
               </div>
             ))}
