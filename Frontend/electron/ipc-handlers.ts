@@ -1,5 +1,6 @@
-import { ipcMain, BrowserWindow } from 'electron';
-import { DatabaseManager } from './database/database';
+// ultrasound/frontend/electron/ipcAuthAndDb.ts (как у тебя называется)
+import { ipcMain, BrowserWindow } from "electron";
+import { DatabaseManager } from "./database/database";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   const db = DatabaseManager.getInstance();
@@ -7,7 +8,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   // ==================== AUTH HANDLERS ====================
 
   ipcMain.handle(
-    'auth:register',
+    "auth:register",
     async (
       _,
       {
@@ -17,23 +18,23 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         organization,
       }: { username: string; password: string; name: string; organization?: string }
     ) => {
-      return await db.registerUser(username, password, name, organization);
+      return await db.users.registerUser(username, password, name, organization);
     }
   );
 
   ipcMain.handle(
-    'auth:login',
+    "auth:login",
     async (_, { username, password }: { username: string; password: string }) => {
-      return await db.loginUser(username, password);
+      return await db.users.loginUser(username, password);
     }
   );
 
-  ipcMain.handle('auth:getUser', async (_, userId: number) => {
-    return db.getUserById(userId);
+  ipcMain.handle("auth:getUser", async (_, userId: number) => {
+    return db.users.getUserById(userId);
   });
 
   ipcMain.handle(
-    'auth:updateUser',
+    "auth:updateUser",
     async (
       _,
       {
@@ -43,12 +44,12 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         organization,
       }: { id: number; name: string; username: string; organization?: string }
     ) => {
-      return await db.updateUser(id, name, username, organization);
+      return await db.users.updateUser(id, name, username, organization);
     }
   );
 
   ipcMain.handle(
-    'auth:changePassword',
+    "auth:changePassword",
     async (
       _,
       {
@@ -57,14 +58,14 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         newPassword,
       }: { userId: number; currentPassword: string; newPassword: string }
     ) => {
-      return await db.changePassword(userId, currentPassword, newPassword);
+      return await db.users.changePassword(userId, currentPassword, newPassword);
     }
   );
 
   // ==================== PATIENT HANDLERS ====================
 
   ipcMain.handle(
-    'patient:findOrCreate',
+    "patient:findOrCreate",
     async (
       _,
       {
@@ -79,24 +80,32 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         dateOfBirth: string;
       }
     ) => {
-      return db.findOrCreatePatient(lastName, firstName, middleName, dateOfBirth);
+      return db.patients.findOrCreatePatient(
+        lastName,
+        firstName,
+        middleName,
+        dateOfBirth
+      );
     }
   );
 
-  ipcMain.handle('patient:search', async (_, query: string, limit?: number) => {
-    return db.searchPatients(query, limit);
-  });
-
-  ipcMain.handle('patient:getAll', async (_, limit?: number, offset?: number) => {
-    return db.getAllPatients(limit, offset);
-  });
-
-  ipcMain.handle('patient:getById', async (_, id: number) => {
-    return db.findPatientById(id);
+  ipcMain.handle("patient:search", async (_, query: string, limit?: number) => {
+    return db.patients.searchPatients(query, limit);
   });
 
   ipcMain.handle(
-    'patient:update',
+    "patient:getAll",
+    async (_, limit?: number, offset?: number) => {
+      return db.patients.getAllPatients(limit, offset);
+    }
+  );
+
+  ipcMain.handle("patient:getById", async (_, id: number) => {
+    return db.patients.findPatientById(id);
+  });
+
+  ipcMain.handle(
+    "patient:update",
     async (
       _,
       {
@@ -113,14 +122,20 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         dateOfBirth: string;
       }
     ) => {
-      return db.updatePatient(id, lastName, firstName, middleName, dateOfBirth);
+      return db.patients.updatePatient(
+        id,
+        lastName,
+        firstName,
+        middleName,
+        dateOfBirth
+      );
     }
   );
 
   // ==================== RESEARCH HANDLERS ====================
 
   ipcMain.handle(
-    'research:create',
+    "research:create",
     async (
       _,
       {
@@ -132,17 +147,23 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
       }: {
         patientId: number;
         researchDate: string;
-        paymentType: 'oms' | 'paid';
+        paymentType: "oms" | "paid";
         doctorName?: string;
         notes?: string;
       }
     ) => {
-      return db.createResearch(patientId, researchDate, paymentType, doctorName, notes);
+      return db.researches.createResearch(
+        patientId,
+        researchDate,
+        paymentType,
+        doctorName,
+        notes
+      );
     }
   );
 
   ipcMain.handle(
-    'research:addStudy',
+    "research:addStudy",
     async (
       _,
       {
@@ -155,31 +176,30 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         studyData: object;
       }
     ) => {
-      return db.addStudyToResearch(researchId, studyType, studyData);
+      return db.researches.addStudyToResearch(researchId, studyType, studyData);
     }
   );
 
-  ipcMain.handle('research:getById', async (_, id: number) => {
-    return db.getResearchById(id);
+  ipcMain.handle("research:getById", async (_, id: number) => {
+    return db.researches.getResearchById(id);
   });
 
   ipcMain.handle(
-    'research:getByPatientId',
-    async (_,
-      patientId: number,
-      limit?: number,
-      offset?: number
-    ) => {
-      return db.getResearchesByPatientId(patientId, limit, offset);
+    "research:getByPatientId",
+    async (_, patientId: number, limit?: number, offset?: number) => {
+      return db.researches.getResearchesByPatientId(patientId, limit, offset);
     }
   );
 
-  ipcMain.handle('research:getAll', async (_, limit?: number, offset?: number) => {
-    return db.getAllResearches(limit, offset);
-  });
+  ipcMain.handle(
+    "research:getAll",
+    async (_, limit?: number, offset?: number) => {
+      return db.researches.getAllResearches(limit, offset);
+    }
+  );
 
   ipcMain.handle(
-    'research:update',
+    "research:update",
     async (
       _,
       {
@@ -191,45 +211,54 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
       }: {
         id: number;
         researchDate?: string;
-        paymentType?: 'oms' | 'paid';
+        paymentType?: "oms" | "paid";
         doctorName?: string;
         notes?: string;
       }
     ) => {
-      return db.updateResearch(id, researchDate, paymentType, doctorName, notes);
+      return db.researches.updateResearch(
+        id,
+        researchDate,
+        paymentType,
+        doctorName,
+        notes
+      );
     }
   );
 
-  ipcMain.handle('research:delete', async (_, id: number) => {
-    return db.deleteResearch(id);
+  ipcMain.handle("research:delete", async (_, id: number) => {
+    return db.researches.deleteResearch(id);
   });
 
-  ipcMain.handle('research:search', async (_, query: string, limit?: number) => {
-    return db.searchResearches(query, limit);
-  });
+  ipcMain.handle(
+    "research:search",
+    async (_, query: string, limit?: number) => {
+      return db.researches.searchResearches(query, limit);
+    }
+  );
 
   // ==================== JOURNAL HANDLERS ====================
 
-  ipcMain.handle('journal:getByDate', async (_, date: string) => {
-    return db.getJournalByDate(date);
+  ipcMain.handle("journal:getByDate", async (_, date: string) => {
+    return db.journal.getJournalByDate(date);
   });
 
   // ==================== WINDOW HANDLERS ====================
 
-  ipcMain.on('window:focus', () => {
+  ipcMain.on("window:focus", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.focus();
       mainWindow.show();
     }
   });
 
-  ipcMain.on('window:minimize', () => {
+  ipcMain.on("window:minimize", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.minimize();
     }
   });
 
-  ipcMain.on('window:maximize', () => {
+  ipcMain.on("window:maximize", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMaximized()) {
         mainWindow.unmaximize();
@@ -239,7 +268,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   });
 
-  ipcMain.on('window:close', () => {
+  ipcMain.on("window:close", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.close();
     }

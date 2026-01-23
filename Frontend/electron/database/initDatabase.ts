@@ -1,0 +1,31 @@
+// ultrasound/frontend/electron/database/initDatabase.ts
+import type Database from "better-sqlite3";
+import {
+  CREATE_USERS_TABLE,
+  CREATE_USERNAME_INDEX,
+  CREATE_PATIENTS_TABLE,
+  CREATE_PATIENTS_INDEXES,
+  CREATE_RESEARCHES_TABLE,
+  CREATE_RESEARCH_STUDIES_TABLE,
+  CREATE_RESEARCHES_INDEXES,
+} from "./schema";
+
+export const initializeDatabase = (db: Database.Database): void => {
+  db.exec(CREATE_USERS_TABLE);
+  db.exec(CREATE_USERNAME_INDEX);
+  db.exec(CREATE_PATIENTS_TABLE);
+  db.exec(CREATE_PATIENTS_INDEXES);
+  db.exec(CREATE_RESEARCHES_TABLE);
+  db.exec(CREATE_RESEARCH_STUDIES_TABLE);
+  db.exec(CREATE_RESEARCHES_INDEXES);
+};
+
+export const runMigrations = (db: Database.Database): void => {
+  const tableInfo = db.pragma("table_info(users)") as Array<{ name: string }>;
+  const hasOrganization = tableInfo.some((col) => col.name === "organization");
+  if (!hasOrganization) {
+    console.log("🔄 Добавляем колонку organization...");
+    db.exec("ALTER TABLE users ADD COLUMN organization TEXT");
+    console.log("✅ Колонка organization добавлена");
+  }
+};
