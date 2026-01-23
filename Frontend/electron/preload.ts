@@ -1,4 +1,5 @@
-import { contextBridge, ipcRenderer } from 'electron';
+// ultrasound/frontend/electron/preload.ts
+import { contextBridge, ipcRenderer } from "electron";
 
 // ========== AUTH API ==========
 
@@ -57,7 +58,7 @@ export interface Research {
   id: number;
   patient_id: number;
   research_date: string;
-  payment_type: 'oms' | 'paid';
+  payment_type: "oms" | "paid";
   doctor_name?: string;
   notes?: string;
   created_at: string;
@@ -109,7 +110,7 @@ export interface ResearchAPI {
   create: (data: {
     patientId: number;
     researchDate: string;
-    paymentType: 'oms' | 'paid';
+    paymentType: "oms" | "paid";
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -127,12 +128,16 @@ export interface ResearchAPI {
     studyId?: number;
   }>;
   getById: (id: number) => Promise<any>;
-  getByPatientId: (patientId: number, limit?: number, offset?: number) => Promise<any>;
+  getByPatientId: (
+    patientId: number,
+    limit?: number,
+    offset?: number,
+  ) => Promise<any>;
   getAll: (limit?: number, offset?: number) => Promise<any>;
   update: (data: {
     id: number;
     researchDate?: string;
-    paymentType?: 'oms' | 'paid';
+    paymentType?: "oms" | "paid";
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -150,65 +155,77 @@ export interface JournalAPI {
   getByDate: (date: string) => Promise<JournalEntry[]>;
 }
 
-// ========== WINDOW API (для своей шапки) ==========
-
 export interface WindowAPI {
   focus: () => void;
   minimize: () => void;
-  maximize: () => void; // toggle max/unmax
+  maximize: () => void;
   close: () => void;
+}
+
+// ========== PROTOCOL API ==========
+
+export interface SavedProtocol {
+  researchId: number;
+  studies: { [studyType: string]: any };
+}
+
+export interface ProtocolAPI {
+  getByResearchId: (id: number) => Promise<SavedProtocol | null>;
 }
 
 // ========== Реализации API ==========
 
 const authAPI: AuthAPI = {
-  register: (data) => ipcRenderer.invoke('auth:register', data),
-  login: (data) => ipcRenderer.invoke('auth:login', data),
-  getUser: (userId) => ipcRenderer.invoke('auth:getUser', userId),
-  updateUser: (data) => ipcRenderer.invoke('auth:updateUser', data),
-  changePassword: (data) => ipcRenderer.invoke('auth:changePassword', data),
+  register: (data) => ipcRenderer.invoke("auth:register", data),
+  login: (data) => ipcRenderer.invoke("auth:login", data),
+  getUser: (userId) => ipcRenderer.invoke("auth:getUser", userId),
+  updateUser: (data) => ipcRenderer.invoke("auth:updateUser", data),
+  changePassword: (data) => ipcRenderer.invoke("auth:changePassword", data),
 };
 
 const patientAPI: PatientAPI = {
-  findOrCreate: (data) => ipcRenderer.invoke('patient:findOrCreate', data),
-  search: (query, limit) => ipcRenderer.invoke('patient:search', query, limit),
-  getAll: (limit, offset) => ipcRenderer.invoke('patient:getAll', limit, offset),
-  getById: (id) => ipcRenderer.invoke('patient:getById', id),
-  update: (data) => ipcRenderer.invoke('patient:update', data),
+  findOrCreate: (data) => ipcRenderer.invoke("patient:findOrCreate", data),
+  search: (query, limit) => ipcRenderer.invoke("patient:search", query, limit),
+  getAll: (limit, offset) => ipcRenderer.invoke("patient:getAll", limit, offset),
+  getById: (id) => ipcRenderer.invoke("patient:getById", id),
+  update: (data) => ipcRenderer.invoke("patient:update", data),
 };
 
 const researchAPI: ResearchAPI = {
-  create: (data) => ipcRenderer.invoke('research:create', data),
-  addStudy: (data) => ipcRenderer.invoke('research:addStudy', data),
-  getById: (id) => ipcRenderer.invoke('research:getById', id),
+  create: (data) => ipcRenderer.invoke("research:create", data),
+  addStudy: (data) => ipcRenderer.invoke("research:addStudy", data),
+  getById: (id) => ipcRenderer.invoke("research:getById", id),
   getByPatientId: (patientId, limit, offset) =>
-    ipcRenderer.invoke('research:getByPatientId', patientId, limit, offset),
-  getAll: (limit, offset) => ipcRenderer.invoke('research:getAll', limit, offset),
-  update: (data) => ipcRenderer.invoke('research:update', data),
-  delete: (id) => ipcRenderer.invoke('research:delete', id),
-  search: (query, limit) => ipcRenderer.invoke('research:search', query, limit),
+    ipcRenderer.invoke("research:getByPatientId", patientId, limit, offset),
+  getAll: (limit, offset) => ipcRenderer.invoke("research:getAll", limit, offset),
+  update: (data) => ipcRenderer.invoke("research:update", data),
+  delete: (id) => ipcRenderer.invoke("research:delete", id),
+  search: (query, limit) => ipcRenderer.invoke("research:search", query, limit),
 };
 
 const journalAPI: JournalAPI = {
-  getByDate: (date) => ipcRenderer.invoke('journal:getByDate', date),
+  getByDate: (date) => ipcRenderer.invoke("journal:getByDate", date),
 };
 
 const windowAPI: WindowAPI = {
-  focus: () => ipcRenderer.send('window:focus'),
-  minimize: () => ipcRenderer.send('window:minimize'),
-  maximize: () => ipcRenderer.send('window:maximize'),
-  close: () => ipcRenderer.send('window:close'),
+  focus: () => ipcRenderer.send("window:focus"),
+  minimize: () => ipcRenderer.send("window:minimize"),
+  maximize: () => ipcRenderer.send("window:maximize"),
+  close: () => ipcRenderer.send("window:close"),
+};
+
+const protocolAPI: ProtocolAPI = {
+  getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
 };
 
 // ========== Экспорт в window ==========
 
-contextBridge.exposeInMainWorld('authAPI', authAPI);
-contextBridge.exposeInMainWorld('patientAPI', patientAPI);
-contextBridge.exposeInMainWorld('researchAPI', researchAPI);
-contextBridge.exposeInMainWorld('journalAPI', journalAPI);
-contextBridge.exposeInMainWorld('windowAPI', windowAPI);
-
-// Чтобы TypeScript на фронте не ругался, можешь добавить декларацию:
+contextBridge.exposeInMainWorld("authAPI", authAPI);
+contextBridge.exposeInMainWorld("patientAPI", patientAPI);
+contextBridge.exposeInMainWorld("researchAPI", researchAPI);
+contextBridge.exposeInMainWorld("journalAPI", journalAPI);
+contextBridge.exposeInMainWorld("windowAPI", windowAPI);
+contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 
 declare global {
   interface Window {
@@ -217,5 +234,6 @@ declare global {
     researchAPI: ResearchAPI;
     journalAPI: JournalAPI;
     windowAPI: WindowAPI;
+    protocolAPI: ProtocolAPI;
   }
 }

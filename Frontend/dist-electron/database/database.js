@@ -46,6 +46,7 @@ const userRepository_1 = require("./userRepository");
 const patientRepository_1 = require("./patientRepository");
 const researchRepository_1 = require("./researchRepository");
 const journalRepository_1 = require("./journalRepository");
+const protocolRepository_1 = require("./protocolRepository");
 class DatabaseManager {
     constructor() {
         const userDataPath = electron_1.app.getPath("userData");
@@ -59,6 +60,7 @@ class DatabaseManager {
         this.patients = new patientRepository_1.PatientRepository(this.db);
         this.researches = new researchRepository_1.ResearchRepository(this.db);
         this.journal = new journalRepository_1.JournalRepository(this.db);
+        this.protocol = new protocolRepository_1.ProtocolRepository(this.db);
     }
     static getInstance() {
         if (!DatabaseManager.instance) {

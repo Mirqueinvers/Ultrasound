@@ -1,4 +1,6 @@
+// Frontend/src/components/Journal.tsx
 import React, { useEffect, useState } from "react";
+import PrintSavedModal from "@/components/print/PrintSavedModal";
 
 interface Patient {
   id: number;
@@ -44,11 +46,14 @@ const Journal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [expandedPatientIds, setExpandedPatientIds] = useState<number[]>([]);
 
+  const [printResearchId, setPrintResearchId] = useState<number | null>(null);
+  const [isPrintSavedOpen, setIsPrintSavedOpen] = useState(false);
+
   const toggleExpanded = (patientId: number) => {
     setExpandedPatientIds((prev) =>
       prev.includes(patientId)
         ? prev.filter((id) => id !== patientId)
-        : [...prev, patientId]
+        : [...prev, patientId],
     );
   };
 
@@ -151,7 +156,19 @@ const Journal: React.FC = () => {
                                   Заметки: {r.notes}
                                 </span>
                               )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPrintResearchId(r.id);
+                                  setIsPrintSavedOpen(true);
+                                }}
+                                className="mt-1 self-start text-xs text-sky-600 hover:underline"
+                              >
+                                Посмотреть протокол исследования
+                              </button>
                             </div>
+
                             <div className="flex items-center gap-3 text-xs text-slate-500">
                               <span>
                                 Тип оплаты:{" "}
@@ -170,6 +187,15 @@ const Journal: React.FC = () => {
           </ul>
         )}
       </div>
+
+      <PrintSavedModal
+        isOpen={isPrintSavedOpen}
+        onClose={() => {
+          setIsPrintSavedOpen(false);
+          setPrintResearchId(null);
+        }}
+        researchId={printResearchId}
+      />
     </div>
   );
 };
