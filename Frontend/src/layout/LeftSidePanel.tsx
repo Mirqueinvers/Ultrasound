@@ -82,10 +82,10 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                 >
                   {/* Левый акцент */}
                   {selected && (
-                    <div 
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3/4 rounded-r-full"
+                    <div
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[95%] rounded-l-full"
                       style={{
-                        background: 'linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))'
+                        background: "linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))",
                       }}
                     />
                   )}

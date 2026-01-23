@@ -1,5 +1,6 @@
 // Frontend/src/hooks/useSaveResearch.ts
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UseSaveResearchParams {
   patientFullName: string;
@@ -29,6 +30,9 @@ export const useSaveResearch = ({
 }: UseSaveResearchParams) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<SaveMessage | null>(null);
+
+  const { user } = useAuth(); // ← берём текущего пользователя
+  const doctorName = user?.name || ""; // имя врача для сохранения
 
   const saveResearch = async (paymentType: "oms" | "paid") => {
     const fullNameParts = patientFullName.split(" ");
@@ -97,6 +101,7 @@ export const useSaveResearch = ({
         patientId,
         researchDate: researchDate,
         paymentType,
+        doctorName: doctorName || undefined, // ← передаём врача в IPC
       });
 
       if (!researchResult.success || !researchResult.researchId) {
@@ -123,7 +128,7 @@ export const useSaveResearch = ({
         if (!studyResult.success) {
           console.error(
             `Ошибка сохранения ${studyType}:`,
-            studyResult.message
+            studyResult.message,
           );
         }
       }

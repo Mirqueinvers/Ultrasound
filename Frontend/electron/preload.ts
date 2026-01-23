@@ -173,6 +173,17 @@ export interface ProtocolAPI {
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
 }
 
+// ========== PATIENT SEARCH API (для SearchSection) ==========
+
+export interface PatientSearchEntry {
+  patient: Patient;
+  researches: (Research & { study_types?: string[] })[];
+}
+
+export interface PatientSearchAPI {
+  search: (query: string) => Promise<PatientSearchEntry[]>;
+}
+
 // ========== Реализации API ==========
 
 const authAPI: AuthAPI = {
@@ -218,6 +229,61 @@ const protocolAPI: ProtocolAPI = {
   getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
 };
 
+// ========== Реализация patientSearchAPI ==========
+
+const patientSearchAPI: PatientSearchAPI = {
+  async search(query: string) {
+    const researches = (await ipcRenderer.invoke(
+      "research:search",
+      query,
+      100,
+    )) as Array<
+      Research & {
+        last_name: string;
+        first_name: string;
+        middle_name: string | null;
+        date_of_birth: string;
+        studies?: { study_type: string }[];
+      }
+    >;
+
+    const byPatient = new Map<number, PatientSearchEntry>();
+
+    for (const r of researches) {
+      if (!byPatient.has(r.patient_id)) {
+        byPatient.set(r.patient_id, {
+          patient: {
+            id: r.patient_id,
+            last_name: r.last_name,
+            first_name: r.first_name,
+            middle_name: r.middle_name ?? undefined,
+            date_of_birth: r.date_of_birth,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+          },
+          researches: [],
+        });
+      }
+
+      const entry = byPatient.get(r.patient_id)!;
+
+      entry.researches.push({
+        id: r.id,
+        patient_id: r.patient_id,
+        research_date: r.research_date,
+        payment_type: r.payment_type,
+        doctor_name: r.doctor_name,
+        notes: r.notes,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        study_types: (r.studies || []).map((s: any) => s.study_type),
+      });
+    }
+
+    return Array.from(byPatient.values());
+  },
+};
+
 // ========== Экспорт в window ==========
 
 contextBridge.exposeInMainWorld("authAPI", authAPI);
@@ -226,6 +292,7 @@ contextBridge.exposeInMainWorld("researchAPI", researchAPI);
 contextBridge.exposeInMainWorld("journalAPI", journalAPI);
 contextBridge.exposeInMainWorld("windowAPI", windowAPI);
 contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
+contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 
 declare global {
   interface Window {
@@ -235,5 +302,6 @@ declare global {
     journalAPI: JournalAPI;
     windowAPI: WindowAPI;
     protocolAPI: ProtocolAPI;
+    patientSearchAPI: PatientSearchAPI;
   }
 }

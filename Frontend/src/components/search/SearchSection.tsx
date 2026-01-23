@@ -1,14 +1,15 @@
-// Frontend/src/components/Journal.tsx
+// src/components/search/SearchSection.tsx
 
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import PrintSavedModal from "@/components/print/PrintSavedModal";
 import { PatientCard } from "@/components/common/PatientCard";
+import { PatientSearchInput } from "@/UI/PatientSearchInput";
 import type { Patient, Research, JournalEntry } from "@/types";
 
 declare global {
   interface Window {
-    journalAPI: {
-      getByDate: (date: string) => Promise<JournalEntry[]>;
+    patientSearchAPI: {
+      search: (query: string) => Promise<JournalEntry[]>;
     };
   }
 }
@@ -27,10 +28,11 @@ const formatDateRu = (value: string) => {
   });
 };
 
-const Journal: React.FC = () => {
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+export function SearchSection() {
+  const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [expandedPatientIds, setExpandedPatientIds] = useState<number[]>([]);
   const [printResearchId, setPrintResearchId] = useState<number | null>(null);
   const [isPrintSavedOpen, setIsPrintSavedOpen] = useState(false);
@@ -48,13 +50,24 @@ const Journal: React.FC = () => {
     setIsPrintSavedOpen(true);
   };
 
-  const loadData = async (d: string) => {
+  const runSearch = async () => {
+    const query = searchQuery.trim();
+
+    if (!query) {
+      setEntries([]);
+      setExpandedPatientIds([]);
+      setHasSearched(false);
+      return;
+    }
+
     setLoading(true);
+    setExpandedPatientIds([]);
+    setHasSearched(true);
     try {
-      const result = await window.journalAPI.getByDate(d);
+      const result = await window.patientSearchAPI.search(query);
       setEntries(result);
     } catch (e) {
-      console.error("Ошибка загрузки журнала", e);
+      console.error("Ошибка поиска пациента", e);
       setEntries([]);
     } finally {
       setLoading(false);
@@ -62,56 +75,49 @@ const Journal: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData(date);
-  }, [date]);
+    if (!searchQuery.trim()) {
+      setEntries([]);
+      setExpandedPatientIds([]);
+      setHasSearched(false);
+    }
+  }, [searchQuery]);
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      {/* Заголовок и фильтры */}
-      <div className="flex items-center justify-between gap-3">
-        {entries.length > 0 ? (
-          <div className="text-xs text-slate-500">
-            Пациентов:{" "}
-            <span className="font-medium text-slate-700">
-              {entries.length}
-            </span>
-          </div>
-        ) : (
-          <div /> // пустой блок, чтобы сохранить выравнивание
-        )}
+    <div className="content flex h-full flex-col gap-4 p-8">
+      <PatientSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onSubmit={runSearch}
+      />
 
-        <div className="flex flex-1 items-center justify-center">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <span>Дата</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-0"
-            />
-          </label>
-        </div>
-
-        <div /> {/* правая «заглушка» для симметрии */}
-      </div>
-
-
-      {/* Контейнер списка */}
-      <div className="flex-1 overflow-auto rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-slate-100 p-3">
+      <div className="mt-4 flex-1 w-full overflow-auto rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-slate-100 p-3">
         {loading && (
           <div className="flex items-center justify-center rounded-lg bg-white/60 p-6 text-sm text-slate-500 shadow-sm">
-            Загрузка данных за выбранную дату…
+            Поиск пациентов…
           </div>
         )}
 
-        {!loading && entries.length === 0 && (
+        {!loading && !searchQuery.trim() && !hasSearched && (
           <div className="flex h-full items-center justify-center">
             <div className="max-w-sm rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
               <div className="mb-1 text-base font-medium text-slate-700">
-                Нет пациентов за эту дату
+                Введите данные пациента для поиска
               </div>
               <div className="text-xs text-slate-400">
-                Выберите другую дату, чтобы посмотреть журнал.
+                Например: «Иванов Иван Иванович», «01.01.1980» или иии01011980.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!loading && hasSearched && searchQuery.trim() && entries.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <div className="max-w-sm rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
+              <div className="mb-1 text-base font-medium text-slate-700">
+                Пациенты не найдены
+              </div>
+              <div className="text-xs text-slate-400">
+                Проверьте корректность ввода или попробуйте другой запрос.
               </div>
             </div>
           </div>
@@ -150,6 +156,4 @@ const Journal: React.FC = () => {
       />
     </div>
   );
-};
-
-export default Journal;
+}

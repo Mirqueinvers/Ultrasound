@@ -23,3 +23,4 @@ export * from './studyes/breastStudy';
 export * from './studyes/scrotum';
 export * from './studyes/thyroidStudy';
 export * from './studyes/urinaryBladderStudy';
+export * from "./interface/patient";

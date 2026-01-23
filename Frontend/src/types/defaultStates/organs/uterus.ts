@@ -1,0 +1,31 @@
+// src/types/defaultStates/organs/uterus.ts
+import type { UterusProtocol } from "../../organs/uterus";
+
+export const defaultUterusState: UterusProtocol = {
+  studyType: "",
+  lastMenstruationDate: "",
+  cycleDay: "",
+  menopause: "",
+  length: "",
+  width: "",
+  apDimension: "",
+  volume: "",
+  shape: "",
+  position: "",
+  myometriumStructure: "",
+  myometriumStructureText: "",
+  myometriumEchogenicity: "",
+  uterineCavity: "",
+  uterineCavityText: "",
+  endometriumSize: "",
+  endometriumStructure: "",
+  cervixSize: "",
+  cervixEchostructure: "",
+  cervixEchostructureText: "",
+  cervicalCanal: "",
+  cervicalCanalText: "",
+  freeFluid: "",
+  freeFluidText: "",
+  additional: "",
+  conclusion: "",
+};

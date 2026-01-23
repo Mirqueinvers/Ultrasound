@@ -241,62 +241,102 @@ export class ResearchRepository {
     }
   }
 
-  searchResearches(
-    query: string,
-    limit: number = 50
-  ): Array<
+  // Поиск исследований с поддержкой кода вида "кдю12101990"
+// ultrasound/frontend/electron/database/researchRepository.ts
+
+searchResearches(
+  query: string,
+  limit: number = 50
+): Array<
+  Research & {
+    last_name: string;
+    first_name: string;
+    middle_name: string | null;
+    date_of_birth: string;
+    studies: Array<ResearchStudy & { study_data: any }>;
+  }
+> {
+  const raw = query.trim().toLowerCase();
+
+  // кодовый вариант: кдю12101990
+  const normalizedCode = raw
+    .replace(/\s+/g, "")
+    .replace(/ё/g, "е")
+    .replace(/[^0-9а-я]/g, "");
+
+  const researches = this.db
+    .prepare(
+      `
+      SELECT
+        r.*,
+        p.last_name,
+        p.first_name,
+        p.middle_name,
+        p.date_of_birth
+      FROM researches r
+      JOIN patients p ON r.patient_id = p.id
+      ORDER BY r.research_date DESC, r.created_at DESC
+      LIMIT ?
+    `
+    )
+    .all(limit) as Array<
     Research & {
       last_name: string;
       first_name: string;
       middle_name: string | null;
-      studies: Array<ResearchStudy & { study_data: any }>;
+      date_of_birth: string;
     }
-  > {
-    const searchPattern = `%${query}%`;
-    const researches = this.db
-      .prepare(
-        `
-        SELECT
-          r.*,
-          p.last_name,
-          p.first_name,
-          p.middle_name
-        FROM researches r
-        JOIN patients p ON r.patient_id = p.id
-        WHERE p.last_name LIKE ?
-           OR p.first_name LIKE ?
-           OR p.middle_name LIKE ?
-           OR r.research_date LIKE ?
-        ORDER BY r.research_date DESC
-        LIMIT ?
-      `
-      )
-      .all(
-        searchPattern,
-        searchPattern,
-        searchPattern,
-        searchPattern,
-        limit
-      ) as Array<
-      Research & {
-        last_name: string;
-        first_name: string;
-        middle_name: string | null;
-      }
-    >;
+  >;
 
-    return researches.map((research) => {
-      const studies = this.db
-        .prepare("SELECT * FROM research_studies WHERE research_id = ?")
-        .all(research.id) as ResearchStudy[];
+  const withStudies = researches.map((research) => {
+    const studies = this.db
+      .prepare("SELECT * FROM research_studies WHERE research_id = ?")
+      .all(research.id) as ResearchStudy[];
 
-      return {
-        ...research,
-        studies: studies.map((study) => ({
-          ...study,
-          study_data: JSON.parse(study.study_data),
-        })),
-      };
-    });
-  }
+    return {
+      ...research,
+      studies: studies.map((study) => ({
+        ...study,
+        study_data: JSON.parse(study.study_data),
+      })),
+    };
+  });
+
+  // если пустой запрос — возвращаем всё
+  if (!raw) return withStudies;
+
+  return withStudies.filter((r) => {
+    const fio =
+      `${r.last_name} ${r.first_name} ${r.middle_name ?? ""}`.toLowerCase();
+    const dob = (r.date_of_birth || "").toLowerCase();
+    const researchDate = (r.research_date || "").toLowerCase();
+    const idStr = String(r.patient_id).toLowerCase();
+
+    // обычный текстовый поиск (без учёта регистра)
+    const textMatch =
+      fio.includes(raw) ||
+      dob.includes(raw) ||
+      researchDate.includes(raw) ||
+      idStr.includes(raw);
+
+    // код вида кдю12101990
+    const code =
+      (r.last_name[0] || "") +
+      (r.first_name[0] || "") +
+      ((r.middle_name || "")[0] || "") +
+      (r.date_of_birth || "").replace(/\D/g, "");
+
+    const normalizedDbCode = code
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/\s+/g, "");
+
+    const codeMatch =
+      normalizedCode.length > 0 &&
+      normalizedDbCode.includes(normalizedCode);
+
+    return textMatch || codeMatch;
+  });
+}
+
 }

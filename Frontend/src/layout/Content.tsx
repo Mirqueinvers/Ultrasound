@@ -29,6 +29,7 @@ import {
   ResearchActions,
   SaveMessageAlert,
 } from "@/UI";
+import { SearchSection } from '@/components/search/SearchSection';
 
 interface ContentProps {
   selectedStudy: string;
@@ -53,7 +54,9 @@ const Content: React.FC<ContentProps> = ({
     studiesData,
     clearStudiesData,
     setStudyData,
+    clearHeaderData,
   } = useResearch();
+
 
   const [paymentType, setPaymentType] =
     React.useState<"oms" | "paid">("oms");
@@ -88,9 +91,12 @@ const Content: React.FC<ContentProps> = ({
   };
 
   const handleStartClick = () => {
+    clearHeaderData();   
+    clearStudiesData();   
     setIsCreating(true);
     onStartNewResearch();
   };
+
 
   const handleCancel = () => {
     setIsCreating(false);
@@ -114,6 +120,12 @@ const Content: React.FC<ContentProps> = ({
       behavior: "smooth",
     });
   };
+
+  // Поиск
+  if (activeSection === "search") {
+    return <SearchSection />;
+  }
+
 
   // Тестовый режим
   if (activeSection === "test") {

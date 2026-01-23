@@ -1,3 +1,4 @@
+// src/contexts/ResearchContext.tsx
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -8,11 +9,12 @@ interface ResearchContextType {
   setPatientDateOfBirth: (dob: string) => void;
   researchDate: string;
   setResearchDate: (date: string) => void;
-  
-  // Новое: данные исследований
+
   studiesData: { [studyType: string]: any };
   setStudyData: (studyType: string, data: any) => void;
   clearStudiesData: () => void;
+
+  clearHeaderData: () => void; // <-- новое
 }
 
 const ResearchContext = createContext<ResearchContextType | undefined>(undefined);
@@ -26,12 +28,18 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const setStudyData = (studyType: string, data: any) => {
     setStudiesDataState(prev => ({
       ...prev,
-      [studyType]: data
+      [studyType]: data,
     }));
   };
 
   const clearStudiesData = () => {
     setStudiesDataState({});
+  };
+
+  const clearHeaderData = () => {
+    setPatientFullName('');
+    setPatientDateOfBirth('');
+    setResearchDate('');
   };
 
   return (
@@ -46,6 +54,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
         studiesData,
         setStudyData,
         clearStudiesData,
+        clearHeaderData,
       }}
     >
       {children}

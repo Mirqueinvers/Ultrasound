@@ -29,26 +29,25 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
       aria-modal="true"
       role="dialog"
     >
-      <div className="bg-white rounded-md shadow-lg w-[230mm] max-h-full flex flex-col">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200">
-          <span className="text-sm text-slate-600">
-            Печатная версия сохранённого протокола
-          </span>
+      <div className="bg-white rounded-xl shadow-2xl w-[230mm] max-h-full flex flex-col overflow-hidden">
+        {/* Верхняя панель с кнопками */}
+        <div className="flex items-center justify-end gap-2 px-4 py-3 border-b border-slate-200 bg-slate-50">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm ring-1 ring-emerald-500/70 hover:bg-emerald-500 hover:shadow-md hover:-translate-y-[1px] active:translate-y-0 active:shadow-sm transition-all"
+          >
+            <span className="i-ph-printer-duotone text-base" />
+            <span>Печать</span>
+          </button>
 
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrint}
-              className="px-3 py-1 text-sm rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-            >
-              Печать
-            </button>
-            <button
-              onClick={onClose}
-              className="px-3 py-1 text-sm rounded bg-slate-200 text-slate-800 hover:bg-slate-300 transition-colors"
-            >
-              Закрыть
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 shadow-sm hover:bg-slate-100 hover:shadow-md hover:-translate-y-[1px] active:translate-y-0 active:shadow-sm transition-all"
+          >
+            <span className="i-ph-x-circle-duotone text-base" />
+            <span>Закрыть</span>
+          </button>
+
         </div>
 
         <div className="overflow-auto p-4 bg-slate-100">
@@ -60,3 +59,4 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
 };
 
 export default PrintSavedModal;
+

@@ -72,8 +72,10 @@ const PrintableSavedProtocol = React.forwardRef<
   } = useResearch();
 
   const [loading, setLoading] = React.useState(true);
-  const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
+  const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
+
+  const [protocolDoctorName, setProtocolDoctorName] = React.useState<string>("");
 
   // 1. Загружаем сохранённые блоки протокола и кладём их в контекст
   React.useEffect(() => {
@@ -88,7 +90,6 @@ const PrintableSavedProtocol = React.forwardRef<
 
       if (protocol) {
         Object.entries(protocol.studies).forEach(([studyType, data]) => {
-          // studyType уже: "ОБП", "Почки", "Мочевой пузырь", ...
           setStudyData(studyType, data);
         });
       }
@@ -103,11 +104,10 @@ const PrintableSavedProtocol = React.forwardRef<
     return () => {
       cancelled = true;
     };
-    // зависимость только от researchId, чтобы не ловить цикл
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [researchId]);
 
-  // 2. Загружаем мета‑данные: пациент и дата исследования
+  // 2. Загружаем мета‑данные: пациент и дата исследования + врач
   React.useEffect(() => {
     let cancelled = false;
 
@@ -124,12 +124,14 @@ const PrintableSavedProtocol = React.forwardRef<
 
       setPatientFullName(fullName);
       setPatientDateOfBirth(patient.date_of_birth);
-      // research_date может быть с временем, обрежем до даты
+
       const dateStr =
         typeof research.research_date === "string"
           ? research.research_date.slice(0, 10)
           : "";
       setResearchDate(dateStr);
+
+      setProtocolDoctorName(research.doctor_name || "");
     };
 
     loadMeta();
@@ -311,7 +313,7 @@ const PrintableSavedProtocol = React.forwardRef<
       : "") +
     (softTissueData?.recommendations || "");
 
-  const doctorName = user?.name || "";
+  const doctorName = protocolDoctorName || user?.name || "";
 
   const blocks = React.useMemo<ResearchBlock[]>(
     () => [

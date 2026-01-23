@@ -39,6 +39,42 @@ const windowAPI = {
 const protocolAPI = {
     getByResearchId: (id) => electron_1.ipcRenderer.invoke("protocol:getByResearchId", id),
 };
+// ========== Реализация patientSearchAPI ==========
+const patientSearchAPI = {
+    async search(query) {
+        const researches = (await electron_1.ipcRenderer.invoke("research:search", query, 100));
+        const byPatient = new Map();
+        for (const r of researches) {
+            if (!byPatient.has(r.patient_id)) {
+                byPatient.set(r.patient_id, {
+                    patient: {
+                        id: r.patient_id,
+                        last_name: r.last_name,
+                        first_name: r.first_name,
+                        middle_name: r.middle_name ?? undefined,
+                        date_of_birth: r.date_of_birth,
+                        created_at: r.created_at,
+                        updated_at: r.updated_at,
+                    },
+                    researches: [],
+                });
+            }
+            const entry = byPatient.get(r.patient_id);
+            entry.researches.push({
+                id: r.id,
+                patient_id: r.patient_id,
+                research_date: r.research_date,
+                payment_type: r.payment_type,
+                doctor_name: r.doctor_name,
+                notes: r.notes,
+                created_at: r.created_at,
+                updated_at: r.updated_at,
+                study_types: (r.studies || []).map((s) => s.study_type),
+            });
+        }
+        return Array.from(byPatient.values());
+    },
+};
 // ========== Экспорт в window ==========
 electron_1.contextBridge.exposeInMainWorld("authAPI", authAPI);
 electron_1.contextBridge.exposeInMainWorld("patientAPI", patientAPI);
@@ -46,3 +82,4 @@ electron_1.contextBridge.exposeInMainWorld("researchAPI", researchAPI);
 electron_1.contextBridge.exposeInMainWorld("journalAPI", journalAPI);
 electron_1.contextBridge.exposeInMainWorld("windowAPI", windowAPI);
 electron_1.contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
+electron_1.contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
