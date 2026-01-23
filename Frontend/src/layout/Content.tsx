@@ -38,7 +38,9 @@ type SectionKey =
   | "ОМТ (Ж):матка"
   | "ОМТ (Ж):правый яичник"
   | "ОМТ (Ж):левый яичник"
-  | "ОМТ (Ж):мочевой пузырь";
+  | "ОМТ (Ж):мочевой пузырь"
+  | "ОМТ (М):простата"
+  | "ОМТ (М):мочевой пузырь";
 
 const ORG_LABELS: Record<SectionKey, string> = {
   "ОБП:печень": "Печень",
@@ -52,7 +54,10 @@ const ORG_LABELS: Record<SectionKey, string> = {
   "ОМТ (Ж):правый яичник": "Правый яичник",
   "ОМТ (Ж):левый яичник": "Левый яичник",
   "ОМТ (Ж):мочевой пузырь": "Мочевой пузырь",
+  "ОМТ (М):простата": "Предстательная железа",
+  "ОМТ (М):мочевой пузырь": "Мочевой пузырь",
 };
+
 
 const Content: React.FC<ContentProps> = ({
   selectedStudy,
@@ -80,23 +85,26 @@ const Content: React.FC<ContentProps> = ({
   const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
 
   // refs для органных секций
-  const [sectionRefs] = React.useState<
-    Record<SectionKey, React.RefObject<HTMLDivElement>>
-  >(() => {
-    return {
-      "ОБП:печень": React.createRef<HTMLDivElement>(),
-      "ОБП:желчный": React.createRef<HTMLDivElement>(),
-      "ОБП:поджелудочная": React.createRef<HTMLDivElement>(),
-      "ОБП:селезёнка": React.createRef<HTMLDivElement>(),
-      "Почки:правая": React.createRef<HTMLDivElement>(),
-      "Почки:левая": React.createRef<HTMLDivElement>(),
-      "Почки:мочевой пузырь": React.createRef<HTMLDivElement>(),
-      "ОМТ (Ж):матка": React.createRef<HTMLDivElement>(),
-      "ОМТ (Ж):правый яичник": React.createRef<HTMLDivElement>(),
-      "ОМТ (Ж):левый яичник": React.createRef<HTMLDivElement>(),
-      "ОМТ (Ж):мочевой пузырь": React.createRef<HTMLDivElement>(),
-    };
-  });
+const [sectionRefs] = React.useState<
+  Record<SectionKey, React.RefObject<HTMLDivElement>>
+>(() => {
+  return {
+    "ОБП:печень": React.createRef<HTMLDivElement>(),
+    "ОБП:желчный": React.createRef<HTMLDivElement>(),
+    "ОБП:поджелудочная": React.createRef<HTMLDivElement>(),
+    "ОБП:селезёнка": React.createRef<HTMLDivElement>(),
+    "Почки:правая": React.createRef<HTMLDivElement>(),
+    "Почки:левая": React.createRef<HTMLDivElement>(),
+    "Почки:мочевой пузырь": React.createRef<HTMLDivElement>(),
+    "ОМТ (Ж):матка": React.createRef<HTMLDivElement>(),
+    "ОМТ (Ж):правый яичник": React.createRef<HTMLDivElement>(),
+    "ОМТ (Ж):левый яичник": React.createRef<HTMLDivElement>(),
+    "ОМТ (Ж):мочевой пузырь": React.createRef<HTMLDivElement>(),
+    "ОМТ (М):простата": React.createRef<HTMLDivElement>(),
+    "ОМТ (М):мочевой пузырь": React.createRef<HTMLDivElement>(),
+  };
+});
+
 
   const [isToolbarCollapsed, setIsToolbarCollapsed] = React.useState(false);
 
@@ -252,89 +260,99 @@ const Content: React.FC<ContentProps> = ({
   // Режим создания нового исследования
   if (isMultiSelectMode) {
     // какие секции есть для выбранных исследований
-    const availableSectionKeys: SectionKey[] = selectedStudies.flatMap(
-      (study): SectionKey[] => {
-        switch (study) {
-          case "ОБП":
-            return [
-              "ОБП:печень",
-              "ОБП:желчный",
-              "ОБП:поджелудочная",
-              "ОБП:селезёнка",
-            ];
-          case "Почки":
-            return [
-              "Почки:правая",
-              "Почки:левая",
-              "Почки:мочевой пузырь",
-            ];
-          case "ОМТ (Ж)":
-            return [
-              "ОМТ (Ж):матка",
-              "ОМТ (Ж):правый яичник",
-              "ОМТ (Ж):левый яичник",
-              "ОМТ (Ж):мочевой пузырь",
-            ];
-          default:
-            return [];
-        }
-      }
-    );
+const availableSectionKeys: SectionKey[] = selectedStudies.flatMap(
+  (study): SectionKey[] => {
+    switch (study) {
+      case "ОБП":
+        return [
+          "ОБП:печень",
+          "ОБП:желчный",
+          "ОБП:поджелудочная",
+          "ОБП:селезёнка",
+        ];
+      case "Почки":
+        return [
+          "Почки:правая",
+          "Почки:левая",
+          "Почки:мочевой пузырь",
+        ];
+      case "ОМТ (Ж)":
+        return [
+          "ОМТ (Ж):матка",
+          "ОМТ (Ж):правый яичник",
+          "ОМТ (Ж):левый яичник",
+          "ОМТ (Ж):мочевой пузырь",
+        ];
+      case "ОМТ (М)":
+        return [
+          "ОМТ (М):простата",
+          "ОМТ (М):мочевой пузырь",
+        ];
+      default:
+        return [];
+    }
+  }
+);
+
 
     return (
       <div className="content relative">
         {/* Правый вертикальный тулбар */}
-        {availableSectionKeys.length > 0 && (
-          <div className="fixed left-[25rem] top-[41rem] z-30">
-            <div
-              className={
-                "bg-slate-900/80 text-slate-50 shadow-lg transform origin-top-right " +
-                (isToolbarCollapsed
-                  ? "rounded-full w-10 h-10 flex items-center justify-center cursor-pointer scale-90"
-                  : "rounded-2xl p-2 max-h-[70vh] flex flex-col")
-              }
-              onClick={() => {
-                if (isToolbarCollapsed) {
-                  setIsToolbarCollapsed(false);
-                }
-              }}
-            >
-              {isToolbarCollapsed ? (
-                <span className="text-sm font-bold select-none">Н</span>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsToolbarCollapsed(true);
-                    }}
-                    className="flex items-center justify-between px-2 py-1 text-xs font-semibold hover:bg-white/10 rounded-lg mb-1"
-                  >
-                    <span>Навигация</span>
-                    <span>×</span>
-                  </button>
+{availableSectionKeys.length > 0 && (
+  <div className="fixed right-[7%] bottom-[4%] z-30 w-40">
+    <div
+      className={
+        "bg-white text-black shadow-lg transform origin-bottom rounded-2xl " +
+        (isToolbarCollapsed
+          ? "h-10 flex items-center justify-center cursor-pointer"
+          : "p-2 max-h-[70vh] flex flex-col")
+      }
+      onClick={() => {
+        if (isToolbarCollapsed) {
+          setIsToolbarCollapsed(false);
+        }
+      }}
+    >
+      {isToolbarCollapsed ? (
+        <span className="text-sm font-bold select-none">
+          Навигация
+        </span>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsToolbarCollapsed(true);
+            }}
+            className="flex items-center justify-between px-2 py-1 text-xs font-semibold hover:bg-black/5 rounded-lg mb-1"
+          >
+            <span>Навигация</span>
+            <span>×</span>
+          </button>
 
-                  <div className="mt-1 overflow-y-auto pr-1">
-                    {availableSectionKeys.map((key) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          scrollToSection(key);
-                        }}
-                        className="block w-full text-left px-2 py-1 mb-0.5 text-[11px] rounded-md hover:bg-white/15"
-                      >
-                        {ORG_LABELS[key]}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+          <div className="mt-1 overflow-y-auto pr-1">
+            {availableSectionKeys.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scrollToSection(key);
+                }}
+                className="block w-full text-left px-2 py-1 mb-0.5 text-[11px] rounded-md hover:bg-black/5"
+              >
+                {ORG_LABELS[key]}
+              </button>
+            ))}
           </div>
-        )}
+        </>
+      )}
+    </div>
+  </div>
+)}
+
+
 
         <div className="mt-6">
           <ResearchHeader
@@ -376,9 +394,16 @@ const Content: React.FC<ContentProps> = ({
                       onChange={(updated) => setStudyData("ОМТ (Ж)", updated)}
                       sectionRefs={sectionRefs}
                     />
+                  ) : study === "ОМТ (М)" ? (
+                    <OmtMale
+                      value={studiesData["ОМТ (М)"]}
+                      onChange={(updated) => setStudyData("ОМТ (М)", updated)}
+                      sectionRefs={sectionRefs}
+                    />
                   ) : (
                     renderStudyComponent(study)
                   )}
+
                 </div>
               ))}
             </div>

@@ -12,7 +12,17 @@ import type {
 } from "@/types";
 import { defaultOmtMaleState } from "@/types";
 
-export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
+type SectionKey = "ОМТ (М):простата" | "ОМТ (М):мочевой пузырь";
+
+interface OmtMaleWithSectionsProps extends OmtMaleProps {
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+}
+
+export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<OmtMaleProtocol>(
     value ?? defaultOmtMaleState
   );
@@ -52,12 +62,19 @@ export const OmtMale: React.FC<OmtMaleProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов малого таза
       </div>
 
-      <Prostate value={form.prostate ?? undefined} onChange={updateProstate} />
+      <div ref={sectionRefs?.["ОМТ (М):простата"]}>
+        <Prostate
+          value={form.prostate ?? undefined}
+          onChange={updateProstate}
+        />
+      </div>
 
-      <UrinaryBladder
-        value={form.urinaryBladder ?? undefined}
-        onChange={updateUrinaryBladder}
-      />
+      <div ref={sectionRefs?.["ОМТ (М):мочевой пузырь"]}>
+        <UrinaryBladder
+          value={form.urinaryBladder ?? undefined}
+          onChange={updateUrinaryBladder}
+        />
+      </div>
 
       <Conclusion
         value={{

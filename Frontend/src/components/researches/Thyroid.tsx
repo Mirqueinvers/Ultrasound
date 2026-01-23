@@ -10,7 +10,18 @@ import type {
 } from "@/types";
 import { defaultThyroidStudyState } from "@/types";
 
-export const Thyroid: React.FC<ThyroidStudyProps> = ({ value, onChange }) => {
+// ключ навигации для щитовидной
+type ThyroidSectionKey = "Щитовидная железа:основной блок";
+
+interface ThyroidWithSectionsProps extends ThyroidStudyProps {
+  sectionRefs?: Record<ThyroidSectionKey, React.RefObject<HTMLDivElement>>;
+}
+
+export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<ThyroidStudyProtocol>(
     value ?? defaultThyroidStudyState
   );
@@ -44,10 +55,12 @@ export const Thyroid: React.FC<ThyroidStudyProps> = ({ value, onChange }) => {
         Ультразвуковое исследование щитовидной железы
       </div>
 
-      <ThyroidCommon
-        value={form.thyroid ?? undefined}
-        onChange={updateThyroid}
-      />
+      <div ref={sectionRefs?.["Щитовидная железа:основной блок"]}>
+        <ThyroidCommon
+          value={form.thyroid ?? undefined}
+          onChange={updateThyroid}
+        />
+      </div>
 
       <Conclusion
         value={{
