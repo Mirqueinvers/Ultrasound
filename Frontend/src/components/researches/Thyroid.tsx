@@ -1,4 +1,4 @@
-// /components/organs/Thyroid.tsx
+// Frontend/src/components/organs/Thyroid.tsx
 import React, { useState } from "react";
 import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
@@ -9,12 +9,19 @@ import type {
   ThyroidProtocol,
 } from "@/types";
 import { defaultThyroidStudyState } from "@/types";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
-// ключ навигации для щитовидной
-type ThyroidSectionKey = "Щитовидная железа:основной блок";
+type ThyroidSectionKey = Extract<
+  SectionKey,
+  | "Щитовидная железа:правая доля"
+  | "Щитовидная железа:левая доля"
+>;
 
 interface ThyroidWithSectionsProps extends ThyroidStudyProps {
-  sectionRefs?: Record<ThyroidSectionKey, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<
+    ThyroidSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
 }
 
 export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
@@ -55,12 +62,11 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
         Ультразвуковое исследование щитовидной железы
       </div>
 
-      <div ref={sectionRefs?.["Щитовидная железа:основной блок"]}>
-        <ThyroidCommon
-          value={form.thyroid ?? undefined}
-          onChange={updateThyroid}
-        />
-      </div>
+      <ThyroidCommon
+        value={form.thyroid ?? undefined}
+        onChange={updateThyroid}
+        sectionRefs={sectionRefs}
+      />
 
       <Conclusion
         value={{

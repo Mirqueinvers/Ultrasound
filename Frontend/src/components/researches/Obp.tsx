@@ -19,11 +19,7 @@ import type {
 } from "@/types";
 import { defaultObpState } from "@/types";
 
-type SectionKey =
-  | "ОБП:печень"
-  | "ОБП:желчный"
-  | "ОБП:поджелудочная"
-  | "ОБП:селезёнка";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
 const FREE_FLUID_OPTIONS = [
   { value: "не определяется", label: "не определяется" },
@@ -31,7 +27,9 @@ const FREE_FLUID_OPTIONS = [
 ];
 
 interface ObpWithSectionsProps extends ObpProps {
-  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
+  // или уже сузить:
+  // sectionRefs?: Record<ObpSectionKey, React.RefObject<HTMLDivElement>>;
 }
 
 export const Obp: React.FC<ObpWithSectionsProps> = ({
@@ -108,7 +106,10 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
       </div>
 
       <div ref={sectionRefs?.["ОБП:селезёнка"]}>
-        <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
+        <Spleen
+          value={form.spleen ?? undefined}
+          onChange={updateSpleen}
+        />
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-lg px-6 py-4">

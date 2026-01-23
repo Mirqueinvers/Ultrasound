@@ -1,9 +1,11 @@
-// /components/organs/OmtMale.tsx
+// Frontend/src/components/organs/OmtMale.tsx
 import React, { useState } from "react";
+
 import Prostate from "@organs/Prostate";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
+
 import type {
   OmtMaleProtocol,
   OmtMaleProps,
@@ -12,10 +14,10 @@ import type {
 } from "@/types";
 import { defaultOmtMaleState } from "@/types";
 
-type SectionKey = "ОМТ (М):простата" | "ОМТ (М):мочевой пузырь";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
 interface OmtMaleWithSectionsProps extends OmtMaleProps {
-  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
 export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({

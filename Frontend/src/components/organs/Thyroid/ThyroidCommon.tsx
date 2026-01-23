@@ -6,15 +6,30 @@ import { useFormState, useFieldUpdate } from "@hooks";
 import { ThyroidLobe } from "./ThyroidLobe";
 import type { ThyroidProtocol, ThyroidLobeProtocol } from "@types";
 import { defaultThyroidState } from "@types";
+import type { SectionKey } from "@components/common/OrgNavigation";
+
+type ThyroidSectionKey = Extract<
+  SectionKey,
+  | "Щитовидная железа:правая доля"
+  | "Щитовидная железа:левая доля"
+>;
 
 interface ThyroidCommonProps {
   value?: ThyroidProtocol;
   onChange?: (value: ThyroidProtocol) => void;
+  sectionRefs?: Record<
+    ThyroidSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
 }
 
-export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
+export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useFormState<ThyroidProtocol>(
-    defaultThyroidState
+    value ?? defaultThyroidState
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
 
@@ -50,36 +65,45 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
     }
   }, [form.rightLobe.volume, form.leftLobe.volume]);
 
-  const handleLobeChange = (side: "right" | "left") => (
-    value: ThyroidLobeProtocol
-  ) => {
-    const draft = {
-      ...form,
-      [side === "right" ? "rightLobe" : "leftLobe"]: value,
+  const handleLobeChange =
+    (side: "right" | "left") => (value: ThyroidLobeProtocol) => {
+      const draft = {
+        ...form,
+        [side === "right" ? "rightLobe" : "leftLobe"]: value,
+      };
+      setForm(draft);
+      onChange?.(draft);
     };
-    setForm(draft);
-    onChange?.(draft);
-  };
 
   return (
     <div className="flex flex-col gap-6">
       {/* Правая доля */}
-      <ResearchSectionCard title="Правая доля" headerClassName="bg-sky-500">
-        <ThyroidLobe
-          side="right"
-          value={form.rightLobe}
-          onChange={handleLobeChange("right")}
-        />
-      </ResearchSectionCard>
+      <div ref={sectionRefs?.["Щитовидная железа:правая доля"]}>
+        <ResearchSectionCard
+          title="Правая доля"
+          headerClassName="bg-sky-500"
+        >
+          <ThyroidLobe
+            side="right"
+            value={form.rightLobe}
+            onChange={handleLobeChange("right")}
+          />
+        </ResearchSectionCard>
+      </div>
 
       {/* Левая доля */}
-      <ResearchSectionCard title="Левая доля" headerClassName="bg-sky-500">
-        <ThyroidLobe
-          side="left"
-          value={form.leftLobe}
-          onChange={handleLobeChange("left")}
-        />
-      </ResearchSectionCard>
+      <div ref={sectionRefs?.["Щитовидная железа:левая доля"]}>
+        <ResearchSectionCard
+          title="Левая доля"
+          headerClassName="bg-sky-500"
+        >
+          <ThyroidLobe
+            side="left"
+            value={form.leftLobe}
+            onChange={handleLobeChange("left")}
+          />
+        </ResearchSectionCard>
+      </div>
 
       {/* Перешеек */}
       <ResearchSectionCard title="Перешеек" headerClassName="bg-sky-500">
@@ -92,7 +116,9 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
               type="text"
               className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
               value={form.isthmusSize}
-              onChange={(e) => updateField("isthmusSize", e.target.value)}
+              onChange={(e) =>
+                updateField("isthmusSize", e.target.value)
+              }
               placeholder="Введите размер"
             />
           </div>
@@ -100,7 +126,10 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
       </ResearchSectionCard>
 
       {/* Общие показатели */}
-      <ResearchSectionCard title="Общие показатели" headerClassName="bg-sky-500">
+      <ResearchSectionCard
+        title="Общие показатели"
+        headerClassName="bg-sky-500"
+      >
         <Fieldset title="">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">
@@ -148,7 +177,10 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
               onChange={(val) => updateField("echostructure", val)}
               options={[
                 { value: "однородная", label: "однородная" },
-                { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+                {
+                  value: "диффузно-неоднородная",
+                  label: "диффузно-неоднородная",
+                },
               ]}
             />
 
@@ -157,8 +189,14 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
               value={form.contour}
               onChange={(val) => updateField("contour", val)}
               options={[
-                { value: "четкий ровный", label: "четкий ровный" },
-                { value: "четкий не ровный", label: "четкий не ровный" },
+                {
+                  value: "четкий ровный",
+                  label: "четкий ровный",
+                },
+                {
+                  value: "четкий не ровный",
+                  label: "четкий не ровный",
+                },
                 { value: "не четкий", label: "не четкий" },
               ]}
             />
@@ -169,7 +207,10 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
               onChange={(val) => updateField("symmetry", val)}
               options={[
                 { value: "сохранена", label: "сохранена" },
-                { value: "ассиметричная", label: "ассиметричная" },
+                {
+                  value: "ассиметричная",
+                  label: "ассиметричная",
+                },
               ]}
             />
 
@@ -179,9 +220,18 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({ onChange }) => {
               onChange={(val) => updateField("position", val)}
               options={[
                 { value: "обычное", label: "обычное" },
-                { value: "правосторонняя гемитиреоидэктомия", label: "правосторонняя гемитиреоидэктомия" },
-                { value: "левосторонняя гемитиреоидэктомия", label: "левосторонняя гемитиреоидэктомия" },
-                { value: "резекция щитовидной железы", label: "резекция щитовидной железы" },
+                {
+                  value: "правосторонняя гемитиреоидэктомия",
+                  label: "правосторонняя гемитиреоидэктомия",
+                },
+                {
+                  value: "левосторонняя гемитиреоидэктомия",
+                  label: "левосторонняя гемитиреоидэктомия",
+                },
+                {
+                  value: "резекция щитовидной железы",
+                  label: "резекция щитовидной железы",
+                },
               ]}
             />
           </div>

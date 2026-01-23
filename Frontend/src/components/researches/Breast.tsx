@@ -1,4 +1,4 @@
-// /components/organs/Breast.tsx
+// Frontend/src/components/researches/Breast.tsx
 import React, { useState } from "react";
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
@@ -9,8 +9,26 @@ import type {
   BreastProtocol,
 } from "@/types";
 import { defaultBreastStudyState } from "@/types";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
-export const Breast: React.FC<BreastStudyProps> = ({ value, onChange }) => {
+type BreastSectionKey = Extract<
+  SectionKey,
+  | "Молочные железы:правая железа"
+  | "Молочные железы:левая железа"
+>;
+
+interface BreastWithSectionsProps extends BreastStudyProps {
+  sectionRefs?: Record<
+    BreastSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
+}
+
+export const Breast: React.FC<BreastWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<BreastStudyProtocol>(
     value ?? defaultBreastStudyState
   );
@@ -44,7 +62,11 @@ export const Breast: React.FC<BreastStudyProps> = ({ value, onChange }) => {
         Ультразвуковое исследование молочных желез
       </div>
 
-      <BreastCommon value={form.breast ?? undefined} onChange={updateBreast} />
+      <BreastCommon
+        value={form.breast ?? undefined}
+        onChange={updateBreast}
+        sectionRefs={sectionRefs}
+      />
 
       <Conclusion
         value={{

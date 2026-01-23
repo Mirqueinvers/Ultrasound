@@ -1,23 +1,22 @@
-// /components/researches/Kidney.tsx
+// Frontend/src/components/researches/Kidney.tsx
 import React, { useState } from "react";
+
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
-import type { 
-  KidneyStudyProtocol, 
+
+import type {
+  KidneyStudyProtocol,
   KidneyStudyProps,
   KidneyProtocol as KidneyCommonProtocol,
-  UrinaryBladderProtocol
+  UrinaryBladderProtocol,
 } from "@/types";
 import { defaultKidneyStudyState } from "@/types";
 
-type SectionKey =
-  | "Почки:правая"
-  | "Почки:левая"
-  | "Почки:мочевой пузырь";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
 interface KidneyWithSectionsProps extends KidneyStudyProps {
-  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
 export const Kidney: React.FC<KidneyWithSectionsProps> = ({
@@ -41,13 +40,21 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     onChange?.(updated);
   };
 
-  const updateUrinaryBladder = (urinaryBladderData: UrinaryBladderProtocol) => {
-    const updated = { ...form, urinaryBladder: urinaryBladderData };
+  const updateUrinaryBladder = (
+    urinaryBladderData: UrinaryBladderProtocol
+  ) => {
+    const updated = {
+      ...form,
+      urinaryBladder: urinaryBladderData,
+    };
     setForm(updated);
     onChange?.(updated);
   };
 
-  const updateConclusion = (conclusionData: { conclusion: string; recommendations: string }) => {
+  const updateConclusion = (conclusionData: {
+    conclusion: string;
+    recommendations: string;
+  }) => {
     const updated = {
       ...form,
       conclusion: conclusionData.conclusion,

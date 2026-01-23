@@ -1,4 +1,4 @@
-// /components/organs/Scrotum.tsx
+// Frontend/src/components/organs/Scrotum.tsx
 import React, { useState } from "react";
 import Testis from "@organs/Testis";
 import { Conclusion } from "@common";
@@ -9,8 +9,26 @@ import type {
   TestisProtocol,
 } from "@/types";
 import { defaultScrotumState } from "@/types";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
-export const Scrotum: React.FC<ScrotumProps> = ({ value, onChange }) => {
+type ScrotumSectionKey = Extract<
+  SectionKey,
+  | "Органы мошонки:правое яичко"
+  | "Органы мошонки:левое яичко"
+>;
+
+interface ScrotumWithSectionsProps extends ScrotumProps {
+  sectionRefs?: Record<
+    ScrotumSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
+}
+
+export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useState<ScrotumProtocol>(
     value ?? defaultScrotumState
   );
@@ -44,7 +62,11 @@ export const Scrotum: React.FC<ScrotumProps> = ({ value, onChange }) => {
         Ультразвуковое исследование органов мошонки
       </div>
 
-      <Testis value={form.testis ?? undefined} onChange={updateTestis} />
+      <Testis
+        value={form.testis ?? undefined}
+        onChange={updateTestis}
+        sectionRefs={sectionRefs}
+      />
 
       <Conclusion
         value={{

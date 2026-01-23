@@ -1,3 +1,4 @@
+// Frontend/src/components/organs/Breast/BreastCommon.tsx
 import React, { useEffect } from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
@@ -5,13 +6,28 @@ import { BreastSide } from "./BreastSide";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import type { BreastProtocol, BreastSideProtocol } from "@types";
 import { defaultBreastState } from "@types";
+import type { SectionKey } from "@components/common/OrgNavigation";
+
+type BreastSectionKey = Extract<
+  SectionKey,
+  | "Молочные железы:правая железа"
+  | "Молочные железы:левая железа"
+>;
 
 interface BreastCommonProps {
   value?: BreastProtocol;
   onChange?: (value: BreastProtocol) => void;
+  sectionRefs?: Record<
+    BreastSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
 }
 
-export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) => {
+export const BreastCommon: React.FC<BreastCommonProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const initialValue: BreastProtocol = {
     ...defaultBreastState,
     ...(value || {}),
@@ -38,7 +54,9 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
     }
 
     const diffTime = today.getTime() - lastMenstruation.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(
+      diffTime / (1000 * 60 * 60 * 24)
+    );
     const cycleDay = (diffDays + 1).toString();
 
     if (form.cycleDay !== cycleDay) {
@@ -48,16 +66,15 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
     }
   }, [form.lastMenstruationDate]);
 
-  const handleBreastChange = (side: "right" | "left") => (
-    value: BreastSideProtocol
-  ) => {
-    const draft = {
-      ...form,
-      [side === "right" ? "rightBreast" : "leftBreast"]: value,
+  const handleBreastChange =
+    (side: "right" | "left") => (value: BreastSideProtocol) => {
+      const draft = {
+        ...form,
+        [side === "right" ? "rightBreast" : "leftBreast"]: value,
+      };
+      setForm(draft);
+      onChange?.(draft);
     };
-    setForm(draft);
-    onChange?.(draft);
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -69,7 +86,9 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
             type="date"
             className={inputClasses}
             value={form.lastMenstruationDate}
-            onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
+            onChange={(e) =>
+              updateField("lastMenstruationDate", e.target.value)
+            }
           />
         </label>
 
@@ -87,18 +106,22 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
       </Fieldset>
 
       {/* Правая молочная железа */}
-      <BreastSide
-        side="right"
-        value={form.rightBreast}
-        onChange={handleBreastChange("right")}
-      />
+      <div ref={sectionRefs?.["Молочные железы:правая железа"]}>
+        <BreastSide
+          side="right"
+          value={form.rightBreast}
+          onChange={handleBreastChange("right")}
+        />
+      </div>
 
       {/* Левая молочная железа */}
-      <BreastSide
-        side="left"
-        value={form.leftBreast}
-        onChange={handleBreastChange("left")}
-      />
+      <div ref={sectionRefs?.["Молочные железы:левая железа"]}>
+        <BreastSide
+          side="left"
+          value={form.leftBreast}
+          onChange={handleBreastChange("left")}
+        />
+      </div>
 
       {/* Структура молочных желез */}
       <Fieldset title="Структура молочных желез">
@@ -107,11 +130,26 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({ value, onChange }) =
           value={form.structure}
           onChange={(val) => updateField("structure", val)}
           options={[
-            { value: "преимущественно жировая ткань", label: "преимущественно жировая ткань" },
-            { value: "преимущественно железистая ткань", label: "преимущественно железистая ткань" },
-            { value: "жировая и железистая", label: "жировая и железистая" },
-            { value: "жировая и фиброзная", label: "жировая и фиброзная" },
-            { value: "жировая железистая и фиброзная", label: "жировая железистая и фиброзная" },
+            {
+              value: "преимущественно жировая ткань",
+              label: "преимущественно жировая ткань",
+            },
+            {
+              value: "преимущественно железистая ткань",
+              label: "преимущественно железистая ткань",
+            },
+            {
+              value: "жировая и железистая",
+              label: "жировая и железистая",
+            },
+            {
+              value: "жировая и фиброзная",
+              label: "жировая и фиброзная",
+            },
+            {
+              value: "жировая железистая и фиброзная",
+              label: "жировая железистая и фиброзная",
+            },
           ]}
         />
       </Fieldset>

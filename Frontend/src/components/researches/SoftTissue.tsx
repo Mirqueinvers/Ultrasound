@@ -2,13 +2,30 @@
 import React from "react";
 import { Conclusion } from "@common";
 import { Fieldset } from "@/UI";
-import { useFormState, useFieldUpdate } from "@hooks";
+import { useFormState } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { useResearch } from "@contexts";
 import type { SoftTissueProtocol, SoftTissueProps } from "@types";
 import { defaultSoftTissueState } from "@types";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
-export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
+type SoftTissueSectionKey = Extract<
+  SectionKey,
+  "Мягкие ткани:основной блок"
+>;
+
+interface SoftTissueWithSectionsProps extends SoftTissueProps {
+  sectionRefs?: Record<
+    SoftTissueSectionKey,
+    React.RefObject<HTMLDivElement | null>
+  >;
+}
+
+export const SoftTissue: React.FC<SoftTissueWithSectionsProps> = ({
+  value,
+  onChange,
+  sectionRefs,
+}) => {
   const [form, setForm] = useFormState<SoftTissueProtocol>(
     value ?? defaultSoftTissueState
   );
@@ -41,7 +58,10 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="text-2xl font-semibold text-center mt-2 mb-4">
+      <div
+        ref={sectionRefs?.["Мягкие ткани:основной блок"]}
+        className="text-2xl font-semibold text-center mt-2 mb-4"
+      >
         Ультразвуковое исследование мягких тканей
       </div>
 
@@ -53,7 +73,9 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
               type="text"
               className={inputClasses + " w-full"}
               value={form.researchArea}
-              onChange={(e) => updateField("researchArea", e.target.value)}
+              onChange={(e) =>
+                updateField("researchArea", e.target.value)
+              }
               placeholder="Укажите область исследования"
             />
           </label>
@@ -66,7 +88,9 @@ export const SoftTissue: React.FC<SoftTissueProps> = ({ value, onChange }) => {
               rows={6}
               className={inputClasses + " resize-y w-full"}
               value={form.description}
-              onChange={(e) => updateField("description", e.target.value)}
+              onChange={(e) =>
+                updateField("description", e.target.value)
+              }
               placeholder="Введите описание исследования"
             />
           </label>

@@ -1,10 +1,12 @@
-// /components/researches/OmtFemale.tsx
+// Frontend/src/components/researches/OmtFemale.tsx
 import React, { useState } from "react";
+
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
 import { Conclusion } from "@common";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { useResearch } from "@contexts";
+
 import type {
   OmtFemaleProtocol,
   OmtFemaleProps,
@@ -14,14 +16,10 @@ import type {
 } from "@/types";
 import { defaultOmtFemaleState } from "@/types";
 
-type SectionKey =
-  | "ОМТ (Ж):матка"
-  | "ОМТ (Ж):правый яичник"
-  | "ОМТ (Ж):левый яичник"
-  | "ОМТ (Ж):мочевой пузырь";
+import type { SectionKey } from "@components/common/OrgNavigation";
 
 interface OmtFemaleWithSectionsProps extends OmtFemaleProps {
-  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
 export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
@@ -53,7 +51,9 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     sync({ ...form, rightOvary: rightOvaryData });
   };
 
-  const updateUrinaryBladder = (urinaryBladderData: UrinaryBladderProtocol) => {
+  const updateUrinaryBladder = (
+    urinaryBladderData: UrinaryBladderProtocol
+  ) => {
     sync({ ...form, urinaryBladder: urinaryBladderData });
   };
 
