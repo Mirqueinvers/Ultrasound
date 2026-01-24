@@ -4,24 +4,12 @@ import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { BreastSide } from "./BreastSide";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import type { BreastProtocol, BreastSideProtocol } from "@types";
+import type { 
+  BreastProtocol, 
+  BreastCommonProps,
+  BreastSideProtocol 
+} from "@/types";
 import { defaultBreastState } from "@types";
-import type { SectionKey } from "@components/common/OrgNavigation";
-
-type BreastSectionKey = Extract<
-  SectionKey,
-  | "Молочные железы:правая железа"
-  | "Молочные железы:левая железа"
->;
-
-interface BreastCommonProps {
-  value?: BreastProtocol;
-  onChange?: (value: BreastProtocol) => void;
-  sectionRefs?: Record<
-    BreastSectionKey,
-    React.RefObject<HTMLDivElement | null>
-  >;
-}
 
 export const BreastCommon: React.FC<BreastCommonProps> = ({
   value,
@@ -158,4 +146,4 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({
 };
 
 export default BreastCommon;
-export type { BreastProtocol } from "@types";
+export type { BreastProtocol } from "@/types";

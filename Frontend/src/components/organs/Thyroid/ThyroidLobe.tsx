@@ -1,20 +1,12 @@
-// Frontend/src/components/researches/Thyroid/ThyroidLobe.tsx
+// src/components/organs/Thyroid/ThyroidLobe.tsx
 import React, { useEffect } from "react";
 import { normalRanges } from "@components/common";
 import { ButtonSelect, SizeRow, Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { ThyroidNodeComponent } from "./ThyroidNode";
-import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@types";
+import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@/types/organs/thyroid";
+import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid"; 
 import { Plus, Trash2 } from "lucide-react";
-
-const defaultLobeState: ThyroidLobeProtocol = {
-  length: "",
-  width: "",
-  depth: "",
-  volume: "",
-  volumeFormations: "не определяются",
-  nodesList: [],
-};
 
 export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   side,
@@ -22,7 +14,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   onChange,
 }) => {
   const initialValue: ThyroidLobeProtocol = {
-    ...defaultLobeState,
+    ...defaultThyroidLobeState, // ← ИЗ НОВОГО МЕСТА
     ...(value || {}),
     nodesList: value?.nodesList || [],
   };

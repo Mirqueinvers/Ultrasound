@@ -1,16 +1,9 @@
+// src/components/organs/Breast/BreastNode.tsx
 import React from "react";
 import { ButtonSelect } from "@/UI";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { Trash2, Plus } from "lucide-react";
-import type { BreastNode } from "@types";
-
-interface BreastNodeProps {
-  node: BreastNode;
-  onUpdate: (field: keyof BreastNode, value: string) => void;
-  onRemove: () => void;
-  onAdd?: () => void;
-  isLast?: boolean;
-}
+import type { BreastNodeProps } from "@types";
 
 export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
   node,

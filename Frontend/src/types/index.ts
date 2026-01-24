@@ -1,4 +1,5 @@
-// Frontend/src/types/index.ts
+// c:/Projects/Ultrasound/Frontend/src/types/index.ts
+
 export * from './organs/kidney';
 export * from './organs/gallbladder';
 export * from './organs/hepat';
@@ -24,3 +25,13 @@ export * from './studyes/scrotum';
 export * from './studyes/thyroidStudy';
 export * from './studyes/urinaryBladderStudy';
 export * from "./interface/patient";
+
+// ← Новые экспорты для BreastCommonProps и связанных типов
+export type { 
+  BreastProtocol, 
+  BreastCommonProps, 
+  BreastSideProtocol, 
+  BreastSideProps,
+  BreastSectionKey, 
+  BreastNodeProps,
+} from "./organs/breast";

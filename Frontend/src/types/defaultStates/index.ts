@@ -1,5 +1,4 @@
 // src/types/defaultStates/index.ts
-// Barrel export для удобства импорта
 
 // Органы
 export * from "./organs/kidney";

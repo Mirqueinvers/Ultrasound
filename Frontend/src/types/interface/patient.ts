@@ -1,4 +1,4 @@
-// src/types/interface/patient.ts
+// c:/Projects/Ultrasound/Frontend/src/types/interface/patient.ts
 
 export interface Patient {
   id: number;
@@ -25,4 +25,14 @@ export interface Research {
 export interface JournalEntry {
   patient: Patient;
   researches: Research[];
+}
+
+export interface PatientCardProps {
+  patient: Patient;
+  researches: Research[];
+  isExpanded: boolean;
+  onToggle: () => void;
+  onOpenProtocol: (researchId: number) => void;
+  formatPatientName: (p: Patient) => string;
+  formatDateRu: (value: string) => string;
 }

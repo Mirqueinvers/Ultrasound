@@ -1,14 +1,7 @@
-// Frontend/src/components/organs/Thyroid/ThyroidNode.tsx
+// src/components/organs/Thyroid/ThyroidNode.tsx
 import React from "react";
 import { ButtonSelect } from "@/UI";
-import { inputClasses, labelClasses } from "@utils/formClasses";
-import type { ThyroidNode } from "@types";
-
-interface ThyroidNodeProps {
-  node: ThyroidNode;
-  onUpdate: (field: keyof ThyroidNode, value: string | number) => void;
-  onRemove: () => void;
-}
+import type { ThyroidNodeProps } from "@/types/organs/thyroid";
 
 export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
   node,

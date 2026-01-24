@@ -34,7 +34,7 @@ interface ResearchBlock {
   element: React.ReactNode;
 }
 
-const PrintableProtocol = React.forwardRef<HTMLDivElement>((props, ref) => {
+const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
   const { studiesData } = useResearch();
   const { user } = useAuth();
 

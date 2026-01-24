@@ -1,15 +1,8 @@
+// src/components/organs/Gallbladder/GallbladderPolyps.tsx
 import React from "react";
-import type { Polyp } from "@types";
 import { SizeRow, ButtonSelect } from "@/UI";
 import { Plus, Trash2 } from "lucide-react";
-
-interface GallbladderPolypsProps {
-  items: Polyp[];
-  onAdd: () => void;
-  onUpdate: (index: number, field: keyof Polyp, value: string) => void;
-  onRemove: (index: number) => void;
-  addLabel?: string;
-}
+import type { GallbladderPolypsProps } from "@/types/organs/gallbladder";
 
 export const GallbladderPolyps: React.FC<GallbladderPolypsProps> = ({
   items,

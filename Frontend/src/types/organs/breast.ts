@@ -1,4 +1,6 @@
-// Frontend/src/types/breast.ts
+// c:/Projects/Ultrasound/Frontend/src/types/breast.ts
+
+import type { SectionKey } from "@/components/common/OrgNavigation";
 
 export interface BreastNode {
   number: number;
@@ -29,11 +31,31 @@ export interface BreastProtocol {
   cycleDay: string;
   rightBreast: BreastSideProtocol;
   leftBreast: BreastSideProtocol;
-  structure: string; // Добавлено новое поле
+  structure: string;
+}
+
+export type BreastSectionKey = Extract<
+  SectionKey,
+  | "Молочные железы:правая железа"
+  | "Молочные железы:левая железа"
+>;
+
+export interface BreastCommonProps {
+  value?: BreastProtocol;
+  onChange?: (value: BreastProtocol) => void;
+  sectionRefs?: Record<BreastSectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
 export interface BreastSideProps {
   side: "left" | "right";
   value?: BreastSideProtocol;
   onChange?: (value: BreastSideProtocol) => void;
+}
+
+export interface BreastNodeProps {  
+  node: BreastNode;
+  onUpdate: (field: keyof BreastNode, value: string) => void;
+  onRemove: () => void;
+  onAdd?: () => void;
+  isLast?: boolean;
 }

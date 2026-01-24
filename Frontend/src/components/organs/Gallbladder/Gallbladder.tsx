@@ -1,3 +1,4 @@
+// src/components/organs/Gallbladder/Gallbladder.tsx 
 import React from "react";
 import { normalRanges } from "@common";
 import { SizeRow, Fieldset, ButtonSelect } from "@/UI";
@@ -21,10 +22,9 @@ import { GallbladderConcretions } from "./GallbladderConcretions";
 import { GallbladderPolyps } from "./GallbladderPolyps";
 
 
-export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
+export const Gallbladder: React.FC<GallbladderProps> = ({ onChange }) => {
   const [form, setForm] = useFormState<GallbladderProtocol>(
     defaultGallbladderState,
-    value
   );
 
   const updateField = useFieldUpdate(form, setForm, onChange);

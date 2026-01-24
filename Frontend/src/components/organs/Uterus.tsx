@@ -28,10 +28,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   const status = form.uterusStatus || "обычное";
   const isNormal = status === "обычное";
   const isSubtotal = status === "субтотальная гистерэктомия";
-  const isTotalLike =
-    status === "тотальная гистерэктомия" ||
-    status === "гистеросальпингоовариэктомия" ||
-    status === "радикальная гистерэктомия";
 
   // Автоматический расчет дня цикла (только при обычной матке)
   useEffect(() => {

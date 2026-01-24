@@ -1,27 +1,15 @@
-// Frontend/src/components/organs/Thyroid/ThyroidCommon.tsx
+// src/components/organs/Thyroid/ThyroidCommon.tsx
 import React, { useEffect } from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { ThyroidLobe } from "./ThyroidLobe";
-import type { ThyroidProtocol, ThyroidLobeProtocol } from "@types";
+import type { 
+  ThyroidProtocol, 
+  ThyroidCommonProps, 
+  ThyroidLobeProtocol 
+} from "@/types/organs/thyroid";
 import { defaultThyroidState } from "@types";
-import type { SectionKey } from "@components/common/OrgNavigation";
-
-type ThyroidSectionKey = Extract<
-  SectionKey,
-  | "Щитовидная железа:правая доля"
-  | "Щитовидная железа:левая доля"
->;
-
-interface ThyroidCommonProps {
-  value?: ThyroidProtocol;
-  onChange?: (value: ThyroidProtocol) => void;
-  sectionRefs?: Record<
-    ThyroidSectionKey,
-    React.RefObject<HTMLDivElement | null>
-  >;
-}
 
 export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
   value,
@@ -242,4 +230,3 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
 };
 
 export default ThyroidCommon;
-export type { ThyroidProtocol } from "@types";

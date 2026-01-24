@@ -1,26 +1,10 @@
-// Frontend/src/components/organs/Kidney/Cysts.tsx
+// src/components/organs/Kidney/Cysts.tsx
 import React from "react";
-import type { Cyst } from "@types";
 import { SizeRow, ButtonSelect } from "@/UI";
 import { Plus, Trash2 } from "lucide-react";
+import type { KidneyCystsProps } from "@/types/organs/kidney";
 
-interface CystsProps {
-  items: Cyst[];
-  onAdd: () => void;
-  onUpdate: (index: number, field: keyof Cyst, value: string) => void;
-  onRemove: (index: number) => void;
-
-  // множественные кисты
-  multiple: boolean;
-  multipleSize: string;
-  onToggleMultiple: () => void;
-  onChangeMultipleSize: (value: string) => void;
-
-  // опциональный текст для кнопки добавления
-  addLabel?: string;
-}
-
-export const Cysts: React.FC<CystsProps> = ({
+export const Cysts: React.FC<KidneyCystsProps> = ({
   items,
   onAdd,
   onUpdate,
@@ -194,6 +178,5 @@ export const Cysts: React.FC<CystsProps> = ({
     </div>
   );
 };
-
 
 export default Cysts;

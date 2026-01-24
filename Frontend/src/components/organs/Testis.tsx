@@ -81,7 +81,7 @@ const TestisSide: React.FC<{
       depth > 0
     ) {
       const volume = (
-        (length * width * depth * 0.52) /
+        (length * width * depth * 0.523) /
         1000
       ).toFixed(2);
       if (volume !== form.volume) {

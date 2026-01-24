@@ -1,5 +1,4 @@
-// Frontend/src/types/kidney.ts
-
+// src/types/organs/kidney.ts (дополнить существующий файл)
 export interface Concrement {
   size: string;
   location: string;
@@ -49,4 +48,29 @@ export interface KidneyCommonProps {
   side: "left" | "right";
   value?: KidneyProtocol;
   onChange?: (value: KidneyProtocol) => void;
+}
+
+export interface KidneyConcrementsProps {
+  items: Concrement[];
+  onAdd: () => void;
+  onUpdate: (index: number, field: keyof Concrement, value: string) => void;
+  onRemove: (index: number) => void;
+  addLabel?: string;
+}
+
+// ← НОВЫЙ ТИП ДЛЯ CYSTS (более сложный)
+export interface KidneyCystsProps {
+  items: Cyst[];
+  onAdd: () => void;
+  onUpdate: (index: number, field: keyof Cyst, value: string) => void;
+  onRemove: (index: number) => void;
+  
+  // множественные кисты
+  multiple: boolean;
+  multipleSize: string;
+  onToggleMultiple: () => void;
+  onChangeMultipleSize: (value: string) => void;
+  
+  // опциональный текст для кнопки добавления
+  addLabel?: string;
 }

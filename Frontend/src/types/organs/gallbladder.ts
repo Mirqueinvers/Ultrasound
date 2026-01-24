@@ -1,12 +1,12 @@
-// Frontend/src/types/gallbladder.ts
+// src/types/organs/gallbladder.ts 
 export interface Concretion {
   size: string; // мм
-  position: string; // проксимальная треть / средняя треть / дистальная треть
+  position: string; // шейка / тело / дно
 }
 
 export interface Polyp {
   size: string; // мм
-  position: string; // проксимальная треть / средняя треть / дистальная треть
+  position: string; // шейка / тело / дно
   wall: string;
 }
 
@@ -40,4 +40,22 @@ export interface GallbladderProtocol {
 export interface GallbladderProps {
   value?: GallbladderProtocol;
   onChange?: (value: GallbladderProtocol) => void;
+}
+
+// Типы для списков
+export interface GallbladderConcretionsProps {
+  items: Concretion[];
+  onAdd: () => void;
+  onUpdate: (index: number, field: keyof Concretion, value: string) => void;
+  onRemove: (index: number) => void;
+  addLabel?: string;
+}
+
+// ← НОВЫЙ ТИП ДЛЯ POLYPS
+export interface GallbladderPolypsProps {
+  items: Polyp[];
+  onAdd: () => void;
+  onUpdate: (index: number, field: keyof Polyp, value: string) => void;
+  onRemove: (index: number) => void;
+  addLabel?: string;
 }

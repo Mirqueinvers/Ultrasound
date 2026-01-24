@@ -1,21 +1,10 @@
-// Frontend/src/components/organs/Kidney/Concrements.tsx
+// src/components/organs/Kidney/Concrements.tsx
 import React from "react";
-import type { Concrement } from "@types";
 import { ButtonSelect, SizeRow } from "@/UI";
-import { inputClasses, buttonClasses } from "@utils/formClasses";
 import { Plus, Trash2 } from "lucide-react";
+import type { KidneyConcrementsProps } from "@/types/organs/kidney";
 
-
-interface ConcrementsProps {
-  items: Concrement[];
-  onAdd: () => void;
-  onUpdate: (index: number, field: keyof Concrement, value: string) => void;
-  onRemove: (index: number) => void;
-  addLabel?: string;
-}
-
-
-export const Concrements: React.FC<ConcrementsProps> = ({
+export const Concrements: React.FC<KidneyConcrementsProps> = ({
   items,
   onAdd,
   onUpdate,
@@ -95,6 +84,5 @@ export const Concrements: React.FC<ConcrementsProps> = ({
     </div>
   );
 };
-
 
 export default Concrements;

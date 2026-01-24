@@ -1,17 +1,7 @@
-// src/components/patient/PatientCard.tsx
+// c:/Projects/Ultrasound/Frontend/src/components/common/PatientCard.tsx
 
 import React from "react";
-import type { Patient, Research } from "@/types";
-
-interface PatientCardProps {
-  patient: Patient;
-  researches: Research[];
-  isExpanded: boolean;
-  onToggle: () => void;
-  onOpenProtocol: (researchId: number) => void;
-  formatPatientName: (p: Patient) => string;
-  formatDateRu: (value: string) => string;
-}
+import type { PatientCardProps } from "@/types";
 
 export const PatientCard: React.FC<PatientCardProps> = ({
   patient,

@@ -1,16 +1,8 @@
-// Frontend/src/components/organs/Gallbladder/GallbladderConcretions.tsx
+// src/components/organs/Gallbladder/GallbladderConcretions.tsx
 import React from "react";
-import type { Concretion } from "@types";
 import { SizeRow, ButtonSelect } from "@/UI";
 import { Plus, Trash2 } from "lucide-react";
-
-interface GallbladderConcretionsProps {
-  items: Concretion[];
-  onAdd: () => void;
-  onUpdate: (index: number, field: keyof Concretion, value: string) => void;
-  onRemove: (index: number) => void;
-  addLabel?: string;
-}
+import type { GallbladderConcretionsProps } from "@/types/organs/gallbladder";
 
 export const GallbladderConcretions: React.FC<GallbladderConcretionsProps> = ({
   items,

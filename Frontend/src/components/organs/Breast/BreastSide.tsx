@@ -1,21 +1,13 @@
+// src/components/organs/Breast/BreastSide.tsx
 import React from "react";
-import { Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
+import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useListManager } from "@hooks";
 import { BreastNodeComponent } from "./BreastNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { Plus } from "lucide-react";
 import type { BreastSideProtocol, BreastNode, BreastSideProps } from "@types";
-
-const defaultSideState: BreastSideProtocol = {
-  skin: "не изменена",
-  skinComment: "",
-  nipples: "не изменены",
-  nipplesComment: "",
-  milkDucts: "не расширены",
-  volumeFormations: "не определяются",
-  nodesList: [],
-};
+import { defaultBreastSideState } from "@/types/defaultStates";
 
 export const BreastSide: React.FC<BreastSideProps> = ({
   side,
@@ -23,7 +15,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   onChange,
 }) => {
   const initialValue: BreastSideProtocol = {
-    ...defaultSideState,
+    ...defaultBreastSideState,
     ...(value || {}),
     nodesList: value?.nodesList || [],
   };
