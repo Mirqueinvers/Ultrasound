@@ -1,3 +1,8 @@
+// src/types/electron.d.ts
+
+// по Space-инструкциям
+const path = "src/types/electron.d.ts";
+
 export interface Patient {
   id: number;
   last_name: string;
@@ -8,18 +13,6 @@ export interface Patient {
   updated_at: string;
 }
 
-export interface Research {
-  id: number;
-  patient_id: number;
-  research_date: string;
-  payment_type: 'oms' | 'paid';
-  doctor_name?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-  studies?: ResearchStudy[];
-}
-
 export interface ResearchStudy {
   id: number;
   research_id: number;
@@ -27,6 +20,31 @@ export interface ResearchStudy {
   study_data: any;
   created_at: string;
 }
+
+export interface Research {
+  id: number;
+  patient_id: number;
+  research_date: string;
+  payment_type: "oms" | "paid";
+  doctor_name?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  studies?: ResearchStudy[];
+}
+
+// ░░ Protocol / SavedProtocol ░░
+
+export interface SavedProtocol {
+  researchId: number;
+  studies: { [studyType: string]: any };
+}
+
+export interface ProtocolAPI {
+  getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+}
+
+// ░░ Patient API ░░
 
 export interface PatientAPI {
   findOrCreate: (data: {
@@ -54,11 +72,13 @@ export interface PatientAPI {
   }>;
 }
 
+// ░░ Research API ░░
+
 export interface ResearchAPI {
   create: (data: {
     patientId: number;
     researchDate: string;
-    paymentType: 'oms' | 'paid';
+    paymentType: "oms" | "paid";
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -76,12 +96,16 @@ export interface ResearchAPI {
     studyId?: number;
   }>;
   getById: (id: number) => Promise<Research | null>;
-  getByPatientId: (patientId: number, limit?: number, offset?: number) => Promise<Research[]>;
+  getByPatientId: (
+    patientId: number,
+    limit?: number,
+    offset?: number
+  ) => Promise<Research[]>;
   getAll: (limit?: number, offset?: number) => Promise<Research[]>;
   update: (data: {
     id: number;
     researchDate?: string;
-    paymentType?: 'oms' | 'paid';
+    paymentType?: "oms" | "paid";
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -95,10 +119,13 @@ export interface ResearchAPI {
   search: (query: string, limit?: number) => Promise<Research[]>;
 }
 
+// ░░ Глобальное окно ░░
+
 declare global {
   interface Window {
     patientAPI: PatientAPI;
     researchAPI: ResearchAPI;
+    protocolAPI: ProtocolAPI;
     authAPI: any;
     windowAPI: any;
   }

@@ -5,17 +5,6 @@ import ProstatePrint from "@/components/print/organs/ProstatePrint";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 import type { OmtMaleProtocol } from "@types";
 
-const formatDateRu = (iso?: string | null): string | undefined => {
-  if (!iso) return undefined;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso || undefined;
-  return d.toLocaleDateString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
 export const OmtMalePrint: React.FC = () => {
   const { studiesData } = useResearch();
   const omtData = studiesData["ОМТ (М)"] as OmtMaleProtocol | undefined;

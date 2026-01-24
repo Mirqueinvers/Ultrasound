@@ -2,6 +2,7 @@
 import type { UrinaryBladderProtocol } from "../../organs/urinarybladder";
 
 export const defaultUrinaryBladderState: UrinaryBladderProtocol = {
+  residualStatus: "",
   length: "",
   width: "",
   depth: "",

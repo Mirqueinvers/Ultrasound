@@ -26,23 +26,22 @@
 
     /* Path aliases */
     "baseUrl": "./src",
-"paths": { 
-  "@/*": ["*"],
-  "@components/*": ["components/*"],
-  "@common": ["components/common/index.ts"],
-  "@common/*": ["components/common/*"],
-  "@contexts": ["contexts/index.ts"],
-  "@contexts/*": ["contexts/*"],
-  "@hooks": ["hooks/index.ts"],
-  "@hooks/*": ["hooks/*"],
-  "@layout/*": ["layout/*"],
-  "@utils/*": ["utils/*"],
-  "@assets/*": ["assets/*"],
-  "@organs/*": ["components/organs/*"],
-  "@types": ["types/index.ts"]
-}
-
-
+    "paths": { 
+      "@/*": ["*"],
+      "@components/*": ["components/*"],
+      "@common": ["components/common/index.ts"],
+      "@common/*": ["components/common/*"],
+      "@contexts": ["contexts/index.ts"],
+      "@contexts/*": ["contexts/*"],
+      "@hooks": ["hooks/index.ts"],
+      "@hooks/*": ["hooks/*"],
+      "@layout/*": ["layout/*"],
+      "@utils/*": ["utils/*"],
+      "@assets/*": ["assets/*"],
+      "@organs/*": ["components/organs/*"],
+      "@types": ["types/index.ts"],
+      "@types/*": ["types/*"]  // ← Добавьте для типов
+    }
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]  // ← Расширьте include
 }

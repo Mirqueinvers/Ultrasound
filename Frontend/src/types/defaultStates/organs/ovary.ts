@@ -2,6 +2,7 @@
 import type { OvaryProtocol } from "../../organs/ovary";
 
 export const defaultOvaryState: OvaryProtocol = {
+  position: "",
   length: "",
   width: "",
   thickness: "",

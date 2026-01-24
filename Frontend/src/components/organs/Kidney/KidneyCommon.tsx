@@ -124,11 +124,6 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
 
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
 
-  const showPositionTextarea =
-    form.position === "опущение" ||
-    form.position === "нефроптоз" ||
-    form.position === "нефрэктомия";
-
   const isNephrectomy = form.position === "нефрэктомия";
 
   return (

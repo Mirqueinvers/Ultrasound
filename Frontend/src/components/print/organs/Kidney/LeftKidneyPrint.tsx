@@ -1,6 +1,5 @@
 // /components/print/organs/kidney/LeftKidneyPrint.tsx
 import React from "react";
-import type { KidneyProtocol } from "@types";
 import { buildKidneyText } from "./kidneyHelpers";
 import type { KidneyPrintProps } from "./RightKidneyPrint";
 

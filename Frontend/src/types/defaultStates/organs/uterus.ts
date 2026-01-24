@@ -2,6 +2,7 @@
 import type { UterusProtocol } from "../../organs/uterus";
 
 export const defaultUterusState: UterusProtocol = {
+  uterusStatus: "",
   studyType: "",
   lastMenstruationDate: "",
   cycleDay: "",

@@ -2,6 +2,7 @@
 import type { ProstateProtocol } from "../../organs/prostate";
 
 export const defaultProstateState: ProstateProtocol = {
+  position: "",
   studyType: "",
   length: "",
   width: "",

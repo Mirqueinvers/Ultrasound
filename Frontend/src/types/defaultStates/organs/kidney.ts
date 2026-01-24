@@ -2,6 +2,8 @@
 import type { KidneyProtocol } from "../../organs/kidney";
 
 export const defaultKidneyState: KidneyProtocol = {
+  position: "",  
+  positionText: "",  
   length: "",
   width: "",
   thickness: "",

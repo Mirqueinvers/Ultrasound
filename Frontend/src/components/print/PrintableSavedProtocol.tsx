@@ -34,25 +34,6 @@ interface ResearchBlock {
   element: React.ReactNode;
 }
 
-interface SavedProtocol {
-  researchId: number;
-  studies: { [studyType: string]: any };
-}
-
-declare global {
-  interface Window {
-    protocolAPI: {
-      getByResearchId: (id: number) => Promise<SavedProtocol | null>;
-    };
-    researchAPI: {
-      getById: (id: number) => Promise<any>;
-    };
-    patientAPI: {
-      getById: (id: number) => Promise<any>;
-    };
-  }
-}
-
 type PrintableSavedProtocolProps = {
   researchId: number;
 };
@@ -75,7 +56,8 @@ const PrintableSavedProtocol = React.forwardRef<
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
   const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
 
-  const [protocolDoctorName, setProtocolDoctorName] = React.useState<string>("");
+  const [protocolDoctorName, setProtocolDoctorName] =
+    React.useState<string>("");
 
   // 1. Загружаем сохранённые блоки протокола и кладём их в контекст
   React.useEffect(() => {
@@ -162,18 +144,18 @@ const PrintableSavedProtocol = React.forwardRef<
       ? "\n"
       : "") +
     (bladderStudyData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion) &&
-      omtFemaleData?.conclusion)
+    omtFemaleData?.conclusion
       ? "\n"
       : "") +
     (omtFemaleData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion) &&
-      omtMaleData?.conclusion)
+    omtMaleData?.conclusion
       ? "\n"
       : "") +
     (omtMaleData?.conclusion || "") +
@@ -182,32 +164,32 @@ const PrintableSavedProtocol = React.forwardRef<
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion ||
       omtMaleData?.conclusion) &&
-      thyroidData?.conclusion
+    thyroidData?.conclusion
       ? "\n"
       : "") +
     (thyroidData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion ||
       omtMaleData?.conclusion ||
       thyroidData?.conclusion) &&
-      breastData?.conclusion)
+    breastData?.conclusion
       ? "\n"
       : "") +
     (breastData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion ||
       omtMaleData?.conclusion ||
       thyroidData?.conclusion ||
       breastData?.conclusion) &&
-      scrotumData?.conclusion)
+    scrotumData?.conclusion
       ? "\n"
       : "") +
     (scrotumData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion ||
@@ -215,11 +197,11 @@ const PrintableSavedProtocol = React.forwardRef<
       thyroidData?.conclusion ||
       breastData?.conclusion ||
       scrotumData?.conclusion) &&
-      childDispensaryData?.conclusion)
+    childDispensaryData?.conclusion
       ? "\n"
       : "") +
     (childDispensaryData?.conclusion || "") +
-    (((obpData?.conclusion ||
+    ((obpData?.conclusion ||
       kidneysData?.conclusion ||
       bladderStudyData?.conclusion ||
       omtFemaleData?.conclusion ||
@@ -228,7 +210,7 @@ const PrintableSavedProtocol = React.forwardRef<
       breastData?.conclusion ||
       scrotumData?.conclusion ||
       childDispensaryData?.conclusion) &&
-      softTissueData?.conclusion)
+    softTissueData?.conclusion
       ? "\n"
       : "") +
     (softTissueData?.conclusion || "");
@@ -242,18 +224,18 @@ const PrintableSavedProtocol = React.forwardRef<
       ? "\n"
       : "") +
     (bladderStudyData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations) &&
-      omtFemaleData?.recommendations)
+    omtFemaleData?.recommendations
       ? "\n"
       : "") +
     (omtFemaleData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations) &&
-      omtMaleData?.recommendations)
+    omtMaleData?.recommendations
       ? "\n"
       : "") +
     (omtMaleData?.recommendations || "") +
@@ -262,32 +244,32 @@ const PrintableSavedProtocol = React.forwardRef<
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations ||
       omtMaleData?.recommendations) &&
-      thyroidData?.recommendations
+    thyroidData?.recommendations
       ? "\n"
       : "") +
     (thyroidData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations ||
       omtMaleData?.recommendations ||
       thyroidData?.recommendations) &&
-      breastData?.recommendations)
+    breastData?.recommendations
       ? "\n"
       : "") +
     (breastData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations ||
       omtMaleData?.recommendations ||
       thyroidData?.recommendations ||
       breastData?.recommendations) &&
-      scrotumData?.recommendations)
+    scrotumData?.recommendations
       ? "\n"
       : "") +
     (scrotumData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations ||
@@ -295,11 +277,11 @@ const PrintableSavedProtocol = React.forwardRef<
       thyroidData?.recommendations ||
       breastData?.recommendations ||
       scrotumData?.recommendations) &&
-      childDispensaryData?.recommendations)
+    childDispensaryData?.recommendations
       ? "\n"
       : "") +
     (childDispensaryData?.recommendations || "") +
-    (((obpData?.recommendations ||
+    ((obpData?.recommendations ||
       kidneysData?.recommendations ||
       bladderStudyData?.recommendations ||
       omtFemaleData?.recommendations ||
@@ -308,7 +290,7 @@ const PrintableSavedProtocol = React.forwardRef<
       breastData?.recommendations ||
       scrotumData?.recommendations ||
       childDispensaryData?.recommendations) &&
-      softTissueData?.recommendations)
+    softTissueData?.recommendations
       ? "\n"
       : "") +
     (softTissueData?.recommendations || "");
@@ -362,14 +344,14 @@ const PrintableSavedProtocol = React.forwardRef<
       scrotumData,
       childDispensaryData,
       softTissueData,
-    ],
+    ]
   );
 
   React.useLayoutEffect(() => {
     if (!measureContainerRef.current) return;
 
     const children = Array.from(
-      measureContainerRef.current.children,
+      measureContainerRef.current.children
     ) as HTMLElement[];
 
     const heightLimit = 1120;

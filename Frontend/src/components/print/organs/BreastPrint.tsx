@@ -17,7 +17,7 @@ const formatDate = (isoDate?: string): string => {
   return `${day}.${month}.${year}`;
 };
 
-const formatSideHeader = (label: string, side: BreastSideProtocol): string => {
+const formatSideHeader = (side: BreastSideProtocol): string => {
   const parts: string[] = [];
 
   // Кожа
@@ -155,7 +155,7 @@ const renderSideBlock = (
 ) => {
   if (!side) return null;
 
-  const header = formatSideHeader(label, side);
+  const header = formatSideHeader(side);
   const intro = formatSideNodesIntro(label, side);
   const nodesList = formatSideNodesList(side);
 
