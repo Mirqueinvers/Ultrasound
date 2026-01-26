@@ -7,6 +7,8 @@ interface ResearchActionsProps {
   onCancel: () => void;
   onPrint: () => void;
   onSave: () => void;
+  onStartNewResearch: () => void;
+  isPrintEnabled: boolean; // ✅ новый проп
 }
 
 export const ResearchActions: React.FC<ResearchActionsProps> = ({
@@ -15,6 +17,8 @@ export const ResearchActions: React.FC<ResearchActionsProps> = ({
   onCancel,
   onPrint,
   onSave,
+  onStartNewResearch,
+  isPrintEnabled,
 }) => (
   <div className="mt-8 ml-10 flex flex-wrap items-center gap-3">
     {hasSelectedStudies && (
@@ -33,10 +37,18 @@ export const ResearchActions: React.FC<ResearchActionsProps> = ({
 
         <button
           onClick={onPrint}
-          disabled={isSaving}
+          disabled={isSaving || !isPrintEnabled} // ✅ активна только после успешного сохранения
           className="inline-flex items-center justify-center rounded-full bg-indigo-50 px-5 py-2 text-sm font-medium text-indigo-700 shadow-sm ring-1 ring-indigo-100 transition-all hover:bg-indigo-100 hover:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Печать
+        </button>
+
+        <button
+          onClick={onStartNewResearch}
+          disabled={isSaving}
+          className="inline-flex items-center justify-center rounded-full bg-slate-100 px-5 py-2 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200 transition-all hover:bg-slate-200 hover:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Начать новое исследование
         </button>
       </>
     )}

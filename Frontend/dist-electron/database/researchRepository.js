@@ -5,10 +5,11 @@ class ResearchRepository {
     constructor(db) {
         this.db = db;
     }
-    createResearch(patientId, researchDate, paymentType, doctorName, notes) {
+    createResearch(patientId, researchDate, paymentType, organization, // добавлено из профиля пользователя
+    doctorName, notes) {
         try {
-            const insert = this.db.prepare("INSERT INTO researches (patient_id, research_date, payment_type, doctor_name, notes) VALUES (?, ?, ?, ?, ?)");
-            const result = insert.run(patientId, researchDate, paymentType, doctorName || null, notes || null);
+            const insert = this.db.prepare("INSERT INTO researches (patient_id, research_date, payment_type, organization, doctor_name, notes) VALUES (?, ?, ?, ?, ?, ?)");
+            const result = insert.run(patientId, researchDate, paymentType, organization, doctorName || null, notes || null);
             return {
                 success: true,
                 message: "Исследование создано",
@@ -105,7 +106,8 @@ class ResearchRepository {
             };
         });
     }
-    updateResearch(id, researchDate, paymentType, doctorName, notes) {
+    updateResearch(id, researchDate, paymentType, organization, // добавлено
+    doctorName, notes) {
         try {
             const fields = [];
             const values = [];
@@ -116,6 +118,10 @@ class ResearchRepository {
             if (paymentType !== undefined) {
                 fields.push("payment_type = ?");
                 values.push(paymentType);
+            }
+            if (organization !== undefined) {
+                fields.push("organization = ?");
+                values.push(organization);
             }
             if (doctorName !== undefined) {
                 fields.push("doctor_name = ?");
@@ -165,7 +171,6 @@ class ResearchRepository {
         }
     }
     // Поиск исследований с поддержкой кода вида "кдю12101990"
-    // ultrasound/frontend/electron/database/researchRepository.ts
     searchResearches(query, limit = 50) {
         const raw = query.trim().toLowerCase();
         // кодовый вариант: кдю12101990
@@ -175,17 +180,17 @@ class ResearchRepository {
             .replace(/[^0-9а-я]/g, "");
         const researches = this.db
             .prepare(`
-      SELECT
-        r.*,
-        p.last_name,
-        p.first_name,
-        p.middle_name,
-        p.date_of_birth
-      FROM researches r
-      JOIN patients p ON r.patient_id = p.id
-      ORDER BY r.research_date DESC, r.created_at DESC
-      LIMIT ?
-    `)
+        SELECT
+          r.*,
+          p.last_name,
+          p.first_name,
+          p.middle_name,
+          p.date_of_birth
+        FROM researches r
+        JOIN patients p ON r.patient_id = p.id
+        ORDER BY r.research_date DESC, r.created_at DESC
+        LIMIT ?
+      `)
             .all(limit);
         const withStudies = researches.map((research) => {
             const studies = this.db

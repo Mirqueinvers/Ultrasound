@@ -50,7 +50,9 @@ const PrintableSavedProtocol = React.forwardRef<
     setPatientFullName,
     setPatientDateOfBirth,
     setResearchDate,
+    setOrganization,              // <-- добавляем
   } = useResearch();
+
 
   const [loading, setLoading] = React.useState(true);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
@@ -93,28 +95,30 @@ const PrintableSavedProtocol = React.forwardRef<
   React.useEffect(() => {
     let cancelled = false;
 
-    const loadMeta = async () => {
-      const research = await window.researchAPI.getById(researchId);
-      if (cancelled || !research) return;
+  const loadMeta = async () => {
+    const research = await window.researchAPI.getById(researchId);
+    if (cancelled || !research) return;
 
-      const patient = await window.patientAPI.getById(research.patient_id);
-      if (cancelled || !patient) return;
+    const patient = await window.patientAPI.getById(research.patient_id);
+    if (cancelled || !patient) return;
 
-      const fullName = `${patient.last_name} ${patient.first_name}${
-        patient.middle_name ? " " + patient.middle_name : ""
-      }`;
+    const fullName = `${patient.last_name} ${patient.first_name}${
+      patient.middle_name ? " " + patient.middle_name : ""
+    }`;
 
-      setPatientFullName(fullName);
-      setPatientDateOfBirth(patient.date_of_birth);
+    setPatientFullName(fullName);
+    setPatientDateOfBirth(patient.date_of_birth);
 
-      const dateStr =
-        typeof research.research_date === "string"
-          ? research.research_date.slice(0, 10)
-          : "";
-      setResearchDate(dateStr);
+    const dateStr =
+      typeof research.research_date === "string"
+        ? research.research_date.slice(0, 10)
+        : "";
+    setResearchDate(dateStr);
 
-      setProtocolDoctorName(research.doctor_name || "");
-    };
+    setProtocolDoctorName(research.doctor_name || "");
+
+    setOrganization(research.organization || ""); // <-- вот это главное
+  };
 
     loadMeta();
 

@@ -1,4 +1,3 @@
-// src/types/window.d.ts
 export interface AuthAPI {
   register: (data: { 
     username: string; 
@@ -42,23 +41,30 @@ export interface WindowAPI {
   focus: () => void;
 }
 
-// Добавьте эти интерфейсы:
 export interface PatientAPI {
   getById: (id: number) => Promise<any>;
   findOrCreate: (patientData: {
-    // Уточните типы по данным из useSaveResearch.ts (строка 83)
-    name?: string;
-    birthDate?: string;
-    // добавьте другие поля
+    lastName: string;
+    firstName: string;
+    middleName: string | null;
+    dateOfBirth: string;
   }) => Promise<any>;
 }
 
 export interface ResearchAPI {
   getById: (id: number) => Promise<any>;
-  create: (researchData: any) => Promise<any>;
+  create: (researchData: {
+    patientId: number;
+    researchDate: string;
+    paymentType: "oms" | "paid";
+    organization?: string | null;
+    doctorName?: string;
+    notes?: string;
+  }) => Promise<any>;
   addStudy: (studyData: {
     researchId: number;
-    // уточните поля по строке 122
+    studyType: string;
+    studyData: object;
   }) => Promise<any>;
 }
 
@@ -66,8 +72,8 @@ declare global {
   interface Window {
     authAPI: AuthAPI;
     windowAPI: WindowAPI;
-    patientAPI: PatientAPI;   // Добавьте
-    researchAPI: ResearchAPI; // Добавьте
+    patientAPI: PatientAPI;
+    researchAPI: ResearchAPI;
   }
 }
 

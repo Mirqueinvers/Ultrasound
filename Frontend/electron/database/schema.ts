@@ -36,6 +36,7 @@ export const CREATE_RESEARCHES_TABLE = `
   )
 `;
 
+
 export const CREATE_RESEARCH_STUDIES_TABLE = `
   CREATE TABLE IF NOT EXISTS research_studies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,6 +95,7 @@ export interface Research {
   patient_id: number;
   research_date: string;
   payment_type: 'oms' | 'paid';
+  organization?: string;
   doctor_name?: string;
   notes?: string;
   created_at: string;

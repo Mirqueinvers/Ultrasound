@@ -15,6 +15,7 @@
   "build": {
     "appId": "com.ultrasound.app",
     "productName": "Ultrasound",
+    "icon": "build/us-icon",
     "directories": {
       "output": "release"
     },

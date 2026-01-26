@@ -1,4 +1,3 @@
-// src/contexts/ResearchContext.tsx
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -10,11 +9,14 @@ interface ResearchContextType {
   researchDate: string;
   setResearchDate: (date: string) => void;
 
+  organization: string;                  // <-- новое
+  setOrganization: (org: string) => void; // <-- новое
+
   studiesData: { [studyType: string]: any };
   setStudyData: (studyType: string, data: any) => void;
   clearStudiesData: () => void;
 
-  clearHeaderData: () => void; // <-- новое
+  clearHeaderData: () => void;
 }
 
 const ResearchContext = createContext<ResearchContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [patientFullName, setPatientFullName] = useState('');
   const [patientDateOfBirth, setPatientDateOfBirth] = useState('');
   const [researchDate, setResearchDate] = useState('');
+  const [organization, setOrganization] = useState(''); // <-- новое
   const [studiesData, setStudiesDataState] = useState<{ [studyType: string]: any }>({});
 
   const setStudyData = (studyType: string, data: any) => {
@@ -40,6 +43,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     setPatientFullName('');
     setPatientDateOfBirth('');
     setResearchDate('');
+    setOrganization('');                // <-- сбрасываем тоже
   };
 
   return (
@@ -51,6 +55,8 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
         setPatientDateOfBirth,
         researchDate,
         setResearchDate,
+        organization,
+        setOrganization,
         studiesData,
         setStudyData,
         clearStudiesData,

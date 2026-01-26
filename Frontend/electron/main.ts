@@ -1,5 +1,5 @@
 // ultrasound/frontend/electron/main.ts
-import { app, BrowserWindow, nativeImage } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "path";
 import { setupAuthHandlers } from "./ipc-handlers";
 import { setupProtocolHandlers } from "./ipc/protocolHandlers";
@@ -8,10 +8,11 @@ import { DatabaseManager } from "./database/database";
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
-  const iconPath = path.join(__dirname, "..", "src", "assets", "us-icon.png");
-  const iconImage = nativeImage.createFromPath(iconPath);
-
   const dbManager = DatabaseManager.getInstance();
+
+  // Иконка: всегда относительный путь к build/us-icon.png
+  const iconPath = path.join(__dirname, "..", "build", "us-icon.png");
+  console.log("ICON PATH:", iconPath);
 
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -23,7 +24,7 @@ function createWindow() {
     autoHideMenuBar: true,
     backgroundColor: "#f8fafc",
     show: false,
-    icon: iconImage,
+    icon: iconPath, // ← строка, а не nativeImage
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -57,5 +58,4 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
-}
-);
+});

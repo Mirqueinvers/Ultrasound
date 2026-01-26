@@ -1,4 +1,3 @@
-// Frontend/src/hooks/useSaveResearch.ts
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -8,8 +7,6 @@ interface UseSaveResearchParams {
   researchDate: string;
   selectedStudies: string[];
   studiesData: Record<string, unknown>;
-  clearStudiesData: () => void;
-  onCancelNewResearch: () => void;
   onSaved?: (researchId: number) => void;
 }
 
@@ -24,21 +21,23 @@ export const useSaveResearch = ({
   researchDate,
   selectedStudies,
   studiesData,
-  clearStudiesData,
-  onCancelNewResearch,
   onSaved,
 }: UseSaveResearchParams) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<SaveMessage | null>(null);
+  const [isSavedSuccessfully, setIsSavedSuccessfully] = useState(false);
 
-  const { user } = useAuth(); // ← берём текущего пользователя
-  const doctorName = user?.name || ""; // имя врача для сохранения
+  const { user } = useAuth();
+  const doctorName = user?.name || "";
+  const organization = user?.organization || null;
 
   const saveResearch = async (paymentType: "oms" | "paid") => {
     const fullNameParts = patientFullName.split(" ");
     const lastName = fullNameParts[0] || "";
     const firstName = fullNameParts[1] || "";
     const middleName = fullNameParts[2] || "";
+
+    setIsSavedSuccessfully(false);
 
     if (!lastName.trim()) {
       setSaveMessage({
@@ -99,9 +98,10 @@ export const useSaveResearch = ({
 
       const researchResult = await window.researchAPI.create({
         patientId,
-        researchDate: researchDate,
+        researchDate,
         paymentType,
-        doctorName: doctorName || undefined, // ← передаём врача в IPC
+        organization,
+        doctorName: doctorName || undefined,
       });
 
       if (!researchResult.success || !researchResult.researchId) {
@@ -138,13 +138,9 @@ export const useSaveResearch = ({
         text: `Исследование успешно сохранено (ID: ${researchId})`,
       });
 
-      onSaved?.(researchId);
+      setIsSavedSuccessfully(true);
 
-      setTimeout(() => {
-        setSaveMessage(null);
-        clearStudiesData();
-        onCancelNewResearch();
-      }, 3000);
+      onSaved?.(researchId);
     } catch (error) {
       console.error("Error saving research:", error);
       setSaveMessage({
@@ -161,5 +157,6 @@ export const useSaveResearch = ({
     saveMessage,
     saveResearch,
     setSaveMessage,
+    isSavedSuccessfully,
   };
 };

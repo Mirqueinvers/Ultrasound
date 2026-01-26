@@ -59,11 +59,13 @@ export interface Research {
   patient_id: number;
   research_date: string;
   payment_type: "oms" | "paid";
+  organization?: string | null;  // <-- добавили
   doctor_name?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
 }
+
 
 export interface ResearchStudy {
   id: number;
@@ -111,6 +113,7 @@ export interface ResearchAPI {
     patientId: number;
     researchDate: string;
     paymentType: "oms" | "paid";
+    organization?: string | null;  // <-- добавили
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -138,6 +141,7 @@ export interface ResearchAPI {
     id: number;
     researchDate?: string;
     paymentType?: "oms" | "paid";
+    organization?: string | null;  // <-- и здесь, если нужно редактирование
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -150,6 +154,7 @@ export interface ResearchAPI {
   }>;
   search: (query: string, limit?: number) => Promise<any>;
 }
+
 
 export interface JournalAPI {
   getByDate: (date: string) => Promise<JournalEntry[]>;

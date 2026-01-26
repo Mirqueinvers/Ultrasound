@@ -29,7 +29,7 @@ import {
   ResearchActions,
   SaveMessageAlert,
 } from "@/UI";
-import { SearchSection } from '@/components/search/SearchSection';
+import { SearchSection } from "@/components/search/SearchSection";
 
 interface ContentProps {
   selectedStudy: string;
@@ -57,7 +57,6 @@ const Content: React.FC<ContentProps> = ({
     clearHeaderData,
   } = useResearch();
 
-
   const [paymentType, setPaymentType] =
     React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] =
@@ -73,17 +72,14 @@ const Content: React.FC<ContentProps> = ({
     isSaving,
     saveMessage,
     saveResearch,
+    isSavedSuccessfully,
+    setSaveMessage,
   } = useSaveResearch({
     patientFullName,
     patientDateOfBirth,
     researchDate,
     selectedStudies,
     studiesData,
-    clearStudiesData,
-    onCancelNewResearch: () => {
-      setIsCreating(false);
-      onCancelNewResearch();
-    },
   });
 
   const handleSaveResearch = () => {
@@ -91,17 +87,23 @@ const Content: React.FC<ContentProps> = ({
   };
 
   const handleStartClick = () => {
-    clearHeaderData();   
-    clearStudiesData();   
+    clearHeaderData();
+    clearStudiesData();
     setIsCreating(true);
     onStartNewResearch();
   };
-
 
   const handleCancel = () => {
     setIsCreating(false);
     clearStudiesData();
     onCancelNewResearch();
+  };
+
+  const handleStartNewResearchFromActions = () => {
+    clearHeaderData();
+    clearStudiesData();
+    setIsCreating(true);
+    onStartNewResearch();
   };
 
   const scrollToSection = (key: SectionKey) => {
@@ -125,7 +127,6 @@ const Content: React.FC<ContentProps> = ({
   if (activeSection === "search") {
     return <SearchSection />;
   }
-
 
   // Тестовый режим
   if (activeSection === "test") {
@@ -169,7 +170,10 @@ const Content: React.FC<ContentProps> = ({
           setPaymentType={setPaymentType}
         />
 
-        <SaveMessageAlert message={saveMessage} />
+        <SaveMessageAlert
+          message={saveMessage}
+          onClose={() => setSaveMessage(null)}
+        />
 
         <div className="mt-6 space-y-6">
           {selectedStudies.map((study, index) => (
@@ -271,6 +275,8 @@ const Content: React.FC<ContentProps> = ({
           onCancel={handleCancel}
           onPrint={() => setIsPrintModalOpen(true)}
           onSave={handleSaveResearch}
+          onStartNewResearch={handleStartNewResearchFromActions}
+          isPrintEnabled={isSavedSuccessfully}
         />
       </div>
 

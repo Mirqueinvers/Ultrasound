@@ -1,8 +1,5 @@
 // src/types/electron.d.ts
 
-// по Space-инструкциям
-const path = "src/types/electron.d.ts";
-
 export interface Patient {
   id: number;
   last_name: string;
@@ -26,6 +23,7 @@ export interface Research {
   patient_id: number;
   research_date: string;
   payment_type: "oms" | "paid";
+  organization?: string | null;  // <-- добавили
   doctor_name?: string;
   notes?: string;
   created_at: string;
@@ -79,6 +77,7 @@ export interface ResearchAPI {
     patientId: number;
     researchDate: string;
     paymentType: "oms" | "paid";
+    organization?: string | null;  // <-- добавили
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -106,6 +105,7 @@ export interface ResearchAPI {
     id: number;
     researchDate?: string;
     paymentType?: "oms" | "paid";
+    organization?: string | null;  // <-- и здесь
     doctorName?: string;
     notes?: string;
   }) => Promise<{

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupAuthHandlers = setupAuthHandlers;
-// ultrasound/frontend/electron/ipcAuthAndDb.ts (как у тебя называется)
+// ultrasound/frontend/electron/ipc-handlers.ts
 const electron_1 = require("electron");
 const database_1 = require("./database/database");
 function setupAuthHandlers(mainWindow) {
@@ -39,8 +39,8 @@ function setupAuthHandlers(mainWindow) {
         return db.patients.updatePatient(id, lastName, firstName, middleName, dateOfBirth);
     });
     // ==================== RESEARCH HANDLERS ====================
-    electron_1.ipcMain.handle("research:create", async (_, { patientId, researchDate, paymentType, doctorName, notes, }) => {
-        return db.researches.createResearch(patientId, researchDate, paymentType, doctorName, notes);
+    electron_1.ipcMain.handle("research:create", async (_, { patientId, researchDate, paymentType, organization, doctorName, notes, }) => {
+        return db.researches.createResearch(patientId, researchDate, paymentType, organization ?? null, doctorName, notes);
     });
     electron_1.ipcMain.handle("research:addStudy", async (_, { researchId, studyType, studyData, }) => {
         return db.researches.addStudyToResearch(researchId, studyType, studyData);
@@ -54,8 +54,8 @@ function setupAuthHandlers(mainWindow) {
     electron_1.ipcMain.handle("research:getAll", async (_, limit, offset) => {
         return db.researches.getAllResearches(limit, offset);
     });
-    electron_1.ipcMain.handle("research:update", async (_, { id, researchDate, paymentType, doctorName, notes, }) => {
-        return db.researches.updateResearch(id, researchDate, paymentType, doctorName, notes);
+    electron_1.ipcMain.handle("research:update", async (_, { id, researchDate, paymentType, organization, doctorName, notes, }) => {
+        return db.researches.updateResearch(id, researchDate, paymentType, organization ?? null, doctorName, notes);
     });
     electron_1.ipcMain.handle("research:delete", async (_, id) => {
         return db.researches.deleteResearch(id);

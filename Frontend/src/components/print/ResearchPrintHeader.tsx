@@ -1,6 +1,5 @@
 // /components/print/ResearchPrintHeader.tsx
 import React from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useResearch } from "@contexts";
 
 const formatDateRu = (iso?: string | null): string => {
@@ -15,12 +14,13 @@ const formatDateRu = (iso?: string | null): string => {
 };
 
 export const ResearchPrintHeader: React.FC = () => {
-  const { user } = useAuth();
-  const { patientFullName, patientDateOfBirth, researchDate } = useResearch();
+  const {
+    patientFullName,
+    patientDateOfBirth,
+    researchDate,
+    organization,
+  } = useResearch();
 
-  if (!user) return null;
-
-  const organization = user.organization || "";
   const formattedResearchDate = formatDateRu(researchDate);
   const formattedDob = formatDateRu(patientDateOfBirth);
 

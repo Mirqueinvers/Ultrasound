@@ -1,4 +1,4 @@
-// ultrasound/frontend/electron/ipcAuthAndDb.ts (как у тебя называется)
+// ultrasound/frontend/electron/ipc-handlers.ts
 import { ipcMain, BrowserWindow } from "electron";
 import { DatabaseManager } from "./database/database";
 
@@ -142,12 +142,14 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         patientId,
         researchDate,
         paymentType,
+        organization,
         doctorName,
         notes,
       }: {
         patientId: number;
         researchDate: string;
         paymentType: "oms" | "paid";
+        organization?: string | null;
         doctorName?: string;
         notes?: string;
       }
@@ -156,6 +158,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         patientId,
         researchDate,
         paymentType,
+        organization ?? null,
         doctorName,
         notes
       );
@@ -206,12 +209,14 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         id,
         researchDate,
         paymentType,
+        organization,
         doctorName,
         notes,
       }: {
         id: number;
         researchDate?: string;
         paymentType?: "oms" | "paid";
+        organization?: string | null;
         doctorName?: string;
         notes?: string;
       }
@@ -220,6 +225,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         id,
         researchDate,
         paymentType,
+        organization ?? null,
         doctorName,
         notes
       );

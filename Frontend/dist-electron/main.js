@@ -11,9 +11,10 @@ const protocolHandlers_1 = require("./ipc/protocolHandlers");
 const database_1 = require("./database/database");
 let mainWindow = null;
 function createWindow() {
-    const iconPath = path_1.default.join(__dirname, "..", "src", "assets", "us-icon.png");
-    const iconImage = electron_1.nativeImage.createFromPath(iconPath);
     const dbManager = database_1.DatabaseManager.getInstance();
+    // Иконка: всегда относительный путь к build/us-icon.png
+    const iconPath = path_1.default.join(__dirname, "..", "build", "us-icon.png");
+    console.log("ICON PATH:", iconPath);
     mainWindow = new electron_1.BrowserWindow({
         width: 1400,
         height: 900,
@@ -24,7 +25,7 @@ function createWindow() {
         autoHideMenuBar: true,
         backgroundColor: "#f8fafc",
         show: false,
-        icon: iconImage,
+        icon: iconPath, // ← строка, а не nativeImage
         webPreferences: {
             preload: path_1.default.join(__dirname, "preload.js"),
             nodeIntegration: false,
