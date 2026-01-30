@@ -1,4 +1,4 @@
-// ultrasound/frontend/electron/main.ts
+// // ultrasound/frontend/electron/main.ts
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { setupAuthHandlers } from "./ipc-handlers";
@@ -10,7 +10,6 @@ let mainWindow: BrowserWindow | null = null;
 function createWindow() {
   const dbManager = DatabaseManager.getInstance();
 
-  // Иконка: всегда относительный путь к build/us-icon.png
   const iconPath = path.join(__dirname, "..", "build", "us-icon.png");
   console.log("ICON PATH:", iconPath);
 
@@ -24,7 +23,7 @@ function createWindow() {
     autoHideMenuBar: true,
     backgroundColor: "#f8fafc",
     show: false,
-    icon: iconPath, // ← строка, а не nativeImage
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,

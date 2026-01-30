@@ -1,7 +1,18 @@
-// c:/Projects/Ultrasound/Frontend/src/components/common/PatientCard.tsx
+// // Frontend/src/components/common/PatientCard.tsx
 
 import React from "react";
-import type { PatientCardProps } from "@/types";
+import type { Patient, Research } from "@/types";
+
+export interface PatientCardProps {
+  patient: Patient;
+  researches: Research[];
+  isExpanded: boolean;
+  onToggle: () => void;
+  onOpenProtocol: (researchId: number) => void;
+  onEditPatient?: () => void;
+  formatPatientName: (p: Patient) => string;
+  formatDateRu: (value: string) => string;
+}
 
 export const PatientCard: React.FC<PatientCardProps> = ({
   patient,
@@ -9,6 +20,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   isExpanded,
   onToggle,
   onOpenProtocol,
+  onEditPatient,
   formatPatientName,
   formatDateRu,
 }) => {
@@ -18,6 +30,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
 
   return (
     <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-shadow hover:shadow-md">
+      {/* Кликабельная шапка карточки */}
       <button
         type="button"
         onClick={onToggle}
@@ -34,6 +47,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
               <span className="text-sm font-semibold text-slate-900">
                 {formatPatientName(patient)}
               </span>
+
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-600">
                 {totalResearches} исслед.
               </span>
@@ -86,6 +100,19 @@ export const PatientCard: React.FC<PatientCardProps> = ({
           </svg>
         </div>
       </button>
+
+      {/* Кнопка редактирования — снаружи, не внутри <button> */}
+      {onEditPatient && (
+        <div className="px-4 pb-2 pt-1">
+          <button
+            type="button"
+            onClick={onEditPatient}
+            className="text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
+          >
+            Редактировать пациента
+          </button>
+        </div>
+      )}
 
       {isExpanded && researches.length > 0 && (
         <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-3 text-sm">

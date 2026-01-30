@@ -1,4 +1,4 @@
-// ultrasound/frontend/electron/preload.ts
+// // ultrasound/frontend/electron/preload.ts
 import { contextBridge, ipcRenderer } from "electron";
 
 // ========== AUTH API ==========
@@ -59,13 +59,12 @@ export interface Research {
   patient_id: number;
   research_date: string;
   payment_type: "oms" | "paid";
-  organization?: string | null;  // <-- добавили
+  organization?: string | null;
   doctor_name?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
 }
-
 
 export interface ResearchStudy {
   id: number;
@@ -106,6 +105,10 @@ export interface PatientAPI {
     success: boolean;
     message: string;
   }>;
+  delete: (id: number) => Promise<{         // ← ДОБАВИЛИ
+    success: boolean;
+    message: string;
+  }>;
 }
 
 export interface ResearchAPI {
@@ -113,7 +116,7 @@ export interface ResearchAPI {
     patientId: number;
     researchDate: string;
     paymentType: "oms" | "paid";
-    organization?: string | null;  // <-- добавили
+    organization?: string | null;
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -141,7 +144,7 @@ export interface ResearchAPI {
     id: number;
     researchDate?: string;
     paymentType?: "oms" | "paid";
-    organization?: string | null;  // <-- и здесь, если нужно редактирование
+    organization?: string | null;
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -154,7 +157,6 @@ export interface ResearchAPI {
   }>;
   search: (query: string, limit?: number) => Promise<any>;
 }
-
 
 export interface JournalAPI {
   getByDate: (date: string) => Promise<JournalEntry[]>;
@@ -205,6 +207,7 @@ const patientAPI: PatientAPI = {
   getAll: (limit, offset) => ipcRenderer.invoke("patient:getAll", limit, offset),
   getById: (id) => ipcRenderer.invoke("patient:getById", id),
   update: (data) => ipcRenderer.invoke("patient:update", data),
+  delete: (id) => ipcRenderer.invoke("patient:delete", id), // ← ДОБАВИЛИ
 };
 
 const researchAPI: ResearchAPI = {
@@ -233,8 +236,6 @@ const windowAPI: WindowAPI = {
 const protocolAPI: ProtocolAPI = {
   getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
 };
-
-// ========== Реализация patientSearchAPI ==========
 
 const patientSearchAPI: PatientSearchAPI = {
   async search(query: string) {

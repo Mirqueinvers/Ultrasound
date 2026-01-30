@@ -1,4 +1,4 @@
-// ultrasound/frontend/electron/database/patientRepository.ts
+// // ultrasound/frontend/electron/database/patientRepository.ts
 import type Database from "better-sqlite3";
 import type { Patient } from "./schema";
 
@@ -9,11 +9,11 @@ export class PatientRepository {
     lastName: string,
     firstName: string,
     middleName: string | null,
-    dateOfBirth: string
+    dateOfBirth: string,
   ): { success: boolean; message: string; patientId?: number } {
     try {
       const insert = this.db.prepare(
-        "INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)"
+        "INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)",
       );
       const result = insert.run(lastName, firstName, middleName, dateOfBirth);
 
@@ -38,7 +38,7 @@ export class PatientRepository {
     lastName: string,
     firstName: string,
     middleName: string | null,
-    dateOfBirth: string
+    dateOfBirth: string,
   ): Patient | undefined {
     return this.db
       .prepare(
@@ -48,7 +48,7 @@ export class PatientRepository {
           AND first_name = ?
           AND (middle_name = ? OR (middle_name IS NULL AND ? IS NULL))
           AND date_of_birth = ?
-      `
+      `,
       )
       .get(lastName, firstName, middleName, middleName, dateOfBirth) as
       | Patient
@@ -59,14 +59,14 @@ export class PatientRepository {
     lastName: string,
     firstName: string,
     middleName: string | null,
-    dateOfBirth: string
+    dateOfBirth: string,
   ): { success: boolean; message: string; patient?: Patient } {
     try {
       const existing = this.findPatientByFullNameAndDob(
         lastName,
         firstName,
         middleName,
-        dateOfBirth
+        dateOfBirth,
       );
 
       if (existing) {
@@ -77,7 +77,7 @@ export class PatientRepository {
         lastName,
         firstName,
         middleName,
-        dateOfBirth
+        dateOfBirth,
       );
       if (result.success && result.patientId) {
         const patient = this.findPatientById(result.patientId);
@@ -105,7 +105,7 @@ export class PatientRepository {
            OR middle_name LIKE ?
         ORDER BY last_name, first_name
         LIMIT ?
-      `
+      `,
       )
       .all(searchPattern, searchPattern, searchPattern, limit) as Patient[];
   }
@@ -117,7 +117,7 @@ export class PatientRepository {
         SELECT * FROM patients
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
-      `
+      `,
       )
       .all(limit, offset) as Patient[];
   }
@@ -127,7 +127,7 @@ export class PatientRepository {
     lastName: string,
     firstName: string,
     middleName: string | null,
-    dateOfBirth: string
+    dateOfBirth: string,
   ): { success: boolean; message: string } {
     try {
       const result = this.db
@@ -140,7 +140,7 @@ export class PatientRepository {
               date_of_birth = ?,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ?
-        `
+        `,
         )
         .run(lastName, firstName, middleName, dateOfBirth, id);
 
@@ -154,6 +154,30 @@ export class PatientRepository {
       return {
         success: false,
         message: "Ошибка при обновлении данных пациента",
+      };
+    }
+  }
+
+  deletePatient(id: number): { success: boolean; message: string } {
+    try {
+      // при включённом FOREIGN KEY и ON DELETE CASCADE
+      // связанные исследования удалятся автоматически[web:142][web:144]
+      const stmt = this.db.prepare("DELETE FROM patients WHERE id = ?");
+      const result = stmt.run(id);
+
+      if (result.changes > 0) {
+        return {
+          success: true,
+          message: "Пациент и его исследования удалены",
+        };
+      }
+
+      return { success: false, message: "Пациент не найден" };
+    } catch (error) {
+      console.error("Delete patient error:", error);
+      return {
+        success: false,
+        message: "Ошибка при удалении пациента",
       };
     }
   }

@@ -132,6 +132,10 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   );
 
+  ipcMain.handle("patient:delete", async (_, id: number) => {
+    return db.patients.deletePatient(id);
+  });
+
   // ==================== RESEARCH HANDLERS ====================
 
   ipcMain.handle(

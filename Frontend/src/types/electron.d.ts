@@ -1,4 +1,4 @@
-// src/types/electron.d.ts
+// // src/types/electron.d.ts
 
 export interface Patient {
   id: number;
@@ -23,7 +23,7 @@ export interface Research {
   patient_id: number;
   research_date: string;
   payment_type: "oms" | "paid";
-  organization?: string | null;  // <-- добавили
+  organization?: string | null;
   doctor_name?: string;
   notes?: string;
   created_at: string;
@@ -68,6 +68,10 @@ export interface PatientAPI {
     success: boolean;
     message: string;
   }>;
+  delete: (id: number) => Promise<{        // ← ДОБАВИЛИ ЗДЕСЬ
+    success: boolean;
+    message: string;
+  }>;
 }
 
 // ░░ Research API ░░
@@ -77,7 +81,7 @@ export interface ResearchAPI {
     patientId: number;
     researchDate: string;
     paymentType: "oms" | "paid";
-    organization?: string | null;  // <-- добавили
+    organization?: string | null;
     doctorName?: string;
     notes?: string;
   }) => Promise<{
@@ -105,7 +109,7 @@ export interface ResearchAPI {
     id: number;
     researchDate?: string;
     paymentType?: "oms" | "paid";
-    organization?: string | null;  // <-- и здесь
+    organization?: string | null;
     doctorName?: string;
     notes?: string;
   }) => Promise<{
