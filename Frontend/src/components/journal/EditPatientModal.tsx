@@ -1,4 +1,4 @@
-// // Frontend/src/components/journal/EditPatientModal.tsx
+// Frontend/src/components/journal/EditPatientModal.tsx
 import React, { useEffect, useState } from "react";
 import type { Patient } from "@/types";
 
@@ -7,7 +7,7 @@ interface Props {
   patient: Patient | null;
   onClose: () => void;
   onSave: (patient: Patient) => void;
-  onDelete: (patient: Patient) => void; // ← добавили
+  onDelete: (patient: Patient) => void;
 }
 
 const dobToInput = (dob: string | undefined) => {
@@ -31,25 +31,36 @@ export const EditPatientModal: React.FC<Props> = ({
   onSave,
   onDelete,
 }) => {
-  const [form, setForm] = useState<Patient | null>(patient);
+  const [form, setForm] = useState<Patient>({
+    id: 0,
+    last_name: "",
+    first_name: "",
+    middle_name: "",
+    date_of_birth: "",
+    created_at: "",
+    updated_at: "",
+  });
 
   useEffect(() => {
-    if (isOpen) {
-      setForm(patient);
+    if (isOpen && patient) {
+      setForm({
+        ...patient,
+        middle_name: patient.middle_name ?? "",
+      });
     }
   }, [isOpen, patient]);
 
-  if (!isOpen || !form) return null;
+  if (!isOpen || !patient) return null;
 
   const handleChange =
     (field: keyof Patient) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm({ ...form, [field]: e.target.value });
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
   const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDob = inputToDob(e.target.value);
-    setForm({ ...form, date_of_birth: newDob });
+    setForm((prev) => ({ ...prev, date_of_birth: newDob }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +87,7 @@ export const EditPatientModal: React.FC<Props> = ({
               className="w-full rounded border px-2 py-1 text-sm"
               value={form.last_name}
               onChange={handleChange("last_name")}
+              required
             />
           </div>
           <div>
@@ -86,6 +98,7 @@ export const EditPatientModal: React.FC<Props> = ({
               className="w-full rounded border px-2 py-1 text-sm"
               value={form.first_name}
               onChange={handleChange("first_name")}
+              required
             />
           </div>
           <div>
@@ -108,6 +121,7 @@ export const EditPatientModal: React.FC<Props> = ({
               className="w-full rounded border px-2 py-1 text-sm"
               value={dobToInput(form.date_of_birth)}
               onChange={handleDobChange}
+              required
             />
           </div>
 

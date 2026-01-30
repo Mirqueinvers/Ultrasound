@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+// src/contexts/RightPanelContext.tsx
+import React, { createContext, useContext, useState } from "react";
 
-export type PanelMode = 'none' | 'normal-values' | 'conclusion-samples' | 'custom-text';
+export type PanelMode = "none" | "normal-values" | "conclusion-samples" | "custom-text";
 
 export interface PanelData {
   mode: PanelMode;
@@ -20,12 +21,14 @@ interface RightPanelContextType {
   setAddTextCallback: (callback: ((text: string) => void) | undefined) => void;
 }
 
-export const RightPanelContext = createContext<RightPanelContextType | undefined>(undefined);
+export const RightPanelContext = createContext<RightPanelContextType | undefined>(
+  undefined
+);
 
 export const useRightPanel = () => {
   const context = useContext(RightPanelContext);
   if (!context) {
-    throw new Error('useRightPanel must be used within RightPanelProvider');
+    throw new Error("useRightPanel must be used within RightPanelProvider");
   }
   return context;
 };
@@ -34,13 +37,17 @@ interface RightPanelProviderProps {
   children: React.ReactNode;
 }
 
-export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children }) => {
-  const [panelData, setPanelData] = useState<PanelData>({ mode: 'none' });
-  const [onAddTextCallback, setOnAddTextCallback] = useState<((text: string) => void) | undefined>();
+export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
+  children,
+}) => {
+  const [panelData, setPanelData] = useState<PanelData>({ mode: "none" });
+  const [onAddTextCallback, setOnAddTextCallback] = useState<
+    ((text: string) => void) | undefined
+  >();
 
   const showNormalValues = (organ: string, field?: string) => {
     setPanelData({
-      mode: 'normal-values',
+      mode: "normal-values",
       organ,
       field,
       title: `Нормальные значения: ${getOrganDisplayName(organ)}`,
@@ -50,7 +57,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
 
   const showConclusionSamples = (organ: string) => {
     setPanelData({
-      mode: 'conclusion-samples',
+      mode: "conclusion-samples",
       organ,
       title: `Образцы заключений: ${getOrganDisplayName(organ)}`,
     });
@@ -58,7 +65,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
 
   const showCustomText = (title: string, content: React.ReactNode) => {
     setPanelData({
-      mode: 'custom-text',
+      mode: "custom-text",
       title,
       content,
     });
@@ -66,7 +73,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
   };
 
   const hidePanel = () => {
-    setPanelData({ mode: 'none' });
+    setPanelData({ mode: "none" });
     setOnAddTextCallback(undefined);
   };
 
@@ -76,20 +83,24 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
     }
   };
 
-  const setAddTextCallback = (callback: ((text: string) => void) | undefined) => {
+  const setAddTextCallback = (
+    callback: ((text: string) => void) | undefined
+  ) => {
     setOnAddTextCallback(callback);
   };
 
   return (
-    <RightPanelContext.Provider value={{
-      panelData,
-      showNormalValues,
-      showConclusionSamples,
-      showCustomText,
-      hidePanel,
-      addText,
-      setAddTextCallback,
-    }}>
+    <RightPanelContext.Provider
+      value={{
+        panelData,
+        showNormalValues,
+        showConclusionSamples,
+        showCustomText,
+        hidePanel,
+        addText,
+        setAddTextCallback,
+      }}
+    >
       {children}
     </RightPanelContext.Provider>
   );
@@ -97,11 +108,12 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({ children
 
 function getOrganDisplayName(organ: string): string {
   const displayNames: Record<string, string> = {
-    'liver': 'Печень',
-    'gallbladder': 'Желчный пузырь',
-    'pancreas': 'Поджелудочная железа',
-    'spleen': 'Селезенка',
-    'kidneys': 'Почки',
+    liver: "Печень",
+    gallbladder: "Желчный пузырь",
+    pancreas: "Поджелудочная железа",
+    spleen: "Селезенка",
+    kidneys: "Почки",
+    obp: "ОБП",
   };
   return displayNames[organ] || organ;
 }

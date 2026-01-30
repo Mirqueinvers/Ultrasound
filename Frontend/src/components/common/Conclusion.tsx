@@ -1,3 +1,4 @@
+// src/components/common/Conclusion.tsx
 import React, { useState, useEffect } from "react";
 
 export interface ConclusionData {
@@ -8,18 +9,21 @@ export interface ConclusionData {
 export interface ConclusionProps {
   value?: ConclusionData;
   onChange?: (value: ConclusionData) => void;
+  onConclusionFocus?: () => void;
+  onConclusionBlur?: () => void;
 }
 
 export const Conclusion: React.FC<ConclusionProps> = ({
   value,
   onChange,
+  onConclusionFocus,
+  onConclusionBlur,
 }) => {
   const [conclusion, setConclusion] = useState(value?.conclusion ?? "");
   const [recommendations, setRecommendations] = useState(
     value?.recommendations ?? ""
   );
 
-  // Синхронизация при внешнем изменении value
   useEffect(() => {
     if (value) {
       setConclusion(value.conclusion ?? "");
@@ -58,7 +62,6 @@ export const Conclusion: React.FC<ConclusionProps> = ({
       </div>
 
       <div className="px-6 py-5 space-y-5">
-        {/* Заключение */}
         <div>
           <label className="block text-xxs font-semibold text-slate-600 mb-2">
             Заключение
@@ -66,12 +69,13 @@ export const Conclusion: React.FC<ConclusionProps> = ({
           <textarea
             value={conclusion}
             onChange={handleConclusionChange}
+            onFocus={onConclusionFocus}
+            onBlur={onConclusionBlur}
             rows={5}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-none"
           />
         </div>
 
-        {/* Рекомендации */}
         <div>
           <label className="block text-xxs font-semibold text-slate-600 mb-2">
             Рекомендации

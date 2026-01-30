@@ -20,6 +20,7 @@ import type {
 import { defaultObpState } from "@/types";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { useRightPanel } from "@contexts/RightPanelContext";
 
 const FREE_FLUID_OPTIONS = [
   { value: "не определяется", label: "не определяется" },
@@ -28,8 +29,6 @@ const FREE_FLUID_OPTIONS = [
 
 interface ObpWithSectionsProps extends ObpProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
-  // или уже сузить:
-  // sectionRefs?: Record<ObpSectionKey, React.RefObject<HTMLDivElement>>;
 }
 
 export const Obp: React.FC<ObpWithSectionsProps> = ({
@@ -39,6 +38,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
 }) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
   const { setStudyData } = useResearch();
+  const { showConclusionSamples, hidePanel } = useRightPanel();
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);
@@ -81,6 +81,15 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
     });
   };
 
+  const handleConclusionFocus = () => {
+    showConclusionSamples("obp");
+  };
+
+  const handleConclusionBlur = () => {
+    // если нужно скрывать панель после выхода из поля, раскомментируй
+    // hidePanel();
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
@@ -106,10 +115,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
       </div>
 
       <div ref={sectionRefs?.["ОБП:селезёнка"]}>
-        <Spleen
-          value={form.spleen ?? undefined}
-          onChange={updateSpleen}
-        />
+        <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-lg px-6 py-4">
@@ -132,6 +138,8 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
+        onConclusionBlur={handleConclusionBlur}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+// Frontend/electron/database/schema.ts
 export const CREATE_USERS_TABLE = `
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -9,6 +10,7 @@ export const CREATE_USERS_TABLE = `
     last_login DATETIME
   )
 `;
+
 
 export const CREATE_PATIENTS_TABLE = `
   CREATE TABLE IF NOT EXISTS patients (
@@ -22,12 +24,14 @@ export const CREATE_PATIENTS_TABLE = `
   )
 `;
 
+
 export const CREATE_RESEARCHES_TABLE = `
   CREATE TABLE IF NOT EXISTS researches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id INTEGER NOT NULL,
     research_date TEXT NOT NULL,
     payment_type TEXT NOT NULL CHECK(payment_type IN ('oms', 'paid')),
+    organization TEXT,
     doctor_name TEXT,
     notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -48,6 +52,7 @@ export const CREATE_RESEARCH_STUDIES_TABLE = `
   )
 `;
 
+
 export const CREATE_PATIENTS_INDEXES = `
   CREATE INDEX IF NOT EXISTS idx_patients_full_name 
   ON patients(last_name, first_name, middle_name);
@@ -55,6 +60,7 @@ export const CREATE_PATIENTS_INDEXES = `
   CREATE INDEX IF NOT EXISTS idx_patients_dob 
   ON patients(date_of_birth);
 `;
+
 
 export const CREATE_RESEARCHES_INDEXES = `
   CREATE INDEX IF NOT EXISTS idx_researches_patient_id 
@@ -70,6 +76,7 @@ export const CREATE_RESEARCHES_INDEXES = `
   ON research_studies(study_type);
 `;
 
+
 export interface User {
   id: number;
   username: string;
@@ -80,6 +87,7 @@ export interface User {
   last_login?: string;
 }
 
+
 export interface Patient {
   id: number;
   last_name: string;
@@ -89,6 +97,7 @@ export interface Patient {
   created_at: string;
   updated_at: string;
 }
+
 
 export interface Research {
   id: number;
@@ -103,6 +112,7 @@ export interface Research {
   study_types?: string[];
 }
 
+
 export interface ResearchStudy {
   id: number;
   research_id: number;
@@ -110,6 +120,7 @@ export interface ResearchStudy {
   study_data: string; // JSON string
   created_at: string;
 }
+
 
 export const CREATE_USERNAME_INDEX = `
   CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users(username)
