@@ -6,14 +6,6 @@ import { PatientCard } from "@/components/common/PatientCard";
 import { PatientSearchInput } from "@/UI/PatientSearchInput";
 import type { Patient, Research, JournalEntry } from "@/types";
 
-declare global {
-  interface Window {
-    patientSearchAPI: {
-      search: (query: string) => Promise<JournalEntry[]>;
-    };
-  }
-}
-
 const formatPatientName = (p: Patient) =>
   `${p.last_name} ${p.first_name}${p.middle_name ? ` ${p.middle_name}` : ""}`;
 

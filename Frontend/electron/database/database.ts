@@ -9,6 +9,7 @@ import { PatientRepository } from "./patientRepository";
 import { ResearchRepository } from "./researchRepository";
 import { JournalRepository } from "./journalRepository";
 import { ProtocolRepository } from "./protocolRepository";
+import { StatisticsRepository } from "./statisticsRepository";
 import type { Patient, Research } from "./schema";
 
 export interface JournalEntry {
@@ -25,6 +26,7 @@ export class DatabaseManager {
   public researches: ResearchRepository;
   public journal: JournalRepository;
   public protocol: ProtocolRepository;
+  public statistics: StatisticsRepository;
 
   private constructor() {
     const userDataPath = app.getPath("userData");
@@ -41,6 +43,7 @@ export class DatabaseManager {
     this.researches = new ResearchRepository(this.db);
     this.journal = new JournalRepository(this.db);
     this.protocol = new ProtocolRepository(this.db);
+    this.statistics = new StatisticsRepository(this.db);
   }
 
   public static getInstance(): DatabaseManager {

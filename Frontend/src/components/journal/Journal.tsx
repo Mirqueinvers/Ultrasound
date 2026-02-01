@@ -5,14 +5,6 @@ import { PatientCard } from "@/components/common/PatientCard";
 import { EditPatientModal } from "@/components/journal/EditPatientModal";
 import type { Patient, Research, JournalEntry } from "@/types";
 
-declare global {
-  interface Window {
-    journalAPI: {
-      getByDate: (date: string) => Promise<JournalEntry[]>;
-    };
-  }
-}
-
 
 const formatPatientName = (p: Patient) =>
   `${p.last_name} ${p.first_name}${p.middle_name ? ` ${p.middle_name}` : ""}`;

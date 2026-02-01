@@ -4,7 +4,10 @@ import type {
   ResearchAPI,
   JournalAPI,
   WindowAPI,
-} from "../path/к/preload"; // путь подправь под себя или продублируй интерфейсы
+  DatabaseAPI,
+  PatientSearchAPI,
+  ProtocolAPI,
+} from "../../electron/preload";
 
 declare global {
   interface Window {
@@ -13,6 +16,9 @@ declare global {
     researchAPI: ResearchAPI;
     journalAPI: JournalAPI;
     windowAPI: WindowAPI;
+    protocolAPI: ProtocolAPI;
+    patientSearchAPI: PatientSearchAPI;
+    databaseAPI: DatabaseAPI;
   }
 }
 

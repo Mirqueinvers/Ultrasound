@@ -10,6 +10,7 @@ import MainLayout from "@layout/MainLayout";
 import AuthForm from "@/components/auth/AuthForm";
 import ProfilePage from "@/components/profile/ProfilePage";
 import Journal from "@/components/journal/Journal";
+import Statistics from "@/components/statistics/Statistics";
 
 function AppTitlebar() {
   const handleMinimize = () => {
@@ -168,6 +169,28 @@ function AppContent() {
             </MainLayout>
           </RightPanelProvider>
         </ResearchProvider>
+      </>
+    );
+  }
+
+  if (activeSection === "statistics") {
+    return (
+      <>
+        <AppTitlebar />
+        <RightPanelProvider>
+          <MainLayout
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            selectedStudy={selectedStudy}
+            onStudySelect={handleStudySelect}
+            isMultiSelectMode={isMultiSelectMode}
+            selectedStudies={selectedStudies}
+            onToggleStudy={handleToggleStudy}
+            onNavigateToProfile={handleNavigateToProfile}
+          >
+            <Statistics />
+          </MainLayout>
+        </RightPanelProvider>
       </>
     );
   }

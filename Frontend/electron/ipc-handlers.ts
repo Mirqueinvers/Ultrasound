@@ -253,6 +253,18 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     return db.journal.getJournalByDate(date);
   });
 
+  // ==================== STATISTICS HANDLERS ====================
+
+  ipcMain.handle("database:getStatistics", async (_, startDate?: string, endDate?: string) => {
+    try {
+      const data = db.statistics.getStatistics(startDate, endDate);
+      return { success: true, data };
+    } catch (error) {
+      console.error("Statistics error:", error);
+      return { success: false, message: "Ошибка при получении статистики" };
+    }
+  });
+
   // ==================== WINDOW HANDLERS ====================
 
   ipcMain.on("window:focus", () => {

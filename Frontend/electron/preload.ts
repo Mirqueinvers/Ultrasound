@@ -191,6 +191,39 @@ export interface PatientSearchAPI {
   search: (query: string) => Promise<PatientSearchEntry[]>;
 }
 
+// ========== DATABASE API ==========
+
+export interface DatabaseAPI {
+  getStatistics: (startDate?: string, endDate?: string) => Promise<{
+    success: boolean;
+    message?: string;
+    data?: {
+      totalPatients: number;
+      totalResearches: number;
+      totalStudies: number;
+      researchesInPeriod: number;
+      patientsInPeriod: number;
+      studiesInPeriod: number;
+      paymentStats: {
+        oms: number;
+        paid: number;
+      };
+      studiesByType: { [key: string]: number };
+      monthlyResearches: { month: string; count: number }[];
+      recentActivity: {
+        date: string;
+        patientName: string;
+        studyType: string;
+      }[];
+      doctorsStats: {
+        doctorName: string;
+        patientCount: number;
+        researchCount: number;
+      }[];
+    };
+  }>;
+}
+
 // ========== Реализации API ==========
 
 const authAPI: AuthAPI = {
@@ -290,6 +323,11 @@ const patientSearchAPI: PatientSearchAPI = {
   },
 };
 
+const databaseAPI: DatabaseAPI = {
+  getStatistics: (startDate?: string, endDate?: string) => 
+    ipcRenderer.invoke("database:getStatistics", startDate, endDate),
+};
+
 // ========== Экспорт в window ==========
 
 contextBridge.exposeInMainWorld("authAPI", authAPI);
@@ -299,15 +337,5 @@ contextBridge.exposeInMainWorld("journalAPI", journalAPI);
 contextBridge.exposeInMainWorld("windowAPI", windowAPI);
 contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
+contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 
-declare global {
-  interface Window {
-    authAPI: AuthAPI;
-    patientAPI: PatientAPI;
-    researchAPI: ResearchAPI;
-    journalAPI: JournalAPI;
-    windowAPI: WindowAPI;
-    protocolAPI: ProtocolAPI;
-    patientSearchAPI: PatientSearchAPI;
-  }
-}
