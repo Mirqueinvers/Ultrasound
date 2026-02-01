@@ -33,7 +33,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: OmtFemaleProtocol) => {
     setForm(updated);
@@ -72,6 +72,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("omt_female");
+    setCurrentOrgan("omt_female");
   };
 
   // Обработчик события добавления текста образца заключения

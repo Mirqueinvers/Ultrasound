@@ -19,7 +19,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const syncBoth = (updated: UrinaryBladderStudyProtocol) => {
     setForm(updated);
@@ -49,6 +49,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("urinary_bladder");
+    setCurrentOrgan("urinary_bladder");
   };
 
   // Обработчик события добавления текста образца заключения

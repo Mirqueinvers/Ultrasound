@@ -35,7 +35,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: ThyroidStudyProtocol) => {
     setForm(updated);
@@ -60,6 +60,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("thyroid");
+    setCurrentOrgan("thyroid");
   };
 
   // Обработчик события добавления текста образца заключения

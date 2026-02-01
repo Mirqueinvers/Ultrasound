@@ -1,4 +1,4 @@
-// /components/print/ConclusionPrint.tsx
+// src/components/print/ConclusionPrint.tsx
 import React from "react";
 
 export interface ConclusionPrintData {
@@ -11,14 +11,18 @@ export interface ConclusionPrintProps {
 }
 
 export const ConclusionPrint: React.FC<ConclusionPrintProps> = ({ value }) => {
-  const conclusion = value?.conclusion ?? "";
-  const recommendations = value?.recommendations ?? "";
+  const conclusion = value?.conclusion 
+    ? value.conclusion.replace(/\n+/g, ' ').trim() 
+    : "";
+  const recommendations = value?.recommendations 
+    ? value.recommendations.replace(/\n+/g, ' ').trim() 
+    : "";
 
   return (
     <div className="mt-4">
       {conclusion && (
         <div className="mt-2">
-          <p className="text-sm text-slate-900 whitespace-pre-wrap">
+          <p className="text-sm text-slate-900">
             <span className="text-xxs font-semibold text-black">
               Заключение:
             </span>{" "}
@@ -29,7 +33,7 @@ export const ConclusionPrint: React.FC<ConclusionPrintProps> = ({ value }) => {
 
       {recommendations && (
         <div className="mt-2">
-          <p className="text-sm text-slate-900 whitespace-pre-wrap">
+          <p className="text-sm text-slate-900">
             <span className="text-xxs font-semibold text-black">
               Рекомендации:
             </span>{" "}
@@ -37,8 +41,6 @@ export const ConclusionPrint: React.FC<ConclusionPrintProps> = ({ value }) => {
           </p>
         </div>
       )}
-
-      {!conclusion && !recommendations }
     </div>
   );
 };

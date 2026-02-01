@@ -35,7 +35,7 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: BreastStudyProtocol) => {
     setForm(updated);
@@ -60,6 +60,7 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("breast");
+    setCurrentOrgan("breast");
   };
 
   // Обработчик события добавления текста образца заключения

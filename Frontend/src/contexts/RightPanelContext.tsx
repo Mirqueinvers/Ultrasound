@@ -18,7 +18,7 @@ interface RightPanelContextType {
   showCustomText: (title: string, content: React.ReactNode) => void;
   hidePanel: () => void;
   addText: (text: string) => void;
-  setAddTextCallback: (callback: ((text: string) => void) | undefined) => void;
+  setCurrentOrgan: (organ: string | undefined) => void;
 }
 
 export const RightPanelContext = createContext<RightPanelContextType | undefined>(
@@ -41,9 +41,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
   children,
 }) => {
   const [panelData, setPanelData] = useState<PanelData>({ mode: "none" });
-  const [onAddTextCallback, setOnAddTextCallback] = useState<
-    ((text: string) => void) | undefined
-  >();
+  const [currentOrgan, setCurrentOrgan] = useState<string | undefined>();
 
   const showNormalValues = (organ: string, field?: string) => {
     setPanelData({
@@ -52,7 +50,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
       field,
       title: `Нормальные значения: ${getOrganDisplayName(organ)}`,
     });
-    setOnAddTextCallback(undefined);
+    setCurrentOrgan(undefined);
   };
 
   const showConclusionSamples = (organ: string) => {
@@ -61,6 +59,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
       organ,
       title: `Образцы заключений: ${getOrganDisplayName(organ)}`,
     });
+    setCurrentOrgan(organ);
   };
 
   const showCustomText = (title: string, content: React.ReactNode) => {
@@ -69,24 +68,29 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
       title,
       content,
     });
-    setOnAddTextCallback(undefined);
+    setCurrentOrgan(undefined);
   };
 
   const hidePanel = () => {
     setPanelData({ mode: "none" });
-    setOnAddTextCallback(undefined);
+    setCurrentOrgan(undefined);
   };
 
   const addText = (text: string) => {
-    if (onAddTextCallback) {
-      onAddTextCallback(text);
-    }
+    const studyId = currentOrgan ? `study-${currentOrgan}` : undefined;
+    
+    const event = new CustomEvent("add-conclusion-text", {
+      detail: { 
+        text, 
+        organ: currentOrgan, 
+        studyId 
+      },
+    });
+    window.dispatchEvent(event);
   };
 
-  const setAddTextCallback = (
-    callback: ((text: string) => void) | undefined
-  ) => {
-    setOnAddTextCallback(callback);
+  const setCurrentOrganHandler = (organ: string | undefined) => {
+    setCurrentOrgan(organ);
   };
 
   return (
@@ -98,7 +102,7 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
         showCustomText,
         hidePanel,
         addText,
-        setAddTextCallback,
+        setCurrentOrgan: setCurrentOrganHandler,
       }}
     >
       {children}

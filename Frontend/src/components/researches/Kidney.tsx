@@ -31,7 +31,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const updateRightKidney = (rightKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, rightKidney: rightKidneyData };
@@ -75,6 +75,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("kidneys");
+    setCurrentOrgan("kidneys");
   };
 
   // Обработчик события добавления текста образца заключения
@@ -97,6 +98,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
       };
       setForm(updated);
       onChange?.(updated);
+      setStudyData("Почки", updated);
     };
 
     window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
@@ -104,7 +106,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     return () => {
       window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
     };
-  }, [form, onChange]);
+  }, [form, onChange, setStudyData]);
 
   return (
     <div className="flex flex-col gap-6">

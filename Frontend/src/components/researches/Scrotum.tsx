@@ -35,7 +35,7 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: ScrotumProtocol) => {
     setForm(updated);
@@ -60,6 +60,7 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("scrotum");
+    setCurrentOrgan("scrotum");
   };
 
   // Обработчик события добавления текста образца заключения

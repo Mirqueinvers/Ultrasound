@@ -31,7 +31,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
-  const { showConclusionSamples } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: OmtMaleProtocol) => {
     setForm(updated);
@@ -62,6 +62,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("omt_male");
+    setCurrentOrgan("omt_male");
   };
 
   // Обработчик события добавления текста образца заключения

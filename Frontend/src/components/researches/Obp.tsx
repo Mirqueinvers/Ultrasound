@@ -38,7 +38,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
 }) => {
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
   const { setStudyData } = useResearch();
-  const { showConclusionSamples, hidePanel } = useRightPanel();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);
@@ -83,11 +83,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
 
   const handleConclusionFocus = () => {
     showConclusionSamples("obp");
-  };
-
-  const handleConclusionBlur = () => {
-    // если нужно скрывать панель после выхода из поля, раскомментируй
-    // hidePanel();
+    setCurrentOrgan("obp");
   };
 
   // Обработчик события добавления текста образца заключения
@@ -119,6 +115,13 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
       window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
     };
   }, [form, onChange, setStudyData]);
+
+  const handleConclusionBlur = () => {
+    // если нужно скрывать панель после выхода из поля, раскомментируй
+    // hidePanel();
+  };
+
+
 
   return (
     <div className="flex flex-col gap-6">
