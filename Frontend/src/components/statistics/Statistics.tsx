@@ -51,15 +51,24 @@ const Statistics: React.FC = () => {
   const [stats, setStats] = useState<StatisticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Функция для форматирования даты в локальном времени (без UTC смещения)
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const [startDate, setStartDate] = useState(() => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    return firstDay.toISOString().split("T")[0];
+    return formatLocalDate(firstDay);
   });
   const [endDate, setEndDate] = useState(() => {
     const now = new Date();
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return lastDay.toISOString().split("T")[0];
+    return formatLocalDate(lastDay);
   });
 
   useEffect(() => {
@@ -97,8 +106,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    setStartDate(firstDay.toISOString().split("T")[0]);
-    setEndDate(lastDay.toISOString().split("T")[0]);
+    setStartDate(formatLocalDate(firstDay));
+    setEndDate(formatLocalDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -106,8 +115,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-    setStartDate(firstDay.toISOString().split("T")[0]);
-    setEndDate(lastDay.toISOString().split("T")[0]);
+    setStartDate(formatLocalDate(firstDay));
+    setEndDate(formatLocalDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -115,8 +124,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), 0, 1);
     const lastDay = new Date(now.getFullYear(), 11, 31);
-    setStartDate(firstDay.toISOString().split("T")[0]);
-    setEndDate(lastDay.toISOString().split("T")[0]);
+    setStartDate(formatLocalDate(firstDay));
+    setEndDate(formatLocalDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -294,9 +303,7 @@ const Statistics: React.FC = () => {
         <div className="mt-2 flex items-center justify-between">
           <div className="text-sm text-gray-600">
             {startDate && endDate
-              ? `Период: с ${new Date(startDate).toLocaleDateString(
-                  "ru-RU"
-                )} по ${new Date(endDate).toLocaleDateString("ru-RU")}`
+              ? `Период: с ${formatLocalDate(new Date(startDate))} по ${formatLocalDate(new Date(endDate))}`
               : "Вся статистика"}
           </div>
           {(startDate || endDate) && (
@@ -415,7 +422,7 @@ const Statistics: React.FC = () => {
                 </div>
                 <div className="text-sm text-gray-600">
                   {activity.studyType} •{" "}
-                  {new Date(activity.date).toLocaleDateString("ru-RU")}
+                  {formatLocalDate(new Date(activity.date))}
                 </div>
               </div>
             </div>

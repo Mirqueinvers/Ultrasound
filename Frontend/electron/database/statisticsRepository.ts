@@ -247,11 +247,17 @@ export class StatisticsRepository {
         study_type: string;
       }[];
 
-    return rows.map(row => ({
-      date: row.date,
-      patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
-      studyType: this.formatStudyType(row.study_type),
-    }));
+    return rows.map(row => {
+      // Обеспечиваем корректную обработку даты в локальном времени
+      const date = new Date(row.date);
+      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      
+      return {
+        date: localDate.toISOString().split('T')[0],
+        patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
+        studyType: this.formatStudyType(row.study_type),
+      };
+    });
   }
 
   private getDoctorsStats(startDate?: string, endDate?: string): {
@@ -296,7 +302,8 @@ export class StatisticsRepository {
 
   private formatMonth(monthStr: string): string {
     const [year, month] = monthStr.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
+    // Создаем дату в локальной временной зоне
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
     return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' });
   }
 
