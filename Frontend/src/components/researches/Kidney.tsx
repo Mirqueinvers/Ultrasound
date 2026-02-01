@@ -1,9 +1,11 @@
 // Frontend/src/components/researches/Kidney.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
+import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearch } from "@contexts";
 
 import type {
   KidneyStudyProtocol,
@@ -28,16 +30,21 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     value ?? defaultKidneyStudyState
   );
 
+  const { setStudyData } = useResearch();
+  const { showConclusionSamples } = useRightPanel();
+
   const updateRightKidney = (rightKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, rightKidney: rightKidneyData };
     setForm(updated);
     onChange?.(updated);
+    setStudyData("Почки", updated);
   };
 
   const updateLeftKidney = (leftKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, leftKidney: leftKidneyData };
     setForm(updated);
     onChange?.(updated);
+    setStudyData("Почки", updated);
   };
 
   const updateUrinaryBladder = (
@@ -49,6 +56,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     };
     setForm(updated);
     onChange?.(updated);
+    setStudyData("Почки", updated);
   };
 
   const updateConclusion = (conclusionData: {
@@ -62,7 +70,41 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     };
     setForm(updated);
     onChange?.(updated);
+    setStudyData("Почки", updated);
   };
+
+  const handleConclusionFocus = () => {
+    showConclusionSamples("kidneys");
+  };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-kidneys') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -99,6 +141,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
       />
     </div>
   );

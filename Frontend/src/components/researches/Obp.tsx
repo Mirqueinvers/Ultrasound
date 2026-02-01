@@ -1,5 +1,5 @@
 // src/components/researches/Obp.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
@@ -89,6 +89,36 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
     // если нужно скрывать панель после выхода из поля, раскомментируй
     // hidePanel();
   };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-obp') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+      setStudyData("ОБП", updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange, setStudyData]);
 
   return (
     <div className="flex flex-col gap-6">

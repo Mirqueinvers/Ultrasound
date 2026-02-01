@@ -1,11 +1,12 @@
 // Frontend/src/components/researches/OmtFemale.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
 import { Conclusion } from "@common";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { useResearch } from "@contexts";
+import { useRightPanel } from "@contexts/RightPanelContext";
 
 import type {
   OmtFemaleProtocol,
@@ -32,6 +33,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
+  const { showConclusionSamples } = useRightPanel();
 
   const sync = (updated: OmtFemaleProtocol) => {
     setForm(updated);
@@ -67,6 +69,40 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
       recommendations: conclusionData.recommendations,
     });
   };
+
+  const handleConclusionFocus = () => {
+    showConclusionSamples("omt_female");
+  };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-omt_female') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+      setStudyData("ОМТ (Ж)", updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange, setStudyData]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -107,6 +143,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
       />
     </div>
   );

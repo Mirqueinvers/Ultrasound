@@ -1,8 +1,9 @@
 // Frontend/src/components/organs/Thyroid.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
+import { useRightPanel } from "@contexts/RightPanelContext";
 import type {
   ThyroidStudyProtocol,
   ThyroidStudyProps,
@@ -34,6 +35,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
+  const { showConclusionSamples } = useRightPanel();
 
   const sync = (updated: ThyroidStudyProtocol) => {
     setForm(updated);
@@ -56,6 +58,40 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     });
   };
 
+  const handleConclusionFocus = () => {
+    showConclusionSamples("thyroid");
+  };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-thyroid') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+      setStudyData("Щитовидная железа", updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange, setStudyData]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
@@ -74,6 +110,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
       />
     </div>
   );

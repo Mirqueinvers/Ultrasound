@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
+import { useRightPanel } from "@contexts/RightPanelContext";
 import type {
   UrinaryBladderStudyProtocol,
   UrinaryBladderStudyProps,
@@ -18,6 +19,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   );
 
   const { setStudyData } = useResearch();
+  const { showConclusionSamples } = useRightPanel();
 
   const syncBoth = (updated: UrinaryBladderStudyProtocol) => {
     setForm(updated);
@@ -45,6 +47,40 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
     syncBoth(updated);
   };
 
+  const handleConclusionFocus = () => {
+    showConclusionSamples("urinary_bladder");
+  };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-urinary_bladder') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated: UrinaryBladderStudyProtocol = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+      setStudyData("Мочевой пузырь", updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange, setStudyData]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
@@ -62,6 +98,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
       />
     </div>
   );

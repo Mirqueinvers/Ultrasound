@@ -1,10 +1,11 @@
 // Frontend/src/components/organs/OmtMale.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Prostate from "@organs/Prostate";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
+import { useRightPanel } from "@contexts/RightPanelContext";
 
 import type {
   OmtMaleProtocol,
@@ -30,6 +31,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
   );
 
   const { setStudyData } = useResearch();
+  const { showConclusionSamples } = useRightPanel();
 
   const sync = (updated: OmtMaleProtocol) => {
     setForm(updated);
@@ -58,6 +60,40 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
     });
   };
 
+  const handleConclusionFocus = () => {
+    showConclusionSamples("omt_male");
+  };
+
+  // Обработчик события добавления текста образца заключения
+  useEffect(() => {
+    const handleAddConclusionText = (event: CustomEvent) => {
+      const { text, studyId } = event.detail;
+      
+      // Проверяем, что событие относится к данному исследованию
+      if (studyId !== 'study-omt_male') return;
+      
+      const currentConclusion = form.conclusion?.trim() ?? "";
+      const newConclusion = currentConclusion 
+        ? `${currentConclusion} ${text}`
+        : text;
+      
+      const updated = {
+        ...form,
+        conclusion: newConclusion,
+        recommendations: form.recommendations ?? "",
+      };
+      setForm(updated);
+      onChange?.(updated);
+      setStudyData("ОМТ (М)", updated);
+    };
+
+    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    
+    return () => {
+      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+    };
+  }, [form, onChange, setStudyData]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
@@ -84,6 +120,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
           recommendations: form.recommendations,
         }}
         onChange={updateConclusion}
+        onConclusionFocus={handleConclusionFocus}
       />
     </div>
   );
