@@ -11,6 +11,7 @@ import {
   ChildDispensary,
   SoftTissue,
   UrinaryBladderResearch,
+  LymphNodes,
 } from "@components/researches";
 import ResearchHeader from "@components/common/ResearchHeader";
 import OrgNavigation, {
@@ -175,7 +176,7 @@ const Content: React.FC<ContentProps> = ({
           onClose={() => setSaveMessage(null)}
         />
 
-        <div className="mt-6 space-y-6">
+                <div className="mt-6 space-y-6">
           {selectedStudies.map((study, index) => (
             <div
               key={index}
@@ -237,6 +238,14 @@ const Content: React.FC<ContentProps> = ({
                   }
                   sectionRefs={sectionRefs.current}
                 />
+              ) : study === "Лимфоузлы" ? (
+                <LymphNodes
+                  value={studiesData["Лимфоузлы"]}
+                  onChange={(updated) =>
+                    setStudyData("Лимфоузлы", updated)
+                  }
+                  sectionRefs={sectionRefs.current}
+                />
               ) : study === "Детская диспансеризация" ? (
                 <ChildDispensary
                   value={
@@ -268,6 +277,7 @@ const Content: React.FC<ContentProps> = ({
             </div>
           ))}
         </div>
+
 
         <ResearchActions
           isSaving={isSaving}

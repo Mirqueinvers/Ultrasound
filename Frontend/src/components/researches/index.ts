@@ -9,3 +9,4 @@ export { default as Breast } from "./Breast";
 export { default as ChildDispensary } from "./ChildDispensary";
 export { default as SoftTissue } from "./SoftTissue";
 export { default as UrinaryBladderResearch } from "./UrinaryBladderResearch";
+export { LymphNodes } from "./LymphNodes";

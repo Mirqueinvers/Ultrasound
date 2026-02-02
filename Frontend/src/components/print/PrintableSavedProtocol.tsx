@@ -14,6 +14,7 @@ import BreastResearchPrint from "@/components/print/researches/BreastPrint";
 import ScrotumResearchPrint from "@/components/print/researches/ScrotumPrint";
 import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryPrint";
 import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
+import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPrint"; // Добавьте этот импорт
 
 type BlockId =
   | "header"
@@ -27,6 +28,7 @@ type BlockId =
   | "bladder"
   | "childDispensary"
   | "softTissue"
+  | "lymphNodes" // Добавьте этот ID
   | "conclusion";
 
 interface ResearchBlock {
@@ -50,9 +52,8 @@ const PrintableSavedProtocol = React.forwardRef<
     setPatientFullName,
     setPatientDateOfBirth,
     setResearchDate,
-    setOrganization,              // <-- добавляем
+    setOrganization,
   } = useResearch();
-
 
   const [loading, setLoading] = React.useState(true);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
@@ -95,30 +96,30 @@ const PrintableSavedProtocol = React.forwardRef<
   React.useEffect(() => {
     let cancelled = false;
 
-  const loadMeta = async () => {
-    const research = await window.researchAPI.getById(researchId);
-    if (cancelled || !research) return;
+    const loadMeta = async () => {
+      const research = await window.researchAPI.getById(researchId);
+      if (cancelled || !research) return;
 
-    const patient = await window.patientAPI.getById(research.patient_id);
-    if (cancelled || !patient) return;
+      const patient = await window.patientAPI.getById(research.patient_id);
+      if (cancelled || !patient) return;
 
-    const fullName = `${patient.last_name} ${patient.first_name}${
-      patient.middle_name ? " " + patient.middle_name : ""
-    }`;
+      const fullName = `${patient.last_name} ${patient.first_name}${
+        patient.middle_name ? " " + patient.middle_name : ""
+      }`;
 
-    setPatientFullName(fullName);
-    setPatientDateOfBirth(patient.date_of_birth);
+      setPatientFullName(fullName);
+      setPatientDateOfBirth(patient.date_of_birth);
 
-    const dateStr =
-      typeof research.research_date === "string"
-        ? research.research_date.slice(0, 10)
-        : "";
-    setResearchDate(dateStr);
+      const dateStr =
+        typeof research.research_date === "string"
+          ? research.research_date.slice(0, 10)
+          : "";
+      setResearchDate(dateStr);
 
-    setProtocolDoctorName(research.doctor_name || "");
+      setProtocolDoctorName(research.doctor_name || "");
 
-    setOrganization(research.organization || ""); // <-- вот это главное
-  };
+      setOrganization(research.organization || "");
+    };
 
     loadMeta();
 
@@ -138,6 +139,7 @@ const PrintableSavedProtocol = React.forwardRef<
   const scrotumData = studiesData["Органы мошонки"];
   const childDispensaryData = studiesData["Детская диспансеризация"];
   const softTissueData = studiesData["Мягких тканей"];
+  const lymphNodesData = studiesData["Лимфоузлы"]; // Добавьте эту строку
 
   const conclusion =
     (obpData?.conclusion || "") +
@@ -217,7 +219,21 @@ const PrintableSavedProtocol = React.forwardRef<
     softTissueData?.conclusion
       ? "\n"
       : "") +
-    (softTissueData?.conclusion || "");
+    (softTissueData?.conclusion || "") +
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      breastData?.conclusion ||
+      scrotumData?.conclusion ||
+      childDispensaryData?.conclusion ||
+      softTissueData?.conclusion) &&
+    lymphNodesData?.conclusion
+      ? "\n"
+      : "") +
+    (lymphNodesData?.conclusion || ""); // Добавьте эти строки
 
   const recommendations =
     (obpData?.recommendations || "") +
@@ -297,7 +313,21 @@ const PrintableSavedProtocol = React.forwardRef<
     softTissueData?.recommendations
       ? "\n"
       : "") +
-    (softTissueData?.recommendations || "");
+    (softTissueData?.recommendations || "") +
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      breastData?.recommendations ||
+      scrotumData?.recommendations ||
+      childDispensaryData?.recommendations ||
+      softTissueData?.recommendations) &&
+    lymphNodesData?.recommendations
+      ? "\n"
+      : "") +
+    (lymphNodesData?.recommendations || ""); // Добавьте эти строки
 
   const doctorName = protocolDoctorName || user?.name || "";
 
@@ -312,6 +342,7 @@ const PrintableSavedProtocol = React.forwardRef<
       { id: "thyroid", element: <ThyroidResearchPrint /> },
       { id: "breast", element: <BreastResearchPrint /> },
       { id: "scrotum", element: <ScrotumResearchPrint /> },
+      { id: "lymphNodes", element: <LymphNodesResearchPrint /> }, // Добавьте эту строку
       { id: "childDispensary", element: <ChildDispensaryPrint /> },
       { id: "softTissue", element: <SoftTissuePrint /> },
       {
@@ -348,6 +379,7 @@ const PrintableSavedProtocol = React.forwardRef<
       scrotumData,
       childDispensaryData,
       softTissueData,
+      lymphNodesData, // Добавьте эту зависимость
     ]
   );
 

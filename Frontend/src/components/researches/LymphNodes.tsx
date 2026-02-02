@@ -1,50 +1,54 @@
-// Frontend/src/components/researches/Thyroid.tsx
+// Frontend/src/components/researches/LymphNodes.tsx
 import React, { useState, useEffect } from "react";
-import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
+import LymphNodesCommon from "@organs/LymphNodes/LymphNodesCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
 import type {
-  ThyroidStudyProtocol,
-  ThyroidStudyProps,
-  ThyroidProtocol,
+  LymphNodesStudyProtocol,
+  LymphNodesStudyProps,
+  LymphNodesProtocol,
 } from "@/types";
-import { defaultThyroidStudyState } from "@/types";
+import { defaultLymphNodesStudyState } from "@/types";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
-type ThyroidSectionKey = Extract<
+type LymphNodesSectionKey = Extract<
   SectionKey,
-  | "Щитовидная железа:правая доля"
-  | "Щитовидная железа:левая доля"
+  | "Лимфатические узлы:Поднижнечелюстные"
+  | "Лимфатические узлы:Шейные"
+  | "Лимфатические узлы:Подключичные"
+  | "Лимфатические узлы:Надключичные"
+  | "Лимфатические узлы:Подмышечные"
+  | "Лимфатические узлы:Паховые"
 >;
 
-interface ThyroidWithSectionsProps extends ThyroidStudyProps {
+interface LymphNodesWithSectionsProps extends LymphNodesStudyProps {
   sectionRefs?: Record<
-    ThyroidSectionKey,
+    LymphNodesSectionKey,
     React.RefObject<HTMLDivElement | null>
   >;
 }
 
-export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
+export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
   value,
   onChange,
   sectionRefs,
 }) => {
-  const [form, setForm] = useState<ThyroidStudyProtocol>(
-    value ?? defaultThyroidStudyState
+  const [form, setForm] = useState<LymphNodesStudyProtocol>(
+    value ?? defaultLymphNodesStudyState
   );
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
-  const sync = (updated: ThyroidStudyProtocol) => {
+  const sync = (updated: LymphNodesStudyProtocol) => {
     setForm(updated);
-    setStudyData("Щитовидная железа", updated);
+    setStudyData("Лимфатические узлы", updated);
     onChange?.(updated);
   };
 
-  const updateThyroid = (thyroidData: ThyroidProtocol) => {
-    sync({ ...form, thyroid: thyroidData });
+  const updateLymphNodes = (lymphNodesData: LymphNodesProtocol) => {
+    sync({ ...form, lymphNodes: lymphNodesData });
   };
 
   const updateConclusion = (conclusionData: {
@@ -59,8 +63,8 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   };
 
   const handleConclusionFocus = () => {
-    showConclusionSamples("thyroid");
-    setCurrentOrgan("thyroid");
+    showConclusionSamples("lymphNodes");
+    setCurrentOrgan("lymphNodes");
   };
 
   // Обработчик события добавления текста образца заключения
@@ -69,7 +73,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
       const { text, studyId } = event.detail;
       
       // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-thyroid') return;
+      if (studyId !== 'study-lymphNodes') return;
       
       const currentConclusion = form.conclusion?.trim() ?? "";
       const newConclusion = currentConclusion 
@@ -83,7 +87,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
       };
       setForm(updated);
       onChange?.(updated);
-      setStudyData("Щитовидная железа", updated);
+      setStudyData("Лимфатические узлы", updated);
     };
 
     window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
@@ -96,12 +100,12 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
-        Ультразвуковое исследование щитовидной железы
+        Ультразвуковое исследование лимфатических узлов
       </div>
 
-      <ThyroidCommon
-        value={form.thyroid ?? undefined}
-        onChange={updateThyroid}
+      <LymphNodesCommon
+        value={form.lymphNodes ?? undefined}
+        onChange={updateLymphNodes}
         sectionRefs={sectionRefs}
       />
 
@@ -117,4 +121,4 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   );
 };
 
-export default Thyroid;
+export default LymphNodes;

@@ -16,3 +16,6 @@ export { default as Spleen } from './Spleen';
 export { default as UrinaryBladder } from './UrinaryBladder';
 export { default as Uterus } from './Uterus';
 export { default as ThyroidCommon } from './Thyroid/ThyroidCommon';
+export { LymphNodesCommon } from "./LymphNodes/LymphNodesCommon";
+export { LymphNodeRegion } from "./LymphNodes/LymphNodeRegion";
+export { LymphNodeComponent } from "./LymphNodes/LymphNode";

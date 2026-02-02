@@ -35,3 +35,7 @@ export type {
   BreastSectionKey, 
   BreastNodeProps,
 } from "./organs/breast";
+
+export * from "./organs/lymphNodes";
+export * from "./studyes/lymphNodesStudy";
+export { defaultLymphNodesStudyState } from "./defaultStates/lymphNodesStudy";
