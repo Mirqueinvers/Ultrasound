@@ -169,7 +169,7 @@ const formatLobeNodesList = (lobe: ThyroidLobeProtocol): React.ReactNode[] => {
 
     // Предполагаем, что у узла уже есть рассчитанное поле tiradsCategory
     // например "TI-RADS 4b" или "TI-RADS 3"
-    const tirads = n.tiradsCategory ? ` (${n.tiradsCategory})` : "";
+    const tirads = n.tiradsCategory ? ` (узел соответствует ${n.tiradsCategory})` : "";
 
     return (
       <React.Fragment key={`node-${idx}`}>

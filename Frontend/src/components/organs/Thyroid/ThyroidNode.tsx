@@ -1,5 +1,5 @@
 // src/components/organs/Thyroid/ThyroidNode.tsx
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { ButtonSelect } from "@/UI";
 import type { ThyroidNodeProps } from "@/types/organs/thyroid";
 
@@ -13,26 +13,32 @@ const ECHOGENICITY_POINTS: Record<string, number> = {
 };
 
 const ECHOSTRUCTURE_POINTS: Record<string, number> = {
-  кистозный: 0,              // cystic or almost completely cystic [web:41]
-  спонгиозный: 0,            // spongiform [web:41]
-  "кистозно-солидная": 1,    // mixed cystic and solid [web:41]
-  "преимущественно солидный": 2, // solid/almost completely solid [web:41]
-  солидный: 2,               // solid/almost completely solid [web:41]
+  кистозный: 0,
+  спонгиозный: 0,
+  "кистозно-солидная": 1,
+  "преимущественно солидный": 2,
+  солидный: 2,
 };
 
 const CONTOUR_POINTS: Record<string, number> = {
-  "четкий ровный": 0,                         // smooth [web:35]
-  "не четкий": 0,                             // ill-defined [web:35]
-  "не ровный": 2,                             // lobulated/irregular [web:35]
-  "экстра-тиреоидальное распространение": 3,  // extra-thyroidal extension [web:35]
+  "четкий ровный": 0,
+  "не четкий": 0,
+  "не ровный": 2,
+  "экстра-тиреоидальное распространение": 3,
 };
 
 const ECHOGENIC_FOCI_POINTS: Record<string, number> = {
-  нет: 0,                         // none [web:35]
-  "артефакт хвоста кометы": 0,    // large comet-tail artifacts [web:28][web:35]
-  макрокальцинаты: 1,             // macrocalcifications [web:35]
-  "периферические кальцинаты": 2, // peripheral (rim) calcifications [web:35]
-  микрокальцинаты: 3,             // punctate echogenic foci / microcalcifications [web:28][web:38]
+  нет: 0,
+  "артефакт хвоста кометы": 0,
+  макрокальцинаты: 1,
+  "периферические кальцинаты": 2,
+  микрокальцинаты: 3,
+};
+
+// Ориентация в TI-RADS
+const ORIENTATION_POINTS: Record<string, number> = {
+  горизонтальная: 0,
+  вертикальная: 3,
 };
 
 const getTiradsCategory = (points: number): string => {
@@ -46,7 +52,6 @@ const getTiradsCategory = (points: number): string => {
   return "TI-RADS (неопределенная категория)";
 };
 
-
 export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
   node,
   onUpdate,
@@ -55,26 +60,48 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
     node.echogenicity &&
     node.echostructure &&
     node.contour &&
-    node.echogenicFoci;
+    node.echogenicFoci &&
+    node.orientation;
 
-  const { totalPoints, tiradsText } = useMemo(() => {
+  const { totalPoints, tiradsText, tiradsCategory } = useMemo(() => {
     if (!allSelected) {
-      return { totalPoints: null as number | null, tiradsText: "" };
+      return {
+        totalPoints: null as number | null,
+        tiradsText: "",
+        tiradsCategory: "",
+      };
     }
 
     const pEcho = ECHOGENICITY_POINTS[node.echogenicity] ?? 0;
     const pStruct = ECHOSTRUCTURE_POINTS[node.echostructure] ?? 0;
     const pContour = CONTOUR_POINTS[node.contour] ?? 0;
     const pFoci = ECHOGENIC_FOCI_POINTS[node.echogenicFoci] ?? 0;
+    const pOrient = ORIENTATION_POINTS[node.orientation] ?? 0;
 
-    const sum = pEcho + pStruct + pContour + pFoci;
+    const sum = pEcho + pStruct + pContour + pFoci + pOrient;
     const category = getTiradsCategory(sum);
+    const categoryName = category.split(" (")[0];
 
     return {
       totalPoints: sum,
       tiradsText: `Узел соответствует ${category} (набранные баллы: ${sum}).`,
+      tiradsCategory: categoryName,
     };
-  }, [allSelected, node.echogenicity, node.echostructure, node.contour, node.echogenicFoci]);
+  }, [
+    allSelected,
+    node.echogenicity,
+    node.echostructure,
+    node.contour,
+    node.echogenicFoci,
+    node.orientation,
+  ]);
+
+  // Автоматически обновляем TI-RADS категорию в узле
+  useEffect(() => {
+    if (tiradsCategory && node.tiradsCategory !== tiradsCategory) {
+      onUpdate("tiradsCategory", tiradsCategory);
+    }
+  }, [tiradsCategory, node.tiradsCategory, onUpdate]);
 
   return (
     <div className="space-y-4">
@@ -162,6 +189,16 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
               label: "периферические кальцинаты",
             },
             { value: "микрокальцинаты", label: "микрокальцинаты" },
+          ]}
+        />
+
+        <ButtonSelect
+          label="Ориентация"
+          value={node.orientation}
+          onChange={(val) => onUpdate("orientation", val)}
+          options={[
+            { value: "горизонтальная", label: "горизонтальная" },
+            { value: "вертикальная", label: "вертикальная" },
           ]}
         />
 

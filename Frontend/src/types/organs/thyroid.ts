@@ -8,6 +8,7 @@ export interface ThyroidNode {
   echogenicity: string;
   echostructure: string;
   contour: string;
+  echogenicFoci: string;
   orientation: string;
   bloodFlow: string;
   comment: string;
