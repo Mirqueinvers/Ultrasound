@@ -72,52 +72,120 @@ const formatLobeNodesList = (lobe: ThyroidLobeProtocol): React.ReactNode[] => {
   return nodes.map((n: ThyroidNode, idx: number) => {
     const nodeParts: string[] = [];
 
+    // размеры
     const sizes: string[] = [];
     if (n.size1?.trim()) sizes.push(n.size1.trim());
     if (n.size2?.trim()) sizes.push(n.size2.trim());
     if (sizes.length > 0) {
       const sizesText = sizes.join(" × ");
-      nodeParts.push(`размерами ${sizesText} мм`);
+      nodeParts.push(`Размерами ${sizesText} мм`);
     }
 
+    // Эхогенность — только текст из плашки
     if (n.echogenicity?.trim()) {
-      const echo = n.echogenicity.trim().toLowerCase();
+      nodeParts.push(capitalizeFirst(n.echogenicity.trim()));
+    }
 
-      if (echo === "анэхогенная") {
-        // специальный случай – только прилагательное, в мужском роде
-        nodeParts.push("анэхогенный");
-      } else {
-        nodeParts.push(`эхогенность ${echo}`);
+    // Эхоструктура
+    if (n.echostructure?.trim()) {
+      const es = n.echostructure.trim();
+      switch (es) {
+        case "кистозный":
+          nodeParts.push("Структура однородная");
+          break;
+        case "спонгиозный":
+          nodeParts.push("Структура спонгиозная");
+          break;
+        case "кистозно-солидная":
+          nodeParts.push("Структура кистозно-солидная");
+          break;
+        case "преимущественно солидный":
+          nodeParts.push("Структура преимущественно солидная");
+          break;
+        case "солидный":
+          nodeParts.push("Структура солидная");
+          break;
+        default:
+          nodeParts.push(`Эхоструктура ${es.toLowerCase()}`);
       }
     }
 
-    if (n.echostructure?.trim()) {
-      nodeParts.push(`эхоструктура ${n.echostructure.toLowerCase()}`);
-    }
+    // Контур
     if (n.contour?.trim()) {
-      nodeParts.push(`контур ${n.contour.toLowerCase()}`);
+      const c = n.contour.trim();
+      if (c === "четкий ровный") {
+        nodeParts.push("Контур четкий, ровный");
+      } else if (c === "не четкий") {
+        nodeParts.push("Контур не четкий");
+      } else if (c === "не ровный") {
+        nodeParts.push("Контур не ровный");
+      } else if (c === "экстра-тиреоидальное распространение") {
+        nodeParts.push("Отмечается экстратиреоидальное распространение");
+      } else {
+        nodeParts.push(`Контур ${c.toLowerCase()}`);
+      }
     }
+
+    // Ориентация
     if (n.orientation?.trim()) {
-      nodeParts.push(`ориентация ${n.orientation.toLowerCase()}`);
+      nodeParts.push(`Ориентация ${n.orientation.toLowerCase()}`);
     }
+
+    // Эхогенные фокусы
+    if (n.echogenicFoci?.trim()) {
+      const f = n.echogenicFoci.trim();
+      if (f === "артефакт хвоста кометы") {
+        nodeParts.push(
+          "В узле определяются включения по типу артефактов хвоста кометы",
+        );
+      } else if (f === "макрокальцинаты") {
+        nodeParts.push(
+          "В узле определяется кальцинат с выраженной акустической тенью",
+        );
+      } else if (f === "периферические кальцинаты") {
+        nodeParts.push("В узле определяются периферические кальцинаты");
+      } else if (f === "микрокальцинаты") {
+        nodeParts.push(
+          "В толще узла и на периферии определяются микрокальцинаты",
+        );
+      }
+      // "нет" – ничего не пишем
+    }
+
+    // Кровоток
     if (n.bloodFlow?.trim()) {
-      nodeParts.push(`кровоток ${n.bloodFlow.toLowerCase()}`);
+      nodeParts.push(`Кровоток ${n.bloodFlow.toLowerCase()}`);
     }
+
+    // Комментарий
     if (n.comment?.trim()) {
+      // комментарий обычно уже с большой буквы, не трогаем
       nodeParts.push(n.comment.trim());
     }
 
-    const nodeText = nodeParts.length > 0 ? nodeParts.join(", ") : "";
+    // Собираем текст узла с точками
+    const nodeText =
+      nodeParts.length > 0 ? nodeParts.join(". ") + "." : "";
+
+    // Предполагаем, что у узла уже есть рассчитанное поле tiradsCategory
+    // например "TI-RADS 4b" или "TI-RADS 3"
+    const tirads = n.tiradsCategory ? ` (${n.tiradsCategory})` : "";
 
     return (
       <React.Fragment key={`node-${idx}`}>
         <br />
         {`Узел №${n.number}`}
-        {nodeText ? `: ${nodeText}.` : "."}
+        {nodeText ? `: ${nodeText}${tirads}` : `.${tirads}`}
       </React.Fragment>
     );
   });
 };
+
+// Вспомогательная функция
+const capitalizeFirst = (text: string): string =>
+  text.charAt(0).toUpperCase() + text.slice(1);
+
+
 
 const renderLobeBlock = (
   label: "Правая доля" | "Левая доля",

@@ -11,6 +11,7 @@ export interface ThyroidNode {
   orientation: string;
   bloodFlow: string;
   comment: string;
+  tiradsCategory?: string;
 }
 
 export interface ThyroidLobeProtocol {
