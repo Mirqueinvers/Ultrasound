@@ -18,6 +18,7 @@ import OrgNavigation, {
   type SectionKey,
 } from "@components/common/OrgNavigation";
 import { useResearch } from "@contexts";
+import { Directory } from "@components/directory";
 
 import PrintModal from "@components/print/PrintModal";
 import {
@@ -63,7 +64,6 @@ const Content: React.FC<ContentProps> = ({
   const [isPrintModalOpen, setIsPrintModalOpen] =
     React.useState(false);
 
-  // локальный флаг: идёт ли создание исследования
   const [isCreating, setIsCreating] = React.useState(false);
 
   const sectionRefs = useSectionRefs();
@@ -129,16 +129,9 @@ const Content: React.FC<ContentProps> = ({
     return <SearchSection />;
   }
 
-  // Тестовый режим
-  if (activeSection === "test") {
-    return (
-      <div className="content">
-        <h2 className="text-slate-800 mt-0">Тестовый режим</h2>
-        <p className="text-slate-600">
-          Здесь можно будет добавить тестовый вывод печати
-        </p>
-      </div>
-    );
+  // Справочник
+  if (activeSection === "directory") {
+    return <Directory />;
   }
 
   // Не "УЗИ протоколы"
@@ -176,7 +169,7 @@ const Content: React.FC<ContentProps> = ({
           onClose={() => setSaveMessage(null)}
         />
 
-                <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6">
           {selectedStudies.map((study, index) => (
             <div
               key={index}
@@ -277,7 +270,6 @@ const Content: React.FC<ContentProps> = ({
             </div>
           ))}
         </div>
-
 
         <ResearchActions
           isSaving={isSaving}
