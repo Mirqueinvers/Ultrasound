@@ -63,7 +63,7 @@ export const ThyroidNodeComponent: React.FC<ThyroidNodeProps> = ({
     node.echogenicFoci &&
     node.orientation;
 
-  const { totalPoints, tiradsText, tiradsCategory } = useMemo(() => {
+  const { tiradsText, tiradsCategory } = useMemo(() => {
     if (!allSelected) {
       return {
         totalPoints: null as number | null,

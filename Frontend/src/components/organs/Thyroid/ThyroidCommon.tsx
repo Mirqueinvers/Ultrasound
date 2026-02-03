@@ -1,8 +1,8 @@
 // src/components/organs/Thyroid/ThyroidCommon.tsx
 import React, { useEffect } from "react";
-import { Fieldset, ButtonSelect, SizeRow } from "@/UI";
+import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldUpdate, useFieldFocus } from "@hooks";
+import { useFormState, useFieldUpdate } from "@hooks";
 import { ThyroidLobe } from "./ThyroidLobe";
 import type { 
   ThyroidProtocol, 
@@ -20,9 +20,6 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
     value ?? defaultThyroidState
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
-
-  // Фокус для поля перешейка
-  const isthmusFocus = useFieldFocus("thyroid", "isthmusSize");
 
   // Автоматический расчет общего объема
   useEffect(() => {

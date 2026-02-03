@@ -66,6 +66,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
       orientation: "горизонтальная",
       bloodFlow: "не изменен",
       comment: "",
+      echogenicFoci: "",
     };
     nodesManager.addItem(newNode);
   };

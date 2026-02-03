@@ -18,4 +18,4 @@ export { default as Uterus } from './Uterus';
 export { default as ThyroidCommon } from './Thyroid/ThyroidCommon';
 export { LymphNodesCommon } from "./LymphNodes/LymphNodesCommon";
 export { LymphNodeRegion } from "./LymphNodes/LymphNodeRegion";
-export { LymphNodeComponent } from "./LymphNodes/LymphNode";
+export { default as LymphNodeComponent } from "./LymphNodes/LymphNode";
