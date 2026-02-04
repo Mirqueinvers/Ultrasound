@@ -13,6 +13,8 @@ type MainLayoutProps = PropsWithChildren<{
   selectedStudies?: string[];
   onToggleStudy?: (value: string) => void;
   onNavigateToProfile: () => void;
+  selectedDirectoryItem: string;
+  onDirectoryItemSelect: (value: string) => void;
 }>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -25,6 +27,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   selectedStudies = [],
   onToggleStudy,
   onNavigateToProfile,
+  selectedDirectoryItem = "",
+  onDirectoryItemSelect,
 }) => {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -43,6 +47,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             isMultiSelectMode={isMultiSelectMode}
             selectedStudies={selectedStudies}
             onToggleStudy={onToggleStudy}
+            selectedDirectoryItem={selectedDirectoryItem}
+            onDirectoryItemSelect={onDirectoryItemSelect}
           />
 
           <div className="w-[70%] bg-white border border-slate-300 px-6 py-6 shadow-lg rounded-lg">

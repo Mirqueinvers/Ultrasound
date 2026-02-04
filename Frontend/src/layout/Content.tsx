@@ -41,6 +41,7 @@ interface ContentProps {
   isMultiSelectMode: boolean;
   onStartNewResearch: () => void;
   onCancelNewResearch: () => void;
+  selectedDirectoryItem?: string;
 }
 
 const Content: React.FC<ContentProps> = ({
@@ -48,6 +49,7 @@ const Content: React.FC<ContentProps> = ({
   selectedStudies,
   onStartNewResearch,
   onCancelNewResearch,
+  selectedDirectoryItem = "",
 }) => {
   const {
     patientFullName,
@@ -131,7 +133,7 @@ const Content: React.FC<ContentProps> = ({
 
   // Справочник
   if (activeSection === "directory") {
-    return <Directory />;
+    return <Directory selectedDirectoryItem={selectedDirectoryItem} />;
   }
 
   // Не "УЗИ протоколы"

@@ -64,6 +64,7 @@ function AppContent() {
   const [selectedStudy, setSelectedStudy] = useState<string>("");
   const [selectedStudies, setSelectedStudies] = useState<string[]>([]);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
+  const [selectedDirectoryItem, setSelectedDirectoryItem] = useState<string>("");
 
   const handleToggleStudy = (study: string) => {
     setSelectedStudies((prev) =>
@@ -94,6 +95,10 @@ function AppContent() {
 
   const handleNavigateToProfile = () => {
     setActiveSection("profile");
+  };
+
+  const handleDirectoryItemSelect = (item: string) => {
+    setSelectedDirectoryItem(item);
   };
 
   if (isLoading) {
@@ -141,6 +146,8 @@ function AppContent() {
             selectedStudies={selectedStudies}
             onToggleStudy={handleToggleStudy}
             onNavigateToProfile={handleNavigateToProfile}
+            selectedDirectoryItem={selectedDirectoryItem}
+            onDirectoryItemSelect={handleDirectoryItemSelect}
           >
             <ProfilePage />
           </MainLayout>
@@ -164,6 +171,8 @@ function AppContent() {
               selectedStudies={selectedStudies}
               onToggleStudy={handleToggleStudy}
               onNavigateToProfile={handleNavigateToProfile}
+              selectedDirectoryItem={selectedDirectoryItem}
+              onDirectoryItemSelect={handleDirectoryItemSelect}
             >
               <Journal />
             </MainLayout>
@@ -187,6 +196,8 @@ function AppContent() {
             selectedStudies={selectedStudies}
             onToggleStudy={handleToggleStudy}
             onNavigateToProfile={handleNavigateToProfile}
+            selectedDirectoryItem={selectedDirectoryItem}
+            onDirectoryItemSelect={handleDirectoryItemSelect}
           >
             <Statistics />
           </MainLayout>
@@ -209,6 +220,8 @@ function AppContent() {
             selectedStudies={selectedStudies}
             onToggleStudy={handleToggleStudy}
             onNavigateToProfile={handleNavigateToProfile}
+            selectedDirectoryItem={selectedDirectoryItem}
+            onDirectoryItemSelect={handleDirectoryItemSelect}
           >
             <Content
               selectedStudy={selectedStudy}

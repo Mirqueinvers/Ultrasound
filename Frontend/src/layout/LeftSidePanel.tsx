@@ -7,6 +7,8 @@ interface LeftSidePanelProps {
   isMultiSelectMode?: boolean;
   selectedStudies?: string[];
   onToggleStudy?: (study: string) => void;
+  selectedDirectoryItem?: string;
+  onDirectoryItemSelect?: (item: string) => void;
 }
 
 const LeftSidePanel: React.FC<LeftSidePanelProps> = ({ 
@@ -15,7 +17,9 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   onStudySelect,
   isMultiSelectMode = false,
   selectedStudies = [],
-  onToggleStudy
+  onToggleStudy,
+  selectedDirectoryItem = "",
+  onDirectoryItemSelect
 }) => {
   const studiesList = [
     'ОБП',
@@ -33,6 +37,14 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
     'УВНК',
   ];
 
+  const directoryItems = [
+    'TI-RADS',
+    'Размеры щитовидной железы',
+    'Нормы ОБП',
+    'Нормы почек',
+    'Размеры молочных желез',
+  ];
+
   const handleStudyClick = (study: string) => {
     if (isMultiSelectMode && onToggleStudy) {
       onToggleStudy(study);
@@ -42,10 +54,21 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   };
 
   const isStudySelected = (study: string) => {
+    if (activeSection === 'directory') {
+      return selectedDirectoryItem === study;
+    }
     if (isMultiSelectMode) {
       return selectedStudies.includes(study);
     }
     return selectedStudy === study;
+  };
+
+  const handleItemClick = (item: string) => {
+    if (activeSection === 'directory' && onDirectoryItemSelect) {
+      onDirectoryItemSelect(item);
+    } else {
+      handleStudyClick(item);
+    }
   };
 
   return (
@@ -55,6 +78,11 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
           <div>
             <h3 className="text-lg font-bold text-slate-800 m-0">УЗИ исследования</h3>
             <p className="text-xs text-slate-500 m-0 mt-1">Выберите тип протокола</p>
+          </div>
+        ) : activeSection === 'directory' ? (
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 m-0">Справочник</h3>
+            <p className="text-xs text-slate-500 m-0 mt-1">Выберите раздел</p>
           </div>
         ) : (
           <h3 className="text-lg font-bold text-slate-800 m-0">Левая панель</h3>
@@ -104,6 +132,51 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                       ✓
                     </div>
                   )}
+
+                  {/* Hover эффект свечения */}
+                  {!selected && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-slate-100/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
+      {activeSection === 'directory' && (
+        <nav className="p-3">
+          <div className="flex flex-col gap-1.5">
+            {directoryItems.map((item, index) => {
+              const selected = isStudySelected(item);
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleItemClick(item)}
+                  className={`
+                    group relative flex items-center justify-between px-3.5 py-3 rounded-xl 
+                    text-left transition-all duration-200 text-sm font-medium
+                    ${selected
+                      ? 'bg-sky-50 text-sky-700 shadow-md shadow-sky-100/50 scale-[1.02]'
+                      : 'text-slate-700 hover:bg-slate-50 hover:scale-[1.01]'
+                    }
+                  `}
+                >
+                  {/* Левый акцент */}
+                  {selected && (
+                    <div
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[95%] rounded-l-full"
+                      style={{
+                        background: "linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))",
+                      }}
+                    />
+                  )}
+
+                  {/* Название */}
+                  <span className="flex-1 leading-tight">
+                    {item}
+                  </span>
 
                   {/* Hover эффект свечения */}
                   {!selected && (
