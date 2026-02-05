@@ -1,3 +1,4 @@
+// src/components/directory
 import React from "react";
 
 interface DirectoryProps {
@@ -5,7 +6,6 @@ interface DirectoryProps {
 }
 
 const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => {
-  console.log('Directory component received selectedDirectoryItem:', selectedDirectoryItem);
   
   const renderTIRADSContent = () => (
     <div className="mt-6">
@@ -91,7 +91,7 @@ const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => 
                 <li>• Кистозный или почти полностью кистозный: 0 баллов</li>
                 <li>• Спонгиозный: 0 баллов</li>
                 <li>• Частично кистозный или кистозный с эхогенными включениями: 1 балл</li>
-                <li>• Твердый или почти полностью твердый: 2 балла</li>
+                <li>• Солидный или почти полностью солидный: 2 балла</li>
               </ul>
             </div>
             <div>
@@ -113,11 +113,10 @@ const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => 
             <div>
               <h5 className="text-sm font-medium text-slate-700 mb-2">Контуры:</h5>
               <ul className="text-sm text-slate-600 space-y-1">
-                <li>• Гладкие: 0 баллов</li>
-                <li>• Неопределенные: 0 баллов</li>
+                <li>• Ровные: 0 баллов</li>
+                <li>• Нечеткие: 0 баллов</li>
                 <li>• Неровные или дольчатые: 2 балла</li>
-                <li>• Экзофитные: 0 баллов</li>
-                <li>• Фестончатые: 2 балла</li>
+                <li>• Экстра-тиреоидальное распространение: 3 балла</li>
               </ul>
             </div>
           </div>
@@ -157,35 +156,6 @@ const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => 
             </ul>
           </div>
         </div>
-      </div>
-
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <h5 className="text-sm font-medium text-blue-800 mb-2">О системе TIRADS</h5>
-        <p className="text-blue-700 text-sm mb-2">
-          TIRADS (Thyroid Imaging Reporting and Data System) — это акроним от "Thyroid image reporting and data system".
-        </p>
-        <p className="text-blue-700 text-sm mb-2">
-          Рекомендации были разработаны Horvath и другими, модифицированы Jin Kwark и другими. 
-          Классификация TIRADS, разработанная American College of Radiology (ACR), используется для 
-          определения дальнейшей тактики ведения пациентов, у которых выявили узловые изменения в щитовидной железе. 
-          В 2017 году разработана стандартизированная шкала оценки изменений щитовидной железы (шкала ACR TIRADS), 
-          рекомендации для выполнения тонкоугольной аспирационной биопсии (ТАБ) и повторных исследований.
-        </p>
-        <p className="text-blue-700 text-sm">
-          <strong>ACR TI-RADS</strong> использует стандартизированную бальную систему оценки каждого ультразвукового признака. 
-          <strong>EU TI-RADS</strong> применяет подход, основанный на количестве выявленных признаков злокачественности.
-        </p>
-      </div>
-
-      <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-        <h5 className="text-sm font-medium text-amber-800 mb-2">Важная информация</h5>
-        <ul className="text-amber-700 text-sm space-y-1">
-          <li>• Классификация TIRADS не является диагнозом</li>
-          <li>• Показания к биопсии зависят от размера узла и категории TIRADS</li>
-          <li>• Окончательный диагноз устанавливается на основании цитологического исследования</li>
-          <li>• TIRADS 4 подразделяется на подкатегории 4a, 4b, 4c в зависимости от количества признаков</li>
-          <li>• При множественных узлах каждый узел оценивается отдельно</li>
-        </ul>
       </div>
     </div>
   );

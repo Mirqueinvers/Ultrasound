@@ -18,6 +18,7 @@ import OrgNavigation, {
   type SectionKey,
 } from "@components/common/OrgNavigation";
 import { useResearch } from "@contexts";
+import { useAuth } from "@contexts/AuthContext";
 import { Directory } from "@components/directory";
 
 import PrintModal from "@components/print/PrintModal";
@@ -41,7 +42,7 @@ interface ContentProps {
   isMultiSelectMode: boolean;
   onStartNewResearch: () => void;
   onCancelNewResearch: () => void;
-  selectedDirectoryItem?: string;
+  selectedDirectoryItem: string;
 }
 
 const Content: React.FC<ContentProps> = ({
@@ -49,8 +50,9 @@ const Content: React.FC<ContentProps> = ({
   selectedStudies,
   onStartNewResearch,
   onCancelNewResearch,
-  selectedDirectoryItem = "",
+  selectedDirectoryItem,
 }) => {
+  const { user } = useAuth();
   const {
     patientFullName,
     patientDateOfBirth,
@@ -59,6 +61,7 @@ const Content: React.FC<ContentProps> = ({
     clearStudiesData,
     setStudyData,
     clearHeaderData,
+    setOrganization,
   } = useResearch();
 
   const [paymentType, setPaymentType] =
@@ -92,6 +95,12 @@ const Content: React.FC<ContentProps> = ({
   const handleStartClick = () => {
     clearHeaderData();
     clearStudiesData();
+    
+    // Устанавливаем организацию из профиля пользователя
+    if (user?.organization) {
+      setOrganization(user.organization);
+    }
+    
     setIsCreating(true);
     onStartNewResearch();
   };
@@ -105,6 +114,12 @@ const Content: React.FC<ContentProps> = ({
   const handleStartNewResearchFromActions = () => {
     clearHeaderData();
     clearStudiesData();
+    
+    // Устанавливаем организацию из профиля пользователя
+    if (user?.organization) {
+      setOrganization(user.organization);
+    }
+    
     setIsCreating(true);
     onStartNewResearch();
   };

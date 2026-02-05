@@ -231,6 +231,7 @@ function AppContent() {
               isMultiSelectMode={isMultiSelectMode}
               onStartNewResearch={handleStartNewResearch}
               onCancelNewResearch={handleCancelNewResearch}
+              selectedDirectoryItem={selectedDirectoryItem}
             />
           </MainLayout>
         </RightPanelProvider>

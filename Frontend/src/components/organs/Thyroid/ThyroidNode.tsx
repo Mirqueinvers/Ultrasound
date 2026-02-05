@@ -42,7 +42,8 @@ const ORIENTATION_POINTS: Record<string, number> = {
 };
 
 const getTiradsCategory = (points: number): string => {
-  if (points === 0) return "TI-RADS 1 (доброкачественный)";
+  if (points === 0) return "TI-RADS 2 (доброкачественный)";
+  if (points === 1) return "TI-RADS 2 (неподозрительный)";
   if (points === 2) return "TI-RADS 2 (неподозрительный)";
   if (points === 3) return "TI-RADS 3 (слабо подозрительный)";
   if (points === 4) return "TI-RADS 4a (умеренно подозрительный)";
