@@ -74,26 +74,6 @@ const Birads: React.FC = () => (
         </table>
       </div>
     </div>
-
-    <div className="mb-6">
-      <h4 className="text-md font-medium text-slate-600 mb-3">Ключевые идеи BI-RADS</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-          <h5 className="text-sm font-medium text-slate-700 mb-2">Цель системы</h5>
-          <p className="text-sm text-slate-600">
-            BI-RADS стандартизирует язык описания маммографии, УЗИ и МРТ молочных желез и
-            связывает категорию с дальнейшей тактикой ведения.
-          </p>
-        </div>
-        <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-          <h5 className="text-sm font-medium text-slate-700 mb-2">Категории 4A–4C</h5>
-          <p className="text-sm text-slate-600">
-            Категория 4 делится на подкатегории с разной степенью подозрения, но во всех
-            случаях требуется морфологическая верификация.
-          </p>
-        </div>
-      </div>
-    </div>
   </div>
 );
 

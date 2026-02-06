@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 interface LeftSidePanelProps {
   activeSection: string;
@@ -40,6 +40,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   const directoryItems = [
     'TI-RADS',
     'BI-RADS',
+    'O-RADS',
     'Размеры щитовидной железы',
     'Нормы ОБП',
     'Нормы почек',
@@ -194,3 +195,5 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
 };
 
 export default LeftSidePanel;
+
+
