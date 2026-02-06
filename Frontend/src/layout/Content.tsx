@@ -7,6 +7,7 @@ import {
   OmtMale,
   Scrotum,
   Thyroid,
+  Pleural,
   Breast,
   ChildDispensary,
   SoftTissue,
@@ -237,6 +238,14 @@ const Content: React.FC<ContentProps> = ({
                   value={studiesData["Щитовидная железа"]}
                   onChange={(updated) =>
                     setStudyData("Щитовидная железа", updated)
+                  }
+                  sectionRefs={sectionRefs.current}
+                />
+              ) : study === "Плевральные полости" ? (
+                <Pleural
+                  value={studiesData["Плевральные полости"]}
+                  onChange={(updated) =>
+                    setStudyData("Плевральные полости", updated)
                   }
                   sectionRefs={sectionRefs.current}
                 />

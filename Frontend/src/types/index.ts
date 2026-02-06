@@ -13,6 +13,7 @@ export type { OvaryCyst } from './organs/ovary';
 export * from "./organs/prostate";
 export * from "./organs/testis";
 export * from "./organs/thyroid";
+export * from "./organs/pleural";
 export * from "./organs/breast";
 export * from "./studyes/childDispensary";
 export * from "./studyes/softTissue";
@@ -23,6 +24,7 @@ export * from './studyes/omtMale';
 export * from './studyes/breastStudy';
 export * from './studyes/scrotum';
 export * from './studyes/thyroidStudy';
+export * from './studyes/pleuralStudy';
 export * from './studyes/urinaryBladderStudy';
 export * from "./interface/patient";
 

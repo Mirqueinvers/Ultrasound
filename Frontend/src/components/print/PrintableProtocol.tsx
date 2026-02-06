@@ -15,11 +15,13 @@ import ScrotumResearchPrint from "@/components/print/researches/ScrotumPrint";
 import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryPrint";
 import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
 import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPrint";
+import PleuralResearchPrint from "@/components/print/researches/PleuralPrint";
 
 type BlockId =
   | "header"
   | "obp"
   | "thyroid"
+  | "pleural"
   | "breast"
   | "scrotum"
   | "omtFemale"
@@ -46,6 +48,7 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
   const omtFemaleData = studiesData["ОМТ (Ж)"];
   const omtMaleData = studiesData["ОМТ (М)"];
   const thyroidData = studiesData["Щитовидная железа"];
+  const pleuralData = studiesData["Плевральные полости"];
   const breastData = studiesData["Молочные железы"];
   const scrotumData = studiesData["Органы мошонки"];
   const childDispensaryData = studiesData["Детская диспансеризация"];
@@ -91,6 +94,17 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtFemaleData?.conclusion ||
       omtMaleData?.conclusion ||
       thyroidData?.conclusion) &&
+      pleuralData?.conclusion
+      ? "\n"
+      : "") +
+    (pleuralData?.conclusion || "") +
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      pleuralData?.conclusion) &&
       lymphNodesData?.conclusion
       ? "\n"
       : "") +
@@ -181,6 +195,17 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtFemaleData?.recommendations ||
       omtMaleData?.recommendations ||
       thyroidData?.recommendations) &&
+      pleuralData?.recommendations
+      ? "\n"
+      : "") +
+    (pleuralData?.recommendations || "") +
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      pleuralData?.recommendations) &&
       lymphNodesData?.recommendations
       ? "\n"
       : "") +
@@ -244,6 +269,7 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       { id: "omtFemale", element: <OmtFemalePrint /> },
       { id: "omtMale", element: <OmtMalePrint /> },
       { id: "thyroid", element: <ThyroidResearchPrint /> },
+      { id: "pleural", element: <PleuralResearchPrint /> },
       { id: "lymphNodes", element: <LymphNodesResearchPrint /> },
       { id: "breast", element: <BreastResearchPrint /> },
       { id: "scrotum", element: <ScrotumResearchPrint /> },
@@ -282,6 +308,7 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtFemaleData,
       omtMaleData,
       thyroidData,
+      pleuralData,
       breastData,
       scrotumData,
       childDispensaryData,
