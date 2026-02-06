@@ -115,7 +115,7 @@ const renderRegionBlock = (
       return (
         <React.Fragment key={`right-${idx}`}>
           <br />
-          {`Справа №${idx + 1}: ${desc}`}
+          {`№${idx + 1}: ${desc}`}
         </React.Fragment>
       );
     });
@@ -141,7 +141,7 @@ const renderRegionBlock = (
       return (
         <React.Fragment key={`left-${idx}`}>
           <br />
-          {`Слева №${idx + 1}: ${desc}`}
+          {`№${idx + 1}: ${desc}`}
         </React.Fragment>
       );
     });
@@ -182,7 +182,17 @@ export const LymphNodesPrint: React.FC<LymphNodesPrintProps> = ({ value }) => {
     { key: "inguinal", data: inguinal },
   ];
 
-  const hasAnyContent = regions.some((r) => r.data);
+  const hasAnyContent = regions.some((r) => {
+    if (!r.data) return false;
+    
+    // Если регион не определяется, считаем что есть содержимое
+    if (r.data.detected === "not_detected") return true;
+    
+    // Если есть узлы, считаем что есть содержимое
+    if (r.data.nodes && r.data.nodes.length > 0) return true;
+    
+    return false;
+  });
 
   if (!hasAnyContent) return null;
 
@@ -195,9 +205,6 @@ export const LymphNodesPrint: React.FC<LymphNodesPrintProps> = ({ value }) => {
       }}
     >
       <p style={{ margin: 0, whiteSpace: "pre-line" }}>
-        <span style={{ fontWeight: 700, fontSize: "16px" }}>
-          Лимфатические узлы:
-        </span>
         {regions.map((r) => renderRegionBlock(r.key, r.data))}
       </p>
     </div>

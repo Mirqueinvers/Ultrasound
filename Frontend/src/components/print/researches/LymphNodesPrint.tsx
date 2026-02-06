@@ -7,19 +7,33 @@ import type { LymphNodesProtocol } from "@types";
 export const LymphNodesResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const lymphNodesData = studiesData["Лимфоузлы"];
-  const lymphNodesProtocol = lymphNodesData?.lymphNodes as
-    | LymphNodesProtocol
-    | undefined;
+  // Пробуем разные варианты ключей и структур данных
+  const lymphNodesData = studiesData["Лимфатические узлы"] || 
+                        studiesData["Лимфоузлы"] || 
+                        studiesData["lymphNodes"];
+  
+  // Проверяем разные возможные структуры данных
+  let lymphNodesProtocol: LymphNodesProtocol | undefined;
+  
+  if (lymphNodesData) {
+    if (lymphNodesData.lymphNodes) {
+      // Стандартная структура: { lymphNodes: {...} }
+      lymphNodesProtocol = lymphNodesData.lymphNodes as LymphNodesProtocol;
+    } else {
+      // Альтернативная структура: данные находятся напрямую в объекте
+      lymphNodesProtocol = lymphNodesData as LymphNodesProtocol;
+    }
+  }
 
-  if (!lymphNodesProtocol) {
+  // Проверяем наличие данных исследования и протокола лимфоузлов
+  if (!lymphNodesData || !lymphNodesProtocol) {
     return null;
   }
 
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        Ультразвуковое исследование лимфатических узлов
+        Ультразвуковое исследование периферических лимфатических узлов
       </p>
 
       <LymphNodesPrint value={lymphNodesProtocol} />

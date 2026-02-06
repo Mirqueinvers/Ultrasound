@@ -139,7 +139,12 @@ const PrintableSavedProtocol = React.forwardRef<
   const scrotumData = studiesData["Органы мошонки"];
   const childDispensaryData = studiesData["Детская диспансеризация"];
   const softTissueData = studiesData["Мягких тканей"];
-  const lymphNodesData = studiesData["Лимфоузлы"]; // Добавьте эту строку
+  // Поддержка разных ключей для лимфатических узлов
+  const lymphNodesData = studiesData["Лимфатические узлы"] || 
+                        studiesData["Лимфоузлы"] || 
+                        studiesData["lymphNodes"];
+
+
 
   const conclusion =
     (obpData?.conclusion || "") +
@@ -233,7 +238,7 @@ const PrintableSavedProtocol = React.forwardRef<
     lymphNodesData?.conclusion
       ? "\n"
       : "") +
-    (lymphNodesData?.conclusion || ""); // Добавьте эти строки
+    (lymphNodesData?.conclusion || "");
 
   const recommendations =
     (obpData?.recommendations || "") +
@@ -327,7 +332,7 @@ const PrintableSavedProtocol = React.forwardRef<
     lymphNodesData?.recommendations
       ? "\n"
       : "") +
-    (lymphNodesData?.recommendations || ""); // Добавьте эти строки
+    (lymphNodesData?.recommendations || "");
 
   const doctorName = protocolDoctorName || user?.name || "";
 
@@ -379,7 +384,7 @@ const PrintableSavedProtocol = React.forwardRef<
       scrotumData,
       childDispensaryData,
       softTissueData,
-      lymphNodesData, // Добавьте эту зависимость
+      lymphNodesData,
     ]
   );
 
