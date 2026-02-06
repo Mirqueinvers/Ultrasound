@@ -50,6 +50,21 @@ const Journal: React.FC = () => {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [isEditPatientOpen, setIsEditPatientOpen] = useState(false);
 
+  const handleDeleteResearch = async (researchId: number) => {
+    try {
+      await window.researchAPI.delete(researchId);
+      
+      setEntries((prev) =>
+        prev.map((entry) => ({
+          ...entry,
+          researches: entry.researches.filter((research) => research.id !== researchId),
+        })),
+      );
+    } catch (e) {
+      console.error("Ошибка удаления исследования", e);
+    }
+  };
+
   const toggleExpanded = (patientId: number) => {
     setExpandedPatientIds((prev) =>
       prev.includes(patientId)
@@ -190,6 +205,7 @@ const Journal: React.FC = () => {
                     onToggle={() => toggleExpanded(patient.id)}
                     onOpenProtocol={openProtocol}
                     onEditPatient={() => openEditPatient(patient)}
+                    onDeleteResearch={handleDeleteResearch}
                     formatPatientName={formatPatientName}
                     formatDateRu={formatDateRu}
                   />

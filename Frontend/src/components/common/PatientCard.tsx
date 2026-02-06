@@ -3,6 +3,55 @@
 import React from "react";
 import type { Patient, Research } from "@/types";
 
+interface ConfirmDialogProps {
+  open: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+  open,
+  title,
+  message,
+  onConfirm,
+  onClose,
+}) => {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+        <h3 className="mb-2 text-base font-semibold text-slate-900">
+          {title}
+        </h3>
+        <p className="mb-4 text-sm text-slate-700">{message}</p>
+
+        <div className="mt-2 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            Отмена
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className="rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+          >
+            Да
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export interface PatientCardProps {
   patient: Patient;
   researches: Research[];
@@ -10,6 +59,7 @@ export interface PatientCardProps {
   onToggle: () => void;
   onOpenProtocol: (researchId: number) => void;
   onEditPatient?: () => void;
+  onDeleteResearch?: (researchId: number) => void;
   formatPatientName: (p: Patient) => string;
   formatDateRu: (value: string) => string;
 }
@@ -21,12 +71,33 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   onToggle,
   onOpenProtocol,
   onEditPatient,
+  onDeleteResearch,
   formatPatientName,
   formatDateRu,
 }) => {
   const totalResearches = researches.length;
   const omsCount = researches.filter((r) => r.payment_type === "oms").length;
   const paidCount = totalResearches - omsCount;
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [researchToDelete, setResearchToDelete] = React.useState<number | null>(null);
+
+  const handleDeleteResearchClick = (researchId: number) => {
+    setResearchToDelete(researchId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (researchToDelete && onDeleteResearch) {
+      onDeleteResearch(researchToDelete);
+    }
+    setResearchToDelete(null);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setResearchToDelete(null);
+  };
 
   return (
     <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-shadow hover:shadow-md">
@@ -149,13 +220,24 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => onOpenProtocol(r.id)}
-                    className="mt-1 self-start text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
-                  >
-                    Посмотреть протокол исследования
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onOpenProtocol(r.id)}
+                      className="mt-1 self-start text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
+                    >
+                      Посмотреть протокол исследования
+                    </button>
+                    {onDeleteResearch && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteResearchClick(r.id)}
+                        className="mt-1 self-start text-[11px] font-medium text-red-600 hover:text-red-700 hover:underline"
+                      >
+                        Удалить исследование
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
@@ -178,6 +260,14 @@ export const PatientCard: React.FC<PatientCardProps> = ({
           </ul>
         </div>
       )}
+
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        title="Удалить исследование?"
+        message="Это действие нельзя отменить. Исследование будет безвозвратно удалено."
+        onConfirm={handleConfirmDelete}
+        onClose={handleCloseDeleteDialog}
+      />
     </div>
   );
 };
