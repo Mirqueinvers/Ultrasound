@@ -39,6 +39,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
 
   const directoryItems = [
     'TI-RADS',
+    'BI-RADS',
     'Размеры щитовидной железы',
     'Нормы ОБП',
     'Нормы почек',

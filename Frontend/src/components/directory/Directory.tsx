@@ -1,5 +1,6 @@
 // src/components/directory
 import React from "react";
+import Birads from "./Birads";
 
 interface DirectoryProps {
   selectedDirectoryItem?: string;
@@ -186,6 +187,8 @@ const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => 
     switch (selectedDirectoryItem) {
       case "TI-RADS":
         return renderTIRADSContent();
+      case "BI-RADS":
+        return <Birads />;
       case "Размеры щитовидной железы":
         return renderPlaceholderContent("Размеры щитовидной железы");
       case "Нормы ОБП":
