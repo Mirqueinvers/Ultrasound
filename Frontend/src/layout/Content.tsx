@@ -7,6 +7,9 @@ import {
   OmtMale,
   Scrotum,
   Thyroid,
+  SalivaryGlands,
+  BrachioCephalicArteries,
+  LowerExtremityVeins,
   Pleural,
   Breast,
   ChildDispensary,
@@ -238,6 +241,30 @@ const Content: React.FC<ContentProps> = ({
                   value={studiesData["Щитовидная железа"]}
                   onChange={(updated) =>
                     setStudyData("Щитовидная железа", updated)
+                  }
+                  sectionRefs={sectionRefs.current}
+                />
+              ) : study === "Слюнные железы" ? (
+                <SalivaryGlands
+                  value={studiesData["Слюнные железы"]}
+                  onChange={(updated) =>
+                    setStudyData("Слюнные железы", updated)
+                  }
+                  sectionRefs={sectionRefs.current}
+                />
+              ) : study === "БЦА" ? (
+                <BrachioCephalicArteries
+                  value={studiesData["БЦА"]}
+                  onChange={(updated) =>
+                    setStudyData("БЦА", updated)
+                  }
+                  sectionRefs={sectionRefs.current}
+                />
+              ) : study === "УВНК" ? (
+                <LowerExtremityVeins
+                  value={studiesData["УВНК"]}
+                  onChange={(updated) =>
+                    setStudyData("УВНК", updated)
                   }
                   sectionRefs={sectionRefs.current}
                 />

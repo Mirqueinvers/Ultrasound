@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useState, useMemo } from 'react';
 
 interface LeftSidePanelProps {
   activeSection: string;
@@ -21,6 +21,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   selectedDirectoryItem = "",
   onDirectoryItemSelect
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const studiesList = [
     'ОБП',
     'Почки',
@@ -28,14 +29,15 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
     'ОМТ (М)',
     'Щитовидная железа',
     'Плевральные полости',
+    'Слюнные железы',
+    'БЦА',
+    'УВНК',
     'Молочные железы',
     'Лимфоузлы',
     'Органы мошонки',
     'Детская диспансеризация',
     'Мягких тканей',
     'Мочевой пузырь',
-    'БЦА',
-    'УВНК',
   ];
 
   const directoryItems = [
@@ -74,6 +76,26 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
     }
   };
 
+  // Фильтрация исследований по поисковому запросу
+  const filteredStudies = useMemo(() => {
+    if (!searchQuery.trim()) return studiesList;
+    return studiesList.filter(study =>
+      study.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, studiesList]);
+
+  // Фильтрация элементов справочника по поисковому запросу
+  const filteredDirectoryItems = useMemo(() => {
+    if (!searchQuery.trim()) return directoryItems;
+    return directoryItems.filter(item =>
+      item.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, directoryItems]);
+
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
   return (
     <aside className="w-[15%] min-h-[calc(100vh-4rem)] bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden">
       <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
@@ -90,12 +112,65 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
         ) : (
           <h3 className="text-lg font-bold text-slate-800 m-0">Левая панель</h3>
         )}
+        
+        {/* Поле поиска */}
+        {(activeSection === 'uzi-protocols' || activeSection === 'directory') && (
+          <div className="mt-3 relative">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={activeSection === 'uzi-protocols' ? 'Поиск исследований...' : 'Поиск в справочнике...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 pl-9 pr-8 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white/80 backdrop-blur-sm"
+              />
+              {/* Иконка поиска */}
+              <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+                <svg 
+                  className="w-4 h-4 text-slate-400" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                  />
+                </svg>
+              </div>
+              {/* Кнопка очистки */}
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            
+            {/* Индикатор результатов поиска */}
+            {searchQuery && (
+              <div className="mt-1 text-xs text-slate-500">
+                {activeSection === 'uzi-protocols' 
+                  ? `Найдено: ${filteredStudies.length} из ${studiesList.length}`
+                  : `Найдено: ${filteredDirectoryItems.length} из ${directoryItems.length}`
+                }
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {activeSection === 'uzi-protocols' && (
         <nav className="p-3">
           <div className="flex flex-col gap-1.5">
-            {studiesList.map((study, index) => {
+            {filteredStudies.length > 0 ? (
+              filteredStudies.map((study, index) => {
               const selected = isStudySelected(study);
               
               return (
@@ -142,7 +217,18 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                   )}
                 </button>
               );
-            })}
+            })
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-slate-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-slate-500">Ничего не найдено</p>
+                <p className="text-xs text-slate-400 mt-1">Попробуйте изменить запрос</p>
+              </div>
+            )}
           </div>
         </nav>
       )}
@@ -150,7 +236,8 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       {activeSection === 'directory' && (
         <nav className="p-3">
           <div className="flex flex-col gap-1.5">
-            {directoryItems.map((item, index) => {
+            {filteredDirectoryItems.length > 0 ? (
+              filteredDirectoryItems.map((item, index) => {
               const selected = isStudySelected(item);
               
               return (
@@ -187,7 +274,18 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                   )}
                 </button>
               );
-            })}
+            })
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-slate-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-slate-500">Ничего не найдено</p>
+                <p className="text-xs text-slate-400 mt-1">Попробуйте изменить запрос</p>
+              </div>
+            )}
           </div>
         </nav>
       )}

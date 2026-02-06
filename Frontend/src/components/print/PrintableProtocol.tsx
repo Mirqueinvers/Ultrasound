@@ -16,12 +16,18 @@ import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryP
 import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
 import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPrint";
 import PleuralResearchPrint from "@/components/print/researches/PleuralPrint";
+import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
+import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
+import LowerExtremityVeinsResearchPrint from "@/components/print/researches/LowerExtremityVeinsPrint";
 
 type BlockId =
   | "header"
   | "obp"
   | "thyroid"
   | "pleural"
+  | "salivaryGlands"
+  | "brachioCephalicArteries"
+  | "lowerExtremityVeins"
   | "breast"
   | "scrotum"
   | "omtFemale"
@@ -49,6 +55,9 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
   const omtMaleData = studiesData["ОМТ (М)"];
   const thyroidData = studiesData["Щитовидная железа"];
   const pleuralData = studiesData["Плевральные полости"];
+  const salivaryData = studiesData["Слюнные железы"];
+  const brachioData = studiesData["БЦА"];
+  const lowerExtremityVeinsData = studiesData["УВНК"];
   const breastData = studiesData["Молочные железы"];
   const scrotumData = studiesData["Органы мошонки"];
   const childDispensaryData = studiesData["Детская диспансеризация"];
@@ -105,6 +114,45 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtMaleData?.conclusion ||
       thyroidData?.conclusion ||
       pleuralData?.conclusion) &&
+      salivaryData?.conclusion
+      ? "\n"
+      : "") +
+    (salivaryData?.conclusion || "") +
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      pleuralData?.conclusion ||
+      salivaryData?.conclusion) &&
+      brachioData?.conclusion
+      ? "\n"
+      : "") +
+    (brachioData?.conclusion || "") +
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      pleuralData?.conclusion ||
+      salivaryData?.conclusion ||
+      brachioData?.conclusion) &&
+      lowerExtremityVeinsData?.conclusion
+      ? "\n"
+      : "") +
+    (lowerExtremityVeinsData?.conclusion || "") +
+    ((obpData?.conclusion ||
+      kidneysData?.conclusion ||
+      bladderStudyData?.conclusion ||
+      omtFemaleData?.conclusion ||
+      omtMaleData?.conclusion ||
+      thyroidData?.conclusion ||
+      pleuralData?.conclusion ||
+      salivaryData?.conclusion ||
+      brachioData?.conclusion ||
+      lowerExtremityVeinsData?.conclusion) &&
       lymphNodesData?.conclusion
       ? "\n"
       : "") +
@@ -206,6 +254,45 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtMaleData?.recommendations ||
       thyroidData?.recommendations ||
       pleuralData?.recommendations) &&
+      salivaryData?.recommendations
+      ? "\n"
+      : "") +
+    (salivaryData?.recommendations || "") +
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      pleuralData?.recommendations ||
+      salivaryData?.recommendations) &&
+      brachioData?.recommendations
+      ? "\n"
+      : "") +
+    (brachioData?.recommendations || "") +
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      pleuralData?.recommendations ||
+      salivaryData?.recommendations ||
+      brachioData?.recommendations) &&
+      lowerExtremityVeinsData?.recommendations
+      ? "\n"
+      : "") +
+    (lowerExtremityVeinsData?.recommendations || "") +
+    ((obpData?.recommendations ||
+      kidneysData?.recommendations ||
+      bladderStudyData?.recommendations ||
+      omtFemaleData?.recommendations ||
+      omtMaleData?.recommendations ||
+      thyroidData?.recommendations ||
+      pleuralData?.recommendations ||
+      salivaryData?.recommendations ||
+      brachioData?.recommendations ||
+      lowerExtremityVeinsData?.recommendations) &&
       lymphNodesData?.recommendations
       ? "\n"
       : "") +
@@ -270,6 +357,9 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       { id: "omtMale", element: <OmtMalePrint /> },
       { id: "thyroid", element: <ThyroidResearchPrint /> },
       { id: "pleural", element: <PleuralResearchPrint /> },
+      { id: "salivaryGlands", element: <SalivaryGlandsResearchPrint /> },
+      { id: "brachioCephalicArteries", element: <BrachioCephalicArteriesResearchPrint /> },
+      { id: "lowerExtremityVeins", element: <LowerExtremityVeinsResearchPrint /> },
       { id: "lymphNodes", element: <LymphNodesResearchPrint /> },
       { id: "breast", element: <BreastResearchPrint /> },
       { id: "scrotum", element: <ScrotumResearchPrint /> },
@@ -309,6 +399,9 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
       omtMaleData,
       thyroidData,
       pleuralData,
+      salivaryData,
+      brachioData,
+      lowerExtremityVeinsData,
       breastData,
       scrotumData,
       childDispensaryData,
