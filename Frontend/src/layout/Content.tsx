@@ -62,6 +62,7 @@ const Content: React.FC<ContentProps> = ({
     patientDateOfBirth,
     researchDate,
     studiesData,
+    clearStudyData,
     clearStudiesData,
     setStudyData,
     clearHeaderData,
@@ -77,6 +78,23 @@ const Content: React.FC<ContentProps> = ({
 
   const sectionRefs = useSectionRefs();
   const availableSectionKeys = useAvailableSectionKeys(selectedStudies);
+
+  React.useEffect(() => {
+    const selectedStudyKeys = new Set(selectedStudies);
+    const allowedDataKeys = new Set(selectedStudies);
+
+    // Поддерживаем исторические ключи для лимфоузлов, чтобы не терять совместимость.
+    if (selectedStudyKeys.has("Лимфоузлы")) {
+      allowedDataKeys.add("Лимфатические узлы");
+      allowedDataKeys.add("lymphNodes");
+    }
+
+    Object.keys(studiesData).forEach((studyKey) => {
+      if (!allowedDataKeys.has(studyKey)) {
+        clearStudyData(studyKey);
+      }
+    });
+  }, [selectedStudies, studiesData, clearStudyData]);
 
   const {
     isSaving,

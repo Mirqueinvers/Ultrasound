@@ -14,6 +14,7 @@ interface ResearchContextType {
 
   studiesData: { [studyType: string]: any };
   setStudyData: (studyType: string, data: any) => void;
+  clearStudyData: (studyType: string) => void;
   clearStudiesData: () => void;
 
   clearHeaderData: () => void;
@@ -33,6 +34,18 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       ...prev,
       [studyType]: data,
     }));
+  };
+
+  const clearStudyData = (studyType: string) => {
+    setStudiesDataState((prev) => {
+      if (!(studyType in prev)) {
+        return prev;
+      }
+
+      const next = { ...prev };
+      delete next[studyType];
+      return next;
+    });
   };
 
   const clearStudiesData = () => {
@@ -59,6 +72,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
         setOrganization,
         studiesData,
         setStudyData,
+        clearStudyData,
         clearStudiesData,
         clearHeaderData,
       }}

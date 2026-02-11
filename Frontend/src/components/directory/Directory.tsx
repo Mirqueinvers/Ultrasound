@@ -3,6 +3,10 @@ import React from "react";
 import Orads from "./Orads";
 import Birads from "./Birads";
 import Tirads from "./Tirads";
+import ObpLiverNorms from "./ObpLiverNorms";
+import ObpGallbladderNorms from "./ObpGallbladderNorms";
+import ObpPancreasNorms from "./ObpPancreasNorms";
+import ObpSpleenNorms from "./ObpSpleenNorms";
 
 interface DirectoryProps {
   selectedDirectoryItem?: string;
@@ -42,7 +46,27 @@ const Directory: React.FC<DirectoryProps> = ({ selectedDirectoryItem = "" }) => 
       case "Размеры щитовидной железы":
         return renderPlaceholderContent("Размеры щитовидной железы");
       case "Нормы ОБП":
-        return renderPlaceholderContent("Нормы ОБП");
+        return (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-slate-700 mb-4">
+              Нормы ОБП
+            </h3>
+            <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <p className="text-slate-600 text-sm">
+                Выберите орган в подвкладках слева: Печень, Желчный пузырь,
+                Поджелудочная железа или Селезенка.
+              </p>
+            </div>
+          </div>
+        );
+      case "Нормы ОБП:Печень":
+        return <ObpLiverNorms />;
+      case "Нормы ОБП:Желчный пузырь":
+        return <ObpGallbladderNorms />;
+      case "Нормы ОБП:Поджелудочная железа":
+        return <ObpPancreasNorms />;
+      case "Нормы ОБП:Селезенка":
+        return <ObpSpleenNorms />;
       case "Нормы почек":
         return renderPlaceholderContent("Нормы почек");
       case "Размеры молочных желез":
