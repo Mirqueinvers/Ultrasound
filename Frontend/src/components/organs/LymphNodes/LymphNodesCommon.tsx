@@ -31,18 +31,46 @@ export const LymphNodesCommon: React.FC<LymphNodesCommonProps> = ({
     };
 
   const regions = [
-    { key: "submandibular" as const, title: "Поднижнечелюстные" },
-    { key: "cervical" as const, title: "Шейные" },
-    { key: "subclavian" as const, title: "Подключичные" },
-    { key: "supraclavicular" as const, title: "Надключичные" },
-    { key: "axillary" as const, title: "Подмышечные" },
-    { key: "inguinal" as const, title: "Паховые" },
+    {
+      key: "submandibular" as const,
+      title: "Поднижнечелюстные",
+      sectionKey: "Лимфатические узлы:Поднижнечелюстные" as const,
+    },
+    {
+      key: "cervical" as const,
+      title: "Шейные",
+      sectionKey: "Лимфатические узлы:Шейные" as const,
+    },
+    {
+      key: "subclavian" as const,
+      title: "Подключичные",
+      sectionKey: "Лимфатические узлы:Подключичные" as const,
+    },
+    {
+      key: "supraclavicular" as const,
+      title: "Надключичные",
+      sectionKey: "Лимфатические узлы:Надключичные" as const,
+    },
+    {
+      key: "axillary" as const,
+      title: "Подмышечные",
+      sectionKey: "Лимфатические узлы:Подмышечные" as const,
+    },
+    {
+      key: "inguinal" as const,
+      title: "Паховые",
+      sectionKey: "Лимфатические узлы:Паховые" as const,
+    },
   ];
 
   return (
     <div className="flex flex-col gap-6">
-      {regions.map(({ key, title }) => (
-        <div key={key} ref={sectionRefs?.[`Лимфатические узлы:${title}`]}>
+      {regions.map(({ key, title, sectionKey }) => (
+        <div
+          key={key}
+          ref={sectionRefs?.[sectionKey]}
+          data-section-key={sectionKey}
+        >
           <LymphNodeRegion
             title={title}
             value={form[key]}

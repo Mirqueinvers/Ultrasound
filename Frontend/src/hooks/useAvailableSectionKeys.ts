@@ -5,9 +5,8 @@ import type { SectionKey } from "@components/common/OrgNavigation";
 export const useAvailableSectionKeys = (
   selectedStudies: string[]
 ): SectionKey[] => {
-  return useMemo(
-    () =>
-      selectedStudies.flatMap((study): SectionKey[] => {
+  return useMemo(() => {
+    const sections = selectedStudies.flatMap((study): SectionKey[] => {
         switch (study) {
           case "ОБП":
             return [
@@ -50,7 +49,8 @@ export const useAvailableSectionKeys = (
               "Слюнные железы:околоушная левая",
               "Слюнные железы:подчелюстная правая",
               "Слюнные железы:подчелюстная левая",
-              "Слюнные железы:подъязычная",
+              "Слюнные железы:подъязычная правая",
+              "Слюнные железы:подъязычная левая",
             ];
           case "БЦА":
             return [
@@ -90,10 +90,21 @@ export const useAvailableSectionKeys = (
             ];
           case "Мягких тканей":
             return ["Мягкие ткани:основной блок"];
+          case "Лимфоузлы":
+            return [
+              "Лимфатические узлы:Поднижнечелюстные",
+              "Лимфатические узлы:Шейные",
+              "Лимфатические узлы:Подключичные",
+              "Лимфатические узлы:Надключичные",
+              "Лимфатические узлы:Подмышечные",
+              "Лимфатические узлы:Паховые",
+            ];
           default:
             return [];
         }
-      }),
-    [selectedStudies]
-  );
+      });
+
+    if (sections.length === 0) return sections;
+    return [...sections, "Заключение"];
+  }, [selectedStudies]);
 };

@@ -1,15 +1,24 @@
 // src/types/defaultStates/organs/salivaryGlands.ts
-import type { SalivaryGlandProtocol, SalivaryGlandsProtocol } from "../../organs/salivaryGlands";
+import type {
+  SalivaryGlandProtocol,
+  SalivaryGlandsProtocol,
+} from "../../organs/salivaryGlands";
+import { defaultLymphNodeRegionState } from "../../organs/lymphNodes";
 
 export const defaultSalivaryGlandState: SalivaryGlandProtocol = {
-  size: "обычных размеров",
-  shape: "обычной формы",
-  contour: "ровный, четкий",
-  echogenicity: "обычная",
+  length: "",
+  width: "",
+  depth: "",
+  volume: "",
+  contour: "четкий, ровный",
+  echogenicity: "средняя",
   echostructure: "однородная",
-  vascularization: "обычная",
-  ductSystem: "не расширен",
-  stones: "не определяются",
+  ducts: "не расширены",
+  ductDiameter: "",
+  bloodFlow: "не усилен",
+  lymphNodes: { ...defaultLymphNodeRegionState, nodes: [] },
+  volumeFormations: "не определяются",
+  volumeFormationsDescription: "",
   formationsList: [],
   additionalFindings: "",
 };
@@ -19,7 +28,6 @@ export const defaultSalivaryGlandsState: SalivaryGlandsProtocol = {
   parotidLeft: { ...defaultSalivaryGlandState },
   submandibularRight: { ...defaultSalivaryGlandState },
   submandibularLeft: { ...defaultSalivaryGlandState },
-  sublingual: "обычных размеров, обычной структуры",
-  lymphNodes: "не увеличены",
-  overallFindings: "",
+  sublingualRight: { ...defaultSalivaryGlandState },
+  sublingualLeft: { ...defaultSalivaryGlandState },
 };

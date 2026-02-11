@@ -130,9 +130,12 @@ const Content: React.FC<ContentProps> = ({
 
   const scrollToSection = (key: SectionKey) => {
     const ref = sectionRefs.current[key];
-    if (!ref?.current) return;
-
-    const element = ref.current;
+    const element =
+      ref?.current ??
+      (document.querySelector(
+        `[data-section-key="${key}"]`
+      ) as HTMLElement | null);
+    if (!element) return;
     const offset = 300;
 
     const rect = element.getBoundingClientRect();
@@ -323,6 +326,11 @@ const Content: React.FC<ContentProps> = ({
             </div>
           ))}
         </div>
+
+        <div
+          ref={sectionRefs.current["Заключение"]}
+          data-section-key="Заключение"
+        />
 
         <ResearchActions
           isSaving={isSaving}

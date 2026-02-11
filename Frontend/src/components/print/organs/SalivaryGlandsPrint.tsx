@@ -1,122 +1,146 @@
 // /components/print/organs/SalivaryGlandsPrint.tsx
 import React from "react";
-import type {
-  SalivaryGlandsProtocol,
-  SalivaryGlandProtocol,
-  SalivaryGlandFormation,
-} from "@types";
+import type { SalivaryGlandsProtocol, SalivaryGlandProtocol } from "@types";
 
 export interface SalivaryGlandsPrintProps {
   value: SalivaryGlandsProtocol;
 }
 
-const formatGlandContent = (
+const glandTitleByKey: Record<string, string> = {
+  parotidRight: "Правая околоушная железа",
+  parotidLeft: "Левая околоушная железа",
+  submandibularRight: "Правая подчелюстная железа",
+  submandibularLeft: "Левая подчелюстная железа",
+  sublingualRight: "Правая подъязычная железа",
+  sublingualLeft: "Левая подъязычная железа",
+};
+
+const glandGenitiveByKey: Record<string, string> = {
+  parotidRight: "правой околоушной железы",
+  parotidLeft: "левой околоушной железы",
+  submandibularRight: "правой подчелюстной железы",
+  submandibularLeft: "левой подчелюстной железы",
+  sublingualRight: "правой подъязычной железы",
+  sublingualLeft: "левой подъязычной железы",
+};
+
+const ductNameByKey: Record<string, string> = {
+  parotidRight: "Stensen duct",
+  parotidLeft: "Stensen duct",
+  submandibularRight: "Wharton duct",
+  submandibularLeft: "Wharton duct",
+  sublingualRight: "",
+  sublingualLeft: "",
+};
+
+const hasRequiredSizes = (
+  glandData: SalivaryGlandProtocol,
+  showDepth: boolean
+): boolean => {
+  const hasLength = Boolean(glandData.length?.trim());
+  const hasWidth = Boolean(glandData.width?.trim());
+  const hasDepth = Boolean(glandData.depth?.trim());
+  return showDepth ? hasLength && hasWidth && hasDepth : hasLength && hasWidth;
+};
+
+const withCapitalFirst = (text: string): string => {
+  const normalized = text.trim();
+  if (!normalized) return "";
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
+const formatLymphNodes = (
   glandName: string,
-  glandData?: SalivaryGlandProtocol
-): React.ReactNode => {
-  if (!glandData) return null;
+  glandData: SalivaryGlandProtocol
+): string | null => {
+  if (glandData.lymphNodes?.detected !== "detected") return null;
 
-  const hasFormations = glandData.formationsList && glandData.formationsList.length > 0;
-  const hasAdditionalFindings = glandData.additionalFindings && glandData.additionalFindings.trim();
+  const nodesCount = glandData.lymphNodes.nodes.length;
+  const verb = nodesCount === 1 ? "определяется" : "определяются";
+  const noun =
+    nodesCount % 10 === 1 && nodesCount % 100 !== 11
+      ? "лимфоузел"
+      : nodesCount % 10 >= 2 &&
+          nodesCount % 10 <= 4 &&
+          !(nodesCount % 100 >= 12 && nodesCount % 100 <= 14)
+        ? "лимфоузла"
+        : "лимфоузлов";
 
-  if (!hasFormations && !hasAdditionalFindings && 
-      glandData.size === "обычных размеров" &&
-      glandData.shape === "обычной формы" &&
-      glandData.contour === "ровный, четкий" &&
-      glandData.echogenicity === "обычная" &&
-      glandData.echostructure === "однородная" &&
-      glandData.vascularization === "обычная" &&
-      glandData.ductSystem === "не расширен" &&
-      glandData.stones === "не определяются") {
-    return null;
+  if (nodesCount === 0) {
+    return `В проекции ${glandGenitiveByKey[glandName] ?? glandName} определяются лимфоузлы`;
   }
 
-  const getGlandTitle = (name: string) => {
-    switch (name) {
-      case "parotidRight":
-        return "Правая околоушная железа";
-      case "parotidLeft":
-        return "Левая околоушная железа";
-      case "submandibularRight":
-        return "Правая подчелюстная железа";
-      case "submandibularLeft":
-        return "Левая подчелюстная железа";
-      default:
-        return name;
-    }
-  };
+  const nodesText = glandData.lymphNodes.nodes
+    .map((node, index) => {
+      const parts: string[] = [];
+      const sizes = [node.size1, node.size2].filter(Boolean).join(" x ");
+      if (sizes) parts.push(`Размеры ${sizes} мм`);
+      if (node.echogenicity) parts.push(`Эхогенность ${node.echogenicity}`);
+      if (node.echostructure) parts.push(`Эхоструктура ${node.echostructure}`);
+      if (node.contour) parts.push(`Контур ${node.contour}`);
+      if (node.bloodFlow) parts.push(`Кровоток ${node.bloodFlow}`);
+      return `Узел №${index + 1}: ${parts.join(". ")}`;
+    })
+    .join("\n");
+
+  return `В проекции ${glandGenitiveByKey[glandName] ?? glandName} ${verb} ${nodesCount} ${noun}:\n${nodesText}`;
+};
+
+const formatGlandContent = (
+  glandName: string,
+  glandData: SalivaryGlandProtocol,
+  showDepth: boolean
+): React.ReactNode => {
+  if (!hasRequiredSizes(glandData, showDepth)) return null;
+
+  const sizeParts = [
+    glandData.length,
+    glandData.width,
+    showDepth ? glandData.depth : "",
+  ].filter(Boolean);
+
+  const glandParts: string[] = [];
+  glandParts.push(`Размеры ${sizeParts.join(" x ")} мм`);
+  if (showDepth && glandData.volume?.trim()) {
+    glandParts.push(`Объем ${glandData.volume.trim()} мл`);
+  }
+  glandParts.push(`Эхогенность ${glandData.echogenicity}`);
+  glandParts.push(`Эхоструктура ${glandData.echostructure}`);
+  glandParts.push(`Контур ${glandData.contour}`);
+  if (
+    glandData.ducts === "расширены" &&
+    glandData.ductDiameter?.trim() &&
+    ductNameByKey[glandName]
+  ) {
+    glandParts.push(
+      `Выводной проток (${ductNameByKey[glandName]}) расширен до ${glandData.ductDiameter.trim()} мм`
+    );
+  } else {
+    glandParts.push(`Протоки ${glandData.ducts}`);
+  }
+  glandParts.push(`Кровоток ${glandData.bloodFlow}`);
+  if (
+    glandData.volumeFormations === "определяются" &&
+    glandData.volumeFormationsDescription?.trim()
+  ) {
+    glandParts.push(withCapitalFirst(glandData.volumeFormationsDescription));
+  }
+
+  const lymphNodesText = formatLymphNodes(glandName, glandData);
 
   return (
     <>
-      <strong>{getGlandTitle(glandName)}:</strong>{" "}
-      {glandData.size !== "обычных размеров" && `${glandData.size}, `}
-      {glandData.shape !== "обычной формы" && `${glandData.shape}, `}
-      {glandData.contour !== "ровный, четкий" && `${glandData.contour}, `}
-      {glandData.echogenicity !== "обычная" && `эхогенность ${glandData.echogenicity.toLowerCase()}, `}
-      {glandData.echostructure !== "однородная" && `${glandData.echostructure.toLowerCase()}, `}
-      {glandData.vascularization !== "обычная" && `васкуляризация ${glandData.vascularization.toLowerCase()}, `}
-      {glandData.ductSystem !== "не расширен" && `проток ${glandData.ductSystem.toLowerCase()}, `}
-      {glandData.stones !== "не определяются" && `${glandData.stones.toLowerCase()}. `}
-      
-      {hasFormations && (
+      <strong>{glandTitleByKey[glandName] ?? glandName}:</strong> {glandParts.join(". ")}.
+      {lymphNodesText && (
         <>
-          <strong>Образования:</strong>{" "}
-          {glandData.formationsList.map((formation, index) => {
-            const formationParts: string[] = [];
-            
-            // Размеры
-            if (formation.size1 || formation.size2 || formation.size3) {
-              const sizes = [formation.size1, formation.size2, formation.size3].filter(Boolean).join(" × ");
-              formationParts.push(`размерами ${sizes} мм`);
-            }
-            
-            // Эхогенность
-            if (formation.echogenicity) {
-              formationParts.push(formation.echogenicity.toLowerCase());
-            }
-            
-            // Форма и контур
-            if (formation.shape) {
-              formationParts.push(formation.shape.toLowerCase());
-            }
-            if (formation.contour) {
-              formationParts.push(`контур ${formation.contour.toLowerCase()}`);
-            }
-            
-            // Локализация
-            if (formation.location) {
-              formationParts.push(`локализация: ${formation.location.toLowerCase()}`);
-            }
-            
-            // Васкуляризация
-            if (formation.vascularization) {
-              formationParts.push(`васкуляризация ${formation.vascularization.toLowerCase()}`);
-            }
-            
-            // Комментарий
-            if (formation.comment) {
-              formationParts.push(formation.comment);
-            }
-            
-            const formationText = formationParts.length > 0 
-              ? formationParts.join(", ") + "."
-              : "";
-              
-            return (
-              <React.Fragment key={`formation-${index}`}>
-                <br />
-                {`Образование №${formation.number}`}
-                {formationText && `: ${formationText}`}
-              </React.Fragment>
-            );
-          })}
+          {" "}
+          {lymphNodesText}.
         </>
       )}
-      
-      {hasAdditionalFindings && (
+      {glandData.additionalFindings && glandData.additionalFindings.trim() && (
         <>
-          {hasFormations && " "}
-          <strong>Дополнительные находки:</strong> {glandData.additionalFindings.trim()}
+          {" "}
+          <strong>Дополнительно:</strong> {glandData.additionalFindings.trim()}.
         </>
       )}
       {"\n"}
@@ -124,36 +148,40 @@ const formatGlandContent = (
   );
 };
 
-export const SalivaryGlandsPrint: React.FC<SalivaryGlandsPrintProps> = ({ value }) => {
+export const SalivaryGlandsPrint: React.FC<SalivaryGlandsPrintProps> = ({
+  value,
+}) => {
   const {
     parotidRight,
     parotidLeft,
     submandibularRight,
     submandibularLeft,
-    sublingual,
-    lymphNodes,
-    overallFindings,
+    sublingualRight,
+    sublingualLeft,
   } = value;
 
-  const commonParts: string[] = [];
+  const items = [
+    { key: "parotidRight", node: formatGlandContent("parotidRight", parotidRight, true) },
+    { key: "parotidLeft", node: formatGlandContent("parotidLeft", parotidLeft, true) },
+    {
+      key: "submandibularRight",
+      node: formatGlandContent("submandibularRight", submandibularRight, true),
+    },
+    {
+      key: "submandibularLeft",
+      node: formatGlandContent("submandibularLeft", submandibularLeft, true),
+    },
+    {
+      key: "sublingualRight",
+      node: formatGlandContent("sublingualRight", sublingualRight, false),
+    },
+    {
+      key: "sublingualLeft",
+      node: formatGlandContent("sublingualLeft", sublingualLeft, false),
+    },
+  ].filter((item) => Boolean(item.node));
 
-  if (sublingual && sublingual !== "обычных размеров, обычной структуры") {
-    commonParts.push(`подъязычные железы ${sublingual.toLowerCase()}`);
-  }
-
-  if (lymphNodes && lymphNodes !== "не увеличены") {
-    commonParts.push(`регионарные лимфоузлы ${lymphNodes.toLowerCase()}`);
-  }
-
-  const hasContent =
-    parotidRight ||
-    parotidLeft ||
-    submandibularRight ||
-    submandibularLeft ||
-    commonParts.length > 0 ||
-    (overallFindings && overallFindings.trim());
-
-  if (!hasContent) return null;
+  if (items.length === 0) return null;
 
   return (
     <div
@@ -164,27 +192,9 @@ export const SalivaryGlandsPrint: React.FC<SalivaryGlandsPrintProps> = ({ value 
       }}
     >
       <p style={{ margin: 0, whiteSpace: "pre-line" }}>
-        <span style={{ fontWeight: 700, fontSize: "16px" }}>
-          Слюнные железы:
-        </span>{" "}
-        {formatGlandContent("parotidRight", parotidRight)}
-        {formatGlandContent("parotidLeft", parotidLeft)}
-        {formatGlandContent("submandibularRight", submandibularRight)}
-        {formatGlandContent("submandibularLeft", submandibularLeft)}
-        
-        {commonParts.length > 0 && (
-          <>
-            <strong>Подъязычные железы и лимфоузлы:</strong> {commonParts.join(", ")}.
-            {"\n"}
-          </>
-        )}
-        
-        {overallFindings && overallFindings.trim() && (
-          <>
-            <strong>Общие находки:</strong> {overallFindings.trim()}
-            {"\n"}
-          </>
-        )}
+        {items.map((item) => (
+          <React.Fragment key={item.key}>{item.node}</React.Fragment>
+        ))}
       </p>
     </div>
   );

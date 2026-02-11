@@ -18,7 +18,8 @@ type SalivarySectionKey = Extract<
   | "Слюнные железы:околоушная левая"
   | "Слюнные железы:подчелюстная правая"
   | "Слюнные железы:подчелюстная левая"
-  | "Слюнные железы:подъязычная"
+  | "Слюнные железы:подъязычная правая"
+  | "Слюнные железы:подъязычная левая"
 >;
 
 interface SalivaryWithSectionsProps extends SalivaryGlandsStudyProps {

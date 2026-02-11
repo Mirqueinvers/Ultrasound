@@ -27,7 +27,8 @@ export const useSectionRefs = () => {
     "Слюнные железы:околоушная левая": React.createRef<HTMLDivElement>(),
     "Слюнные железы:подчелюстная правая": React.createRef<HTMLDivElement>(),
     "Слюнные железы:подчелюстная левая": React.createRef<HTMLDivElement>(),
-    "Слюнные железы:подъязычная": React.createRef<HTMLDivElement>(),
+    "Слюнные железы:подъязычная правая": React.createRef<HTMLDivElement>(),
+    "Слюнные железы:подъязычная левая": React.createRef<HTMLDivElement>(),
     "БЦА:ОСА правая": React.createRef<HTMLDivElement>(),
     "БЦА:ОСА левая": React.createRef<HTMLDivElement>(),
     "БЦА:ВСА правая": React.createRef<HTMLDivElement>(),
@@ -53,6 +54,13 @@ export const useSectionRefs = () => {
     "Органы мошонки:правое яичко": React.createRef<HTMLDivElement>(),
     "Органы мошонки:левое яичко": React.createRef<HTMLDivElement>(),
     "Мягкие ткани:основной блок": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Поднижнечелюстные": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Шейные": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Подключичные": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Надключичные": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Подмышечные": React.createRef<HTMLDivElement>(),
+    "Лимфатические узлы:Паховые": React.createRef<HTMLDivElement>(),
+    "Заключение": React.createRef<HTMLDivElement>(),
   });
 
   return sectionRefs;

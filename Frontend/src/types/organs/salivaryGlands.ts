@@ -1,5 +1,6 @@
 // src/types/organs/salivaryGlands.ts
 import type { SectionKey } from "@/components/common/OrgNavigation";
+import type { LymphNodeRegionProtocol } from "./lymphNodes";
 
 export interface SalivaryGlandFormation {
   number: number;
@@ -15,14 +16,19 @@ export interface SalivaryGlandFormation {
 }
 
 export interface SalivaryGlandProtocol {
-  size: string;
-  shape: string;
+  length: string;
+  width: string;
+  depth: string;
+  volume: string;
   contour: string;
   echogenicity: string;
   echostructure: string;
-  vascularization: string;
-  ductSystem: string;
-  stones: string;
+  ducts: string;
+  ductDiameter: string;
+  bloodFlow: string;
+  lymphNodes: LymphNodeRegionProtocol;
+  volumeFormations: string;
+  volumeFormationsDescription: string;
   formationsList: SalivaryGlandFormation[];
   additionalFindings: string;
 }
@@ -32,13 +38,13 @@ export interface SalivaryGlandsProtocol {
   parotidLeft: SalivaryGlandProtocol;
   submandibularRight: SalivaryGlandProtocol;
   submandibularLeft: SalivaryGlandProtocol;
-  sublingual: string;
-  lymphNodes: string;
-  overallFindings: string;
+  sublingualRight: SalivaryGlandProtocol;
+  sublingualLeft: SalivaryGlandProtocol;
 }
 
 export interface SalivaryGlandProps {
   gland: string;
+  showDepth?: boolean;
   value?: SalivaryGlandProtocol;
   onChange?: (value: SalivaryGlandProtocol) => void;
 }
@@ -55,7 +61,8 @@ export type SalivarySectionKey = Extract<
   | "Слюнные железы:околоушная левая"
   | "Слюнные железы:подчелюстная правая"
   | "Слюнные железы:подчелюстная левая"
-  | "Слюнные железы:подъязычная"
+  | "Слюнные железы:подъязычная правая"
+  | "Слюнные железы:подъязычная левая"
 >;
 
 export interface SalivaryCommonProps {
