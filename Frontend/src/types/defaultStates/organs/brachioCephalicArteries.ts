@@ -1,16 +1,25 @@
 // src/types/defaultStates/organs/brachioCephalicArteries.ts
-import type { ArteryProtocol, BrachioCephalicProtocol } from "../../organs/brachioCephalicArteries";
+import type {
+  ArteryProtocol,
+  BrachioCephalicProtocol,
+} from "../../organs/brachioCephalicArteries";
 
 export const defaultArteryState: ArteryProtocol = {
-  diameter: "обычного диаметра",
-  wallThickness: "обычная",
-  intimaMediaThickness: "в пределах нормы",
-  bloodFlowVelocity: "в пределах нормы",
-  resistanceIndex: "в пределах нормы",
-  pulsatilityIndex: "в пределах нормы",
-  stenosis: "не определяется",
-  occlusion: "не определяется",
+  vesselCourse: "прямолинейный",
+  diameter: "",
+  intimaMediaThickness: "",
+  peakSystolicVelocity: "",
+  endDiastolicVelocity: "",
+  resistanceIndex: "",
+  sinusFlow: "ламинарный",
+  sinusIntimaMediaThickness: "не утолщен",
+  sinusIntimaMediaThicknessValue: "",
+  sinusPlaques: "не определяются",
+  sinusPlaquesList: [],
+  plaques: "не определяются",
   plaquesList: [],
+  flowDirection: "антеградный",
+  icaCcaRatio: "",
   additionalFindings: "",
 };
 
@@ -23,7 +32,5 @@ export const defaultBrachioCephalicArteriesState: BrachioCephalicProtocol = {
   externalCarotidLeft: { ...defaultArteryState },
   vertebralRight: { ...defaultArteryState },
   vertebralLeft: { ...defaultArteryState },
-  subclavianRight: { ...defaultArteryState },
-  subclavianLeft: { ...defaultArteryState },
   overallFindings: "",
 };

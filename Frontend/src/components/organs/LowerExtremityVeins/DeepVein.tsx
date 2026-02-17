@@ -86,7 +86,7 @@ export const DeepVein: React.FC<DeepVeinProps> = ({
   return (
     <div className="space-y-6">
       <Fieldset title="">
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <ButtonSelect
             label="Диаметр"
             value={form.diameter}
@@ -111,7 +111,7 @@ export const DeepVein: React.FC<DeepVeinProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <ButtonSelect
             label="Стенка"
             value={form.wall}
@@ -136,7 +136,7 @@ export const DeepVein: React.FC<DeepVeinProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <ButtonSelect
             label="Кровоток"
             value={form.flow}
@@ -164,7 +164,7 @@ export const DeepVein: React.FC<DeepVeinProps> = ({
         {/* Клапаны */}
         <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
           <h4 className="text-sm font-medium text-gray-900 mb-3">Клапаны</h4>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 gap-4 mb-4">
             <ButtonSelect
               label="Недостаточность"
               value={form.valves.insufficiency}

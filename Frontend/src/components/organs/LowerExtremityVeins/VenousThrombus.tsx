@@ -29,7 +29,7 @@ export const VenousThrombusComponent: React.FC<VenousThrombusProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-4 mb-4">
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
             Размер (мм)
@@ -56,7 +56,7 @@ export const VenousThrombusComponent: React.FC<VenousThrombusProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-4 mb-4">
         <ButtonSelect
           label="Тип тромба"
           value={thrombus.type}

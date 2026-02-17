@@ -34,7 +34,7 @@ const KidneysHints: React.FC<KidneysHintsProps> = ({ onAddText }) => {
     },
     {
       title: "Киста(ы) левой почки",
-      value: "Эхографические признаки кисты(т) правой почки."
+      value: "Эхографические признаки кисты(т) левой почки."
     },
     {
       title: "Гидронефроз",

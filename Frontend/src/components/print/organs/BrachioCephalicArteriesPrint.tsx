@@ -1,152 +1,180 @@
 // /components/print/organs/BrachioCephalicArteriesPrint.tsx
 import React from "react";
-import type {
-  BrachioCephalicProtocol,
-  ArteryProtocol,
-  BrachioCephalicFormation,
-} from "@types";
+import type { BrachioCephalicProtocol, ArteryProtocol } from "@types";
 
 export interface BrachioCephalicArteriesPrintProps {
   value: BrachioCephalicProtocol;
 }
 
-const formatArteryContent = (
-  arteryName: string,
-  arteryData?: ArteryProtocol
-): React.ReactNode => {
-  if (!arteryData) return null;
+const withUnits = (value: string, units: string): string =>
+  value && value.trim() ? `${value.trim()} ${units}` : "";
 
-  const hasPlaques = arteryData.plaquesList && arteryData.plaquesList.length > 0;
-  const hasAdditionalFindings = arteryData.additionalFindings && arteryData.additionalFindings.trim();
-
-  // Проверяем, есть ли какие-либо отклонения от нормы
-  const hasDeviations = 
-    arteryData.diameter !== "обычного диаметра" ||
-    arteryData.wallThickness !== "обычная" ||
-    arteryData.intimaMediaThickness !== "в пределах нормы" ||
-    arteryData.bloodFlowVelocity !== "в пределах нормы" ||
-    arteryData.resistanceIndex !== "в пределах нормы" ||
-    arteryData.pulsatilityIndex !== "в пределах нормы" ||
-    arteryData.stenosis !== "не определяется" ||
-    arteryData.occlusion !== "не определяется";
-
-  if (!hasDeviations && !hasPlaques && !hasAdditionalFindings) {
-    return null;
+const getPlaquesCountLabel = (count: number): string => {
+  if (count === 1) return "Определяется одна бляшка:";
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return `Определяются ${count} бляшки:`;
   }
-
-  const getArteryTitle = (name: string) => {
-    switch (name) {
-      case "commonCarotidRight":
-        return "Правая ОСА";
-      case "commonCarotidLeft":
-        return "Левая ОСА";
-      case "internalCarotidRight":
-        return "Правая ВСА";
-      case "internalCarotidLeft":
-        return "Левая ВСА";
-      case "externalCarotidRight":
-        return "Правая НСА";
-      case "externalCarotidLeft":
-        return "Левая НСА";
-      case "vertebralRight":
-        return "Правая позвоночная";
-      case "vertebralLeft":
-        return "Левая позвоночная";
-      case "subclavianRight":
-        return "Правая подключичная";
-      case "subclavianLeft":
-        return "Левая подключичная";
-      default:
-        return name;
-    }
-  };
-
-  return (
-    <>
-      <strong>{getArteryTitle(arteryName)}:</strong>{" "}
-      {arteryData.diameter !== "обычного диаметра" && `${arteryData.diameter}, `}
-      {arteryData.wallThickness !== "обычная" && `толщина стенки ${arteryData.wallThickness.toLowerCase()}, `}
-      {arteryData.intimaMediaThickness !== "в пределах нормы" && `ИМТ ${arteryData.intimaMediaThickness.toLowerCase()}, `}
-      {arteryData.bloodFlowVelocity !== "в пределах нормы" && `скорость кровотока ${arteryData.bloodFlowVelocity.toLowerCase()}, `}
-      {arteryData.resistanceIndex !== "в пределах нормы" && `ИР ${arteryData.resistanceIndex.toLowerCase()}, `}
-      {arteryData.pulsatilityIndex !== "в пределах нормы" && `ПИ ${arteryData.pulsatilityIndex.toLowerCase()}, `}
-      {arteryData.stenosis !== "не определяется" && `стеноз ${arteryData.stenosis.toLowerCase()}, `}
-      {arteryData.occlusion !== "не определяется" && `${arteryData.occlusion.toLowerCase()}. `}
-      
-      {hasPlaques && (
-        <>
-          <strong>Бляшки:</strong>{" "}
-          {arteryData.plaquesList.map((plaque, index) => {
-            const plaqueParts: string[] = [];
-            
-            if (plaque.size) {
-              plaqueParts.push(`размер ${plaque.size} мм`);
-            }
-            if (plaque.location) {
-              plaqueParts.push(`локализация: ${plaque.location.toLowerCase()}`);
-            }
-            if (plaque.type) {
-              plaqueParts.push(plaque.type.toLowerCase());
-            }
-            if (plaque.stenosis) {
-              plaqueParts.push(`стеноз ${plaque.stenosis.toLowerCase()}`);
-            }
-            
-            const plaqueText = plaqueParts.length > 0 
-              ? plaqueParts.join(", ") + "."
-              : "";
-              
-            return (
-              <React.Fragment key={`plaque-${index}`}>
-                <br />
-                {`Бляшка №${plaque.number}`}
-                {plaqueText && `: ${plaqueText}`}
-              </React.Fragment>
-            );
-          })}
-        </>
-      )}
-      
-      {hasAdditionalFindings && (
-        <>
-          {hasPlaques && " "}
-          <strong>Дополнительные находки:</strong> {arteryData.additionalFindings.trim()}
-        </>
-      )}
-      {"\n"}
-    </>
-  );
+  return `Определяются ${count} бляшек:`;
 };
 
-export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrintProps> = ({ value }) => {
-  const {
-    commonCarotidRight,
-    commonCarotidLeft,
-    internalCarotidRight,
-    internalCarotidLeft,
-    externalCarotidRight,
-    externalCarotidLeft,
-    vertebralRight,
-    vertebralLeft,
-    subclavianRight,
-    subclavianLeft,
-    overallFindings,
-  } = value;
+const formatWall = (wall: string): string => {
+  if (wall === "циркулярная") return "циркулярно";
+  if (wall.startsWith("по ")) return `${wall} стенке`;
+  return wall;
+};
 
-  const hasContent =
-    commonCarotidRight ||
-    commonCarotidLeft ||
-    internalCarotidRight ||
-    internalCarotidLeft ||
-    externalCarotidRight ||
-    externalCarotidLeft ||
-    vertebralRight ||
-    vertebralLeft ||
-    subclavianRight ||
-    subclavianLeft ||
-    (overallFindings && overallFindings.trim());
+const formatLocalizationSegment = (segment: string): string => {
+  if (segment === "проксимальный сегмент") return "в проксимальном сегменте";
+  if (segment === "средний сегмент") return "в среднем сегменте";
+  if (segment === "дистальный сегмент") return "в дистальном сегменте";
+  return `в ${segment}`;
+};
 
-  if (!hasContent) return null;
+const formatStenosisDegree = (value: string): string => {
+  return `степень стеноза ${value}% (по NASCET)`;
+};
+
+const formatPlaqueLine = (
+  plaque: NonNullable<ArteryProtocol["plaquesList"]>[number],
+  index: number
+): string => {
+  const number = plaque.number || index + 1;
+  const parts: string[] = [];
+  if (plaque.localizationSegment) parts.push(`определяется ${formatLocalizationSegment(plaque.localizationSegment)}`);
+  if (plaque.wall) parts.push(formatWall(plaque.wall));
+  if (plaque.thickness) parts.push(`толщина ${withUnits(plaque.thickness, "мм")}`);
+  if (plaque.length) parts.push(`протяженность ${withUnits(plaque.length, "мм")}`);
+  if (plaque.echostructure) parts.push(`эхоструктура ${plaque.echostructure}`);
+  if (plaque.surface) parts.push(`поверхность ${plaque.surface}`);
+  if (plaque.stenosisDegree) parts.push(formatStenosisDegree(plaque.stenosisDegree));
+  if (plaque.velocityProximal) {
+    parts.push(`ПСС проксимальнее стеноза ${withUnits(plaque.velocityProximal, "см/с")}`);
+  }
+  if (plaque.velocityStenosis) {
+    parts.push(`ПСС в месте стеноза ${withUnits(plaque.velocityStenosis, "см/с")}`);
+  }
+  if (plaque.velocityDistal) {
+    parts.push(`ПСС дистальнее стеноза ${withUnits(plaque.velocityDistal, "см/с")}`);
+  }
+  return `Бляшка №${number}: ${parts.join(", ")}.`;
+};
+
+const formatPlaques = (artery: ArteryProtocol): string => {
+  const plaquesList = artery.plaquesList || [];
+  if (plaquesList.length === 0) {
+    return artery.plaques ? `бляшки: ${artery.plaques}` : "";
+  }
+
+  const header = getPlaquesCountLabel(plaquesList.length);
+  const details = plaquesList.map((p, idx) => formatPlaqueLine(p, idx)).join("\n");
+  return `${header}\n${details}`;
+};
+
+const formatSinusPlaques = (artery: ArteryProtocol): string => {
+  const sinusPlaquesList = artery.sinusPlaquesList || [];
+  if (sinusPlaquesList.length === 0) {
+    return artery.sinusPlaques ? `бляшки ${artery.sinusPlaques}` : "";
+  }
+
+  const header = getPlaquesCountLabel(sinusPlaquesList.length);
+  const details = sinusPlaquesList.map((p, idx) => formatPlaqueLine(p, idx)).join("\n");
+  return `${header}\n${details}`;
+};
+
+const formatCommonCarotid = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
+  if (artery.diameter) parts.push(`диаметр ОСА: ${withUnits(artery.diameter, "мм")}`);
+  if (artery.intimaMediaThickness) parts.push(`КИМ: ${withUnits(artery.intimaMediaThickness, "мм")}`);
+  if (artery.peakSystolicVelocity) parts.push(`ПСС: ${withUnits(artery.peakSystolicVelocity, "см/с")}`);
+  if (artery.endDiastolicVelocity) parts.push(`КДС: ${withUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
+  const plaques = formatPlaques(artery);
+  const base = parts.join(", ");
+  return plaques ? (base ? `${base} ${plaques}` : plaques) : base;
+};
+
+const formatSinus = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.sinusFlow) parts.push(`поток ${artery.sinusFlow}`);
+  if (artery.sinusIntimaMediaThickness) {
+    const suffix =
+      artery.sinusIntimaMediaThickness === "утолщен" && artery.sinusIntimaMediaThicknessValue
+        ? ` до ${withUnits(artery.sinusIntimaMediaThicknessValue, "мм")}`
+        : "";
+    parts.push(`КИМ ${artery.sinusIntimaMediaThickness}${suffix}`);
+  }
+  const sinusPlaques = formatSinusPlaques(artery);
+  const base = parts.join(", ");
+  const text = sinusPlaques
+    ? base
+      ? `${/[.!?]$/.test(base) ? base : `${base}.`} ${sinusPlaques}`
+      : sinusPlaques
+    : base;
+  if (!text) return "";
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+};
+
+const formatInternalCarotid = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
+  if (artery.diameter) parts.push(`диаметр ВСА: ${withUnits(artery.diameter, "мм")}`);
+  if (artery.peakSystolicVelocity) parts.push(`ПСС: ${withUnits(artery.peakSystolicVelocity, "см/с")}`);
+  if (artery.endDiastolicVelocity) parts.push(`КДС: ${withUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
+  if (artery.icaCcaRatio) parts.push(`ICA/CCA ratio: ${artery.icaCcaRatio}`);
+  const plaques = formatPlaques(artery);
+  const base = parts.join(", ");
+  return plaques ? (base ? `${base} ${plaques}` : plaques) : base;
+};
+
+const formatExternalCarotid = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.peakSystolicVelocity) parts.push(`ПСС: ${withUnits(artery.peakSystolicVelocity, "см/с")}`);
+  if (artery.endDiastolicVelocity) parts.push(`КДС: ${withUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
+  const plaques = formatPlaques(artery);
+  const base = parts.join(", ");
+  return plaques ? (base ? `${base} ${plaques}` : plaques) : base;
+};
+
+const formatVertebral = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.flowDirection) parts.push(`кровоток ${artery.flowDirection}`);
+  if (artery.diameter) parts.push(`диаметр ПА: ${artery.diameter.trim()}мм`);
+  if (artery.peakSystolicVelocity) parts.push(`ПСС: ${withUnits(artery.peakSystolicVelocity, "см/с")}`);
+  if (artery.endDiastolicVelocity) parts.push(`КДС: ${withUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
+  const plaques = formatPlaques(artery);
+  const base = parts.join(", ");
+  return plaques ? (base ? `${base} ${plaques}` : plaques) : base;
+};
+
+type PrintRow = { title: string; body: string };
+
+export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrintProps> = ({
+  value,
+}) => {
+  const rows: PrintRow[] = [
+    { title: "Правая ОСА", body: formatCommonCarotid(value.commonCarotidRight) },
+    { title: "Каротидный синус справа", body: formatSinus(value.commonCarotidRight) },
+    { title: "Правая ВСА", body: formatInternalCarotid(value.internalCarotidRight) },
+    { title: "Правая НСА", body: formatExternalCarotid(value.externalCarotidRight) },
+    { title: "Правая позвоночная артерия", body: formatVertebral(value.vertebralRight) },
+    { title: "Левая ОСА", body: formatCommonCarotid(value.commonCarotidLeft) },
+    { title: "Каротидный синус слева", body: formatSinus(value.commonCarotidLeft) },
+    { title: "Левая ВСА", body: formatInternalCarotid(value.internalCarotidLeft) },
+    { title: "Левая НСА", body: formatExternalCarotid(value.externalCarotidLeft) },
+    { title: "Левая позвоночная артерия", body: formatVertebral(value.vertebralLeft) },
+  ].filter((row) => row.body.trim().length > 0);
+
+  if (value.overallFindings?.trim()) {
+    rows.push({ title: "Общие находки", body: value.overallFindings.trim() });
+  }
+
+  if (rows.length === 0) return null;
 
   return (
     <div
@@ -157,26 +185,12 @@ export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrint
       }}
     >
       <p style={{ margin: 0, whiteSpace: "pre-line" }}>
-        <span style={{ fontWeight: 700, fontSize: "16px" }}>
-          Брахиоцефальные артерии:
-        </span>{" "}
-        {formatArteryContent("commonCarotidRight", commonCarotidRight)}
-        {formatArteryContent("commonCarotidLeft", commonCarotidLeft)}
-        {formatArteryContent("internalCarotidRight", internalCarotidRight)}
-        {formatArteryContent("internalCarotidLeft", internalCarotidLeft)}
-        {formatArteryContent("externalCarotidRight", externalCarotidRight)}
-        {formatArteryContent("externalCarotidLeft", externalCarotidLeft)}
-        {formatArteryContent("vertebralRight", vertebralRight)}
-        {formatArteryContent("vertebralLeft", vertebralLeft)}
-        {formatArteryContent("subclavianRight", subclavianRight)}
-        {formatArteryContent("subclavianLeft", subclavianLeft)}
-        
-        {overallFindings && overallFindings.trim() && (
-          <>
-            <strong>Общие находки:</strong> {overallFindings.trim()}
-            {"\n"}
-          </>
-        )}
+        {rows.map((row, idx) => (
+          <React.Fragment key={`${row.title}-${idx}`}>
+            <strong>{row.title}:</strong> {row.body}
+            {idx < rows.length - 1 ? "\n" : ""}
+          </React.Fragment>
+        ))}
       </p>
     </div>
   );

@@ -22,8 +22,6 @@ type BrachioCephalicSectionKey = Extract<
   | "БЦА:НСА левая"
   | "БЦА:позвоночная правая"
   | "БЦА:позвоночная левая"
-  | "БЦА:подключичная правая"
-  | "БЦА:подключичная левая"
 >;
 
 interface BrachioCephalicWithSectionsProps extends BrachioCephalicArteriesStudyProps {

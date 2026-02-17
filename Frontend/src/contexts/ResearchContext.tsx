@@ -23,9 +23,14 @@ interface ResearchContextType {
 const ResearchContext = createContext<ResearchContextType | undefined>(undefined);
 
 export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const getCurrentDate = () => {
+    const now = new Date();
+    const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 10);
+  };
   const [patientFullName, setPatientFullName] = useState('');
   const [patientDateOfBirth, setPatientDateOfBirth] = useState('');
-  const [researchDate, setResearchDate] = useState('');
+  const [researchDate, setResearchDate] = useState(getCurrentDate);
   const [organization, setOrganization] = useState(''); // <-- новое
   const [studiesData, setStudiesDataState] = useState<{ [studyType: string]: any }>({});
 
@@ -55,7 +60,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const clearHeaderData = () => {
     setPatientFullName('');
     setPatientDateOfBirth('');
-    setResearchDate('');
+    setResearchDate(getCurrentDate());
     setOrganization('');                // <-- сбрасываем тоже
   };
 

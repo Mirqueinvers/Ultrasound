@@ -82,7 +82,7 @@ export const SuperficialVein: React.FC<SuperficialVeinProps> = ({
   return (
     <div className="space-y-6">
       <Fieldset title="">
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <ButtonSelect
             label="Диаметр"
             value={form.diameter}
@@ -108,7 +108,7 @@ export const SuperficialVein: React.FC<SuperficialVeinProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <ButtonSelect
             label="Просвет"
             value={form.lumen}
@@ -150,7 +150,7 @@ export const SuperficialVein: React.FC<SuperficialVeinProps> = ({
         {/* Клапаны */}
         <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
           <h4 className="text-sm font-medium text-gray-900 mb-3">Клапаны</h4>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 gap-4 mb-4">
             <ButtonSelect
               label="Недостаточность"
               value={form.valves.insufficiency}
