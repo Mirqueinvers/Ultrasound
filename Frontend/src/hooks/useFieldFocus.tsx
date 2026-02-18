@@ -74,10 +74,12 @@ export const useFieldFocus = (organ: string, field?: string) => {
     return `${organ}.${field}`;
   };
 
+  const hasCustomHint = Boolean(field && organHints[getFieldKey(organ, field)]);
+
   const handleFocus = useCallback(() => {
     if (isConclusionField) {
       showConclusionSamples(organ);
-    } else if (isSizeField && field) {
+    } else if ((isSizeField || hasCustomHint) && field) {
       // Получаем подсказку из новой системы
       const hintKey = getFieldKey(organ, field);
       const textData = organHints[hintKey];
@@ -86,7 +88,7 @@ export const useFieldFocus = (organ: string, field?: string) => {
         showCustomText(textData.title, textData.content);
       }
     }
-  }, [organ, field, isConclusionField, isSizeField, showConclusionSamples, showCustomText]);
+  }, [organ, field, isConclusionField, isSizeField, hasCustomHint, showConclusionSamples, showCustomText]);
 
   const handleBlur = useCallback(() => {
     // Ничего не делаем при blur

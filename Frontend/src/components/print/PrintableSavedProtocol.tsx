@@ -16,6 +16,7 @@ import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryP
 import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
 import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPrint"; // Добавьте этот импорт
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
+import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
 
 type BlockId =
   | "header"
@@ -30,6 +31,7 @@ type BlockId =
   | "childDispensary"
   | "softTissue"
   | "salivaryGlands"
+  | "brachioCephalicArteries"
   | "lymphNodes" // Добавьте этот ID
   | "conclusion";
 
@@ -142,6 +144,7 @@ const PrintableSavedProtocol = React.forwardRef<
   const childDispensaryData = studiesData["Детская диспансеризация"];
   const softTissueData = studiesData["Мягких тканей"];
   const salivaryData = studiesData["Слюнные железы"];
+  const brachioCephalicArteriesData = studiesData["БЦА"];
   // Поддержка разных ключей для лимфатических узлов
   const lymphNodesData = studiesData["Лимфатические узлы"] || 
                         studiesData["Лимфоузлы"] || 
@@ -351,6 +354,7 @@ const PrintableSavedProtocol = React.forwardRef<
       { id: "breast", element: <BreastResearchPrint /> },
       { id: "scrotum", element: <ScrotumResearchPrint /> },
       { id: "salivaryGlands", element: <SalivaryGlandsResearchPrint /> },
+      { id: "brachioCephalicArteries", element: <BrachioCephalicArteriesResearchPrint /> },
       { id: "lymphNodes", element: <LymphNodesResearchPrint /> }, // Добавьте эту строку
       { id: "childDispensary", element: <ChildDispensaryPrint /> },
       { id: "softTissue", element: <SoftTissuePrint /> },
@@ -387,6 +391,7 @@ const PrintableSavedProtocol = React.forwardRef<
       breastData,
       scrotumData,
       salivaryData,
+      brachioCephalicArteriesData,
       childDispensaryData,
       softTissueData,
       lymphNodesData,

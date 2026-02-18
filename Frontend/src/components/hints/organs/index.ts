@@ -12,6 +12,7 @@ export { prostateHints } from './prostateHints';
 export { testisHints } from './testisHints';
 export { urinaryBladderHints } from './urinaryBladderHints';
 export { uterusHints } from './uterusHints';
+export { brachioCephalicArteriesHints } from './brachioCephalicArteriesHints';
 
 // Объединенная карта всех подсказок с уникальными ключами
 import { liverHints } from './liverHints';
@@ -26,6 +27,7 @@ import { prostateHints } from './prostateHints';
 import { testisHints } from './testisHints';
 import { urinaryBladderHints } from './urinaryBladderHints';
 import { uterusHints } from './uterusHints';
+import { brachioCephalicArteriesHints } from './brachioCephalicArteriesHints';
 
 // Создаем уникальные ключи с префиксами органов
 export const organHints = {
@@ -87,6 +89,11 @@ export const organHints = {
   // Матка
   ...Object.fromEntries(
     Object.entries(uterusHints).map(([key, value]) => [`uterus.${key}`, value])
+  ),
+  
+  // БЦА
+  ...Object.fromEntries(
+    Object.entries(brachioCephalicArteriesHints).map(([key, value]) => [`brachioCephalicArteries.${key}`, value])
   )
 };
 

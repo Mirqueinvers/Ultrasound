@@ -2,6 +2,7 @@
 import React from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
+import { useFieldFocus } from "@hooks";
 import { Plus, Trash2 } from "lucide-react";
 import { BrachioCephalicFormation } from "./BrachioCephalicFormation";
 import type {
@@ -94,6 +95,50 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
   const isSubclavian = artery === "subclavianRight" || artery === "subclavianLeft";
   const supportsPlaques =
     isCommonCarotid || isInternalCarotid || isExternalCarotid || isVertebral || isSubclavian;
+
+  const diameterField =
+    isCommonCarotid
+      ? "commonCarotidDiameter"
+      : isInternalCarotid
+        ? "internalCarotidDiameter"
+        : isVertebral
+          ? "vertebralDiameter"
+          : undefined;
+  const kimField =
+    mode === "sinus"
+      ? "sinusKim"
+      : isCommonCarotid
+        ? "commonCarotidKim"
+        : isSubclavian
+          ? "subclavianKim"
+          : undefined;
+  const psvField =
+    isCommonCarotid
+      ? "commonCarotidPsv"
+      : isInternalCarotid
+        ? "internalCarotidPsv"
+        : isExternalCarotid
+          ? "externalCarotidPsv"
+          : isVertebral
+            ? "vertebralPsv"
+            : isSubclavian
+              ? "subclavianPsv"
+              : undefined;
+  const edvField =
+    isCommonCarotid
+      ? "commonCarotidEdv"
+      : isInternalCarotid
+        ? "internalCarotidEdv"
+        : isExternalCarotid
+          ? "externalCarotidEdv"
+          : isVertebral
+            ? "vertebralEdv"
+            : undefined;
+
+  const diameterFocus = useFieldFocus("brachioCephalicArteries", diameterField);
+  const kimFocus = useFieldFocus("brachioCephalicArteries", kimField);
+  const psvFocus = useFieldFocus("brachioCephalicArteries", psvField);
+  const edvFocus = useFieldFocus("brachioCephalicArteries", edvField);
 
   React.useEffect(() => {
     if (isSubclavian) return;
@@ -291,28 +336,29 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
             />
 
             <ButtonSelect
-              label="КИМ"
+              label="Стенка"
               value={form.sinusIntimaMediaThickness}
               onChange={(val) => {
                 const updated = {
                   ...form,
                   sinusIntimaMediaThickness: val,
                   sinusIntimaMediaThicknessValue:
-                    val === "утолщен" ? form.sinusIntimaMediaThicknessValue : "",
+                    val === "утолщена" ? form.sinusIntimaMediaThicknessValue : "",
                 };
                 setForm(updated);
                 onChange?.(updated);
               }}
               options={[
-                { value: "не утолщен", label: "не утолщен" },
-                { value: "утолщен", label: "утолщен" },
+                { value: "не утолщена", label: "не утолщена" },
+                { value: "утолщена", label: "утолщена" },
               ]}
             />
 
-            {form.sinusIntimaMediaThickness === "утолщен" && (
+            {(form.sinusIntimaMediaThickness === "утолщена" ||
+              form.sinusIntimaMediaThickness === "утолщен") && (
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  КИМ синуса (мм)
+                  Толщина стенки синуса (мм)
                 </label>
                 <input
                   type="text"
@@ -321,6 +367,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                   onChange={(e) =>
                     updateField("sinusIntimaMediaThicknessValue", e.target.value)
                   }
+                  onFocus={kimFocus.handleFocus}
+                  onBlur={kimFocus.handleBlur}
                   placeholder="Введите значение"
                 />
               </div>
@@ -379,6 +427,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 className={compactInputClass}
                 value={form.diameter}
                 onChange={(e) => updateField("diameter", e.target.value)}
+                onFocus={diameterFocus.handleFocus}
+                onBlur={diameterFocus.handleBlur}
                 placeholder="Введите значение"
               />
             </div>
@@ -390,6 +440,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 className={compactInputClass}
                 value={form.intimaMediaThickness}
                 onChange={(e) => updateField("intimaMediaThickness", e.target.value)}
+                onFocus={kimFocus.handleFocus}
+                onBlur={kimFocus.handleBlur}
                 placeholder="Введите значение"
               />
             </div>
@@ -410,6 +462,42 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               ]}
             />
 
+            <ButtonSelect
+              label="Стенка"
+              value={form.intimaMediaThickness}
+              onChange={(val) => {
+                const updated = {
+                  ...form,
+                  intimaMediaThickness: val,
+                  intimaMediaThicknessValue: val === "утолщена" ? form.intimaMediaThicknessValue : "",
+                };
+                setForm(updated);
+                onChange?.(updated);
+              }}
+              options={[
+                { value: "не утолщена", label: "не утолщена" },
+                { value: "утолщена", label: "утолщена" },
+              ]}
+            />
+
+            {(form.intimaMediaThickness === "утолщена" ||
+              form.intimaMediaThickness === "утолщен") && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Толщина стенки ВСА (мм)
+                </label>
+                <input
+                  type="text"
+                  className={compactInputClass}
+                  value={form.intimaMediaThicknessValue}
+                  onChange={(e) => updateField("intimaMediaThicknessValue", e.target.value)}
+                  onFocus={kimFocus.handleFocus}
+                  onBlur={kimFocus.handleBlur}
+                  placeholder="Введите значение"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Диаметр ВСА (мм)</label>
               <input
@@ -417,6 +505,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 className={compactInputClass}
                 value={form.diameter}
                 onChange={(e) => updateField("diameter", e.target.value)}
+                onFocus={diameterFocus.handleFocus}
+                onBlur={diameterFocus.handleBlur}
                 placeholder="Введите значение"
               />
             </div>
@@ -434,6 +524,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 className={compactInputClass}
                 value={form.diameter}
                 onChange={(e) => updateField("diameter", e.target.value)}
+                onFocus={diameterFocus.handleFocus}
+                onBlur={diameterFocus.handleBlur}
                 placeholder="Введите значение"
               />
             </div>
@@ -503,6 +595,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                   className={compactInputClass}
                   value={form.intimaMediaThicknessValue}
                   onChange={(e) => updateField("intimaMediaThicknessValue", e.target.value)}
+                  onFocus={kimFocus.handleFocus}
+                  onBlur={kimFocus.handleBlur}
                   placeholder="Введите значение"
                 />
               </div>
@@ -520,6 +614,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               className={compactInputClass}
               value={form.peakSystolicVelocity}
               onChange={(e) => updateField("peakSystolicVelocity", e.target.value)}
+              onFocus={psvFocus.handleFocus}
+              onBlur={psvFocus.handleBlur}
               placeholder="Введите значение"
             />
           </div>
@@ -534,6 +630,8 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 className={compactInputClass}
                 value={form.endDiastolicVelocity}
                 onChange={(e) => updateField("endDiastolicVelocity", e.target.value)}
+                onFocus={edvFocus.handleFocus}
+                onBlur={edvFocus.handleBlur}
                 placeholder="Введите значение"
               />
             </div>
