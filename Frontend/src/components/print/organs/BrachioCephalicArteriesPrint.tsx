@@ -152,6 +152,23 @@ const formatVertebral = (artery: ArteryProtocol): string => {
   return plaques ? (base ? `${base} ${plaques}` : plaques) : base;
 };
 
+const formatSubclavian = (artery: ArteryProtocol): string => {
+  const parts: string[] = [];
+  if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
+  if (artery.flowType) parts.push(`поток ${artery.flowType}`);
+  if (artery.intimaMediaThickness) {
+    const kimSuffix =
+      artery.intimaMediaThickness === "утолщен" && artery.intimaMediaThicknessValue
+        ? ` до ${withUnits(artery.intimaMediaThicknessValue, "мм")}`
+        : "";
+    parts.push(`КИМ ${artery.intimaMediaThickness}${kimSuffix}`);
+  }
+  if (artery.peakSystolicVelocity) parts.push(`ПСС: ${withUnits(artery.peakSystolicVelocity, "см/с")}`);
+  const plaques = formatPlaques(artery);
+  const base = parts.join(", ");
+  return plaques ? (base ? `${base}. ${plaques}` : plaques) : base;
+};
+
 type PrintRow = { title: string; body: string };
 
 export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrintProps> = ({
@@ -163,11 +180,15 @@ export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrint
     { title: "Правая ВСА", body: formatInternalCarotid(value.internalCarotidRight) },
     { title: "Правая НСА", body: formatExternalCarotid(value.externalCarotidRight) },
     { title: "Правая позвоночная артерия", body: formatVertebral(value.vertebralRight) },
+    { title: "Правая подключичная артерия", body: formatSubclavian(value.subclavianRight) },
+    { title: "Брахиоцефальный ствол справа", body: formatSinus(value.brachiocephalicTrunkRight) },
     { title: "Левая ОСА", body: formatCommonCarotid(value.commonCarotidLeft) },
     { title: "Каротидный синус слева", body: formatSinus(value.commonCarotidLeft) },
     { title: "Левая ВСА", body: formatInternalCarotid(value.internalCarotidLeft) },
     { title: "Левая НСА", body: formatExternalCarotid(value.externalCarotidLeft) },
     { title: "Левая позвоночная артерия", body: formatVertebral(value.vertebralLeft) },
+    { title: "Левая подключичная артерия", body: formatSubclavian(value.subclavianLeft) },
+    { title: "Брахиоцефальный ствол слева", body: formatSinus(value.brachiocephalicTrunkLeft) },
   ].filter((row) => row.body.trim().length > 0);
 
   if (value.overallFindings?.trim()) {

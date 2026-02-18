@@ -15,8 +15,20 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const legacyValue = value as (BrachioCephalicProtocol & { brachiocephalicTrunk?: BrachioCephalicProtocol["brachiocephalicTrunkRight"] }) | undefined;
   const [form, setForm] = useFormState<BrachioCephalicProtocol>(
-    value ?? defaultBrachioCephalicArteriesState
+    {
+      ...defaultBrachioCephalicArteriesState,
+      ...(value ?? {}),
+      brachiocephalicTrunkRight:
+        value?.brachiocephalicTrunkRight ??
+        legacyValue?.brachiocephalicTrunk ??
+        defaultBrachioCephalicArteriesState.brachiocephalicTrunkRight,
+      brachiocephalicTrunkLeft:
+        value?.brachiocephalicTrunkLeft ??
+        legacyValue?.brachiocephalicTrunk ??
+        defaultBrachioCephalicArteriesState.brachiocephalicTrunkLeft,
+    }
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
 
@@ -95,6 +107,26 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
+      <div ref={sectionRefs?.["БЦА:подключичная правая"]}>
+        <ResearchSectionCard title="Правая подключичная артерия" headerClassName="bg-sky-500">
+          <Artery
+            artery="subclavianRight"
+            value={form.subclavianRight}
+            onChange={handleArteryChange("subclavianRight")}
+          />
+        </ResearchSectionCard>
+      </div>
+
+      <ResearchSectionCard title="Брахиоцефальный ствол: справа" headerClassName="bg-sky-500">
+        <Artery
+          artery="brachiocephalicTrunkRight"
+          mode="sinus"
+          sinusTitle="Брахиоцефальный ствол"
+          value={form.brachiocephalicTrunkRight}
+          onChange={handleArteryChange("brachiocephalicTrunkRight")}
+        />
+      </ResearchSectionCard>
+
       <div ref={sectionRefs?.["БЦА:ОСА левая"]}>
         <ResearchSectionCard
           title="Левая общая сонная артерия"
@@ -156,6 +188,26 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
           />
         </ResearchSectionCard>
       </div>
+
+      <div ref={sectionRefs?.["БЦА:подключичная левая"]}>
+        <ResearchSectionCard title="Левая подключичная артерия" headerClassName="bg-sky-500">
+          <Artery
+            artery="subclavianLeft"
+            value={form.subclavianLeft}
+            onChange={handleArteryChange("subclavianLeft")}
+          />
+        </ResearchSectionCard>
+      </div>
+
+      <ResearchSectionCard title="Брахиоцефальный ствол: слева" headerClassName="bg-sky-500">
+        <Artery
+          artery="brachiocephalicTrunkLeft"
+          mode="sinus"
+          sinusTitle="Брахиоцефальный ствол"
+          value={form.brachiocephalicTrunkLeft}
+          onChange={handleArteryChange("brachiocephalicTrunkLeft")}
+        />
+      </ResearchSectionCard>
 
       <ResearchSectionCard
         title="Общие находки по исследованию БЦА"

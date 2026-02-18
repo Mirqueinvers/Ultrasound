@@ -19,8 +19,10 @@ export interface BrachioCephalicFormation {
 
 export interface ArteryProtocol {
   vesselCourse: string;
+  flowType: string;
   diameter: string;
   intimaMediaThickness: string;
+  intimaMediaThicknessValue: string;
   peakSystolicVelocity: string;
   endDiastolicVelocity: string;
   resistanceIndex: string;
@@ -37,6 +39,8 @@ export interface ArteryProtocol {
 }
 
 export interface BrachioCephalicProtocol {
+  brachiocephalicTrunkRight: ArteryProtocol;
+  brachiocephalicTrunkLeft: ArteryProtocol;
   commonCarotidRight: ArteryProtocol;
   commonCarotidLeft: ArteryProtocol;
   internalCarotidRight: ArteryProtocol;
@@ -45,6 +49,8 @@ export interface BrachioCephalicProtocol {
   externalCarotidLeft: ArteryProtocol;
   vertebralRight: ArteryProtocol;
   vertebralLeft: ArteryProtocol;
+  subclavianRight: ArteryProtocol;
+  subclavianLeft: ArteryProtocol;
   overallFindings: string;
 }
 
@@ -53,6 +59,7 @@ export interface ArteryProps {
   value?: ArteryProtocol;
   onChange?: (value: ArteryProtocol) => void;
   mode?: "main" | "sinus";
+  sinusTitle?: string;
 }
 
 export interface BrachioCephalicFormationProps {
@@ -71,6 +78,8 @@ export type BrachioCephalicSectionKey = Extract<
   | "БЦА:НСА левая"
   | "БЦА:позвоночная правая"
   | "БЦА:позвоночная левая"
+  | "БЦА:подключичная правая"
+  | "БЦА:подключичная левая"
 >;
 
 export interface BrachioCephalicCommonProps {

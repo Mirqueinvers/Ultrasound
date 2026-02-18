@@ -6,8 +6,10 @@ import type {
 
 export const defaultArteryState: ArteryProtocol = {
   vesselCourse: "прямолинейный",
+  flowType: "магистральный трехфазный",
   diameter: "",
   intimaMediaThickness: "",
+  intimaMediaThicknessValue: "",
   peakSystolicVelocity: "",
   endDiastolicVelocity: "",
   resistanceIndex: "",
@@ -24,6 +26,8 @@ export const defaultArteryState: ArteryProtocol = {
 };
 
 export const defaultBrachioCephalicArteriesState: BrachioCephalicProtocol = {
+  brachiocephalicTrunkRight: { ...defaultArteryState },
+  brachiocephalicTrunkLeft: { ...defaultArteryState },
   commonCarotidRight: { ...defaultArteryState },
   commonCarotidLeft: { ...defaultArteryState },
   internalCarotidRight: { ...defaultArteryState },
@@ -32,5 +36,7 @@ export const defaultBrachioCephalicArteriesState: BrachioCephalicProtocol = {
   externalCarotidLeft: { ...defaultArteryState },
   vertebralRight: { ...defaultArteryState },
   vertebralLeft: { ...defaultArteryState },
+  subclavianRight: { ...defaultArteryState },
+  subclavianLeft: { ...defaultArteryState },
   overallFindings: "",
 };

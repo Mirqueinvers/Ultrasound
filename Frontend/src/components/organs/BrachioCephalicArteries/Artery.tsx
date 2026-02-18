@@ -60,6 +60,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
   onChange,
   commonCarotidPsv = "",
   mode = "main",
+  sinusTitle = "Каротидный синус",
 }) => {
   const initialValue: ArteryProtocol = {
     ...defaultArteryState,
@@ -90,9 +91,12 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
   const isInternalCarotid = artery === "internalCarotidRight" || artery === "internalCarotidLeft";
   const isExternalCarotid = artery === "externalCarotidRight" || artery === "externalCarotidLeft";
   const isVertebral = artery === "vertebralRight" || artery === "vertebralLeft";
-  const supportsPlaques = isCommonCarotid || isInternalCarotid || isExternalCarotid || isVertebral;
+  const isSubclavian = artery === "subclavianRight" || artery === "subclavianLeft";
+  const supportsPlaques =
+    isCommonCarotid || isInternalCarotid || isExternalCarotid || isVertebral || isSubclavian;
 
   React.useEffect(() => {
+    if (isSubclavian) return;
     if (mode !== "main") return;
     const calculatedRi = calculateResistanceIndex(
       form.peakSystolicVelocity,
@@ -103,7 +107,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
       setForm(updated);
       onChange?.(updated);
     }
-  }, [form.peakSystolicVelocity, form.endDiastolicVelocity, mode]);
+  }, [form.peakSystolicVelocity, form.endDiastolicVelocity, mode, isSubclavian]);
 
   React.useEffect(() => {
     if (mode !== "main" || !isInternalCarotid) return;
@@ -274,7 +278,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
   if (mode === "sinus") {
     return (
       <div className="space-y-6">
-        <Fieldset title="Каротидный синус">
+        <Fieldset title={sinusTitle}>
           <div className="space-y-4">
             <ButtonSelect
               label="Поток"
@@ -447,6 +451,65 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
           </div>
         )}
 
+        {isSubclavian && (
+          <div className="space-y-4 mb-4">
+            <ButtonSelect
+              label="Ход сосуда"
+              value={form.vesselCourse}
+              onChange={(val) => updateField("vesselCourse", val)}
+              options={[
+                { value: "прямолинейный", label: "прямолинейный" },
+                { value: "S-образный", label: "S-образный" },
+              ]}
+            />
+
+            <ButtonSelect
+              label="Поток"
+              value={form.flowType}
+              onChange={(val) => updateField("flowType", val)}
+              options={[
+                { value: "магистральный трехфазный", label: "магистральный трехфазный" },
+                { value: "магистральный двухфазный", label: "магистральный двухфазный" },
+                { value: "монофазный", label: "монофазный" },
+                { value: "высокоскоростной турбулентный", label: "высокоскоростной турбулентный" },
+              ]}
+            />
+
+            <ButtonSelect
+              label="КИМ"
+              value={form.intimaMediaThickness}
+              onChange={(val) => {
+                const updated = {
+                  ...form,
+                  intimaMediaThickness: val,
+                  intimaMediaThicknessValue: val === "утолщен" ? form.intimaMediaThicknessValue : "",
+                };
+                setForm(updated);
+                onChange?.(updated);
+              }}
+              options={[
+                { value: "не утолщен", label: "не утолщен" },
+                { value: "утолщен", label: "утолщен" },
+              ]}
+            />
+
+            {form.intimaMediaThickness === "утолщен" && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  КИМ подключичной артерии (мм)
+                </label>
+                <input
+                  type="text"
+                  className={compactInputClass}
+                  value={form.intimaMediaThicknessValue}
+                  onChange={(e) => updateField("intimaMediaThicknessValue", e.target.value)}
+                  placeholder="Введите значение"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -461,33 +524,37 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
             />
           </div>
 
-          <div>
+          {!isSubclavian && (
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Конечная диастолическая скорость
+              </label>
+              <input
+                type="text"
+                className={compactInputClass}
+                value={form.endDiastolicVelocity}
+                onChange={(e) => updateField("endDiastolicVelocity", e.target.value)}
+                placeholder="Введите значение"
+              />
+            </div>
+          )}
+        </div>
+
+        {!isSubclavian && (
+          <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Конечная диастолическая скорость
+              Индекс резистентности (автоматически)
             </label>
             <input
               type="text"
-              className={compactInputClass}
-              value={form.endDiastolicVelocity}
-              onChange={(e) => updateField("endDiastolicVelocity", e.target.value)}
-              placeholder="Введите значение"
+              className={compactAutoInputClass}
+              value={form.resistanceIndex}
+              readOnly
+              disabled
+              placeholder="авто"
             />
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
-            Индекс резистентности (автоматически)
-          </label>
-          <input
-            type="text"
-            className={compactAutoInputClass}
-            value={form.resistanceIndex}
-            readOnly
-            disabled
-            placeholder="авто"
-          />
-        </div>
+        )}
 
         {isInternalCarotid && (
           <div className="mb-4">
