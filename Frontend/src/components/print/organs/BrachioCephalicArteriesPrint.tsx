@@ -22,7 +22,16 @@ const ensureTrailingPeriod = (text: string): string => {
   return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 };
 
+const normalizePatency = (value: string): string => {
+  if (value === "прохода") return "проходима";
+  return value;
+};
+
 const emptyArtery: ArteryProtocol = {
+  patency: "",
+  commonWallState: "",
+  commonFlowType: "",
+  internalFlowType: "",
   vesselCourse: "",
   flowType: "",
   diameter: "",
@@ -31,6 +40,7 @@ const emptyArtery: ArteryProtocol = {
   peakSystolicVelocity: "",
   endDiastolicVelocity: "",
   resistanceIndex: "",
+  sinusPatency: "",
   sinusFlow: "",
   sinusIntimaMediaThickness: "",
   sinusIntimaMediaThicknessValue: "",
@@ -121,9 +131,11 @@ const formatSinusPlaques = (artery: ArteryProtocol): string => {
 
 const formatCommonCarotid = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
+  if (artery.patency) parts.push(normalizePatency(artery.patency));
   if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
-  if (artery.diameter) parts.push(`диаметр ОСА: ${withUnits(artery.diameter, "мм")}`);
+  if (artery.commonWallState) parts.push(`стенка ${artery.commonWallState}`);
   if (artery.intimaMediaThickness) parts.push(`КИМ: ${withUnits(artery.intimaMediaThickness, "мм")}`);
+  if (artery.commonFlowType) parts.push(`тип кровотока ${artery.commonFlowType}`);
   if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
   if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
@@ -135,6 +147,7 @@ const formatCommonCarotid = (artery: ArteryProtocol): string => {
 
 const formatSinus = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
+  if (artery.sinusPatency) parts.push(artery.sinusPatency);
   if (artery.sinusFlow) parts.push(`поток ${artery.sinusFlow}`);
   if (artery.sinusIntimaMediaThickness) {
     const wallValue =
@@ -163,6 +176,7 @@ const formatSinus = (artery: ArteryProtocol): string => {
 
 const formatInternalCarotid = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
+  if (artery.patency) parts.push(normalizePatency(artery.patency));
   if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
   if (artery.intimaMediaThickness) {
     const wallValue =
@@ -180,6 +194,7 @@ const formatInternalCarotid = (artery: ArteryProtocol): string => {
     parts.push(`стенка ${wallValue}${wallSuffix}`);
   }
   if (artery.diameter) parts.push(`диаметр ВСА: ${withUnits(artery.diameter, "мм")}`);
+  if (artery.internalFlowType) parts.push(`тип кровотока ${artery.internalFlowType}`);
   if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
   if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
@@ -192,6 +207,8 @@ const formatInternalCarotid = (artery: ArteryProtocol): string => {
 
 const formatExternalCarotid = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
+  if (artery.patency) parts.push(normalizePatency(artery.patency));
+  if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
   if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
   if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
@@ -224,7 +241,7 @@ const formatSubclavian = (artery?: ArteryProtocol): string => {
       safeArtery.intimaMediaThickness === "утолщен" && safeArtery.intimaMediaThicknessValue
         ? ` до ${withUnits(safeArtery.intimaMediaThicknessValue, "мм")}`
         : "";
-    parts.push(`КИМ ${safeArtery.intimaMediaThickness}${kimSuffix}`);
+    parts.push(`стенка ${safeArtery.intimaMediaThickness}${kimSuffix}`);
   }
   if (safeArtery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(safeArtery.peakSystolicVelocity, "см/с")}`);
   const plaques = formatPlaques(safeArtery);

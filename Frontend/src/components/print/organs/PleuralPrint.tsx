@@ -3,7 +3,6 @@ import React from "react";
 import type {
   PleuralProtocol,
   PleuralSideProtocol,
-  PleuralFormation,
 } from "@types";
 
 export interface PleuralPrintProps {

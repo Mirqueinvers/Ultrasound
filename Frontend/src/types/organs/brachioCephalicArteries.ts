@@ -18,6 +18,10 @@ export interface BrachioCephalicFormation {
 }
 
 export interface ArteryProtocol {
+  patency: string;
+  commonWallState: string;
+  commonFlowType: string;
+  internalFlowType: string;
   vesselCourse: string;
   flowType: string;
   diameter: string;
@@ -26,6 +30,7 @@ export interface ArteryProtocol {
   peakSystolicVelocity: string;
   endDiastolicVelocity: string;
   resistanceIndex: string;
+  sinusPatency: string;
   sinusFlow: string;
   sinusIntimaMediaThickness: string;
   sinusIntimaMediaThicknessValue: string;

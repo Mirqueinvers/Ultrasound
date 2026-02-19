@@ -1,6 +1,6 @@
 // src/components/organs/LowerExtremityVeins/VenousThrombus.tsx
 import React from "react";
-import { Fieldset, ButtonSelect } from "@/UI";
+import { ButtonSelect } from "@/UI";
 import type { VenousThrombus } from "@/types/organs/lowerExtremityVeins";
 
 interface VenousThrombusProps {

@@ -1,6 +1,5 @@
 // src/components/organs/Pleural/PleuralFormation.tsx
 import React from "react";
-import { Fieldset } from "@/UI";
 import type { PleuralFormationProps } from "@/types/organs/pleural";
 
 export const PleuralFormation: React.FC<PleuralFormationProps> = ({

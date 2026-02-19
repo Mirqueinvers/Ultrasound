@@ -29,7 +29,7 @@ export interface LymphNodesProtocol {
 export interface LymphNodesCommonProps {
   value?: LymphNodesProtocol;
   onChange?: (value: LymphNodesProtocol) => void;
-  sectionRefs?: Record<string, React.RefObject<HTMLDivElement>>;
+  sectionRefs?: Record<string, React.RefObject<HTMLDivElement | null>>;
 }
 
 export interface LymphNodeRegionProps {

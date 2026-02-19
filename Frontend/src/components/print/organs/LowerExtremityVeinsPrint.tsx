@@ -4,7 +4,6 @@ import type {
   LowerExtremityVeinsProtocol,
   DeepVeinProtocol,
   SuperficialVeinProtocol,
-  VenousThrombus,
 } from "@types";
 
 export interface LowerExtremityVeinsPrintProps {

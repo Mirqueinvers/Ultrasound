@@ -1,6 +1,6 @@
 // src/components/organs/Pleural/PleuralSide.tsx
 import React from "react";
-import { Fieldset, ButtonSelect } from "@/UI";
+import { Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
 import { PleuralFormation } from "./PleuralFormation";
 import type { 

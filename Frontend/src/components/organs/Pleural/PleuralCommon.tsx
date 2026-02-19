@@ -1,5 +1,5 @@
 // src/components/organs/Pleural/PleuralCommon.tsx
-import React, { useEffect } from "react";
+import React from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate } from "@hooks";

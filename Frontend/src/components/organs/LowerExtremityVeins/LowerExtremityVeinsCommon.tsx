@@ -1,6 +1,6 @@
 // src/components/organs/LowerExtremityVeins/LowerExtremityVeinsCommon.tsx
-import React, { useEffect } from "react";
-import { Fieldset, ButtonSelect } from "@/UI";
+import React from "react";
+import { Fieldset } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate } from "@/hooks";
 import { DeepVein } from "./DeepVein";

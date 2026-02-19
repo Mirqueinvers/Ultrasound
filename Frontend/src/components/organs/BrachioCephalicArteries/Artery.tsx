@@ -326,6 +326,17 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
         <Fieldset title={sinusTitle}>
           <div className="space-y-4">
             <ButtonSelect
+              label="Проходимость"
+              value={form.sinusPatency}
+              onChange={(val) => updateField("sinusPatency", val)}
+              options={[
+                { value: "проходим", label: "проходим" },
+                { value: "сужен", label: "сужен" },
+                { value: "резко сужена", label: "резко сужена" },
+              ]}
+            />
+
+            <ButtonSelect
               label="Поток"
               value={form.sinusFlow}
               onChange={(val) => updateField("sinusFlow", val)}
@@ -407,6 +418,17 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
         {isCommonCarotid && (
           <div className="space-y-4 mb-4">
             <ButtonSelect
+              label="Проходимость"
+              value={form.patency}
+              onChange={(val) => updateField("patency", val)}
+              options={[
+                { value: "проходима", label: "проходима" },
+                { value: "сужена", label: "сужена" },
+                { value: "резко сужена", label: "резко сужена" },
+              ]}
+            />
+
+            <ButtonSelect
               label="Ход сосуда"
               value={form.vesselCourse}
               onChange={(val) => updateField("vesselCourse", val)}
@@ -418,19 +440,38 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               ]}
             />
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Диаметр ОСА в среднем сегменте (мм)
-              </label>
-              <input
-                type="text"
-                className={compactInputClass}
-                value={form.diameter}
-                onChange={(e) => updateField("diameter", e.target.value)}
-                onFocus={diameterFocus.handleFocus}
-                onBlur={diameterFocus.handleBlur}
-                placeholder="Введите значение"
+            <ButtonSelect
+              label="Стенка"
+              value={form.commonWallState}
+              onChange={(val) => updateField("commonWallState", val)}
+              options={[
+                { value: "не утолщена", label: "не утолщена" },
+                { value: "утолщена", label: "утолщена" },
+              ]}
+            />
+
+            <div className="space-y-4">
+              <ButtonSelect
+                label="Бляшки"
+                value={form.plaques}
+                onChange={handlePlaquesToggle}
+                options={[
+                  { value: "не определяются", label: "не определяются" },
+                  { value: "определяются", label: "определяются" },
+                ]}
               />
+
+              {form.plaques === "определяются" && (
+                <div className="mt-4 space-y-4">
+                  {renderPlaqueList(
+                    form.plaquesList,
+                    handleAddPlaque,
+                    handleRemovePlaque,
+                    handleUpdatePlaque,
+                    "Бляшки не добавлены"
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -445,11 +486,34 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 placeholder="Введите значение"
               />
             </div>
+
+            <ButtonSelect
+              label="Тип кровотока"
+              value={form.commonFlowType}
+              onChange={(val) => updateField("commonFlowType", val)}
+              options={[
+                { value: "ламинарный", label: "ламинарный" },
+                { value: "турбулентный", label: "турбулентный" },
+                { value: "реверсивный", label: "реверсивный" },
+                { value: "двунаправленный", label: "двунаправленный" },
+              ]}
+            />
           </div>
         )}
 
         {isInternalCarotid && (
           <div className="space-y-4 mb-4">
+            <ButtonSelect
+              label="Проходимость"
+              value={form.patency}
+              onChange={(val) => updateField("patency", val)}
+              options={[
+                { value: "проходима", label: "проходима" },
+                { value: "сужена", label: "сужена" },
+                { value: "резко сужена", label: "резко сужена" },
+              ]}
+            />
+
             <ButtonSelect
               label="Ход сосуда"
               value={form.vesselCourse}
@@ -477,6 +541,18 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               options={[
                 { value: "не утолщена", label: "не утолщена" },
                 { value: "утолщена", label: "утолщена" },
+              ]}
+            />
+
+            <ButtonSelect
+              label="Тип кровотока"
+              value={form.internalFlowType}
+              onChange={(val) => updateField("internalFlowType", val)}
+              options={[
+                { value: "ламинарный", label: "ламинарный" },
+                { value: "турбулентный", label: "турбулентный" },
+                { value: "реверсивный", label: "реверсивный" },
+                { value: "двунаправленный", label: "двунаправленный" },
               ]}
             />
 
@@ -510,6 +586,31 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 placeholder="Введите значение"
               />
             </div>
+          </div>
+        )}
+
+        {isExternalCarotid && (
+          <div className="space-y-4 mb-4">
+            <ButtonSelect
+              label="Проходимость"
+              value={form.patency}
+              onChange={(val) => updateField("patency", val)}
+              options={[
+                { value: "проходима", label: "проходима" },
+                { value: "сужена", label: "сужена" },
+                { value: "резко сужена", label: "резко сужена" },
+              ]}
+            />
+
+            <ButtonSelect
+              label="Ход"
+              value={form.vesselCourse}
+              onChange={(val) => updateField("vesselCourse", val)}
+              options={[
+                { value: "прямолинейный", label: "прямолинейный" },
+                { value: "S-образный", label: "S-образный" },
+              ]}
+            />
           </div>
         )}
 
@@ -568,27 +669,31 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
             />
 
             <ButtonSelect
-              label="КИМ"
+              label="Стенка"
               value={form.intimaMediaThickness}
               onChange={(val) => {
                 const updated = {
                   ...form,
                   intimaMediaThickness: val,
-                  intimaMediaThicknessValue: val === "утолщен" ? form.intimaMediaThicknessValue : "",
+                  intimaMediaThicknessValue:
+                    val === "утолщена" || val === "утолщен"
+                      ? form.intimaMediaThicknessValue
+                      : "",
                 };
                 setForm(updated);
                 onChange?.(updated);
               }}
               options={[
-                { value: "не утолщен", label: "не утолщен" },
-                { value: "утолщен", label: "утолщен" },
+                { value: "не утолщена", label: "не утолщена" },
+                { value: "утолщена", label: "утолщена" },
               ]}
             />
 
-            {form.intimaMediaThickness === "утолщен" && (
+            {(form.intimaMediaThickness === "утолщена" ||
+              form.intimaMediaThickness === "утолщен") && (
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  КИМ подключичной артерии (мм)
+                  Толщина стенки подключичной артерии (мм)
                 </label>
                 <input
                   type="text"
@@ -670,7 +775,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
           </div>
         )}
 
-        {supportsPlaques && (
+        {supportsPlaques && !isCommonCarotid && (
           <div className="space-y-4 mb-4">
             <ButtonSelect
               label="Бляшки"
