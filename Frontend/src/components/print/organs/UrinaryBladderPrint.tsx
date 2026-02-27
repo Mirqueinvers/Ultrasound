@@ -22,14 +22,12 @@ export const UrinaryBladderPrint: React.FC<UrinaryBladderPrintProps> = ({ value 
 
   const sizeParts: string[] = [];
 
-  if (length?.trim()) {
-    sizeParts.push(`длина ${length} мм`);
-  }
-  if (width?.trim()) {
-    sizeParts.push(`ширина ${width} мм`);
-  }
-  if (depth?.trim()) {
-    sizeParts.push(`передне-задний размер ${depth} мм`);
+  const dimensions = [length?.trim(), width?.trim(), depth?.trim()].filter(
+    (dimension): dimension is string => !!dimension
+  );
+
+  if (dimensions.length > 0) {
+    sizeParts.push(`размерами ${dimensions.join(" х ")} мм`);
   }
   if (volume?.trim()) {
     sizeParts.push(`объем ${volume} мл`);
@@ -86,7 +84,7 @@ export const UrinaryBladderPrint: React.FC<UrinaryBladderPrintProps> = ({ value 
           <>
             {(() => {
               const text = sizeParts.join(", ");
-              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+              return text + ".";
             })()}
           </>
         )}

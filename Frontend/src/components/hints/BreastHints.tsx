@@ -17,6 +17,38 @@ const BreastHints: React.FC<BreastHintsProps> = ({ onAddText }) => {
       value: "УЗ-признаков патологии молочных желез не выявлено."
     },
     {
+      title: "BI-RADS 1",
+      value: "BI-RADS 1."
+    },
+    {
+      title: "BI-RADS 2",
+      value: "BI-RADS 2."
+    },
+    {
+      title: "BI-RADS 3",
+      value: "BI-RADS 3."
+    },
+    {
+      title: "BI-RADS 4a",
+      value: "BI-RADS 4a."
+    },
+    {
+      title: "BI-RADS 4b",
+      value: "BI-RADS 4b."
+    },
+    {
+      title: "BI-RADS 4c",
+      value: "BI-RADS 4c."
+    },
+    {
+      title: "BI-RADS 5",
+      value: "BI-RADS 5."
+    },
+    {
+      title: "BI-RADS 6",
+      value: "BI-RADS 6."
+    },
+    {
       title: "Фиброзно-кистозная мастопатия",
       value: "Эхографические признаки фиброзно-кистозной мастопатии."
     },
