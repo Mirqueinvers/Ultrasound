@@ -9,6 +9,7 @@ export const defaultBreastSideState: BreastSideProtocol = {
   milkDucts: "не расширены",
   volumeFormations: "не определяются",
   nodesList: [],
+  additional: "",
 };
 
 export const defaultBreastState: BreastProtocol = {

@@ -1,4 +1,3 @@
-// src/components/organs/BrachioCephalicArteries/BrachioCephalicFormation.tsx
 import React from "react";
 import { ButtonSelect, Fieldset } from "@/UI";
 import type { BrachioCephalicFormationProps } from "@/types/organs/brachioCephalicArteries";
@@ -16,37 +15,57 @@ const parseNumber = (value: string): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-export const BrachioCephalicFormation: React.FC<BrachioCephalicFormationProps> = ({
-  formation,
-  onUpdate,
-}) => {
+export const BrachioCephalicFormation: React.FC<
+  BrachioCephalicFormationProps
+> = ({ formation, onUpdate }) => {
   React.useEffect(() => {
-    const normal = parseNumber(formation.vesselWidthNormal);
+    const reference = parseNumber(formation.vesselWidthNormal);
     const stenosis = parseNumber(formation.vesselWidthStenosis);
 
     const calculated =
-      normal !== null && stenosis !== null && normal > 0
-        ? ((1 - stenosis / normal) * 100).toFixed(1)
+      reference !== null && stenosis !== null && reference > 0
+        ? ((1 - stenosis / reference) * 100).toFixed(1)
         : "";
 
     if (formation.stenosisDegree !== calculated) {
       onUpdate("stenosisDegree", calculated);
     }
-  }, [formation.vesselWidthNormal, formation.vesselWidthStenosis, formation.stenosisDegree, onUpdate]);
+  }, [
+    formation.vesselWidthNormal,
+    formation.vesselWidthStenosis,
+    formation.stenosisDegree,
+    onUpdate,
+  ]);
 
   return (
     <div className="space-y-4">
       <Fieldset title="Локализация">
-        <ButtonSelect
-          label=""
-          value={formation.localizationSegment}
-          onChange={(val) => onUpdate("localizationSegment", val)}
-          options={[
-            { value: "проксимальный сегмент", label: "проксимальный сегмент" },
-            { value: "средний сегмент", label: "средний сегмент" },
-            { value: "дистальный сегмент", label: "дистальный сегмент" },
-          ]}
-        />
+        <div className="space-y-3">
+          <ButtonSelect
+            label=""
+            value={formation.localizationSegment}
+            onChange={(val) => onUpdate("localizationSegment", val)}
+            options={[
+              { value: "проксимальный сегмент", label: "проксимальный сегмент" },
+              { value: "средний сегмент", label: "средний сегмент" },
+              { value: "дистальный сегмент", label: "дистальный сегмент" },
+              { value: "устье", label: "устье" },
+            ]}
+          />
+
+          <ButtonSelect
+            label="Переход?"
+            value={formation.transitionTo}
+            onChange={(val) => onUpdate("transitionTo", val)}
+            options={[
+              { value: "ВСА", label: "ВСА" },
+              { value: "НСА", label: "НСА" },
+              { value: "ОСА", label: "ОСА" },
+              { value: "Каротидный синус", label: "Каротидный синус" },
+              { value: "Подключичная", label: "Подключичная" },
+            ]}
+          />
+        </div>
       </Fieldset>
 
       <Fieldset title="Стенка">
@@ -57,7 +76,10 @@ export const BrachioCephalicFormation: React.FC<BrachioCephalicFormationProps> =
           options={[
             { value: "по задней", label: "по задней" },
             { value: "по передней", label: "по передней" },
+            { value: "медиальная", label: "медиальная" },
+            { value: "латеральная", label: "латеральная" },
             { value: "циркулярная", label: "циркулярная" },
+            { value: "полуциркулярная", label: "полуциркулярная" },
           ]}
         />
       </Fieldset>
@@ -65,7 +87,9 @@ export const BrachioCephalicFormation: React.FC<BrachioCephalicFormationProps> =
       <Fieldset title="Размеры">
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Толщина</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Толщина
+            </label>
             <input
               type="text"
               className={compactInputClass}
@@ -75,7 +99,9 @@ export const BrachioCephalicFormation: React.FC<BrachioCephalicFormationProps> =
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Протяженность</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Протяженность
+            </label>
             <input
               type="text"
               className={compactInputClass}
@@ -117,9 +143,19 @@ export const BrachioCephalicFormation: React.FC<BrachioCephalicFormationProps> =
 
       <Fieldset title="Стеноз">
         <div className="space-y-3">
+          <ButtonSelect
+            label=""
+            value={formation.stenosisMethod}
+            onChange={(val) => onUpdate("stenosisMethod", val)}
+            options={[
+              { value: "NASCET", label: "NASCET" },
+              { value: "ECST", label: "ECST" },
+            ]}
+          />
+
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Ширина неизмененного сосуда
+              Референс
             </label>
             <input
               type="text"

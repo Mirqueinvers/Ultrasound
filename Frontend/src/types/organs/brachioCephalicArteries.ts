@@ -4,11 +4,13 @@ import type { SectionKey } from "@/components/common/OrgNavigation";
 export interface BrachioCephalicFormation {
   number: number;
   localizationSegment: string;
+  transitionTo: string;
   wall: string;
   thickness: string;
   length: string;
   echostructure: string;
   surface: string;
+  stenosisMethod: string;
   vesselWidthNormal: string;
   vesselWidthStenosis: string;
   stenosisDegree: string;

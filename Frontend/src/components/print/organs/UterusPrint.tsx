@@ -1,10 +1,120 @@
-// src/print/UterusPrint.tsx
 import React from "react";
-import type { UterusProtocol } from "@types";
+import type { UterusNode, UterusProtocol } from "@types";
 
 export interface UterusPrintProps {
   value: UterusProtocol;
 }
+
+const ensurePeriod = (text: string): string => {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  return /[.!?]$/u.test(trimmed) ? trimmed : `${trimmed}.`;
+};
+
+const formatWallLocation = (value: string): string => {
+  switch (value) {
+    case "передняя":
+      return "по передней стенке матки";
+    case "задняя":
+      return "по задней стенке матки";
+    case "правая боковая":
+      return "по правой боковой стенке матки";
+    case "левая боковая":
+      return "по левой боковой стенке матки";
+    case "дно":
+      return "в области дна матки";
+    default:
+      return value;
+  }
+};
+
+const formatLayerType = (value: string): string => {
+  switch (value) {
+    case "интрамуральная":
+      return "интрамуральный";
+    case "субсерозная":
+      return "субсерозный";
+    case "субмукозная":
+      return "субмукозный";
+    case "интралигаментарная":
+      return "интралигаментарный";
+    default:
+      return value;
+  }
+};
+
+const formatCavityImpact = (value: string): string => {
+  switch (value) {
+    case "не деформирует":
+      return "полость матки не деформирует";
+    case "деформирует полость":
+      return "деформирует полость матки";
+    default:
+      return value;
+  }
+};
+
+const normalizeBloodFlow = (value: string): string => {
+  if (value === "не усилен") return "не изменен";
+  return value;
+};
+
+const formatNodeDescription = (node: UterusNode): string => {
+  const parts: string[] = [];
+
+  if (node.wallLocation) parts.push(formatWallLocation(node.wallLocation));
+  if (node.layerType) parts.push(formatLayerType(node.layerType));
+
+  const sizes = [node.size1?.trim(), node.size2?.trim()].filter(
+    (item): item is string => Boolean(item)
+  );
+  if (sizes.length > 0) {
+    parts.push(`размерами ${sizes.join(" × ")} мм`);
+  }
+
+  const contourParts = [node.contourClarity?.trim(), node.contourEvenness?.trim()].filter(
+    (item): item is string => Boolean(item)
+  );
+  if (contourParts.length > 0) {
+    parts.push(`контуры ${contourParts.join(", ")}`);
+  }
+
+  if (node.echogenicity?.trim()) {
+    parts.push(node.echogenicity.trim());
+  }
+
+  if (node.structure?.trim()) {
+    parts.push(`структура ${node.structure.trim()}`);
+  }
+
+  if (node.cavityImpact?.trim()) {
+    parts.push(formatCavityImpact(node.cavityImpact.trim()));
+  }
+
+  if (node.bloodFlow?.trim()) {
+    const bloodFlow = normalizeBloodFlow(node.bloodFlow.trim()).toLowerCase();
+    parts.push(`кровоток ${bloodFlow}`);
+  }
+
+  if (node.comment?.trim()) {
+    parts.push(node.comment.trim());
+  }
+
+  return parts.join(", ");
+};
+
+const formatNodesSummary = (nodes: UterusNode[]): string => {
+  if (nodes.length === 1) {
+    return `Определяется одиночный узел ${formatNodeDescription(nodes[0])}`;
+  }
+
+  const countedForm = nodes.length >= 2 && nodes.length <= 4 ? "узла" : "узлов";
+  const items = nodes
+    .map((node) => `Узел №${node.number}: ${formatNodeDescription(node)}`)
+    .join(". ");
+
+  return `Определяются ${nodes.length} ${countedForm}: ${items}`;
+};
 
 export const UterusPrint: React.FC<UterusPrintProps> = ({ value }) => {
   const {
@@ -18,6 +128,8 @@ export const UterusPrint: React.FC<UterusPrintProps> = ({ value }) => {
     myometriumStructure,
     myometriumStructureText,
     myometriumEchogenicity,
+    myomaNodesPresence,
+    myomaNodesList,
     uterineCavity,
     uterineCavityText,
     endometriumSize,
@@ -32,101 +144,79 @@ export const UterusPrint: React.FC<UterusPrintProps> = ({ value }) => {
     additional,
   } = value;
 
-  const additionalText = additional?.trim();
-
   const infoParts: string[] = [];
 
-  // Размеры
   const sizeParts: string[] = [];
   if (length?.trim()) sizeParts.push(`длина ${length} мм`);
   if (width?.trim()) sizeParts.push(`ширина ${width} мм`);
-  if (apDimension?.trim())
-    sizeParts.push(`передне-задний размер ${apDimension} мм`);
-  if (volume?.trim()) sizeParts.push(`объем ${volume} см³`);
+  if (apDimension?.trim()) sizeParts.push(`передне-задний размер ${apDimension} мм`);
+  if (volume?.trim()) sizeParts.push(`объем ${volume} см3`);
+  if (sizeParts.length) infoParts.push(`Размерами: ${sizeParts.join(", ")}`);
 
-  if (sizeParts.length) {
-    infoParts.push(`Размерами: ${sizeParts.join(", ")}`);
-  }
-
-  // Форма и положение
   const formPosParts: string[] = [];
   if (shape?.trim()) formPosParts.push(`форма матки ${shape.toLowerCase()}`);
   if (position?.trim()) formPosParts.push(`положение ${position}`);
   if (formPosParts.length) {
-    const txt = formPosParts.join(", ");
-    infoParts.push(txt.charAt(0).toUpperCase() + txt.slice(1));
+    const text = formPosParts.join(", ");
+    infoParts.push(text.charAt(0).toUpperCase() + text.slice(1));
   }
 
-  // Миометрий
   const myometriumParts: string[] = [];
   if (myometriumStructure?.trim()) {
     let base = `структура миометрия ${myometriumStructure.toLowerCase()}`;
-    if (
-      myometriumStructure === "неоднородное" &&
-      myometriumStructureText?.trim()
-    ) {
+    if (myometriumStructure === "неоднородная" && myometriumStructureText?.trim()) {
       base += ` (${myometriumStructureText.trim()})`;
     }
     myometriumParts.push(base);
   }
   if (myometriumEchogenicity?.trim()) {
-    myometriumParts.push(
-      `эхогенность ${myometriumEchogenicity.toLowerCase()}`
-    );
+    myometriumParts.push(`эхогенность ${myometriumEchogenicity.toLowerCase()}`);
+  }
+  if (uterineCavity?.trim()) {
+    let cavity = `полость матки ${uterineCavity.toLowerCase()}`;
+    if (uterineCavity === "расширена" && uterineCavityText?.trim()) {
+      cavity += `, ${uterineCavityText.trim()}`;
+    }
+    myometriumParts.push(cavity);
   }
   if (myometriumParts.length) {
-    infoParts.push(
-      myometriumParts
-        .join(", ")
-        .replace("Структура", "Структура")
-        .replace("структура", "Структура")
-    );
+    const text = myometriumParts.join(", ");
+    infoParts.push(text.charAt(0).toUpperCase() + text.slice(1));
   }
 
-  // Полость матки
-  if (uterineCavity?.trim()) {
-    let cav = `полость матки ${uterineCavity.toLowerCase()}`;
-    if (uterineCavity === "расширена" && uterineCavityText?.trim()) {
-      cav += `, ${uterineCavityText.trim()}`;
-    }
-    // добавляем в ту же часть, что и миометрий, если она есть
-    if (infoParts.length && infoParts[infoParts.length - 1].startsWith("Структура миометрия")) {
-      infoParts[infoParts.length - 1] =
-        infoParts[infoParts.length - 1].replace(/\.$/, "") + `, ${cav}`;
+  if (myomaNodesPresence?.trim()) {
+    if (myomaNodesPresence === "не определяются") {
+      infoParts.push("Объемные образования не определяются");
+    } else if (myomaNodesList?.length) {
+      infoParts.push(formatNodesSummary(myomaNodesList));
     } else {
-      infoParts.push(
-        cav.charAt(0).toUpperCase() + cav.slice(1)
-      );
+      infoParts.push("Определяются объемные образования");
     }
   }
 
-  // Эндометрий
-  const endoParts: string[] = [];
+  const endometriumParts: string[] = [];
   if (endometriumSize?.trim()) {
-    endoParts.push(`толщина эндометрия ${endometriumSize} мм`);
+    endometriumParts.push(`толщина эндометрия ${endometriumSize} мм`);
   }
   if (endometriumStructure?.trim()) {
-    endoParts.push(
-      `структура эндометрия ${endometriumStructure.toLowerCase()}`
-    );
+    endometriumParts.push(`структура эндометрия ${endometriumStructure.toLowerCase()}`);
   }
-  if (endoParts.length) {
-    const txt = endoParts.join(", ");
-    infoParts.push(txt.charAt(0).toUpperCase() + txt.slice(1));
+  if (endometriumParts.length) {
+    const text = endometriumParts.join(", ");
+    infoParts.push(text.charAt(0).toUpperCase() + text.slice(1));
   }
 
-  // Шейка матки
   const cervixParts: string[] = [];
   if (cervixSize?.trim()) cervixParts.push(`шейка матки ${cervixSize} мм`);
   if (cervixEchostructure?.trim()) {
-    let cerv = `эхоструктура шейки матки ${cervixEchostructure.toLowerCase()}`;
+    let cervix = `эхоструктура шейки матки ${cervixEchostructure.toLowerCase()}`;
     if (
       cervixEchostructure === "неоднородная" &&
       cervixEchostructureText?.trim()
     ) {
-      cerv += `, ${cervixEchostructureText.trim()}`;
+      cervix += `, ${cervixEchostructureText.trim()}`;
     }
-    cervixParts.push(cerv);
+    cervixParts.push(cervix);
   }
   if (cervicalCanal?.trim()) {
     let canal = `цервикальный канал ${cervicalCanal.toLowerCase()}`;
@@ -136,43 +226,36 @@ export const UterusPrint: React.FC<UterusPrintProps> = ({ value }) => {
     cervixParts.push(canal);
   }
   if (cervixParts.length) {
-    const txt = cervixParts.join(", ");
-    infoParts.push(txt.charAt(0).toUpperCase() + txt.slice(1));
+    const text = cervixParts.join(", ");
+    infoParts.push(text.charAt(0).toUpperCase() + text.slice(1));
   }
 
-  // Свободная жидкость
   if (freeFluid?.trim()) {
     let fluid = `свободная жидкость в малом тазу ${freeFluid.toLowerCase()}`;
     if (freeFluid === "определяется" && freeFluidText?.trim()) {
       fluid += `, ${freeFluidText.trim()}`;
     }
-    infoParts.push(
-      fluid.charAt(0).toUpperCase() + fluid.slice(1)
-    );
+    infoParts.push(fluid.charAt(0).toUpperCase() + fluid.slice(1));
   }
 
-  if (additionalText) {
-    infoParts.push(
-      additionalText.endsWith(".") ? additionalText : `${additionalText}.`
-    );
+  if (additional?.trim()) {
+    infoParts.push(ensurePeriod(additional));
   }
 
   if (!infoParts.length && !uterusStatus) return null;
 
   const sentence =
     infoParts.length > 0
-      ? infoParts
-          .map((s) => s.trim())
+      ? `${infoParts
+          .map((item) => item.trim().replace(/[.!?]+$/u, ""))
           .filter(Boolean)
-          .join(". ") + "."
+          .join(". ")}.`
       : "";
 
-  let statusText = "";
-  if (!uterusStatus || uterusStatus === "обычное") {
-    statusText = "определяется в обычном положении";
-  } else {
-    statusText = `определяется: ${uterusStatus}`;
-  }
+  const statusText =
+    !uterusStatus || uterusStatus === "обычное"
+      ? "определяется в обычном положении"
+      : `определяется: ${uterusStatus}`;
 
   return (
     <div

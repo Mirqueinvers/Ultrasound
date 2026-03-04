@@ -23,7 +23,8 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   const [form, setForm] = useFormState<BreastSideProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
-  const title = side === "left" ? "Левая молочная железа" : "Правая молочная железа";
+  const title =
+    side === "left" ? "Левая молочная железа" : "Правая молочная железа";
 
   const nodesManager = useListManager<BreastNode>(
     form.nodesList,
@@ -64,7 +65,6 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   return (
     <ResearchSectionCard title={title} headerClassName="bg-sky-500">
       <div className="flex flex-col gap-6">
-        {/* Общие характеристики */}
         <Fieldset title="Общие характеристики">
           <ButtonSelect
             label="Кожа"
@@ -121,7 +121,6 @@ export const BreastSide: React.FC<BreastSideProps> = ({
           />
         </Fieldset>
 
-        {/* Объемные образования */}
         <Fieldset title="Объемные образования">
           <ButtonSelect
             label=""
@@ -171,6 +170,15 @@ export const BreastSide: React.FC<BreastSideProps> = ({
               ))}
             </div>
           )}
+        </Fieldset>
+
+        <Fieldset title="Дополнительно">
+          <textarea
+            rows={3}
+            className={inputClasses + " resize-y"}
+            value={form.additional}
+            onChange={(e) => updateField("additional", e.target.value)}
+          />
         </Fieldset>
       </div>
     </ResearchSectionCard>

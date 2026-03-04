@@ -1,49 +1,57 @@
-// Frontend/src/types/uterus.ts
-export interface UterusProtocol {
+export interface UterusNode {
+  number: number;
+  wallLocation: string;
+  layerType: string;
+  size1: string;
+  size2: string;
+  contourClarity: string;
+  contourEvenness: string;
+  echogenicity: string;
+  structure: string;
+  cavityImpact: string;
+  bloodFlow: string;
+  comment: string;
+}
 
+export interface UterusProtocol {
   uterusStatus: string;
-  // Информация об исследовании
   studyType: string;
   lastMenstruationDate: string;
   cycleDay: string;
   menopause: string;
-  // Размеры
   length: string;
   width: string;
-  apDimension: string; // ПЗР (передне-задний размер)
+  apDimension: string;
   volume: string;
-  // Форма матки
   shape: string;
-  // Положение
   position: string;
-  // Строение миометрия
   myometriumStructure: string;
   myometriumStructureText: string;
-  myometriumEchogenicity: string; // Эхогенность
-  uterineCavity: string; // Полость матки
+  myometriumEchogenicity: string;
+  myomaNodesPresence: string;
+  myomaNodesList: UterusNode[];
+  uterineCavity: string;
   uterineCavityText: string;
-  // Эндометрий
   endometriumSize: string;
-  // Структура эндометрия
   endometriumStructure: string;
-  // Шейка матки
   cervixSize: string;
-  // Эхоструктура шейки матки
   cervixEchostructure: string;
   cervixEchostructureText: string;
-  // Цервикальный канал
   cervicalCanal: string;
   cervicalCanalText: string;
-  // Свободная жидкость в малом тазу
   freeFluid: string;
   freeFluidText: string;
-  // Дополнительно
   additional: string;
-  // Заключение
   conclusion: string;
 }
 
 export interface UterusProps {
   value?: UterusProtocol;
   onChange?: (value: UterusProtocol) => void;
+}
+
+export interface UterusNodeProps {
+  node: UterusNode;
+  onUpdate: (field: keyof UterusNode, value: string | number) => void;
+  onRemove: () => void;
 }

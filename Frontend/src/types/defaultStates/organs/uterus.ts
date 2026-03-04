@@ -1,4 +1,3 @@
-// src/types/defaultStates/organs/uterus.ts
 import type { UterusProtocol } from "../../organs/uterus";
 
 export const defaultUterusState: UterusProtocol = {
@@ -16,6 +15,8 @@ export const defaultUterusState: UterusProtocol = {
   myometriumStructure: "",
   myometriumStructureText: "",
   myometriumEchogenicity: "",
+  myomaNodesPresence: "не определяются",
+  myomaNodesList: [],
   uterineCavity: "",
   uterineCavityText: "",
   endometriumSize: "",

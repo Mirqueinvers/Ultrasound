@@ -1,4 +1,3 @@
-// src/types/defaultStates/organs/brachioCephalicArteries.ts
 import type {
   ArteryProtocol,
   BrachioCephalicProtocol,
@@ -7,8 +6,8 @@ import type {
 export const defaultArteryState: ArteryProtocol = {
   patency: "проходима",
   commonWallState: "не утолщена",
-  commonFlowType: "ламинарный",
-  internalFlowType: "ламинарный",
+  commonFlowType: "магистральный",
+  internalFlowType: "магистральный",
   vesselCourse: "прямолинейный",
   flowType: "магистральный трехфазный",
   diameter: "",
@@ -18,7 +17,7 @@ export const defaultArteryState: ArteryProtocol = {
   endDiastolicVelocity: "",
   resistanceIndex: "",
   sinusPatency: "проходим",
-  sinusFlow: "ламинарный",
+  sinusFlow: "магистральный",
   sinusIntimaMediaThickness: "не утолщен",
   sinusIntimaMediaThicknessValue: "",
   sinusPlaques: "не определяются",

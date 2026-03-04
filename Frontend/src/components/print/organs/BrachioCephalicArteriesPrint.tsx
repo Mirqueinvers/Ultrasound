@@ -1,4 +1,3 @@
-// /components/print/organs/BrachioCephalicArteriesPrint.tsx
 import React from "react";
 import type { BrachioCephalicProtocol, ArteryProtocol } from "@types";
 
@@ -64,7 +63,9 @@ const getPlaquesCountLabel = (count: number): string => {
 };
 
 const formatWall = (wall: string): string => {
-  if (wall === "циркулярная") return "циркулярно";
+  if (wall === "медиальная" || wall === "латеральная") {
+    return `по ${wall} стенке`;
+  }
   if (wall.startsWith("по ")) return `${wall} стенке`;
   return wall;
 };
@@ -73,11 +74,24 @@ const formatLocalizationSegment = (segment: string): string => {
   if (segment === "проксимальный сегмент") return "в проксимальном сегменте";
   if (segment === "средний сегмент") return "в среднем сегменте";
   if (segment === "дистальный сегмент") return "в дистальном сегменте";
+  if (segment === "устье") return "в устье";
   return `в ${segment}`;
 };
 
-const formatStenosisDegree = (value: string): string => {
-  return `степень стеноза ${value}% (по NASCET)`;
+const formatTransition = (transitionTo: string): string => {
+  if (!transitionTo) return "";
+  const normalizedTransition =
+    /^[A-ZА-ЯЁ\s]+$/.test(transitionTo)
+      ? transitionTo
+      : `${transitionTo.charAt(0).toLowerCase()}${transitionTo.slice(1)}`;
+  return `с переходом в ${normalizedTransition}`;
+};
+
+const formatStenosisDegree = (value: string, method?: string): string => {
+  const safeMethod = method?.trim();
+  return safeMethod
+    ? `степень стеноза ${value}% (по ${safeMethod})`
+    : `степень стеноза ${value}%`;
 };
 
 const formatPlaqueLine = (
@@ -86,21 +100,34 @@ const formatPlaqueLine = (
 ): string => {
   const number = plaque.number || index + 1;
   const parts: string[] = [];
-  if (plaque.localizationSegment) parts.push(`определяется ${formatLocalizationSegment(plaque.localizationSegment)}`);
+  if (plaque.localizationSegment) {
+    parts.push(`определяется ${formatLocalizationSegment(plaque.localizationSegment)}`);
+  }
+  if (plaque.transitionTo) {
+    parts.push(formatTransition(plaque.transitionTo));
+  }
   if (plaque.wall) parts.push(formatWall(plaque.wall));
   if (plaque.thickness) parts.push(`толщина ${withUnits(plaque.thickness, "мм")}`);
   if (plaque.length) parts.push(`протяженность ${withUnits(plaque.length, "мм")}`);
   if (plaque.echostructure) parts.push(`эхоструктура ${plaque.echostructure}`);
   if (plaque.surface) parts.push(`поверхность ${plaque.surface}`);
-  if (plaque.stenosisDegree) parts.push(formatStenosisDegree(plaque.stenosisDegree));
+  if (plaque.stenosisDegree) {
+    parts.push(formatStenosisDegree(plaque.stenosisDegree, plaque.stenosisMethod));
+  }
   if (plaque.velocityProximal) {
-    parts.push(`PSV проксимальнее стеноза ${withRoundedUnits(plaque.velocityProximal, "см/с")}`);
+    parts.push(
+      `PSV проксимальнее стеноза ${withRoundedUnits(plaque.velocityProximal, "см/с")}`
+    );
   }
   if (plaque.velocityStenosis) {
-    parts.push(`PSV в месте стеноза ${withRoundedUnits(plaque.velocityStenosis, "см/с")}`);
+    parts.push(
+      `PSV в месте стеноза ${withRoundedUnits(plaque.velocityStenosis, "см/с")}`
+    );
   }
   if (plaque.velocityDistal) {
-    parts.push(`PSV дистальнее стеноза ${withRoundedUnits(plaque.velocityDistal, "см/с")}`);
+    parts.push(
+      `PSV дистальнее стеноза ${withRoundedUnits(plaque.velocityDistal, "см/с")}`
+    );
   }
   return `Бляшка №${number}: ${parts.join(", ")}.`;
 };
@@ -133,11 +160,25 @@ const formatCommonCarotid = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
   if (artery.patency) parts.push(normalizePatency(artery.patency));
   if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
-  if (artery.commonWallState) parts.push(`стенка ${artery.commonWallState}`);
-  if (artery.intimaMediaThickness) parts.push(`КИМ: ${withUnits(artery.intimaMediaThickness, "мм")}`);
+  if (artery.commonWallState) {
+    const wallSuffix =
+      (artery.commonWallState === "утолщена" ||
+        artery.commonWallState === "утолщен") &&
+      artery.intimaMediaThicknessValue
+        ? ` до ${withUnits(artery.intimaMediaThicknessValue, "мм")}`
+        : "";
+    parts.push(`стенка ${artery.commonWallState}${wallSuffix}`);
+  }
+  if (artery.intimaMediaThickness) {
+    parts.push(`КИМ: ${withUnits(artery.intimaMediaThickness, "мм")}`);
+  }
   if (artery.commonFlowType) parts.push(`тип кровотока ${artery.commonFlowType}`);
-  if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
-  if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.peakSystolicVelocity) {
+    parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
+  }
+  if (artery.endDiastolicVelocity) {
+    parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  }
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
   const plaques = formatPlaques(artery);
   const base = parts.join(", ");
@@ -195,8 +236,12 @@ const formatInternalCarotid = (artery: ArteryProtocol): string => {
   }
   if (artery.diameter) parts.push(`диаметр ВСА: ${withUnits(artery.diameter, "мм")}`);
   if (artery.internalFlowType) parts.push(`тип кровотока ${artery.internalFlowType}`);
-  if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
-  if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.peakSystolicVelocity) {
+    parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
+  }
+  if (artery.endDiastolicVelocity) {
+    parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  }
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
   if (artery.icaCcaRatio) parts.push(`ICA/CCA ratio: ${artery.icaCcaRatio}`);
   const plaques = formatPlaques(artery);
@@ -209,8 +254,12 @@ const formatExternalCarotid = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
   if (artery.patency) parts.push(normalizePatency(artery.patency));
   if (artery.vesselCourse) parts.push(`ход ${artery.vesselCourse}`);
-  if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
-  if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.peakSystolicVelocity) {
+    parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
+  }
+  if (artery.endDiastolicVelocity) {
+    parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  }
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
   const plaques = formatPlaques(artery);
   const base = parts.join(", ");
@@ -222,8 +271,12 @@ const formatVertebral = (artery: ArteryProtocol): string => {
   const parts: string[] = [];
   if (artery.flowDirection) parts.push(`кровоток ${artery.flowDirection}`);
   if (artery.diameter) parts.push(`диаметр ПА: ${artery.diameter.trim()}мм`);
-  if (artery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
-  if (artery.endDiastolicVelocity) parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  if (artery.peakSystolicVelocity) {
+    parts.push(`PSV: ${withRoundedUnits(artery.peakSystolicVelocity, "см/с")}`);
+  }
+  if (artery.endDiastolicVelocity) {
+    parts.push(`EDV: ${withRoundedUnits(artery.endDiastolicVelocity, "см/с")}`);
+  }
   if (artery.resistanceIndex) parts.push(`RI: ${artery.resistanceIndex}.`);
   const plaques = formatPlaques(artery);
   const base = parts.join(", ");
@@ -238,12 +291,15 @@ const formatSubclavian = (artery?: ArteryProtocol): string => {
   if (safeArtery.flowType) parts.push(`поток ${safeArtery.flowType}`);
   if (safeArtery.intimaMediaThickness) {
     const kimSuffix =
-      safeArtery.intimaMediaThickness === "утолщен" && safeArtery.intimaMediaThicknessValue
+      safeArtery.intimaMediaThickness === "утолщен" &&
+      safeArtery.intimaMediaThicknessValue
         ? ` до ${withUnits(safeArtery.intimaMediaThicknessValue, "мм")}`
         : "";
     parts.push(`стенка ${safeArtery.intimaMediaThickness}${kimSuffix}`);
   }
-  if (safeArtery.peakSystolicVelocity) parts.push(`PSV: ${withRoundedUnits(safeArtery.peakSystolicVelocity, "см/с")}`);
+  if (safeArtery.peakSystolicVelocity) {
+    parts.push(`PSV: ${withRoundedUnits(safeArtery.peakSystolicVelocity, "см/с")}`);
+  }
   const plaques = formatPlaques(safeArtery);
   const base = parts.join(", ");
   const text = plaques ? (base ? `${ensureTrailingPeriod(base)} ${plaques}` : plaques) : base;
@@ -252,16 +308,22 @@ const formatSubclavian = (artery?: ArteryProtocol): string => {
 
 type PrintRow = { title: string; body: string };
 
-export const BrachioCephalicArteriesPrint: React.FC<BrachioCephalicArteriesPrintProps> = ({
-  value,
-}) => {
-  const legacyValue = value as BrachioCephalicProtocol & { brachiocephalicTrunk?: ArteryProtocol };
+export const BrachioCephalicArteriesPrint: React.FC<
+  BrachioCephalicArteriesPrintProps
+> = ({ value }) => {
+  const legacyValue = value as BrachioCephalicProtocol & {
+    brachiocephalicTrunk?: ArteryProtocol;
+  };
   const subclavianRight = value.subclavianRight || emptyArtery;
   const subclavianLeft = value.subclavianLeft || emptyArtery;
   const brachiocephalicTrunkRight =
-    value.brachiocephalicTrunkRight || legacyValue.brachiocephalicTrunk || emptyArtery;
+    value.brachiocephalicTrunkRight ||
+    legacyValue.brachiocephalicTrunk ||
+    emptyArtery;
   const brachiocephalicTrunkLeft =
-    value.brachiocephalicTrunkLeft || legacyValue.brachiocephalicTrunk || emptyArtery;
+    value.brachiocephalicTrunkLeft ||
+    legacyValue.brachiocephalicTrunk ||
+    emptyArtery;
 
   const rows: PrintRow[] = [
     { title: "Правая ОСА", body: formatCommonCarotid(value.commonCarotidRight) },

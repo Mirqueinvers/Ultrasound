@@ -24,6 +24,7 @@ export interface BreastSideProtocol {
   milkDucts: string;
   volumeFormations: string;
   nodesList: BreastNode[];
+  additional: string;
 }
 
 export interface BreastProtocol {

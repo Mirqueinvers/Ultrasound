@@ -1,4 +1,3 @@
-// src/components/organs/BrachioCephalicArteries/Artery.tsx
 import React from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { useFormState, useFieldUpdate } from "@hooks";
@@ -36,11 +35,13 @@ const calculateIcaCcaRatio = (icaPsv: string, ccaPsv: string): string => {
 const getNewPlaque = (number: number) => ({
   number,
   localizationSegment: "проксимальный сегмент",
+  transitionTo: "",
   wall: "по задней",
   thickness: "",
   length: "",
   echostructure: "гипоэхогенная",
   surface: "ровная",
+  stenosisMethod: "NASCET",
   vesselWidthNormal: "",
   vesselWidthStenosis: "",
   stenosisDegree: "",
@@ -88,22 +89,29 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
     }
   }, [value]);
 
-  const isCommonCarotid = artery === "commonCarotidRight" || artery === "commonCarotidLeft";
-  const isInternalCarotid = artery === "internalCarotidRight" || artery === "internalCarotidLeft";
-  const isExternalCarotid = artery === "externalCarotidRight" || artery === "externalCarotidLeft";
+  const isCommonCarotid =
+    artery === "commonCarotidRight" || artery === "commonCarotidLeft";
+  const isInternalCarotid =
+    artery === "internalCarotidRight" || artery === "internalCarotidLeft";
+  const isExternalCarotid =
+    artery === "externalCarotidRight" || artery === "externalCarotidLeft";
   const isVertebral = artery === "vertebralRight" || artery === "vertebralLeft";
-  const isSubclavian = artery === "subclavianRight" || artery === "subclavianLeft";
+  const isSubclavian =
+    artery === "subclavianRight" || artery === "subclavianLeft";
   const supportsPlaques =
-    isCommonCarotid || isInternalCarotid || isExternalCarotid || isVertebral || isSubclavian;
+    isCommonCarotid ||
+    isInternalCarotid ||
+    isExternalCarotid ||
+    isVertebral ||
+    isSubclavian;
 
-  const diameterField =
-    isCommonCarotid
-      ? "commonCarotidDiameter"
-      : isInternalCarotid
-        ? "internalCarotidDiameter"
-        : isVertebral
-          ? "vertebralDiameter"
-          : undefined;
+  const diameterField = isCommonCarotid
+    ? "commonCarotidDiameter"
+    : isInternalCarotid
+      ? "internalCarotidDiameter"
+      : isVertebral
+        ? "vertebralDiameter"
+        : undefined;
   const kimField =
     mode === "sinus"
       ? "sinusKim"
@@ -112,28 +120,26 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
         : isSubclavian
           ? "subclavianKim"
           : undefined;
-  const psvField =
-    isCommonCarotid
-      ? "commonCarotidPsv"
-      : isInternalCarotid
-        ? "internalCarotidPsv"
-        : isExternalCarotid
-          ? "externalCarotidPsv"
-          : isVertebral
-            ? "vertebralPsv"
-            : isSubclavian
-              ? "subclavianPsv"
-              : undefined;
-  const edvField =
-    isCommonCarotid
-      ? "commonCarotidEdv"
-      : isInternalCarotid
-        ? "internalCarotidEdv"
-        : isExternalCarotid
-          ? "externalCarotidEdv"
-          : isVertebral
-            ? "vertebralEdv"
+  const psvField = isCommonCarotid
+    ? "commonCarotidPsv"
+    : isInternalCarotid
+      ? "internalCarotidPsv"
+      : isExternalCarotid
+        ? "externalCarotidPsv"
+        : isVertebral
+          ? "vertebralPsv"
+          : isSubclavian
+            ? "subclavianPsv"
             : undefined;
+  const edvField = isCommonCarotid
+    ? "commonCarotidEdv"
+    : isInternalCarotid
+      ? "internalCarotidEdv"
+      : isExternalCarotid
+        ? "externalCarotidEdv"
+        : isVertebral
+          ? "vertebralEdv"
+          : undefined;
 
   const diameterFocus = useFieldFocus("brachioCephalicArteries", diameterField);
   const kimFocus = useFieldFocus("brachioCephalicArteries", kimField);
@@ -152,11 +158,19 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
       setForm(updated);
       onChange?.(updated);
     }
-  }, [form.peakSystolicVelocity, form.endDiastolicVelocity, mode, isSubclavian]);
+  }, [
+    form.peakSystolicVelocity,
+    form.endDiastolicVelocity,
+    mode,
+    isSubclavian,
+  ]);
 
   React.useEffect(() => {
     if (mode !== "main" || !isInternalCarotid) return;
-    const calculatedRatio = calculateIcaCcaRatio(form.peakSystolicVelocity, commonCarotidPsv);
+    const calculatedRatio = calculateIcaCcaRatio(
+      form.peakSystolicVelocity,
+      commonCarotidPsv
+    );
     if (calculatedRatio !== form.icaCcaRatio) {
       const updated = { ...form, icaCcaRatio: calculatedRatio };
       setForm(updated);
@@ -341,7 +355,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               value={form.sinusFlow}
               onChange={(val) => updateField("sinusFlow", val)}
               options={[
-                { value: "ламинарный", label: "ламинарный" },
+                { value: "магистральный", label: "магистральный" },
                 { value: "турбулентный", label: "турбулентный" },
               ]}
             />
@@ -443,12 +457,41 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
             <ButtonSelect
               label="Стенка"
               value={form.commonWallState}
-              onChange={(val) => updateField("commonWallState", val)}
+              onChange={(val) => {
+                const updated = {
+                  ...form,
+                  commonWallState: val,
+                  intimaMediaThicknessValue:
+                    val === "утолщена" || val === "утолщен"
+                      ? form.intimaMediaThicknessValue
+                      : "",
+                };
+                setForm(updated);
+                onChange?.(updated);
+              }}
               options={[
                 { value: "не утолщена", label: "не утолщена" },
                 { value: "утолщена", label: "утолщена" },
               ]}
             />
+
+            {(form.commonWallState === "утолщена" ||
+              form.commonWallState === "утолщен") && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Толщина стенки ОСА (мм)
+                </label>
+                <input
+                  type="text"
+                  className={compactInputClass}
+                  value={form.intimaMediaThicknessValue}
+                  onChange={(e) => updateField("intimaMediaThicknessValue", e.target.value)}
+                  onFocus={kimFocus.handleFocus}
+                  onBlur={kimFocus.handleBlur}
+                  placeholder="Введите значение"
+                />
+              </div>
+            )}
 
             <div className="space-y-4">
               <ButtonSelect
@@ -475,7 +518,9 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">КИМ (мм)</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                КИМ (мм)
+              </label>
               <input
                 type="text"
                 className={compactInputClass}
@@ -492,7 +537,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               value={form.commonFlowType}
               onChange={(val) => updateField("commonFlowType", val)}
               options={[
-                { value: "ламинарный", label: "ламинарный" },
+                { value: "магистральный", label: "магистральный" },
                 { value: "турбулентный", label: "турбулентный" },
                 { value: "реверсивный", label: "реверсивный" },
                 { value: "двунаправленный", label: "двунаправленный" },
@@ -533,7 +578,10 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 const updated = {
                   ...form,
                   intimaMediaThickness: val,
-                  intimaMediaThicknessValue: val === "утолщена" ? form.intimaMediaThicknessValue : "",
+                  intimaMediaThicknessValue:
+                    val === "утолщена" || val === "утолщен"
+                      ? form.intimaMediaThicknessValue
+                      : "",
                 };
                 setForm(updated);
                 onChange?.(updated);
@@ -541,18 +589,6 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               options={[
                 { value: "не утолщена", label: "не утолщена" },
                 { value: "утолщена", label: "утолщена" },
-              ]}
-            />
-
-            <ButtonSelect
-              label="Тип кровотока"
-              value={form.internalFlowType}
-              onChange={(val) => updateField("internalFlowType", val)}
-              options={[
-                { value: "ламинарный", label: "ламинарный" },
-                { value: "турбулентный", label: "турбулентный" },
-                { value: "реверсивный", label: "реверсивный" },
-                { value: "двунаправленный", label: "двунаправленный" },
               ]}
             />
 
@@ -574,8 +610,22 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               </div>
             )}
 
+            <ButtonSelect
+              label="Тип кровотока"
+              value={form.internalFlowType}
+              onChange={(val) => updateField("internalFlowType", val)}
+              options={[
+                { value: "магистральный", label: "магистральный" },
+                { value: "турбулентный", label: "турбулентный" },
+                { value: "реверсивный", label: "реверсивный" },
+                { value: "двунаправленный", label: "двунаправленный" },
+              ]}
+            />
+
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Диаметр ВСА (мм)</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Диаметр ВСА (мм)
+              </label>
               <input
                 type="text"
                 className={compactInputClass}
@@ -661,10 +711,19 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               value={form.flowType}
               onChange={(val) => updateField("flowType", val)}
               options={[
-                { value: "магистральный трехфазный", label: "магистральный трехфазный" },
-                { value: "магистральный двухфазный", label: "магистральный двухфазный" },
+                {
+                  value: "магистральный трехфазный",
+                  label: "магистральный трехфазный",
+                },
+                {
+                  value: "магистральный двухфазный",
+                  label: "магистральный двухфазный",
+                },
                 { value: "монофазный", label: "монофазный" },
-                { value: "высокоскоростной турбулентный", label: "высокоскоростной турбулентный" },
+                {
+                  value: "высокоскоростной турбулентный",
+                  label: "высокоскоростной турбулентный",
+                },
               ]}
             />
 

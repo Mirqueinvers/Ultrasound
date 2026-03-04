@@ -158,8 +158,9 @@ const renderSideBlock = (
   const header = formatSideHeader(side);
   const intro = formatSideNodesIntro(label, side);
   const nodesList = formatSideNodesList(side);
+  const additionalText = side.additional?.trim();
 
-  if (!header && !intro && nodesList.length === 0) return null;
+  if (!header && !intro && nodesList.length === 0 && !additionalText) return null;
 
   return (
     <>
@@ -167,6 +168,7 @@ const renderSideBlock = (
       {header}
       {intro && ` ${intro}`}
       {nodesList}
+      {additionalText && ` ${additionalText}${additionalText.endsWith(".") ? "" : "."}`}
       {"\n"}
     </>
   );

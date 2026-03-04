@@ -1,17 +1,25 @@
-// путь: /components/organs/Uterus.tsx
 import React, { useEffect } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { normalRanges } from "@components/common";
-import { Fieldset, SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
+import { ButtonSelect, Fieldset, SelectWithTextarea, SizeRow } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldUpdate, useFieldFocus, useConclusion } from "@hooks";
+import {
+  useConclusion,
+  useFieldFocus,
+  useFieldUpdate,
+  useFormState,
+  useListManager,
+} from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import type { UterusProtocol, UterusProps } from "@types";
+import { UterusNodeComponent } from "./UterusNode";
+import type { UterusNode, UterusProps, UterusProtocol } from "@types";
 import { defaultUterusState } from "@types";
 
 export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   const initialValue: UterusProtocol = {
     ...defaultUterusState,
     ...(value || {}),
+    myomaNodesList: value?.myomaNodesList || [],
   };
 
   const [form, setForm] = useFormState<UterusProtocol>(initialValue);
@@ -29,24 +37,22 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   const isNormal = status === "обычное";
   const isSubtotal = status === "субтотальная гистерэктомия";
 
-  // Автоматический расчет дня цикла (только при обычной матке)
   useEffect(() => {
-    if (!isNormal) return;
-    if (form.lastMenstruationDate) {
-      const lastMenstruation = new Date(form.lastMenstruationDate);
-      const today = new Date();
-      const diffTime = today.getTime() - lastMenstruation.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (!isNormal || !form.lastMenstruationDate) return;
 
-      if (diffDays > 0 && diffDays.toString() !== form.cycleDay) {
-        updateField("cycleDay", diffDays.toString());
-      }
+    const lastMenstruation = new Date(form.lastMenstruationDate);
+    const today = new Date();
+    const diffTime = today.getTime() - lastMenstruation.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0 && diffDays.toString() !== form.cycleDay) {
+      updateField("cycleDay", diffDays.toString());
     }
-  }, [form.lastMenstruationDate, isNormal]);
+  }, [form.lastMenstruationDate, form.cycleDay, isNormal]);
 
-  // Автоматический расчет объема (только при обычной матке)
   useEffect(() => {
     if (!isNormal) return;
+
     const length = parseFloat(form.length);
     const width = parseFloat(form.width);
     const apDimension = parseFloat(form.apDimension);
@@ -64,12 +70,59 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
         updateField("volume", volume);
       }
     }
-  }, [form.length, form.width, form.apDimension, isNormal]);
+  }, [form.length, form.width, form.apDimension, form.volume, isNormal]);
+
+  const myomaNodesManager = useListManager<UterusNode>(
+    form.myomaNodesList,
+    form,
+    setForm,
+    onChange,
+    "myomaNodesList"
+  );
+
+  const addMyomaNode = () => {
+    const newNode: UterusNode = {
+      number: form.myomaNodesList.length + 1,
+      wallLocation: "задняя",
+      layerType: "интрамуральная",
+      size1: "",
+      size2: "",
+      contourClarity: "четкие",
+      contourEvenness: "ровные",
+      echogenicity: "гипоэхогенный",
+      structure: "однородная",
+      cavityImpact: "не деформирует",
+      bloodFlow: "не изменен",
+      comment: "",
+    };
+
+    myomaNodesManager.addItem(newNode);
+  };
+
+  const updateMyomaPresence = (nextValue: string) => {
+    const draft: UterusProtocol = { ...form, myomaNodesPresence: nextValue };
+    if (nextValue === "не определяются") {
+      draft.myomaNodesList = [];
+    }
+    setForm(draft);
+    onChange?.(draft);
+  };
+
+  const removeMyomaNode = (index: number) => {
+    myomaNodesManager.removeItem(index);
+
+    const updatedNodes = form.myomaNodesList
+      .filter((_, i) => i !== index)
+      .map((node, i) => ({ ...node, number: i + 1 }));
+
+    const draft: UterusProtocol = { ...form, myomaNodesList: updatedNodes };
+    setForm(draft);
+    onChange?.(draft);
+  };
 
   return (
     <ResearchSectionCard title="Матка" headerClassName="bg-sky-500">
       <div className="flex flex-col gap-6">
-        {/* Положение (тип матки / гистерэктомия) */}
         <Fieldset title="Положение">
           <ButtonSelect
             label=""
@@ -85,7 +138,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
           />
         </Fieldset>
 
-        {/* Информация об исследовании */}
         <Fieldset title="Информация об исследовании">
           <ButtonSelect
             label="Вид исследования"
@@ -106,9 +158,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                     type="date"
                     className={inputClasses}
                     value={form.lastMenstruationDate}
-                    onChange={(e) =>
-                      updateField("lastMenstruationDate", e.target.value)
-                    }
+                    onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
                   />
                 </label>
               </div>
@@ -118,7 +168,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                   День цикла
                   <input
                     type="text"
-                    className={inputClasses + " bg-gray-50"}
+                    className={`${inputClasses} bg-gray-50`}
                     value={form.cycleDay || ""}
                     readOnly
                     disabled
@@ -141,7 +191,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
           )}
         </Fieldset>
 
-        {/* Остальные блоки показываем только если не тотальная/радикальная и т.п. */}
         {isNormal && (
           <>
             <Fieldset title="Размеры">
@@ -167,7 +216,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 range={normalRanges.uterus?.apDimension}
               />
               <SizeRow
-                label="Объем (см³)"
+                label="Объем (см3)"
                 value={form.volume || ""}
                 onChange={() => {}}
                 focus={volumeFocus}
@@ -213,17 +262,15 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 ]}
               />
 
-              {form.myometriumStructure === "неоднородное" && (
+              {form.myometriumStructure === "неоднородная" && (
                 <div>
                   <label className={labelClasses}>
                     Описание
                     <textarea
                       rows={2}
-                      className={inputClasses + " resize-y"}
+                      className={`${inputClasses} resize-y`}
                       value={form.myometriumStructureText}
-                      onChange={(e) =>
-                        updateField("myometriumStructureText", e.target.value)
-                      }
+                      onChange={(e) => updateField("myometriumStructureText", e.target.value)}
                       placeholder="Опишите характер неоднородности..."
                     />
                   </label>
@@ -246,9 +293,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 selectValue={form.uterineCavity}
                 textareaValue={form.uterineCavityText}
                 onSelectChange={(val) => updateField("uterineCavity", val)}
-                onTextareaChange={(val) =>
-                  updateField("uterineCavityText", val)
-                }
+                onTextareaChange={(val) => updateField("uterineCavityText", val)}
                 options={[
                   { value: "не расширена", label: "не расширена" },
                   { value: "расширена", label: "расширена" },
@@ -256,6 +301,75 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 triggerValue="расширена"
                 textareaLabel="Описание расширения"
               />
+            </Fieldset>
+
+            <Fieldset title="Объемные образования">
+              <ButtonSelect
+                label=""
+                value={form.myomaNodesPresence}
+                onChange={updateMyomaPresence}
+                options={[
+                  { value: "не определяются", label: "не определяются" },
+                  { value: "определяются", label: "определяются" },
+                ]}
+              />
+
+              {form.myomaNodesPresence === "определяются" && (
+                <div className="mt-6 space-y-4">
+                  {form.myomaNodesList.length === 0 ? (
+                    <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+                      <p className="text-slate-500 text-sm mb-4">Узлы не добавлены</p>
+                      <button
+                        type="button"
+                        onClick={addMyomaNode}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
+                      >
+                        <Plus size={18} />
+                        Добавить узел
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {form.myomaNodesList.map((node, index) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg"
+                        >
+                          <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
+                            <span className="text-white font-bold text-sm">Узел #{node.number}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeMyomaNode(index)}
+                              className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                              title="Удалить узел"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                          <div className="p-4">
+                            <UterusNodeComponent
+                              node={node}
+                              onUpdate={(field, nextValue) => {
+                                myomaNodesManager.updateItem(index, field, nextValue);
+                              }}
+                              onRemove={() => removeMyomaNode(index)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      <button
+                        type="button"
+                        onClick={addMyomaNode}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
+                      >
+                        <Plus size={18} />
+                        Добавить узел
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </Fieldset>
 
             <Fieldset title="Эндометрий">
@@ -274,17 +388,13 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 options={[
                   { value: "однородная", label: "однородная" },
                   { value: "неоднородная", label: "неоднородная" },
-                  {
-                    value: "диффузно-неоднородная",
-                    label: "диффузно-неоднородная",
-                  },
+                  { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
                 ]}
               />
             </Fieldset>
           </>
         )}
 
-        {/* При субтотальной показываем шейку, жидкость, дополнительно */}
         {(isNormal || isSubtotal) && (
           <Fieldset title="Шейка матки">
             <SizeRow
@@ -300,9 +410,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
               selectValue={form.cervixEchostructure}
               textareaValue={form.cervixEchostructureText}
               onSelectChange={(val) => updateField("cervixEchostructure", val)}
-              onTextareaChange={(val) =>
-                updateField("cervixEchostructureText", val)
-              }
+              onTextareaChange={(val) => updateField("cervixEchostructureText", val)}
               options={[
                 { value: "однородная", label: "однородная" },
                 { value: "неоднородная", label: "неоднородная" },
@@ -316,9 +424,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
               selectValue={form.cervicalCanal}
               textareaValue={form.cervicalCanalText}
               onSelectChange={(val) => updateField("cervicalCanal", val)}
-              onTextareaChange={(val) =>
-                updateField("cervicalCanalText", val)
-              }
+              onTextareaChange={(val) => updateField("cervicalCanalText", val)}
               options={[
                 { value: "сомкнут", label: "сомкнут" },
                 { value: "расширен", label: "расширен" },
@@ -329,7 +435,6 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
           </Fieldset>
         )}
 
-        {/* Свободная жидкость и дополнительно – всегда оставляем */}
         <Fieldset title="Свободная жидкость в малом тазу">
           <SelectWithTextarea
             label=""
@@ -349,7 +454,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
         <Fieldset title="Дополнительно">
           <textarea
             rows={3}
-            className={inputClasses + " resize-y"}
+            className={`${inputClasses} resize-y`}
             value={form.additional}
             onChange={(e) => updateField("additional", e.target.value)}
           />
