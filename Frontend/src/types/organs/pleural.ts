@@ -14,20 +14,19 @@ export interface PleuralFormation {
 
 export interface PleuralSideProtocol {
   presence: string;
-  amount: string;
-  character: string;
-  formationsList: PleuralFormation[];
+  volumeMethods: string[];
+  sittingBasalDistance: string;
+  sittingMaxHeight: string;
+  lyingMaxDistance: string;
+  volumeSitting: string;
+  volumeLying: string;
+  volumeEstimated: string;
+  content: string;
 }
 
 export interface PleuralProtocol {
   rightSide: PleuralSideProtocol;
   leftSide: PleuralSideProtocol;
-  pleuralThickening: string;
-  pleuralCalcification: string;
-  adhesions: string;
-  pneumothorax: string;
-  diaphragmMobility: string;
-  additionalFindings: string;
 }
 
 export interface PleuralSideProps {
