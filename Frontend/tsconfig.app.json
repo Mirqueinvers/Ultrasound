@@ -7,6 +7,7 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -26,7 +27,7 @@
 
     /* Path aliases */
     "baseUrl": "./src",
-    "paths": { 
+    "paths": {
       "@/*": ["*"],
       "@components/*": ["components/*"],
       "@common": ["components/common/index.ts"],
@@ -40,8 +41,8 @@
       "@assets/*": ["assets/*"],
       "@organs/*": ["components/organs/*"],
       "@types": ["types/index.ts"],
-      "@types/*": ["types/*"]  // ← Добавьте для типов
+      "@types/*": ["types/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]  // ← Расширьте include
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
