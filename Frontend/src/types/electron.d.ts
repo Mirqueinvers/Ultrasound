@@ -42,6 +42,18 @@ export interface ProtocolAPI {
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
 }
 
+export interface FileAPI {
+  saveHtml: (data: {
+    content: string;
+    defaultPath?: string;
+  }) => Promise<{
+    success: boolean;
+    canceled?: boolean;
+    filePath?: string;
+    message?: string;
+  }>;
+}
+
 // ░░ Patient API ░░
 
 export interface PatientAPI {
@@ -130,6 +142,7 @@ declare global {
     patientAPI: PatientAPI;
     researchAPI: ResearchAPI;
     protocolAPI: ProtocolAPI;
+    fileAPI: FileAPI;
     authAPI: any;
     windowAPI: any;
   }

@@ -1,4 +1,4 @@
-// // ultrasound/frontend/electron/main.ts
+﻿// // ultrasound/frontend/electron/main.ts
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { setupAuthHandlers } from "./ipc-handlers";
@@ -35,7 +35,7 @@ function createWindow() {
   setupProtocolHandlers(dbManager.protocol);
 
   if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:5173");
+    mainWindow.loadURL(`http://localhost:${process.env.VITE_PORT ?? "5173"}`);
   } else {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
@@ -58,3 +58,4 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+

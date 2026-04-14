@@ -1,5 +1,6 @@
 // ultrasound/frontend/electron/ipc-handlers.ts
-import { ipcMain, BrowserWindow } from "electron";
+import { ipcMain, BrowserWindow, dialog } from "electron";
+import { promises as fs } from "node:fs";
 import { DatabaseManager } from "./database/database";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
@@ -252,6 +253,50 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   ipcMain.handle("journal:getByDate", async (_, date: string) => {
     return db.journal.getJournalByDate(date);
   });
+
+  ipcMain.handle(
+    "journal:getByPeriod",
+    async (_, startDate: string, endDate: string) => {
+      return db.journal.getJournalByPeriod(startDate, endDate);
+    }
+  );
+
+  ipcMain.handle("journal:getDoctorNames", async () => {
+    return db.journal.getDoctorNames();
+  });
+
+  ipcMain.handle(
+    "file:saveHtml",
+    async (
+      _,
+      {
+        content,
+        defaultPath,
+      }: { content: string; defaultPath?: string }
+    ) => {
+      try {
+        const result = await dialog.showSaveDialog(mainWindow, {
+          title: "Сохранить протокол исследования",
+          defaultPath: defaultPath || "uzi-protocol.html",
+          filters: [{ name: "HTML files", extensions: ["html", "htm"] }],
+        });
+
+        if (result.canceled || !result.filePath) {
+          return { success: false, canceled: true };
+        }
+
+        await fs.writeFile(result.filePath, content, "utf8");
+
+        return { success: true, filePath: result.filePath };
+      } catch (error) {
+        console.error("Save HTML error:", error);
+        return {
+          success: false,
+          message: "Не удалось сохранить HTML-файл",
+        };
+      }
+    }
+  );
 
   // ==================== STATISTICS HANDLERS ====================
 

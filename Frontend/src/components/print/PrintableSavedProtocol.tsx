@@ -42,12 +42,13 @@ interface ResearchBlock {
 
 type PrintableSavedProtocolProps = {
   researchId: number;
+  onReady?: (researchId: number) => void;
 };
 
 const PrintableSavedProtocol = React.forwardRef<
   HTMLDivElement,
   PrintableSavedProtocolProps
->(({ researchId }, ref) => {
+>(({ researchId, onReady }, ref) => {
   const { user } = useAuth();
   const {
     studiesData,
@@ -431,6 +432,12 @@ const PrintableSavedProtocol = React.forwardRef<
 
     setPages(newPages);
   }, [blocks]);
+
+  React.useEffect(() => {
+    if (pages && !loading) {
+      onReady?.(researchId);
+    }
+  }, [loading, onReady, pages, researchId]);
 
   if (loading && !pages) {
     return (

@@ -7,6 +7,7 @@ import type {
   DatabaseAPI,
   PatientSearchAPI,
   ProtocolAPI,
+  FileAPI,
 } from "../../electron/preload";
 
 declare global {
@@ -17,6 +18,7 @@ declare global {
     journalAPI: JournalAPI;
     windowAPI: WindowAPI;
     protocolAPI: ProtocolAPI;
+    fileAPI: FileAPI;
     patientSearchAPI: PatientSearchAPI;
     databaseAPI: DatabaseAPI;
   }

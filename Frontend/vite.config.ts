@@ -1,4 +1,4 @@
-// Frontend/vite.config.ts
+﻿// Frontend/vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -11,9 +11,10 @@ export default defineConfig({
   base: "./", // критично для сборки под Electron (file://)
   server: {
     host: "0.0.0.0",
-    port: 5173,
+    port: Number(process.env.VITE_PORT ?? 5173),
     watch: {
       usePolling: true, // важно для Docker
     },
   },
 });
+

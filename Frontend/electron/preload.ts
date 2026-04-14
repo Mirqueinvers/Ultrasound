@@ -160,6 +160,8 @@ export interface ResearchAPI {
 
 export interface JournalAPI {
   getByDate: (date: string) => Promise<JournalEntry[]>;
+  getByPeriod: (startDate: string, endDate: string) => Promise<JournalEntry[]>;
+  getDoctorNames: () => Promise<string[]>;
 }
 
 export interface WindowAPI {
@@ -178,6 +180,18 @@ export interface SavedProtocol {
 
 export interface ProtocolAPI {
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+}
+
+export interface FileAPI {
+  saveHtml: (data: {
+    content: string;
+    defaultPath?: string;
+  }) => Promise<{
+    success: boolean;
+    canceled?: boolean;
+    filePath?: string;
+    message?: string;
+  }>;
 }
 
 // ========== PATIENT SEARCH API (для SearchSection) ==========
@@ -257,6 +271,9 @@ const researchAPI: ResearchAPI = {
 
 const journalAPI: JournalAPI = {
   getByDate: (date) => ipcRenderer.invoke("journal:getByDate", date),
+  getByPeriod: (startDate, endDate) =>
+    ipcRenderer.invoke("journal:getByPeriod", startDate, endDate),
+  getDoctorNames: () => ipcRenderer.invoke("journal:getDoctorNames"),
 };
 
 const windowAPI: WindowAPI = {
@@ -268,6 +285,10 @@ const windowAPI: WindowAPI = {
 
 const protocolAPI: ProtocolAPI = {
   getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
+};
+
+const fileAPI: FileAPI = {
+  saveHtml: (data) => ipcRenderer.invoke("file:saveHtml", data),
 };
 
 const patientSearchAPI: PatientSearchAPI = {
@@ -336,6 +357,7 @@ contextBridge.exposeInMainWorld("researchAPI", researchAPI);
 contextBridge.exposeInMainWorld("journalAPI", journalAPI);
 contextBridge.exposeInMainWorld("windowAPI", windowAPI);
 contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
+contextBridge.exposeInMainWorld("fileAPI", fileAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 

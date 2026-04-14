@@ -1,4 +1,3 @@
-// /components/print/organs/SalivaryGlandsPrint.tsx
 import React from "react";
 import type { SalivaryGlandsProtocol, SalivaryGlandProtocol } from "@types";
 
@@ -34,9 +33,10 @@ const ductNameByKey: Record<string, string> = {
 };
 
 const hasRequiredSizes = (
-  glandData: SalivaryGlandProtocol,
-  showDepth: boolean
+  glandData: SalivaryGlandProtocol | undefined,
+  showDepth: boolean,
 ): boolean => {
+  if (!glandData) return false;
   const hasLength = Boolean(glandData.length?.trim());
   const hasWidth = Boolean(glandData.width?.trim());
   const hasDepth = Boolean(glandData.depth?.trim());
@@ -51,11 +51,15 @@ const withCapitalFirst = (text: string): string => {
 
 const formatLymphNodes = (
   glandName: string,
-  glandData: SalivaryGlandProtocol
+  glandData: SalivaryGlandProtocol | undefined,
 ): string | null => {
+  if (!glandData) return null;
   if (glandData.lymphNodes?.detected !== "detected") return null;
 
-  const nodesCount = glandData.lymphNodes.nodes.length;
+  const nodes = Array.isArray(glandData.lymphNodes?.nodes)
+    ? glandData.lymphNodes.nodes
+    : [];
+  const nodesCount = nodes.length;
   const verb = nodesCount === 1 ? "определяется" : "определяются";
   const noun =
     nodesCount % 10 === 1 && nodesCount % 100 !== 11
@@ -70,7 +74,7 @@ const formatLymphNodes = (
     return `В проекции ${glandGenitiveByKey[glandName] ?? glandName} определяются лимфоузлы`;
   }
 
-  const nodesText = glandData.lymphNodes.nodes
+  const nodesText = nodes
     .map((node, index) => {
       const parts: string[] = [];
       const sizes = [node.size1, node.size2].filter(Boolean).join(" x ");
@@ -88,9 +92,10 @@ const formatLymphNodes = (
 
 const formatGlandContent = (
   glandName: string,
-  glandData: SalivaryGlandProtocol,
-  showDepth: boolean
+  glandData: SalivaryGlandProtocol | undefined,
+  showDepth: boolean,
 ): React.ReactNode => {
+  if (!glandData) return null;
   if (!hasRequiredSizes(glandData, showDepth)) return null;
 
   const sizeParts = [
@@ -113,7 +118,7 @@ const formatGlandContent = (
     ductNameByKey[glandName]
   ) {
     glandParts.push(
-      `Выводной проток (${ductNameByKey[glandName]}) расширен до ${glandData.ductDiameter.trim()} мм`
+      `Выводной проток (${ductNameByKey[glandName]}) расширен до ${glandData.ductDiameter.trim()} мм`,
     );
   } else {
     glandParts.push(`Протоки ${glandData.ducts}`);
@@ -130,7 +135,8 @@ const formatGlandContent = (
 
   return (
     <>
-      <strong>{glandTitleByKey[glandName] ?? glandName}:</strong> {glandParts.join(". ")}.
+      <strong>{glandTitleByKey[glandName] ?? glandName}:</strong>{" "}
+      {glandParts.join(". ")}.
       {lymphNodesText && (
         <>
           {" "}
@@ -161,8 +167,14 @@ export const SalivaryGlandsPrint: React.FC<SalivaryGlandsPrintProps> = ({
   } = value;
 
   const items = [
-    { key: "parotidRight", node: formatGlandContent("parotidRight", parotidRight, true) },
-    { key: "parotidLeft", node: formatGlandContent("parotidLeft", parotidLeft, true) },
+    {
+      key: "parotidRight",
+      node: formatGlandContent("parotidRight", parotidRight, true),
+    },
+    {
+      key: "parotidLeft",
+      node: formatGlandContent("parotidLeft", parotidLeft, true),
+    },
     {
       key: "submandibularRight",
       node: formatGlandContent("submandibularRight", submandibularRight, true),

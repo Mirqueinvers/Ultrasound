@@ -1,12 +1,31 @@
-// src/components/organs/Thyroid/ThyroidLobe.tsx
 import React, { useEffect } from "react";
 import { normalRanges } from "@components/common";
 import { ButtonSelect, SizeRow, Fieldset } from "@/UI";
 import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
 import { ThyroidNodeComponent } from "./ThyroidNode";
 import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@/types/organs/thyroid";
-import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid"; 
+import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid";
 import { Plus, Trash2 } from "lucide-react";
+
+const DEFAULT_NODE_ECHOGENICITY = "изоэхогенный";
+const DEFAULT_NODE_ECHOSTRUCTURE = "однородная";
+const DEFAULT_NODE_CONTOUR = "четкий ровный";
+const DEFAULT_NODE_ORIENTATION = "горизонтальная";
+const DEFAULT_NODE_BLOOD_FLOW = "не изменен";
+const VOLUME_FORMATIONS_NONE = "не определяются";
+const VOLUME_FORMATIONS_PRESENT = "определяются";
+const LABEL_DIMENSIONS = "Размеры";
+const LABEL_LENGTH = "Длина (мм)";
+const LABEL_WIDTH = "Ширина (мм)";
+const LABEL_DEPTH = "Глубина (мм)";
+const LABEL_VOLUME = "Объем (мл)";
+const LABEL_FORMATIONS = "Объемные образования";
+const LABEL_NO_NODES = "Узлы не добавлены";
+const LABEL_ADD_NODE = "Добавить узел";
+const LABEL_NODE = "Узел";
+const LABEL_DELETE_NODE = "Удалить узел";
+const LABEL_ADDITIONAL = "Дополнительно";
+const PLACEHOLDER_ADDITIONAL = "Введите дополнительное описание";
 
 export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   side,
@@ -14,7 +33,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   onChange,
 }) => {
   const initialValue: ThyroidLobeProtocol = {
-    ...defaultThyroidLobeState, // ← ИЗ НОВОГО МЕСТА
+    ...defaultThyroidLobeState,
     ...(value || {}),
     nodesList: value?.nodesList || [],
   };
@@ -60,11 +79,11 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
       number: form.nodesList.length + 1,
       size1: "",
       size2: "",
-      echogenicity: "повышенная",
-      echostructure: "однородная",
-      contour: "четкий ровный",
-      orientation: "горизонтальная",
-      bloodFlow: "не изменен",
+      echogenicity: DEFAULT_NODE_ECHOGENICITY,
+      echostructure: DEFAULT_NODE_ECHOSTRUCTURE,
+      contour: DEFAULT_NODE_CONTOUR,
+      orientation: DEFAULT_NODE_ORIENTATION,
+      bloodFlow: DEFAULT_NODE_BLOOD_FLOW,
       comment: "",
       echogenicFoci: "",
     };
@@ -74,7 +93,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   const updateSelect = (field: keyof ThyroidLobeProtocol, value: string) => {
     const draft: ThyroidLobeProtocol = { ...form, [field]: value };
 
-    if (field === "volumeFormations" && value === "не определяются") {
+    if (field === "volumeFormations" && value === VOLUME_FORMATIONS_NONE) {
       draft.nodesList = [];
     }
 
@@ -84,32 +103,31 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Размеры */}
-      <Fieldset title="Размеры">
+      <Fieldset title={LABEL_DIMENSIONS}>
         <div className="space-y-3">
           <SizeRow
-            label="Длина (мм)"
+            label={LABEL_LENGTH}
             value={form.length}
             onChange={(val) => updateField("length", val)}
             focus={lengthFocus}
             range={normalRanges.thyroid.length}
           />
           <SizeRow
-            label="Ширина (мм)"
+            label={LABEL_WIDTH}
             value={form.width}
             onChange={(val) => updateField("width", val)}
             focus={widthFocus}
             range={normalRanges.thyroid.width}
           />
           <SizeRow
-            label="Глубина (мм)"
+            label={LABEL_DEPTH}
             value={form.depth}
             onChange={(val) => updateField("depth", val)}
             focus={depthFocus}
             range={normalRanges.thyroid.depth}
           />
           <SizeRow
-            label="Объем (мл)"
+            label={LABEL_VOLUME}
             value={form.volume}
             onChange={(val) => updateField("volume", val)}
             focus={useFieldFocus(organName, "volume")}
@@ -120,30 +138,29 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
         </div>
       </Fieldset>
 
-      {/* Объемные образования */}
-      <Fieldset title="Объемные образования">
+      <Fieldset title={LABEL_FORMATIONS}>
         <ButtonSelect
           label=""
           value={form.volumeFormations}
           onChange={(val) => updateSelect("volumeFormations", val)}
           options={[
-            { value: "не определяются", label: "не определяются" },
-            { value: "определяются", label: "определяются" },
+            { value: VOLUME_FORMATIONS_NONE, label: VOLUME_FORMATIONS_NONE },
+            { value: VOLUME_FORMATIONS_PRESENT, label: VOLUME_FORMATIONS_PRESENT },
           ]}
         />
 
-        {form.volumeFormations === "определяются" && (
+        {form.volumeFormations === VOLUME_FORMATIONS_PRESENT && (
           <div className="mt-6 space-y-4">
             {form.nodesList.length === 0 ? (
               <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-                <p className="text-slate-500 text-sm mb-4">Узлы не добавлены</p>
+                <p className="text-slate-500 text-sm mb-4">{LABEL_NO_NODES}</p>
                 <button
                   type="button"
                   onClick={addNode}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                 >
                   <Plus size={18} />
-                  Добавить узел
+                  {LABEL_ADD_NODE}
                 </button>
               </div>
             ) : (
@@ -155,7 +172,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
                   >
                     <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
                       <span className="text-white font-bold text-sm">
-                        Узел #{node.number}
+                        {`${LABEL_NODE} #${node.number}`}
                       </span>
                       <button
                         type="button"
@@ -169,7 +186,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
                           onChange?.(draft);
                         }}
                         className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-                        title="Удалить узел"
+                        title={LABEL_DELETE_NODE}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -200,12 +217,22 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
                 >
                   <Plus size={18} />
-                  Добавить узел
+                  {LABEL_ADD_NODE}
                 </button>
               </>
             )}
           </div>
         )}
+      </Fieldset>
+
+      <Fieldset title={LABEL_ADDITIONAL}>
+        <textarea
+          value={form.additional}
+          onChange={(e) => updateField("additional", e.target.value)}
+          rows={4}
+          placeholder={PLACEHOLDER_ADDITIONAL}
+          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-200 resize-y"
+        />
       </Fieldset>
     </div>
   );

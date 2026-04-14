@@ -7,6 +7,10 @@ export class JournalRepository {
   constructor(private db: Database.Database) {}
 
   getJournalByDate(date: string): JournalEntry[] {
+    return this.getJournalByPeriod(date, date);
+  }
+
+  getJournalByPeriod(startDate: string, endDate: string): JournalEntry[] {
     const rows = this.db
       .prepare(
         `
@@ -28,11 +32,11 @@ export class JournalRepository {
           r.updated_at     AS r_updated_at
         FROM researches r
         JOIN patients p ON r.patient_id = p.id
-        WHERE DATE(r.research_date) = DATE(?)
-        ORDER BY p.last_name, p.first_name, r.research_date
+        WHERE DATE(r.research_date) BETWEEN DATE(?) AND DATE(?)
+        ORDER BY DATE(r.research_date), p.last_name, p.first_name, r.research_date
       `
       )
-      .all(date) as any[];
+      .all(startDate, endDate) as any[];
 
     const map = new Map<number, JournalEntry>();
 
@@ -80,5 +84,21 @@ export class JournalRepository {
     }
 
     return Array.from(map.values());
+  }
+
+  getDoctorNames(): string[] {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT DISTINCT TRIM(doctor_name) AS doctor_name
+        FROM researches
+        WHERE doctor_name IS NOT NULL
+          AND TRIM(doctor_name) <> ''
+        ORDER BY doctor_name COLLATE NOCASE
+      `,
+      )
+      .all() as Array<{ doctor_name: string }>;
+
+    return rows.map((row) => row.doctor_name);
   }
 }

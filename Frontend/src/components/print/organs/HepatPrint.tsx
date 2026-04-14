@@ -54,6 +54,7 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
   }
 
   const structParts: string[] = [];
+  const focalLesionsParts: string[] = [];
 
   if (echogenicity?.trim()) {
     structParts.push(`эхогенность печени ${echogenicity}`);
@@ -70,12 +71,12 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
 
   if (focalLesionsPresence?.trim()) {
     if (focalLesionsPresence === "не определяются") {
-      structParts.push("патологические объемные образования не определяются");
+      focalLesionsParts.push("патологические очаговые образования не определяются");
     } else if (focalLesionsPresence === "определяются") {
       if (focalLesions?.trim()) {
-        structParts.push(focalLesions.trim());
+        focalLesionsParts.push(focalLesions.trim());
       } else {
-        structParts.push("патологические образования определяются");
+        focalLesionsParts.push("патологические очаговые образования определяются");
       }
     }
   }
@@ -98,6 +99,7 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
     rightParts.length > 0 ||
     leftParts.length > 0 ||
     structParts.length > 0 ||
+    focalLesionsParts.length > 0 ||
     vesselsParts.length > 0 ||
     !!additionalText;
 
@@ -106,14 +108,10 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
   }
 
   return (
-    <div style={{ fontSize: "14px", lineHeight: 1.5, fontFamily: '"Times New Roman", Times, serif', }}>
+    <div style={{ fontSize: "14px", lineHeight: 1.5, fontFamily: '"Times New Roman", Times, serif' }}>
       <p style={{ margin: 0 }}>
         <span style={{ fontWeight: 700, fontSize: "16px" }}>Печень:</span>{" "}
-        {rightParts.length > 0 && (
-          <>
-            {rightParts.join(", ")}.
-          </>
-        )}
+        {rightParts.length > 0 && <>{rightParts.join(", ")}.</>}
         {leftParts.length > 0 && (
           <>
             {rightParts.length > 0 && " "}
@@ -125,6 +123,15 @@ export const HepatPrint: React.FC<HepatPrintProps> = ({ value }) => {
             {" "}
             {(() => {
               const text = structParts.join(", ");
+              return text.charAt(0).toUpperCase() + text.slice(1) + ".";
+            })()}
+          </>
+        )}
+        {focalLesionsParts.length > 0 && (
+          <>
+            {" "}
+            {(() => {
+              const text = focalLesionsParts.join(", ");
               return text.charAt(0).toUpperCase() + text.slice(1) + ".";
             })()}
           </>

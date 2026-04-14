@@ -1,6 +1,4 @@
-// src/types/organs/thyroid.ts (дополнить существующий файл)
-import type { SectionKey } from "@/components/common/OrgNavigation";
-
+// src/types/organs/thyroid.ts
 export interface ThyroidNode {
   number: number;
   size1: string;
@@ -21,6 +19,7 @@ export interface ThyroidLobeProtocol {
   depth: string;
   volume: string;
   volumeFormations: string;
+  additional: string;
   nodesList: ThyroidNode[];
 }
 
@@ -43,22 +42,14 @@ export interface ThyroidLobeProps {
   onChange?: (value: ThyroidLobeProtocol) => void;
 }
 
-export type ThyroidSectionKey = Extract<
-  SectionKey,
-  | "Щитовидная железа:правая доля"
-  | "Щитовидная железа:левая доля"
->;
+export type ThyroidSectionKey = string;
 
 export interface ThyroidCommonProps {
   value?: ThyroidProtocol;
   onChange?: (value: ThyroidProtocol) => void;
-  sectionRefs?: Record<
-    ThyroidSectionKey,
-    React.RefObject<HTMLDivElement | null>
-  >;
+  sectionRefs?: Record<string, React.RefObject<HTMLDivElement | null>>;
 }
 
-// ← НОВЫЙ ТИП ДЛЯ ThyroidNodeComponent
 export interface ThyroidNodeProps {
   node: ThyroidNode;
   onUpdate: (field: keyof ThyroidNode, value: string | number) => void;
