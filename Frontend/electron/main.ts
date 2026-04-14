@@ -35,7 +35,7 @@ function createWindow() {
   setupProtocolHandlers(dbManager.protocol);
 
   if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL(`http://localhost:${process.env.VITE_PORT ?? "5173"}`);
+    mainWindow.loadURL(`http://localhost:${process.env.VITE_PORT ?? "5174"}`);
   } else {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }

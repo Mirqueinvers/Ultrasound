@@ -11,7 +11,7 @@ export default defineConfig({
   base: "./", // критично для сборки под Electron (file://)
   server: {
     host: "0.0.0.0",
-    port: Number(process.env.VITE_PORT ?? 5173),
+    port: Number(process.env.VITE_PORT ?? 5174),
     watch: {
       usePolling: true, // важно для Docker
     },
