@@ -341,6 +341,74 @@ const PrintableSavedProtocol = React.forwardRef<
       : "") +
     (lymphNodesData?.recommendations || "");
 
+  const conclusionSections = [
+    {
+      key: "obp",
+      conclusion: obpData?.conclusion || "",
+      recommendations: obpData?.recommendations || "",
+    },
+    {
+      key: "kidneys",
+      conclusion: kidneysData?.conclusion || "",
+      recommendations: kidneysData?.recommendations || "",
+    },
+    {
+      key: "bladder",
+      conclusion: bladderStudyData?.conclusion || "",
+      recommendations: bladderStudyData?.recommendations || "",
+    },
+    {
+      key: "omt-female",
+      conclusion: omtFemaleData?.conclusion || "",
+      recommendations: omtFemaleData?.recommendations || "",
+    },
+    {
+      key: "omt-male",
+      conclusion: omtMaleData?.conclusion || "",
+      recommendations: omtMaleData?.recommendations || "",
+    },
+    {
+      key: "thyroid",
+      conclusion: thyroidData?.conclusion || "",
+      recommendations: thyroidData?.recommendations || "",
+    },
+    {
+      key: "breast",
+      conclusion: breastData?.conclusion || "",
+      recommendations: breastData?.recommendations || "",
+    },
+    {
+      key: "scrotum",
+      conclusion: scrotumData?.conclusion || "",
+      recommendations: scrotumData?.recommendations || "",
+    },
+    {
+      key: "salivary-glands",
+      conclusion: salivaryData?.conclusion || "",
+      recommendations: salivaryData?.recommendations || "",
+    },
+    {
+      key: "brachio-cephalic-arteries",
+      conclusion: brachioCephalicArteriesData?.conclusion || "",
+      recommendations: brachioCephalicArteriesData?.recommendations || "",
+    },
+    {
+      key: "lymph-nodes",
+      conclusion: lymphNodesData?.conclusion || "",
+      recommendations: lymphNodesData?.recommendations || "",
+    },
+    {
+      key: "child-dispensary",
+      conclusion: childDispensaryData?.conclusion || "",
+      recommendations: childDispensaryData?.recommendations || "",
+    },
+    {
+      key: "soft-tissue",
+      conclusion: softTissueData?.conclusion || "",
+      recommendations: softTissueData?.recommendations || "",
+    },
+  ].filter((section) => section.conclusion || section.recommendations);
+
   const doctorName = protocolDoctorName || user?.name || "";
 
   const blocks = React.useMemo<ResearchBlock[]>(
@@ -363,7 +431,7 @@ const PrintableSavedProtocol = React.forwardRef<
         id: "conclusion",
         element: (
           <div className="print-conclusion">
-            <ConclusionPrint value={{ conclusion, recommendations }} />
+            <ConclusionPrint value={{ conclusion, recommendations, sections: conclusionSections }} />
             {doctorName && (
               <div
                 style={{

@@ -192,7 +192,7 @@ const renderLobeBlock = (
       {additional && (
         <>
           <br />
-          {`\u0414\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u043e: ${additional}`}
+          {additional}
         </>
       )}
       {"\n"}
