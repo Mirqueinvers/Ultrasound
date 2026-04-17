@@ -11,7 +11,6 @@ export const CREATE_USERS_TABLE = `
   )
 `;
 
-
 export const CREATE_PATIENTS_TABLE = `
   CREATE TABLE IF NOT EXISTS patients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +22,6 @@ export const CREATE_PATIENTS_TABLE = `
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `;
-
 
 export const CREATE_RESEARCHES_TABLE = `
   CREATE TABLE IF NOT EXISTS researches (
@@ -40,7 +38,6 @@ export const CREATE_RESEARCHES_TABLE = `
   )
 `;
 
-
 export const CREATE_RESEARCH_STUDIES_TABLE = `
   CREATE TABLE IF NOT EXISTS research_studies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,30 +49,41 @@ export const CREATE_RESEARCH_STUDIES_TABLE = `
   )
 `;
 
+export const CREATE_PRINT_BLOCK_OVERRIDES_TABLE = `
+  CREATE TABLE IF NOT EXISTS print_block_overrides (
+    research_id INTEGER NOT NULL,
+    block_id TEXT NOT NULL,
+    block_text TEXT NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (research_id, block_id),
+    FOREIGN KEY (research_id) REFERENCES researches(id) ON DELETE CASCADE
+  )
+`;
 
 export const CREATE_PATIENTS_INDEXES = `
-  CREATE INDEX IF NOT EXISTS idx_patients_full_name 
+  CREATE INDEX IF NOT EXISTS idx_patients_full_name
   ON patients(last_name, first_name, middle_name);
-  
-  CREATE INDEX IF NOT EXISTS idx_patients_dob 
+
+  CREATE INDEX IF NOT EXISTS idx_patients_dob
   ON patients(date_of_birth);
 `;
 
-
 export const CREATE_RESEARCHES_INDEXES = `
-  CREATE INDEX IF NOT EXISTS idx_researches_patient_id 
+  CREATE INDEX IF NOT EXISTS idx_researches_patient_id
   ON researches(patient_id);
-  
-  CREATE INDEX IF NOT EXISTS idx_researches_date 
-  ON researches(research_date);
-  
-  CREATE INDEX IF NOT EXISTS idx_research_studies_research_id 
-  ON research_studies(research_id);
-  
-  CREATE INDEX IF NOT EXISTS idx_research_studies_type 
-  ON research_studies(study_type);
-`;
 
+  CREATE INDEX IF NOT EXISTS idx_researches_date
+  ON researches(research_date);
+
+  CREATE INDEX IF NOT EXISTS idx_research_studies_research_id
+  ON research_studies(research_id);
+
+  CREATE INDEX IF NOT EXISTS idx_research_studies_type
+  ON research_studies(study_type);
+
+  CREATE INDEX IF NOT EXISTS idx_print_block_overrides_research_id
+  ON print_block_overrides(research_id);
+`;
 
 export interface User {
   id: number;
@@ -87,7 +95,6 @@ export interface User {
   last_login?: string;
 }
 
-
 export interface Patient {
   id: number;
   last_name: string;
@@ -97,7 +104,6 @@ export interface Patient {
   created_at: string;
   updated_at: string;
 }
-
 
 export interface Research {
   id: number;
@@ -112,15 +118,20 @@ export interface Research {
   study_types?: string[];
 }
 
-
 export interface ResearchStudy {
   id: number;
   research_id: number;
   study_type: string;
-  study_data: string; // JSON string
+  study_data: string;
   created_at: string;
 }
 
+export interface PrintBlockOverrideRow {
+  research_id: number;
+  block_id: string;
+  block_text: string;
+  updated_at: string;
+}
 
 export const CREATE_USERNAME_INDEX = `
   CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users(username)

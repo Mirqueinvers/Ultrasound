@@ -36,10 +36,18 @@ export interface Research {
 export interface SavedProtocol {
   researchId: number;
   studies: { [studyType: string]: any };
+  printOverrides: Record<string, string>;
 }
 
 export interface ProtocolAPI {
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+  savePrintOverrides: (data: {
+    researchId: number;
+    overrides: Record<string, string>;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
 
 export interface FileAPI {

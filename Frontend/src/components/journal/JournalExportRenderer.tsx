@@ -208,6 +208,11 @@ export function JournalExportRenderer({
         }
       }
 
+      const exportRoot = containerRef.current.cloneNode(true) as HTMLElement;
+      exportRoot.querySelectorAll("[data-print-editor]").forEach((element) => element.remove());
+      exportRoot.querySelectorAll("[data-print-source]").forEach((element) => element.remove());
+      exportRoot.querySelectorAll("[data-print-measure]").forEach((element) => element.remove());
+
       const html = `<!doctype html>
 <html lang="ru">
   <head>
@@ -233,7 +238,7 @@ body {
     </style>
   </head>
   <body>
-    <div class="export-shell">${containerRef.current.innerHTML}</div>
+    <div class="export-shell">${exportRoot.innerHTML}</div>
   </body>
 </html>`;
 

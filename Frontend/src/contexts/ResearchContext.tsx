@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 
 interface ResearchContextType {
   patientFullName: string;
@@ -9,8 +9,8 @@ interface ResearchContextType {
   researchDate: string;
   setResearchDate: (date: string) => void;
 
-  organization: string;                  // <-- новое
-  setOrganization: (org: string) => void; // <-- новое
+  organization: string;
+  setOrganization: (org: string) => void;
 
   studiesData: { [studyType: string]: any };
   setStudyData: (studyType: string, data: any) => void;
@@ -28,20 +28,21 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
     return localDate.toISOString().slice(0, 10);
   };
-  const [patientFullName, setPatientFullName] = useState('');
-  const [patientDateOfBirth, setPatientDateOfBirth] = useState('');
+
+  const [patientFullName, setPatientFullName] = useState("");
+  const [patientDateOfBirth, setPatientDateOfBirth] = useState("");
   const [researchDate, setResearchDate] = useState(getCurrentDate);
-  const [organization, setOrganization] = useState(''); // <-- новое
+  const [organization, setOrganization] = useState("");
   const [studiesData, setStudiesDataState] = useState<{ [studyType: string]: any }>({});
 
-  const setStudyData = (studyType: string, data: any) => {
-    setStudiesDataState(prev => ({
+  const setStudyData = useCallback((studyType: string, data: any) => {
+    setStudiesDataState((prev) => ({
       ...prev,
       [studyType]: data,
     }));
-  };
+  }, []);
 
-  const clearStudyData = (studyType: string) => {
+  const clearStudyData = useCallback((studyType: string) => {
     setStudiesDataState((prev) => {
       if (!(studyType in prev)) {
         return prev;
@@ -51,46 +52,59 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       delete next[studyType];
       return next;
     });
-  };
+  }, []);
 
-  const clearStudiesData = () => {
+  const clearStudiesData = useCallback(() => {
     setStudiesDataState({});
-  };
+  }, []);
 
-  const clearHeaderData = () => {
-    setPatientFullName('');
-    setPatientDateOfBirth('');
+  const clearHeaderData = useCallback(() => {
+    setPatientFullName("");
+    setPatientDateOfBirth("");
     setResearchDate(getCurrentDate());
-    setOrganization('');                // <-- сбрасываем тоже
-  };
+    setOrganization("");
+  }, []);
 
-  return (
-    <ResearchContext.Provider
-      value={{
-        patientFullName,
-        setPatientFullName,
-        patientDateOfBirth,
-        setPatientDateOfBirth,
-        researchDate,
-        setResearchDate,
-        organization,
-        setOrganization,
-        studiesData,
-        setStudyData,
-        clearStudyData,
-        clearStudiesData,
-        clearHeaderData,
-      }}
-    >
-      {children}
-    </ResearchContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      patientFullName,
+      setPatientFullName,
+      patientDateOfBirth,
+      setPatientDateOfBirth,
+      researchDate,
+      setResearchDate,
+      organization,
+      setOrganization,
+      studiesData,
+      setStudyData,
+      clearStudyData,
+      clearStudiesData,
+      clearHeaderData,
+    }),
+    [
+      clearHeaderData,
+      clearStudiesData,
+      clearStudyData,
+      organization,
+      patientDateOfBirth,
+      patientFullName,
+      researchDate,
+      setOrganization,
+      setPatientDateOfBirth,
+      setPatientFullName,
+      setResearchDate,
+      setStudyData,
+      studiesData,
+    ],
   );
+
+  return <ResearchContext.Provider value={contextValue}>{children}</ResearchContext.Provider>;
 };
 
 export const useResearch = () => {
   const context = useContext(ResearchContext);
   if (!context) {
-    throw new Error('useResearch must be used within ResearchProvider');
+    throw new Error("useResearch must be used within ResearchProvider");
   }
   return context;
 };

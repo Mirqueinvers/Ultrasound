@@ -176,10 +176,18 @@ export interface WindowAPI {
 export interface SavedProtocol {
   researchId: number;
   studies: { [studyType: string]: any };
+  printOverrides: Record<string, string>;
 }
 
 export interface ProtocolAPI {
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+  savePrintOverrides: (data: {
+    researchId: number;
+    overrides: Record<string, string>;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
 
 export interface FileAPI {
@@ -285,6 +293,7 @@ const windowAPI: WindowAPI = {
 
 const protocolAPI: ProtocolAPI = {
   getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
+  savePrintOverrides: (data) => ipcRenderer.invoke("protocol:savePrintOverrides", data),
 };
 
 const fileAPI: FileAPI = {

@@ -1,5 +1,4 @@
-// Frontend/src/components/print/PrintSavedModal.tsx
-import React from "react";
+﻿import React from "react";
 import { useReactToPrint } from "react-to-print";
 import PrintableSavedProtocol from "@/components/print/PrintableSavedProtocol";
 
@@ -26,6 +25,11 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
     if (!contentRef.current || researchId == null) {
       return;
     }
+
+    const exportRoot = contentRef.current.cloneNode(true) as HTMLElement;
+    exportRoot.querySelectorAll("[data-print-editor]").forEach((element) => element.remove());
+    exportRoot.querySelectorAll("[data-print-source]").forEach((element) => element.remove());
+    exportRoot.querySelectorAll("[data-print-measure]").forEach((element) => element.remove());
 
     const styleChunks: string[] = [];
 
@@ -66,7 +70,7 @@ body {
     </style>
   </head>
   <body>
-    <div class="export-shell">${contentRef.current.innerHTML}</div>
+    <div class="export-shell">${exportRoot.innerHTML}</div>
   </body>
 </html>`;
 
