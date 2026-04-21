@@ -1,15 +1,14 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* фон страницы + отступ под шапку */
+/* С„РѕРЅ СЃС‚СЂР°РЅРёС†С‹ + РѕС‚СЃС‚СѓРї РїРѕРґ С€Р°РїРєСѓ */
 body {
   margin: 0;
-  padding-top: 80px; /* высота шапки */
+  padding-top: 80px; /* РІС‹СЃРѕС‚Р° С€Р°РїРєРё */
   background-color: #f9fafb; /* tailwind gray-50 */
 }
-
-/* своя шапка окна */
+/* СЃРІРѕСЏ С€Р°РїРєР° РѕРєРЅР° */
 .app-titlebar {
   position: fixed;
   top: 0;
@@ -20,24 +19,23 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding: 0 8px;
-  /* градиент сверху вниз: gray-50 → gray-100 */
+  /* РіСЂР°РґРёРµРЅС‚ СЃРІРµСЂС…Сѓ РІРЅРёР·: gray-50 в†’ gray-100 */
   background: linear-gradient(to bottom, #f9fafb 0%, #dbdfe4 100%);
   color: #000000;
   font-size: 13px;
   -webkit-app-region: drag;
   z-index: 9999;
-  border-bottom: 1px solid #e5e7eb; /* граница остаётся */
+  border-bottom: 1px solid #e5e7eb; /* РіСЂР°РЅРёС†Р° РѕСЃС‚Р°С‘С‚СЃСЏ */
+/* Р±Р»РѕРє СЃ РєРЅРѕРїРєР°РјРё */
 }
-
-/* блок с кнопками */
 .app-titlebar-buttons {
   display: flex;
   align-items: center;
   gap: 4px;
-  -webkit-app-region: no-drag; /* не drag, иначе клик не сработает */
+  -webkit-app-region: no-drag; /* РЅРµ drag, РёРЅР°С‡Рµ РєР»РёРє РЅРµ СЃСЂР°Р±РѕС‚Р°РµС‚ */
 }
 
-/* сами кнопки */
+/* СЃР°РјРё РєРЅРѕРїРєРё */
 .app-titlebar-button {
   width: 36px;
   height: 24px;
@@ -47,20 +45,20 @@ body {
   border-radius: 4px;
   border: none;
   background: transparent;
-  color: #000000;            /* чёрные */
+  color: #000000;            /* С‡С‘СЂРЅС‹Рµ */
   cursor: pointer;
 }
 
 .app-titlebar-button:hover {
-  background: rgba(0, 0, 0, 0.06); /* лёгкий hover, как в Win11 */
+  background: rgba(0, 0, 0, 0.06); /* Р»С‘РіРєРёР№ hover, РєР°Рє РІ Win11 */
 }
 
 .app-titlebar-button.close:hover {
-  background: #ef4444;       /* красный hover */
+  background: #ef4444;       /* РєСЂР°СЃРЅС‹Р№ hover */
   color: #ffffff;
 }
 
-/* ---------- ПРЕДПРОСМОТР ЛИСТОВ А4 (ЭКРАН) ---------- */
+/* ---------- РџР Р•Р”РџР РћРЎРњРћРўР  Р›РРЎРўРћР’ Рђ4 (Р­РљР РђРќ) ---------- */
 
 @media screen {
   #print-root {
@@ -88,15 +86,24 @@ body {
   }
 }
 
-/* ---------- ПЕЧАТЬ ---------- */
+/* ---------- РџР•Р§РђРўР¬ ---------- */
 
 @media print {
   @page {
     size: A4;
-    margin: 15mm; /* или 10mm, как тебе нужно */
+    margin: 15mm;
   }
 
   .no-print {
+    display: none !important;
+  }
+
+  [data-print-editor] {
+    display: none !important;
+  }
+
+  [data-print-source],
+  [data-print-measure] {
     display: none !important;
   }
 
@@ -134,11 +141,10 @@ body {
     display: block;
   }
 
-    .print-conclusion {
+  .print-conclusion {
     page-break-before: auto;
     break-before: auto;
     page-break-inside: auto;
     break-inside: auto;
   }
 }
-

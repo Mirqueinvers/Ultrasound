@@ -532,28 +532,62 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
     );
   }
 
-  return (
-    <div className="space-y-4" ref={ref} id="print-root">
-      <div
-        ref={sourceContainerRef}
-        data-print-source
-        hidden
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "210mm",
-          pointerEvents: "none",
-        }}
-      >
+  const sourceNodes = (
+    <div
+      ref={sourceContainerRef}
+      data-print-source
+      hidden
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "210mm",
+        pointerEvents: "none",
+      }}
+    >
+      {studyDefinitions.map((definition) => (
+        <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
+          {definition.element}
+        </div>
+      ))}
+    </div>
+  );
+
+  const measureNodes = (
+    <div
+      ref={measureContainerRef}
+      data-print-measure
+      style={{
+        visibility: "hidden",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "210mm",
+        zIndex: -1,
+        pointerEvents: "none",
+      }}
+    >
+      <div hidden aria-hidden="true">
         {studyDefinitions.map((definition) => (
           <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
             {definition.element}
           </div>
         ))}
       </div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      {displayBlocks.map((block) => (
+        <div key={block.id}>{block.element}</div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      {sourceNodes}
+      <div
+        data-print-editor
+        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Редактирование печатной версии</h3>
@@ -656,43 +690,25 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
         )}
       </div>
 
-      <div
-        ref={measureContainerRef}
-        data-print-measure
-        style={{
-          visibility: "hidden",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "210mm",
-          zIndex: -1,
-          pointerEvents: "none",
-        }}
-      >
-        <div hidden aria-hidden="true">
-          {studyDefinitions.map((definition) => (
-            <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
-              {definition.element}
+      {measureNodes}
+      <div ref={ref} id="print-root">
+        <div>
+          {pages.map((pageBlocks, pageIndex) => (
+            <div key={pageIndex} className="print-page">
+              <div className="print-page-inner">
+                {pageBlocks.filter(Boolean).map((block) => (
+                  <div
+                    key={block.id}
+                    className="no-break"
+                    style={{ marginTop: block.id === "header" ? 0 : "10mm" }}
+                  >
+                    {block.element}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
-        {displayBlocks.map((block) => (
-          <div key={block.id}>{block.element}</div>
-        ))}
-      </div>
-
-      <div>
-        {pages.map((pageBlocks, pageIndex) => (
-          <div key={pageIndex} className="print-page">
-            <div className="print-page-inner">
-              {pageBlocks.filter(Boolean).map((block) => (
-                <div key={block.id} className="no-break" style={{ marginTop: block.id === "header" ? 0 : "10mm" }}>
-                  {block.element}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
