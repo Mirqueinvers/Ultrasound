@@ -23,24 +23,24 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "ignoreDeprecations": "6.0",
 
     /* Path aliases */
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"],
-      "@components/*": ["components/*"],
-      "@common": ["components/common/index.ts"],
-      "@common/*": ["components/common/*"],
-      "@contexts": ["contexts/index.ts"],
-      "@contexts/*": ["contexts/*"],
-      "@hooks": ["hooks/index.ts"],
-      "@hooks/*": ["hooks/*"],
-      "@layout/*": ["layout/*"],
-      "@utils/*": ["utils/*"],
-      "@assets/*": ["assets/*"],
-      "@organs/*": ["components/organs/*"],
-      "@types": ["types/index.ts"],
-      "@types/*": ["types/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@common": ["./src/components/common/index.ts"],
+      "@common/*": ["./src/components/common/*"],
+      "@contexts": ["./src/contexts/index.ts"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@hooks": ["./src/hooks/index.ts"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@layout/*": ["./src/layout/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@organs/*": ["./src/components/organs/*"],
+      "@types": ["./src/types/index.ts"],
+      "@types/*": ["./src/types/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]

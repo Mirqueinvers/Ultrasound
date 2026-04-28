@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -482,9 +482,9 @@ export function ObpProtocolBlock({
           }
 
           const currentValue = activeGallbladder[field.key];
-          const displayValue = currentValue || "Нажмите для ввода";
+          const displayValue = currentValue || 'Нажмите для ввода';
 
-          return (
+          const fieldRow = (
             <Pressable
               key={field.key}
               onPress={() => {
@@ -510,224 +510,246 @@ export function ObpProtocolBlock({
               </View>
 
               <Text style={styles.obpFieldType}>
-                {field.kind === "number"
-                  ? "numpad"
-                  : field.kind === "select"
-                    ? "select"
-                    : "text"}
+                {field.kind === 'number'
+                  ? 'numpad'
+                  : field.kind === 'select'
+                    ? 'select'
+                    : 'text'}
               </Text>
             </Pressable>
           );
+
+          if (field.key === 'concretions') {
+            return (
+              <Fragment key={field.key}>
+                {fieldRow}
+                {!isCholecystectomy && hasGallbladderConcretions && (
+                  <View style={styles.sectionCard}>
+                    <View style={styles.sectionCardHeader}>
+                      <View>
+                        <Text style={styles.sectionLabel}>Конкременты</Text>
+                        <Text style={styles.sectionDesktopKey}>
+                          {`${activeGallbladder.concretionsList.length} items`}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.obpFieldList}>
+                      {activeGallbladder.concretionsList.length === 0 ? (
+                        <Text style={styles.helperText}>Добавьте хотя бы один конкремент.</Text>
+                      ) : (
+                        activeGallbladder.concretionsList.map((item, index) => (
+                          <View key={`concretion-${index}`} style={styles.sectionCard}>
+                            <View style={styles.sectionCardHeader}>
+                              <View>
+                                <Text style={styles.sectionLabel}>Конкремент #{index + 1}</Text>
+                                <Text style={styles.sectionDesktopKey}>
+                                  Нажмите для редактирования
+                                </Text>
+                              </View>
+                              <Pressable
+                                onPress={() =>
+                                  onUpdateGallbladderConcretionsList(
+                                    activeGallbladder.concretionsList.filter(
+                                      (_, itemIndex) => itemIndex !== index,
+                                    ),
+                                  )
+                                }
+                                style={({ pressed }) => [
+                                  styles.secondaryButton,
+                                  { paddingVertical: 8, paddingHorizontal: 10 },
+                                  pressed && styles.buttonPressed,
+                                ]}
+                              >
+                                <Text style={styles.secondaryButtonText}>Удалить</Text>
+                              </Pressable>
+                            </View>
+
+                            <View style={styles.obpFieldList}>
+                              {gallbladderConcretionFields.map((itemField) => {
+                                const currentItemValue = item[itemField.key];
+                                const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
+
+                                return (
+                                  <Pressable
+                                    key={`${itemField.key}-${index}`}
+                                    onPress={() => {
+                                      openEditor({
+                                        title: `${itemField.label} #${index + 1}`,
+                                        mode: itemField.kind,
+                                        value: currentItemValue,
+                                        placeholder: itemField.placeholder,
+                                        options: itemField.options,
+                                        onSave: (nextValue) =>
+                                          updateGallbladderConcretionItem(
+                                            index,
+                                            itemField.key,
+                                            nextValue,
+                                          ),
+                                      });
+                                    }}
+                                    style={[
+                                      styles.obpFieldRow,
+                                      hasValue(currentItemValue) && styles.obpFieldRowFilled,
+                                    ]}
+                                  >
+                                    <View style={styles.obpFieldRowContent}>
+                                      <Text style={styles.obpFieldLabel}>{itemField.label}</Text>
+                                      <Text style={styles.obpFieldValue}>{itemDisplayValue}</Text>
+                                    </View>
+
+                                    <Text style={styles.obpFieldType}>
+                                      {itemField.kind === 'number'
+                                        ? 'numpad'
+                                        : itemField.kind === 'select'
+                                          ? 'select'
+                                          : 'text'}
+                                    </Text>
+                                  </Pressable>
+                                );
+                              })}
+                            </View>
+                          </View>
+                        ))
+                      )}
+
+                      <Pressable
+                        onPress={onAddGallbladderConcretion}
+                        style={({ pressed }) => [
+                          styles.primaryButton,
+                          {
+                            minWidth: 0,
+                            paddingVertical: 10,
+                            paddingHorizontal: 12,
+                            alignSelf: 'flex-start',
+                          },
+                          pressed && styles.buttonPressed,
+                        ]}
+                      >
+                        <Text style={styles.primaryButtonText}>+ Конкремент</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              </Fragment>
+            );
+          }
+
+          if (field.key === 'polyps') {
+            return (
+              <Fragment key={field.key}>
+                {fieldRow}
+                {!isCholecystectomy && hasGallbladderPolyps && (
+                  <View style={styles.sectionCard}>
+                    <View style={styles.sectionCardHeader}>
+                      <View>
+                        <Text style={styles.sectionLabel}>Полипы</Text>
+                        <Text style={styles.sectionDesktopKey}>
+                          {`${activeGallbladder.polypsList.length} items`}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.obpFieldList}>
+                      {activeGallbladder.polypsList.length === 0 ? (
+                        <Text style={styles.helperText}>Добавьте хотя бы один полип.</Text>
+                      ) : (
+                        activeGallbladder.polypsList.map((item, index) => (
+                          <View key={`polyp-${index}`} style={styles.sectionCard}>
+                            <View style={styles.sectionCardHeader}>
+                              <View>
+                                <Text style={styles.sectionLabel}>Полип #{index + 1}</Text>
+                                <Text style={styles.sectionDesktopKey}>
+                                  Нажмите для редактирования
+                                </Text>
+                              </View>
+                              <Pressable
+                                onPress={() =>
+                                  onUpdateGallbladderPolypsList(
+                                    activeGallbladder.polypsList.filter(
+                                      (_, itemIndex) => itemIndex !== index,
+                                    ),
+                                  )
+                                }
+                                style={({ pressed }) => [
+                                  styles.secondaryButton,
+                                  { paddingVertical: 8, paddingHorizontal: 10 },
+                                  pressed && styles.buttonPressed,
+                                ]}
+                              >
+                                <Text style={styles.secondaryButtonText}>Удалить</Text>
+                              </Pressable>
+                            </View>
+
+                            <View style={styles.obpFieldList}>
+                              {gallbladderPolypFields.map((itemField) => {
+                                const currentItemValue = item[itemField.key];
+                                const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
+
+                                return (
+                                  <Pressable
+                                    key={`${itemField.key}-${index}`}
+                                    onPress={() => {
+                                      openEditor({
+                                        title: `${itemField.label} #${index + 1}`,
+                                        mode: itemField.kind,
+                                        value: currentItemValue,
+                                        placeholder: itemField.placeholder,
+                                        options: itemField.options,
+                                        onSave: (nextValue) =>
+                                          updateGallbladderPolypItem(index, itemField.key, nextValue),
+                                      });
+                                    }}
+                                    style={[
+                                      styles.obpFieldRow,
+                                      hasValue(currentItemValue) && styles.obpFieldRowFilled,
+                                    ]}
+                                  >
+                                    <View style={styles.obpFieldRowContent}>
+                                      <Text style={styles.obpFieldLabel}>{itemField.label}</Text>
+                                      <Text style={styles.obpFieldValue}>{itemDisplayValue}</Text>
+                                    </View>
+
+                                    <Text style={styles.obpFieldType}>
+                                      {itemField.kind === 'number'
+                                        ? 'numpad'
+                                        : itemField.kind === 'select'
+                                          ? 'select'
+                                          : 'text'}
+                                    </Text>
+                                  </Pressable>
+                                );
+                              })}
+                            </View>
+                          </View>
+                        ))
+                      )}
+
+                      <Pressable
+                        onPress={onAddGallbladderPolyp}
+                        style={({ pressed }) => [
+                          styles.primaryButton,
+                          {
+                            minWidth: 0,
+                            paddingVertical: 10,
+                            paddingHorizontal: 12,
+                            alignSelf: 'flex-start',
+                          },
+                          pressed && styles.buttonPressed,
+                        ]}
+                      >
+                        <Text style={styles.primaryButtonText}>+ Полип</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              </Fragment>
+            );
+          }
+
+          return fieldRow;
         })}
       </View>
-
-      {!isCholecystectomy && (
-        <>
-          {hasGallbladderConcretions && (
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionCardHeader}>
-                <View>
-                  <Text style={styles.sectionLabel}>???????????</Text>
-                  <Text style={styles.sectionDesktopKey}>
-                    {`${activeGallbladder.concretionsList.length} items`}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.obpFieldList}>
-                {activeGallbladder.concretionsList.length === 0 ? (
-                  <Text style={styles.helperText}>???????? ???? ?? ???? ??????????.</Text>
-                ) : (
-                  activeGallbladder.concretionsList.map((item, index) => (
-                    <View key={`concretion-${index}`} style={styles.sectionCard}>
-                      <View style={styles.sectionCardHeader}>
-                        <View>
-                          <Text style={styles.sectionLabel}>
-                            ?????????? #{index + 1}
-                          </Text>
-                          <Text style={styles.sectionDesktopKey}>
-                            ??????? ???? ??? ??????????????
-                          </Text>
-                        </View>
-                        <Pressable
-                          onPress={() =>
-                            onUpdateGallbladderConcretionsList(
-                              activeGallbladder.concretionsList.filter(
-                                (_, itemIndex) => itemIndex !== index,
-                              ),
-                            )
-                          }
-                          style={({ pressed }) => [
-                            styles.secondaryButton,
-                            { paddingVertical: 8, paddingHorizontal: 10 },
-                            pressed && styles.buttonPressed,
-                          ]}
-                        >
-                          <Text style={styles.secondaryButtonText}>???????</Text>
-                        </Pressable>
-                      </View>
-
-                      <View style={styles.obpFieldList}>
-                        {gallbladderConcretionFields.map((field) => {
-                          const currentValue = item[field.key];
-                          const displayValue = currentValue || "??????? ??? ?????";
-
-                          return (
-                            <Pressable
-                              key={`${field.key}-${index}`}
-                              onPress={() => {
-                                openEditor({
-                                  title: `${field.label} #${index + 1}`,
-                                  mode: field.kind,
-                                  value: currentValue,
-                                  placeholder: field.placeholder,
-                                  options: field.options,
-                                  onSave: (nextValue) =>
-                                    updateGallbladderConcretionItem(index, field.key, nextValue),
-                                });
-                              }}
-                              style={[
-                                styles.obpFieldRow,
-                                hasValue(currentValue) && styles.obpFieldRowFilled,
-                              ]}
-                            >
-                              <View style={styles.obpFieldRowContent}>
-                                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                              </View>
-
-                              <Text style={styles.obpFieldType}>
-                                {field.kind === "number"
-                                  ? "numpad"
-                                  : field.kind === "select"
-                                    ? "select"
-                                    : "text"}
-                              </Text>
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  ))
-                )}
-
-                <Pressable
-                  onPress={onAddGallbladderConcretion}
-                  style={({ pressed }) => [
-                    styles.primaryButton,
-                    { minWidth: 0, paddingVertical: 10, paddingHorizontal: 12, alignSelf: "flex-start" },
-                    pressed && styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.primaryButtonText}>+ ??????????</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-
-          {hasGallbladderPolyps && (
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionCardHeader}>
-                <View>
-                  <Text style={styles.sectionLabel}>??????</Text>
-                  <Text style={styles.sectionDesktopKey}>
-                    {`${activeGallbladder.polypsList.length} items`}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.obpFieldList}>
-                {activeGallbladder.polypsList.length === 0 ? (
-                  <Text style={styles.helperText}>???????? ???? ?? ???? ?????.</Text>
-                ) : (
-                  activeGallbladder.polypsList.map((item, index) => (
-                    <View key={`polyp-${index}`} style={styles.sectionCard}>
-                      <View style={styles.sectionCardHeader}>
-                        <View>
-                          <Text style={styles.sectionLabel}>????? #{index + 1}</Text>
-                          <Text style={styles.sectionDesktopKey}>
-                            ??????? ???? ??? ??????????????
-                          </Text>
-                        </View>
-                        <Pressable
-                          onPress={() =>
-                            onUpdateGallbladderPolypsList(
-                              activeGallbladder.polypsList.filter(
-                                (_, itemIndex) => itemIndex !== index,
-                              ),
-                            )
-                          }
-                          style={({ pressed }) => [
-                            styles.secondaryButton,
-                            { paddingVertical: 8, paddingHorizontal: 10 },
-                            pressed && styles.buttonPressed,
-                          ]}
-                        >
-                          <Text style={styles.secondaryButtonText}>???????</Text>
-                        </Pressable>
-                      </View>
-
-                      <View style={styles.obpFieldList}>
-                        {gallbladderPolypFields.map((field) => {
-                          const currentValue = item[field.key];
-                          const displayValue = currentValue || "??????? ??? ?????";
-
-                          return (
-                            <Pressable
-                              key={`${field.key}-${index}`}
-                              onPress={() => {
-                                openEditor({
-                                  title: `${field.label} #${index + 1}`,
-                                  mode: field.kind,
-                                  value: currentValue,
-                                  placeholder: field.placeholder,
-                                  options: field.options,
-                                  onSave: (nextValue) =>
-                                    updateGallbladderPolypItem(index, field.key, nextValue),
-                                });
-                              }}
-                              style={[
-                                styles.obpFieldRow,
-                                hasValue(currentValue) && styles.obpFieldRowFilled,
-                              ]}
-                            >
-                              <View style={styles.obpFieldRowContent}>
-                                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                              </View>
-
-                              <Text style={styles.obpFieldType}>
-                                {field.kind === "number"
-                                  ? "numpad"
-                                  : field.kind === "select"
-                                    ? "select"
-                                    : "text"}
-                              </Text>
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  ))
-                )}
-
-                <Pressable
-                  onPress={onAddGallbladderPolyp}
-                  style={({ pressed }) => [
-                    styles.primaryButton,
-                    { minWidth: 0, paddingVertical: 10, paddingHorizontal: 12, alignSelf: "flex-start" },
-                    pressed && styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.primaryButtonText}>+ ?????</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </>
-      )}
-
-
       <View style={styles.obpMobileHintCard}>
         <Text style={styles.obpMobileHintTitle}>Поджелудочная железа</Text>
         <Text style={styles.obpMobileHintText}>
