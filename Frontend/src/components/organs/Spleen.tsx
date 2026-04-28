@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -12,10 +12,13 @@ import { inputClasses } from "@utils/formClasses";
 import type { SpleenProtocol, SpleenProps } from "@types";
 import { defaultSpleenState } from "@types";
 
-export const Spleen: React.FC<SpleenProps> = ({  onChange }) => {
-  const [form, setForm] = useFormState<SpleenProtocol>(
-    defaultSpleenState
-  );
+export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
+  const initialValue = value ?? defaultSpleenState;
+  const [form, setForm] = useFormState<SpleenProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm(value ?? defaultSpleenState);
+  }, [value, setForm]);
 
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "spleen");

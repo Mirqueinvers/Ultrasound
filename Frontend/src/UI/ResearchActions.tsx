@@ -1,91 +1,23 @@
-// Frontend/src/UI/ResearchActions.tsx
 import React from "react";
 
 interface ResearchActionsProps {
   isSaving: boolean;
   hasSelectedStudies: boolean;
-  onCancel: () => void;
+  onClear: () => void;
   onPrint: () => void;
   onSave: () => void;
-  onStartNewResearch: () => void;
   isPrintEnabled: boolean;
 }
-
-type ConfirmType = "cancel" | "new" | null;
-
-const ConfirmDialog: React.FC<{
-  open: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onClose: () => void;
-}> = ({ open, title, message, onConfirm, onClose }) => {
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-        <h3 className="mb-2 text-base font-semibold text-slate-900">
-          {title}
-        </h3>
-        <p className="mb-4 text-sm text-slate-700">{message}</p>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            Отмена
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className="rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
-          >
-            Да
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const ResearchActions: React.FC<ResearchActionsProps> = ({
   isSaving,
   hasSelectedStudies,
-  onCancel,
+  onClear,
   onPrint,
   onSave,
-  onStartNewResearch,
   isPrintEnabled,
 }) => {
-  const [confirmType, setConfirmType] = React.useState<ConfirmType>(null);
-
-  const handleStartNewResearchClick = () => {
-    setConfirmType("new");
-  };
-
-  const handleCancelClick = () => {
-    setConfirmType("cancel");
-  };
-
-  const handleCloseDialog = () => {
-    setConfirmType(null);
-  };
-
-  const handleConfirm = () => {
-    if (confirmType === "new") {
-      onStartNewResearch();
-    } else if (confirmType === "cancel") {
-      onCancel();
-    }
-  };
-
-  const isDialogOpen = confirmType !== null;
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = React.useState(false);
 
   return (
     <>
@@ -111,37 +43,50 @@ export const ResearchActions: React.FC<ResearchActionsProps> = ({
             >
               Печать
             </button>
-
-            <button
-              onClick={handleStartNewResearchClick}
-              disabled={isSaving}
-              className="inline-flex items-center justify-center rounded-full bg-slate-100 px-5 py-2 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200 transition-all hover:bg-slate-200 hover:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Начать новое исследование
-            </button>
           </>
         )}
 
         <button
-          onClick={handleCancelClick}
+          onClick={() => setIsClearConfirmOpen(true)}
           disabled={isSaving}
           className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Отменить
+          Очистить
         </button>
       </div>
 
-      <ConfirmDialog
-        open={isDialogOpen}
-        title={
-          confirmType === "new"
-            ? "Начать новое исследование?"
-            : "Отменить текущее исследование?"
-        }
-        message="Несохранённые изменения будут потеряны."
-        onConfirm={handleConfirm}
-        onClose={handleCloseDialog}
-      />
+      {isClearConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+            <h3 className="mb-2 text-base font-semibold text-slate-900">
+              Очистить текущее исследование?
+            </h3>
+            <p className="mb-4 text-sm text-slate-700">
+              Несохранённые изменения будут потеряны.
+            </p>
+
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsClearConfirmOpen(false)}
+                className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onClear();
+                  setIsClearConfirmOpen(false);
+                }}
+                className="rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+              >
+                Да
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -32,7 +32,6 @@ import {
   useSaveResearch,
 } from "@hooks";
 import {
-  StartResearch,
   ResearchActions,
   SaveMessageAlert,
 } from "@/UI";
@@ -44,16 +43,18 @@ interface ContentProps {
   selectedStudies: string[];
   onRemoveStudy: (study: string) => void;
   isMultiSelectMode: boolean;
-  onStartNewResearch: () => void;
-  onCancelNewResearch: () => void;
+  isDraftActive: boolean;
+  mobileSaveRequestAt: string | null;
+  onClearResearch: () => void;
   selectedDirectoryItem: string;
 }
 
 const Content: React.FC<ContentProps> = ({
   activeSection,
   selectedStudies,
-  onStartNewResearch,
-  onCancelNewResearch,
+  isDraftActive,
+  mobileSaveRequestAt,
+  onClearResearch,
   selectedDirectoryItem,
 }) => {
   const { user } = useAuth();
@@ -73,8 +74,6 @@ const Content: React.FC<ContentProps> = ({
     React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] =
     React.useState(false);
-
-  const [isCreating, setIsCreating] = React.useState(false);
 
   const sectionRefs = useSectionRefs();
   const availableSectionKeys = useAvailableSectionKeys(selectedStudies);
@@ -96,6 +95,12 @@ const Content: React.FC<ContentProps> = ({
     });
   }, [selectedStudies, studiesData, clearStudyData]);
 
+  React.useEffect(() => {
+    if (user?.organization) {
+      setOrganization(user.organization);
+    }
+  }, [setOrganization, user?.organization]);
+
   const {
     isSaving,
     saveMessage,
@@ -108,42 +113,46 @@ const Content: React.FC<ContentProps> = ({
     researchDate,
     selectedStudies,
     studiesData,
+    onSaved: () => {
+      if (mobileSaveRequestAt) {
+        void window.mobileHostAPI?.publishSync({
+          type: "sync:command",
+          command: "draft:saved",
+          origin: "desktop",
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    },
   });
+
+  const processedMobileSaveRequestAt = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    if (!mobileSaveRequestAt || mobileSaveRequestAt === processedMobileSaveRequestAt.current) {
+      return;
+    }
+
+    if (!isDraftActive || isSaving) {
+      return;
+    }
+
+    processedMobileSaveRequestAt.current = mobileSaveRequestAt;
+    void saveResearch(paymentType);
+  }, [isDraftActive, isSaving, mobileSaveRequestAt, paymentType, saveResearch]);
 
   const handleSaveResearch = () => {
     saveResearch(paymentType);
   };
 
-  const handleStartClick = () => {
+  const handleClear = () => {
     clearHeaderData();
     clearStudiesData();
     
-    // Устанавливаем организацию из профиля пользователя
     if (user?.organization) {
       setOrganization(user.organization);
     }
-    
-    setIsCreating(true);
-    onStartNewResearch();
-  };
 
-  const handleCancel = () => {
-    setIsCreating(false);
-    clearStudiesData();
-    onCancelNewResearch();
-  };
-
-  const handleStartNewResearchFromActions = () => {
-    clearHeaderData();
-    clearStudiesData();
-    
-    // Устанавливаем организацию из профиля пользователя
-    if (user?.organization) {
-      setOrganization(user.organization);
-    }
-    
-    setIsCreating(true);
-    onStartNewResearch();
+    onClearResearch();
   };
 
   const scrollToSection = (key: SectionKey) => {
@@ -186,11 +195,6 @@ const Content: React.FC<ContentProps> = ({
         </p>
       </div>
     );
-  }
-
-  // Если исследование ещё не начали — только кнопка
-  if (!isCreating) {
-    return <StartResearch onStart={handleStartClick} />;
   }
 
   return (
@@ -353,10 +357,9 @@ const Content: React.FC<ContentProps> = ({
         <ResearchActions
           isSaving={isSaving}
           hasSelectedStudies={selectedStudies.length > 0}
-          onCancel={handleCancel}
+          onClear={handleClear}
           onPrint={() => setIsPrintModalOpen(true)}
           onSave={handleSaveResearch}
-          onStartNewResearch={handleStartNewResearchFromActions}
           isPrintEnabled={isSavedSuccessfully}
         />
       </div>

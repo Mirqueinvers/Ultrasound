@@ -52,6 +52,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    if (!window.mobileHostAPI) {
+      return;
+    }
+
+    void window.mobileHostAPI.setProfile({
+      organization: user?.organization || null,
+    });
+  }, [isLoading, user?.organization]);
+
   const login = async (data: LoginFormData): Promise<void> => {
     try {
       if (!window.authAPI) {

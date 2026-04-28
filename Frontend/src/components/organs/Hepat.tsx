@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -7,8 +7,13 @@ import { inputClasses } from "@utils/formClasses";
 import type { LiverProtocol, HepatProps } from "@types";
 import { defaultLiverState } from "@types";
 
-export const Hepat: React.FC<HepatProps> = ({ onChange }) => {
-  const [form, setForm] = useFormState<LiverProtocol>(defaultLiverState);
+export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
+  const initialValue = value ?? defaultLiverState;
+  const [form, setForm] = useFormState<LiverProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm(value ?? defaultLiverState);
+  }, [value, setForm]);
 
   useConclusion(setForm, "liver");
 

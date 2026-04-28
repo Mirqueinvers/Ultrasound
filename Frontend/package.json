@@ -2,7 +2,7 @@
   "name": "ultrasound",
   "private": true,
   "version": "1.0.5",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -34,20 +34,24 @@
     "publish": null
   },
   "dependencies": {
+    "@types/ws": "^8.18.1",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",
     "chart.js": "^4.5.1",
     "html2pdf.js": "^0.14.0",
+    "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
-    "react-to-print": "^3.2.0"
+    "react-to-print": "^3.2.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.10.1",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

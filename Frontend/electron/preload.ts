@@ -171,6 +171,28 @@ export interface WindowAPI {
   close: () => void;
 }
 
+export interface MobileHostStatus {
+  running: boolean;
+  port: number | null;
+  sessionId: string | null;
+  pairingCode: string | null;
+  startedAt: string | null;
+  clients: number;
+  addresses: string[];
+  httpUrl: string | null;
+  wsUrl: string | null;
+}
+
+export interface MobileHostAPI {
+  getStatus: () => Promise<MobileHostStatus>;
+  start: () => Promise<MobileHostStatus>;
+  stop: () => Promise<MobileHostStatus>;
+  restart: () => Promise<MobileHostStatus>;
+  setProfile: (profile: { organization?: string | null }) => Promise<MobileHostStatus>;
+  publishSync: (message: unknown) => Promise<MobileHostStatus>;
+  onSyncMessage: (handler: (message: unknown) => void) => () => void;
+}
+
 // ========== PROTOCOL API ==========
 
 export interface SavedProtocol {
@@ -291,6 +313,26 @@ const windowAPI: WindowAPI = {
   close: () => ipcRenderer.send("window:close"),
 };
 
+const mobileHostAPI: MobileHostAPI = {
+  getStatus: () => ipcRenderer.invoke("mobile-host:getStatus"),
+  start: () => ipcRenderer.invoke("mobile-host:start"),
+  stop: () => ipcRenderer.invoke("mobile-host:stop"),
+  restart: () => ipcRenderer.invoke("mobile-host:restart"),
+  setProfile: (profile) => ipcRenderer.invoke("mobile-host:setProfile", profile),
+  publishSync: (message) => ipcRenderer.invoke("mobile-host:publishSync", message),
+  onSyncMessage: (handler) => {
+    const listener = (_event: unknown, message: unknown) => {
+      handler(message);
+    };
+
+    ipcRenderer.on("mobile-host:sync-message", listener);
+
+    return () => {
+      ipcRenderer.removeListener("mobile-host:sync-message", listener);
+    };
+  },
+};
+
 const protocolAPI: ProtocolAPI = {
   getByResearchId: (id) => ipcRenderer.invoke("protocol:getByResearchId", id),
   savePrintOverrides: (data) => ipcRenderer.invoke("protocol:savePrintOverrides", data),
@@ -365,6 +407,7 @@ contextBridge.exposeInMainWorld("patientAPI", patientAPI);
 contextBridge.exposeInMainWorld("researchAPI", researchAPI);
 contextBridge.exposeInMainWorld("journalAPI", journalAPI);
 contextBridge.exposeInMainWorld("windowAPI", windowAPI);
+contextBridge.exposeInMainWorld("mobileHostAPI", mobileHostAPI);
 contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 contextBridge.exposeInMainWorld("fileAPI", fileAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);

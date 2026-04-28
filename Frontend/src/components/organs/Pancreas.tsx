@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@common";
 import { SizeRow, ButtonSelect, SelectWithTextarea, Fieldset } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -12,8 +12,13 @@ import {
   useConclusion,
 } from "@hooks";
 
-export const Pancreas: React.FC<PancreasProps> = ({ onChange }) => {
-  const [form, setForm] = useFormState(defaultPancreasState);
+export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
+  const initialValue = value ?? defaultPancreasState;
+  const [form, setForm] = useFormState(initialValue);
+
+  useEffect(() => {
+    setForm(value ?? defaultPancreasState);
+  }, [value, setForm]);
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "pancreas");
 

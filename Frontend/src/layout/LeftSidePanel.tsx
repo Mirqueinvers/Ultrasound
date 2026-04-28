@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 
+import { PROTOCOL_SELECTIONS } from "@/protocols";
+
 interface LeftSidePanelProps {
   activeSection: string;
   selectedStudy: string;
@@ -10,24 +12,6 @@ interface LeftSidePanelProps {
   selectedDirectoryItem?: string;
   onDirectoryItemSelect?: (item: string) => void;
 }
-
-const studiesList = [
-  "ОБП",
-  "Почки",
-  "ОМТ (Ж)",
-  "ОМТ (М)",
-  "Щитовидная железа",
-  "Плевральные полости",
-  "Слюнные железы",
-  "БЦА",
-  "УВНК",
-  "Молочные железы",
-  "Лимфоузлы",
-  "Органы мошонки",
-  "Детская диспансеризация",
-  "Мягких тканей",
-  "Мочевой пузырь",
-];
 
 const directoryItems = [
   "TI-RADS",
@@ -53,6 +37,8 @@ const obpNormsLabels: Record<string, string> = {
   "Нормы ОБП:Селезенка": "Селезенка",
 };
 
+const studiesList = PROTOCOL_SELECTIONS.map((protocol) => protocol.label);
+
 const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   activeSection,
   selectedStudy,
@@ -71,6 +57,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       onToggleStudy(study);
       return;
     }
+
     onStudySelect(study);
   };
 
@@ -79,6 +66,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       onDirectoryItemSelect(item);
       return;
     }
+
     handleStudyClick(item);
   };
 
@@ -90,6 +78,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
           selectedDirectoryItem.startsWith("Нормы ОБП:")
         );
       }
+
       return selectedDirectoryItem === study;
     }
 
@@ -101,22 +90,29 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   };
 
   const filteredStudies = useMemo(() => {
-    if (!searchQuery.trim()) return studiesList;
-    return studiesList.filter((study) =>
-      study.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    if (!searchQuery.trim()) {
+      return studiesList;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return studiesList.filter((study) => study.toLowerCase().includes(query));
   }, [searchQuery]);
 
   const filteredDirectoryItems = useMemo(() => {
-    if (!searchQuery.trim()) return directoryItems;
+    if (!searchQuery.trim()) {
+      return directoryItems;
+    }
+
     const query = searchQuery.toLowerCase();
 
     return directoryItems.filter((item) => {
-      if (item.toLowerCase().includes(query)) return true;
+      if (item.toLowerCase().includes(query)) {
+        return true;
+      }
 
       if (item === "Нормы ОБП") {
         return obpNormsSubItems.some((subItem) =>
-          obpNormsLabels[subItem].toLowerCase().includes(query)
+          obpNormsLabels[subItem].toLowerCase().includes(query),
         );
       }
 
@@ -125,10 +121,13 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   }, [searchQuery]);
 
   const filteredObpNormsSubItems = useMemo(() => {
-    if (!searchQuery.trim()) return obpNormsSubItems;
+    if (!searchQuery.trim()) {
+      return obpNormsSubItems;
+    }
+
     const query = searchQuery.toLowerCase();
     return obpNormsSubItems.filter((subItem) =>
-      obpNormsLabels[subItem].toLowerCase().includes(query)
+      obpNormsLabels[subItem].toLowerCase().includes(query),
     );
   }, [searchQuery]);
 
@@ -141,12 +140,8 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
         {activeSection === "uzi-protocols" ? (
           <div>
-            <h3 className="text-lg font-bold text-slate-800 m-0">
-              УЗИ исследования
-            </h3>
-            <p className="text-xs text-slate-500 m-0 mt-1">
-              Выберите тип протокола
-            </p>
+            <h3 className="text-lg font-bold text-slate-800 m-0">УЗИ исследования</h3>
+            <p className="text-xs text-slate-500 m-0 mt-1">Выберите тип протокола</p>
           </div>
         ) : activeSection === "directory" ? (
           <div>
@@ -168,7 +163,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                     : "Поиск в справочнике..."
                 }
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 className="w-full px-3 py-2 pl-9 pr-8 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white/80 backdrop-blur-sm"
               />
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
@@ -188,6 +183,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
               </div>
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={clearSearch}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
@@ -229,6 +225,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                 return (
                   <button
                     key={index}
+                    type="button"
                     onClick={() => handleStudyClick(study)}
                     className={`
                       group relative flex items-center justify-between px-3.5 py-3 rounded-xl
@@ -305,6 +302,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                 return (
                   <div key={index}>
                     <button
+                      type="button"
                       onClick={() => {
                         if (isObpNormsItem) {
                           setIsObpNormsExpanded((prev) => !prev);
@@ -350,6 +348,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                           return (
                             <button
                               key={subItem}
+                              type="button"
                               onClick={() => handleItemClick(subItem)}
                               className={`
                                 group relative w-full flex items-center px-3 py-2 rounded-lg
@@ -401,3 +400,4 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
 };
 
 export default LeftSidePanel;
+

@@ -41,6 +41,31 @@ export interface WindowAPI {
   focus: () => void;
 }
 
+export interface MobileHostStatus {
+  running: boolean;
+  port: number | null;
+  sessionId: string | null;
+  draftActive: boolean;
+  activeStudyLabel: string;
+  organization: string | null;
+  pairingCode: string | null;
+  startedAt: string | null;
+  clients: number;
+  addresses: string[];
+  httpUrl: string | null;
+  wsUrl: string | null;
+}
+
+export interface MobileHostAPI {
+  getStatus: () => Promise<MobileHostStatus>;
+  start: () => Promise<MobileHostStatus>;
+  stop: () => Promise<MobileHostStatus>;
+  restart: () => Promise<MobileHostStatus>;
+  setProfile: (profile: { organization?: string | null }) => Promise<MobileHostStatus>;
+  publishSync: (message: unknown) => Promise<MobileHostStatus>;
+  onSyncMessage: (handler: (message: unknown) => void) => () => void;
+}
+
 export interface PatientAPI {
   getById: (id: number) => Promise<any>;
   findOrCreate: (patientData: {
@@ -72,6 +97,7 @@ declare global {
   interface Window {
     authAPI: AuthAPI;
     windowAPI: WindowAPI;
+    mobileHostAPI: MobileHostAPI;
     patientAPI: PatientAPI;
     researchAPI: ResearchAPI;
   }

@@ -36,9 +36,14 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
+  const initialValue = value ?? defaultObpState;
+  const [form, setForm] = useState<ObpProtocol>(initialValue);
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
+
+  useEffect(() => {
+    setForm(value ?? defaultObpState);
+  }, [value, setForm]);
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);

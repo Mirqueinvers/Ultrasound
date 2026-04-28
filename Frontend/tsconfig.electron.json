@@ -10,6 +10,6 @@
     "strict": false,
     "noEmit": false
   },
-  "include": ["electron/**/*"],
-  "exclude": ["node_modules", "dist-electron", "src", "dist"]
+  "include": ["electron/**/*", "src/sync/**/*"],
+  "exclude": ["node_modules", "dist-electron", "dist"]
 }

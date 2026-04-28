@@ -143,6 +143,31 @@ export interface ResearchAPI {
   search: (query: string, limit?: number) => Promise<Research[]>;
 }
 
+export interface MobileHostStatus {
+  running: boolean;
+  port: number | null;
+  sessionId: string | null;
+  draftActive: boolean;
+  activeStudyLabel: string;
+  organization: string | null;
+  pairingCode: string | null;
+  startedAt: string | null;
+  clients: number;
+  addresses: string[];
+  httpUrl: string | null;
+  wsUrl: string | null;
+}
+
+export interface MobileHostAPI {
+  getStatus: () => Promise<MobileHostStatus>;
+  start: () => Promise<MobileHostStatus>;
+  stop: () => Promise<MobileHostStatus>;
+  restart: () => Promise<MobileHostStatus>;
+  setProfile: (profile: { organization?: string | null }) => Promise<MobileHostStatus>;
+  publishSync: (message: unknown) => Promise<MobileHostStatus>;
+  onSyncMessage: (handler: (message: unknown) => void) => () => void;
+}
+
 // ░░ Глобальное окно ░░
 
 declare global {
@@ -153,6 +178,7 @@ declare global {
     fileAPI: FileAPI;
     authAPI: any;
     windowAPI: any;
+    mobileHostAPI: MobileHostAPI;
   }
 }
 

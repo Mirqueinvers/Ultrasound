@@ -1,5 +1,16 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
+import {
+  createSyncTimestamp,
+  type MobileSyncWireMessage,
+} from "@/sync/mobileSync";
 
 interface ResearchContextType {
   patientFullName: string;
@@ -23,24 +34,155 @@ interface ResearchContextType {
 const ResearchContext = createContext<ResearchContextType | undefined>(undefined);
 
 export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const getCurrentDate = () => {
+  const getCurrentDate = useCallback(() => {
     const now = new Date();
     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
     return localDate.toISOString().slice(0, 10);
-  };
+  }, []);
 
-  const [patientFullName, setPatientFullName] = useState("");
-  const [patientDateOfBirth, setPatientDateOfBirth] = useState("");
-  const [researchDate, setResearchDate] = useState(getCurrentDate);
-  const [organization, setOrganization] = useState("");
+  const [patientFullName, setPatientFullNameState] = useState("");
+  const [patientDateOfBirth, setPatientDateOfBirthState] = useState("");
+  const [researchDate, setResearchDateState] = useState(getCurrentDate);
+  const [organization, setOrganizationState] = useState("");
   const [studiesData, setStudiesDataState] = useState<{ [studyType: string]: any }>({});
+
+  const publishSyncMessage = useCallback((message: MobileSyncWireMessage) => {
+    void window.mobileHostAPI?.publishSync(message);
+  }, []);
+
+  useEffect(() => {
+    if (!window.mobileHostAPI) {
+      return undefined;
+    }
+
+    return window.mobileHostAPI.onSyncMessage((message) => {
+      const syncMessage = message as MobileSyncWireMessage | undefined;
+      if (!syncMessage || typeof syncMessage !== "object" || !("type" in syncMessage)) {
+        return;
+      }
+
+      if (syncMessage.type === "sync:snapshot") {
+        const { header, studiesData: nextStudiesData } = syncMessage.state;
+        setPatientFullNameState(header.patientFullName);
+        setPatientDateOfBirthState(header.patientDateOfBirth);
+        setResearchDateState(header.researchDate);
+        setOrganizationState(header.organization);
+        setStudiesDataState({ ...nextStudiesData });
+        return;
+      }
+
+      if (syncMessage.type !== "sync:update") {
+        return;
+      }
+
+      if (syncMessage.fragment === "header") {
+        const { data } = syncMessage;
+        if (Object.prototype.hasOwnProperty.call(data, "patientFullName")) {
+          setPatientFullNameState(data.patientFullName ?? "");
+        }
+        if (Object.prototype.hasOwnProperty.call(data, "patientDateOfBirth")) {
+          setPatientDateOfBirthState(data.patientDateOfBirth ?? "");
+        }
+        if (Object.prototype.hasOwnProperty.call(data, "researchDate")) {
+          setResearchDateState(data.researchDate ?? getCurrentDate());
+        }
+        if (Object.prototype.hasOwnProperty.call(data, "organization")) {
+          setOrganizationState(data.organization ?? "");
+        }
+        return;
+      }
+
+      if (syncMessage.fragment === "studiesData") {
+        const data = syncMessage.data;
+
+        if (data.mode === "replace") {
+          setStudiesDataState({ ...data.studiesData });
+          return;
+        }
+
+        if (data.mode === "set") {
+          setStudiesDataState((prev) => ({
+            ...prev,
+            [data.studyType]: data.value,
+          }));
+          return;
+        }
+
+        setStudiesDataState((prev) => {
+          if (!(data.studyType in prev)) {
+            return prev;
+          }
+
+          const next = { ...prev };
+          delete next[data.studyType];
+          return next;
+        });
+      }
+    });
+  }, [getCurrentDate]);
 
   const setStudyData = useCallback((studyType: string, data: any) => {
     setStudiesDataState((prev) => ({
       ...prev,
       [studyType]: data,
     }));
-  }, []);
+
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "studiesData",
+      data: {
+        mode: "set",
+        studyType,
+        value: data,
+      },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
+
+  const setPatientFullName = useCallback((value: string) => {
+    setPatientFullNameState(value);
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "header",
+      data: { patientFullName: value },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
+
+  const setPatientDateOfBirth = useCallback((value: string) => {
+    setPatientDateOfBirthState(value);
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "header",
+      data: { patientDateOfBirth: value },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
+
+  const setResearchDate = useCallback((value: string) => {
+    setResearchDateState(value);
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "header",
+      data: { researchDate: value },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
+
+  const setOrganization = useCallback((value: string) => {
+    setOrganizationState(value);
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "header",
+      data: { organization: value },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
 
   const clearStudyData = useCallback((studyType: string) => {
     setStudiesDataState((prev) => {
@@ -52,18 +194,52 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       delete next[studyType];
       return next;
     });
-  }, []);
+
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "studiesData",
+      data: {
+        mode: "remove",
+        studyType,
+      },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
 
   const clearStudiesData = useCallback(() => {
     setStudiesDataState({});
-  }, []);
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "studiesData",
+      data: {
+        mode: "replace",
+        studiesData: {},
+      },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [publishSyncMessage]);
 
   const clearHeaderData = useCallback(() => {
-    setPatientFullName("");
-    setPatientDateOfBirth("");
-    setResearchDate(getCurrentDate());
-    setOrganization("");
-  }, []);
+        setPatientFullNameState("");
+        setPatientDateOfBirthState("");
+        setResearchDateState(getCurrentDate());
+        setOrganizationState("");
+
+    publishSyncMessage({
+      type: "sync:update",
+      fragment: "header",
+      data: {
+        patientFullName: "",
+        patientDateOfBirth: "",
+        researchDate: getCurrentDate(),
+        organization: "",
+      },
+      origin: "desktop",
+      updatedAt: createSyncTimestamp(),
+    });
+  }, [getCurrentDate, publishSyncMessage]);
 
   const contextValue = useMemo(
     () => ({

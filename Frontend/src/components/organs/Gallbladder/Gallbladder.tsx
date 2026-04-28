@@ -1,5 +1,5 @@
 // src/components/organs/Gallbladder/Gallbladder.tsx 
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@common";
 import { SizeRow, Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -22,10 +22,24 @@ import { GallbladderConcretions } from "./GallbladderConcretions";
 import { GallbladderPolyps } from "./GallbladderPolyps";
 
 
-export const Gallbladder: React.FC<GallbladderProps> = ({ onChange }) => {
-  const [form, setForm] = useFormState<GallbladderProtocol>(
-    defaultGallbladderState,
-  );
+export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => {
+  const initialValue: GallbladderProtocol = {
+    ...defaultGallbladderState,
+    ...(value || {}),
+    concretionsList: value?.concretionsList || [],
+    polypsList: value?.polypsList || [],
+  };
+
+  const [form, setForm] = useFormState<GallbladderProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm({
+      ...defaultGallbladderState,
+      ...(value || {}),
+      concretionsList: value?.concretionsList || [],
+      polypsList: value?.polypsList || [],
+    });
+  }, [value, setForm]);
 
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "gallbladder");
