@@ -533,7 +533,7 @@ class MobileHostService {
       return;
     }
 
-    if (message.command === "draft:saved" || message.command === "draft:print") {
+    if (message.command === "draft:saved") {
       return;
     }
 
