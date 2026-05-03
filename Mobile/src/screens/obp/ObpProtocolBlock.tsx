@@ -5,6 +5,13 @@ import {
   FieldEditorModal,
   type FieldEditorOption,
 } from "../../components/FieldEditorModal";
+import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
+import { ProtocolCard } from "../../components/protocol/ProtocolCard";
+import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
+import {
+  ProtocolOrganHeader,
+  ProtocolSectionHeader,
+} from "../../components/protocol/ProtocolHeaders";
 import type {
   GallbladderConcretionDraft,
   GallbladderDraft,
@@ -405,6 +412,10 @@ export function ObpProtocolBlock({
 
   const hasValue = (currentValue: string) => currentValue.trim().length > 0;
 
+  const renderInlineSectionHeader = (label: string, note?: string) => (
+    <ProtocolSectionHeader title={label} note={note} />
+  );
+
   const saveEditor = (value: string) => {
     Keyboard.dismiss();
     editorState?.onSave(value);
@@ -503,12 +514,7 @@ export function ObpProtocolBlock({
         onSave={saveEditor}
       />
 
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Печень</Text>
-        <Text style={styles.obpMobileHintText}>
-          Нажимайте на поля, чтобы открыть полноэкранный ввод нужного типа.
-        </Text>
-      </View>
+      <ProtocolOrganHeader title="Печень" />
 
       <View style={styles.obpFieldList}>
         {liverFields.map((field) => {
@@ -519,6 +525,190 @@ export function ObpProtocolBlock({
           const currentValue = obpDraft.liver[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
           const isReadOnly = field.key === "rightLobeTotal" || field.key === "leftLobeTotal";
+
+          if (field.key === "rightLobeAP") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Размеры")}
+                <Pressable
+                  onPress={() => {
+                    if (isReadOnly) {
+                      return;
+                    }
+
+                    openEditor({
+                      title: field.label,
+                      mode: field.kind,
+                      value: currentValue,
+                      placeholder: field.placeholder,
+                      multiline: field.multiline,
+                      options: field.options,
+                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                    });
+                  }}
+                  style={({ pressed }) => [
+                    styles.obpFieldRow,
+                    hasValue(currentValue) && styles.obpFieldRowFilled,
+                    isReadOnly && styles.obpFieldRowReadonly,
+                    pressed && !isReadOnly && styles.obpFieldRowPressed,
+                  ]}
+                >
+                  <View style={styles.obpFieldRowContent}>
+                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                  </View>
+
+                  <Text style={styles.obpFieldType}>
+                    {isReadOnly
+                      ? "auto"
+                      : field.kind === "number"
+                        ? "numpad"
+                        : field.kind === "select"
+                          ? "select"
+                          : "text"}
+                  </Text>
+                </Pressable>
+              </Fragment>
+            );
+          }
+
+          if (field.key === "echogenicity") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Структура")}
+                <Pressable
+                  onPress={() => {
+                    if (isReadOnly) {
+                      return;
+                    }
+
+                    openEditor({
+                      title: field.label,
+                      mode: field.kind,
+                      value: currentValue,
+                      placeholder: field.placeholder,
+                      multiline: field.multiline,
+                      options: field.options,
+                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                    });
+                  }}
+                  style={({ pressed }) => [
+                    styles.obpFieldRow,
+                    hasValue(currentValue) && styles.obpFieldRowFilled,
+                    isReadOnly && styles.obpFieldRowReadonly,
+                    pressed && !isReadOnly && styles.obpFieldRowPressed,
+                  ]}
+                >
+                  <View style={styles.obpFieldRowContent}>
+                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                  </View>
+
+                  <Text style={styles.obpFieldType}>
+                    {isReadOnly
+                      ? "auto"
+                      : field.kind === "number"
+                        ? "numpad"
+                        : field.kind === "select"
+                          ? "select"
+                          : "text"}
+                  </Text>
+                </Pressable>
+              </Fragment>
+            );
+          }
+
+          if (field.key === "vascularPattern") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Сосуды")}
+                <Pressable
+                  onPress={() => {
+                    if (isReadOnly) {
+                      return;
+                    }
+
+                    openEditor({
+                      title: field.label,
+                      mode: field.kind,
+                      value: currentValue,
+                      placeholder: field.placeholder,
+                      multiline: field.multiline,
+                      options: field.options,
+                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                    });
+                  }}
+                  style={({ pressed }) => [
+                    styles.obpFieldRow,
+                    hasValue(currentValue) && styles.obpFieldRowFilled,
+                    isReadOnly && styles.obpFieldRowReadonly,
+                    pressed && !isReadOnly && styles.obpFieldRowPressed,
+                  ]}
+                >
+                  <View style={styles.obpFieldRowContent}>
+                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                  </View>
+
+                  <Text style={styles.obpFieldType}>
+                    {isReadOnly
+                      ? "auto"
+                      : field.kind === "number"
+                        ? "numpad"
+                        : field.kind === "select"
+                          ? "select"
+                          : "text"}
+                  </Text>
+                </Pressable>
+              </Fragment>
+            );
+          }
+
+          if (field.key === "additional") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Дополнительно")}
+                <Pressable
+                  onPress={() => {
+                    if (isReadOnly) {
+                      return;
+                    }
+
+                    openEditor({
+                      title: field.label,
+                      mode: field.kind,
+                      value: currentValue,
+                      placeholder: field.placeholder,
+                      multiline: field.multiline,
+                      options: field.options,
+                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                    });
+                  }}
+                  style={({ pressed }) => [
+                    styles.obpFieldRow,
+                    hasValue(currentValue) && styles.obpFieldRowFilled,
+                    isReadOnly && styles.obpFieldRowReadonly,
+                    pressed && !isReadOnly && styles.obpFieldRowPressed,
+                  ]}
+                >
+                  <View style={styles.obpFieldRowContent}>
+                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                  </View>
+
+                  <Text style={styles.obpFieldType}>
+                    {isReadOnly
+                      ? "auto"
+                      : field.kind === "number"
+                        ? "numpad"
+                        : field.kind === "select"
+                          ? "select"
+                          : "text"}
+                  </Text>
+                </Pressable>
+              </Fragment>
+            );
+          }
 
           return (
             <Pressable
@@ -564,12 +754,7 @@ export function ObpProtocolBlock({
         })}
       </View>
 
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Желчный пузырь</Text>
-        <Text style={styles.obpMobileHintText}>
-          Нажимайте на поля, чтобы открыть полноэкранный ввод нужного типа.
-        </Text>
-      </View>
+      <ProtocolOrganHeader title="Желчный пузырь" />
 
       <View style={styles.obpFieldList}>
         {gallbladderFields.map((field) => {
@@ -615,52 +800,73 @@ export function ObpProtocolBlock({
             </Pressable>
           );
 
+          if (field.key === "position") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Положение")}
+                {fieldRow}
+              </Fragment>
+            );
+          }
+
+          if (field.key === "length") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Размеры")}
+                {fieldRow}
+              </Fragment>
+            );
+          }
+
+          if (field.key === "shape") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Форма")}
+                {fieldRow}
+              </Fragment>
+            );
+          }
+
+          if (field.key === "contentType") {
+            return (
+              <Fragment key={field.key}>
+                {renderInlineSectionHeader("Содержимое")}
+                {fieldRow}
+              </Fragment>
+            );
+          }
+
           if (field.key === 'concretions') {
             return (
               <Fragment key={field.key}>
                 {fieldRow}
                 {!isCholecystectomy && hasGallbladderConcretions && (
-                  <View style={styles.sectionCard}>
-                    <View style={styles.sectionCardHeader}>
-                      <View>
-                        <Text style={styles.sectionLabel}>Конкременты</Text>
-                        <Text style={styles.sectionDesktopKey}>
-                          {`${activeGallbladder.concretionsList.length} items`}
-                        </Text>
-                      </View>
-                    </View>
+                  <View style={styles.obpFieldList}>
+                    {renderInlineSectionHeader(
+                      "Конкременты",
+                      `${activeGallbladder.concretionsList.length} items`,
+                    )}
 
                     <View style={styles.obpFieldList}>
                       {activeGallbladder.concretionsList.length === 0 ? (
                         <Text style={styles.helperText}>Добавьте хотя бы один конкремент.</Text>
                       ) : (
                         activeGallbladder.concretionsList.map((item, index) => (
-                          <View key={`concretion-${index}`} style={styles.sectionCard}>
-                            <View style={styles.sectionCardHeader}>
-                              <View>
-                                <Text style={styles.sectionLabel}>Конкремент #{index + 1}</Text>
-                                <Text style={styles.sectionDesktopKey}>
-                                  Нажмите для редактирования
-                                </Text>
-                              </View>
-                              <Pressable
-                                onPress={() =>
-                                  onUpdateGallbladderConcretionsList(
-                                    activeGallbladder.concretionsList.filter(
-                                      (_, itemIndex) => itemIndex !== index,
-                                    ),
-                                  )
-                                }
-                                style={({ pressed }) => [
-                                  styles.secondaryButton,
-                                  { paddingVertical: 8, paddingHorizontal: 10 },
-                                  pressed && styles.buttonPressed,
-                                ]}
-                              >
-                                <Text style={styles.secondaryButtonText}>Удалить</Text>
-                              </Pressable>
-                            </View>
-
+                          <ProtocolCard
+                            key={`concretion-${index}`}
+                            title={`Конкремент #${index + 1}`}
+                            subtitle="Нажмите для редактирования"
+                            actionLabel="Удалить"
+                            actionVariant="danger"
+                            onActionPress={() =>
+                              onUpdateGallbladderConcretionsList(
+                                activeGallbladder.concretionsList.filter(
+                                  (_, itemIndex) => itemIndex !== index,
+                                ),
+                              )
+                            }
+                            variant="item"
+                          >
                             <View style={styles.obpFieldList}>
                               {gallbladderConcretionFields.map((itemField) => {
                                 const currentItemValue = item[itemField.key];
@@ -705,25 +911,14 @@ export function ObpProtocolBlock({
                                 );
                               })}
                             </View>
-                          </View>
+                          </ProtocolCard>
                         ))
                       )}
 
-                      <Pressable
+                      <ProtocolActionButton
+                        label="+ Конкремент"
                         onPress={onAddGallbladderConcretion}
-                        style={({ pressed }) => [
-                          styles.primaryButton,
-                          {
-                            minWidth: 0,
-                            paddingVertical: 10,
-                            paddingHorizontal: 12,
-                            alignSelf: 'flex-start',
-                          },
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.primaryButtonText}>+ Конкремент</Text>
-                      </Pressable>
+                      />
                     </View>
                   </View>
                 )}
@@ -736,47 +931,32 @@ export function ObpProtocolBlock({
               <Fragment key={field.key}>
                 {fieldRow}
                 {!isCholecystectomy && hasGallbladderPolyps && (
-                  <View style={styles.sectionCard}>
-                    <View style={styles.sectionCardHeader}>
-                      <View>
-                        <Text style={styles.sectionLabel}>Полипы</Text>
-                        <Text style={styles.sectionDesktopKey}>
-                          {`${activeGallbladder.polypsList.length} items`}
-                        </Text>
-                      </View>
-                    </View>
+                  <View style={styles.obpFieldList}>
+                    {renderInlineSectionHeader(
+                      "Полипы",
+                      `${activeGallbladder.polypsList.length} items`,
+                    )}
 
                     <View style={styles.obpFieldList}>
                       {activeGallbladder.polypsList.length === 0 ? (
                         <Text style={styles.helperText}>Добавьте хотя бы один полип.</Text>
                       ) : (
                         activeGallbladder.polypsList.map((item, index) => (
-                          <View key={`polyp-${index}`} style={styles.sectionCard}>
-                            <View style={styles.sectionCardHeader}>
-                              <View>
-                                <Text style={styles.sectionLabel}>Полип #{index + 1}</Text>
-                                <Text style={styles.sectionDesktopKey}>
-                                  Нажмите для редактирования
-                                </Text>
-                              </View>
-                              <Pressable
-                                onPress={() =>
-                                  onUpdateGallbladderPolypsList(
-                                    activeGallbladder.polypsList.filter(
-                                      (_, itemIndex) => itemIndex !== index,
-                                    ),
-                                  )
-                                }
-                                style={({ pressed }) => [
-                                  styles.secondaryButton,
-                                  { paddingVertical: 8, paddingHorizontal: 10 },
-                                  pressed && styles.buttonPressed,
-                                ]}
-                              >
-                                <Text style={styles.secondaryButtonText}>Удалить</Text>
-                              </Pressable>
-                            </View>
-
+                          <ProtocolCard
+                            key={`polyp-${index}`}
+                            title={`Полип #${index + 1}`}
+                            subtitle="Нажмите для редактирования"
+                            actionLabel="Удалить"
+                            actionVariant="danger"
+                            onActionPress={() =>
+                              onUpdateGallbladderPolypsList(
+                                activeGallbladder.polypsList.filter(
+                                  (_, itemIndex) => itemIndex !== index,
+                                ),
+                              )
+                            }
+                            variant="item"
+                          >
                             <View style={styles.obpFieldList}>
                               {gallbladderPolypFields.map((itemField) => {
                                 const currentItemValue = item[itemField.key];
@@ -817,25 +997,11 @@ export function ObpProtocolBlock({
                                 );
                               })}
                             </View>
-                          </View>
+                          </ProtocolCard>
                         ))
                       )}
 
-                      <Pressable
-                        onPress={onAddGallbladderPolyp}
-                        style={({ pressed }) => [
-                          styles.primaryButton,
-                          {
-                            minWidth: 0,
-                            paddingVertical: 10,
-                            paddingHorizontal: 12,
-                            alignSelf: 'flex-start',
-                          },
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.primaryButtonText}>+ Полип</Text>
-                      </Pressable>
+                      <ProtocolActionButton label="+ Полип" onPress={onAddGallbladderPolyp} />
                     </View>
                   </View>
                 )}
@@ -846,12 +1012,7 @@ export function ObpProtocolBlock({
           return fieldRow;
         })}
       </View>
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Поджелудочная железа</Text>
-        <Text style={styles.obpMobileHintText}>
-          Нажимайте на поля, чтобы открыть полноэкранный ввод нужного типа.
-        </Text>
-      </View>
+      <ProtocolOrganHeader title="Поджелудочная железа" />
 
       <View style={styles.obpFieldList}>
         {pancreasFields.map((field) => {
@@ -863,48 +1024,49 @@ export function ObpProtocolBlock({
           const displayValue = currentValue || "Нажмите для ввода";
 
           return (
-            <Pressable
-              key={field.key}
-              onPress={() => {
-                openEditor({
-                  title: field.label,
-                  mode: field.kind,
-                  value: currentValue,
-                  placeholder: field.placeholder,
-                  multiline: field.multiline,
-                  options: field.options,
-                  onSave: (nextValue) => updatePancreasFieldValue(field.key, nextValue),
-                });
-              }}
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                hasValue(currentValue) && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-              </View>
+            <Fragment key={field.key}>
+              {field.key === "head" && renderInlineSectionHeader("Размеры")}
+              {field.key === "echogenicity" && renderInlineSectionHeader("Структура")}
+              {field.key === "wirsungDuct" && renderInlineSectionHeader("Вирсунгов проток")}
+              {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
-              <Text style={styles.obpFieldType}>
-                {field.kind === "number"
-                  ? "numpad"
-                  : field.kind === "select"
-                    ? "select"
-                    : "text"}
-              </Text>
-            </Pressable>
+              <Pressable
+                onPress={() => {
+                  openEditor({
+                    title: field.label,
+                    mode: field.kind,
+                    value: currentValue,
+                    placeholder: field.placeholder,
+                    multiline: field.multiline,
+                    options: field.options,
+                    onSave: (nextValue) => updatePancreasFieldValue(field.key, nextValue),
+                  });
+                }}
+                style={({ pressed }) => [
+                  styles.obpFieldRow,
+                  hasValue(currentValue) && styles.obpFieldRowFilled,
+                  pressed && styles.obpFieldRowPressed,
+                ]}
+              >
+                <View style={styles.obpFieldRowContent}>
+                  <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                  <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                </View>
+
+                <Text style={styles.obpFieldType}>
+                  {field.kind === "number"
+                    ? "numpad"
+                    : field.kind === "select"
+                      ? "select"
+                      : "text"}
+                </Text>
+              </Pressable>
+            </Fragment>
           );
         })}
       </View>
 
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Селезёнка</Text>
-        <Text style={styles.obpMobileHintText}>
-          Нажимайте на поля, чтобы открыть полноэкранный ввод нужного типа.
-        </Text>
-      </View>
+      <ProtocolOrganHeader title="Селезёнка" />
 
       <View style={styles.obpFieldList}>
         {spleenFields.map((field) => {
@@ -916,48 +1078,50 @@ export function ObpProtocolBlock({
           const displayValue = currentValue || "Нажмите для ввода";
 
           return (
-            <Pressable
-              key={field.key}
-              onPress={() => {
-                openEditor({
-                  title: field.label,
-                  mode: field.kind,
-                  value: currentValue,
-                  placeholder: field.placeholder,
-                  multiline: field.multiline,
-                  options: field.options,
-                  onSave: (nextValue) => updateSpleenFieldValue(field.key, nextValue),
-                });
-              }}
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                hasValue(currentValue) && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-              </View>
+            <Fragment key={field.key}>
+              {field.key === "position" && renderInlineSectionHeader("Положение")}
+              {field.key === "length" && renderInlineSectionHeader("Размеры")}
+              {field.key === "echogenicity" && renderInlineSectionHeader("Структура")}
+              {field.key === "splenicVein" && renderInlineSectionHeader("Сосуды")}
+              {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
-              <Text style={styles.obpFieldType}>
-                {field.kind === "number"
-                  ? "numpad"
-                  : field.kind === "select"
-                    ? "select"
-                    : "text"}
-              </Text>
-            </Pressable>
+              <Pressable
+                onPress={() => {
+                  openEditor({
+                    title: field.label,
+                    mode: field.kind,
+                    value: currentValue,
+                    placeholder: field.placeholder,
+                    multiline: field.multiline,
+                    options: field.options,
+                    onSave: (nextValue) => updateSpleenFieldValue(field.key, nextValue),
+                  });
+                }}
+                style={({ pressed }) => [
+                  styles.obpFieldRow,
+                  hasValue(currentValue) && styles.obpFieldRowFilled,
+                  pressed && styles.obpFieldRowPressed,
+                ]}
+              >
+                <View style={styles.obpFieldRowContent}>
+                  <Text style={styles.obpFieldLabel}>{field.label}</Text>
+                  <Text style={styles.obpFieldValue}>{displayValue}</Text>
+                </View>
+
+                <Text style={styles.obpFieldType}>
+                  {field.kind === "number"
+                    ? "numpad"
+                    : field.kind === "select"
+                      ? "select"
+                      : "text"}
+                </Text>
+              </Pressable>
+            </Fragment>
           );
         })}
       </View>
 
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Свободная жидкость</Text>
-        <Text style={styles.obpMobileHintText}>
-          Укажите наличие свободной жидкости и её описание.
-        </Text>
-      </View>
+      <ProtocolOrganHeader title="Свободная жидкость" />
 
       <View style={styles.obpFieldList}>
         <Pressable
@@ -1014,15 +1178,14 @@ export function ObpProtocolBlock({
         )}
       </View>
 
-      <View style={styles.sectionCard}>
-        <View style={styles.obpMobileHintCard}>
-          <Text style={styles.obpMobileHintTitle}>Итоговое заключение</Text>
-          <Text style={styles.obpMobileHintText}>
-            Нажмите на поле заключения, чтобы открыть образцы и быстро вставить готовую формулировку.
-          </Text>
-        </View>
+      <View style={styles.obpFieldList}>
+        <ProtocolOrganHeader title="Итоговое заключение" />
 
-        <Pressable
+        <ProtocolFieldRow
+          label={obpFinalFields[2].label}
+          value={obpDraft.conclusion || "Нажмите для ввода"}
+          typeLabel="text"
+          filled={hasValue(obpDraft.conclusion)}
           onPress={() => {
             openEditor({
               title: obpFinalFields[2].label,
@@ -1033,22 +1196,13 @@ export function ObpProtocolBlock({
               onSave: onUpdateConclusionField,
             });
           }}
-          style={({ pressed }) => [
-            styles.obpFieldRow,
-            hasValue(obpDraft.conclusion) && styles.obpFieldRowFilled,
-            pressed && styles.obpFieldRowPressed,
-          ]}
-        >
-          <View style={styles.obpFieldRowContent}>
-            <Text style={styles.obpFieldLabel}>{obpFinalFields[2].label}</Text>
-            <Text style={styles.obpFieldValue}>
-              {obpDraft.conclusion || "Нажмите для ввода"}
-            </Text>
-          </View>
-          <Text style={styles.obpFieldType}>text</Text>
-        </Pressable>
+        />
 
-        <Pressable
+        <ProtocolFieldRow
+          label={obpFinalFields[3].label}
+          value={obpDraft.recommendations || "Нажмите для ввода"}
+          typeLabel="text"
+          filled={hasValue(obpDraft.recommendations)}
           onPress={() => {
             openEditor({
               title: obpFinalFields[3].label,
@@ -1059,20 +1213,7 @@ export function ObpProtocolBlock({
               onSave: onUpdateRecommendationsField,
             });
           }}
-          style={({ pressed }) => [
-            styles.obpFieldRow,
-            hasValue(obpDraft.recommendations) && styles.obpFieldRowFilled,
-            pressed && styles.obpFieldRowPressed,
-          ]}
-        >
-          <View style={styles.obpFieldRowContent}>
-            <Text style={styles.obpFieldLabel}>{obpFinalFields[3].label}</Text>
-            <Text style={styles.obpFieldValue}>
-              {obpDraft.recommendations || "Нажмите для ввода"}
-            </Text>
-          </View>
-          <Text style={styles.obpFieldType}>text</Text>
-        </Pressable>
+        />
       </View>
     </View>
   );

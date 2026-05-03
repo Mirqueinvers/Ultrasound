@@ -1,5 +1,5 @@
 // /components/organs/UrinaryBladder.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -18,6 +18,13 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   };
 
   const [form, setForm] = useFormState<UrinaryBladderProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm({
+      ...defaultUrinaryBladderState,
+      ...(value ?? {}),
+    });
+  }, [value, setForm]);
 
   const lengthFocus = useFieldFocus("urinaryBladder", "length");
   const widthFocus = useFieldFocus("urinaryBladder", "width");

@@ -26,9 +26,14 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const valueSignature = JSON.stringify(value ?? defaultKidneyStudyState);
   const [form, setForm] = useState<KidneyStudyProtocol>(
     value ?? defaultKidneyStudyState
   );
+
+  useEffect(() => {
+    setForm(value ?? defaultKidneyStudyState);
+  }, [valueSignature]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

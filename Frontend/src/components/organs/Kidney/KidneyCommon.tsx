@@ -1,5 +1,5 @@
 // /components/print/organs/kidney/KidneyCommon.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -15,6 +15,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   value,
   onChange,
 }) => {
+  const valueSignature = JSON.stringify(value ?? defaultKidneyState);
   const initialValue: KidneyProtocol = {
     ...defaultKidneyState,
     ...(value || {}),
@@ -29,6 +30,22 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   };
 
   const [form, setForm] = useFormState<KidneyProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm({
+      ...defaultKidneyState,
+      ...(value || {}),
+      parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
+      parenchymaCystslist: value?.parenchymaCystslist || [],
+      parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
+      parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
+      pcsConcrementslist: value?.pcsConcrementslist || [],
+      pcsCystslist: value?.pcsCystslist || [],
+      pcsMultipleCysts: value?.pcsMultipleCysts || false,
+      pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
+    });
+  }, [valueSignature, setForm]);
+
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const organName = side === "left" ? "leftKidney" : "rightKidney";

@@ -23,6 +23,14 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   };
 
   const [form, setForm] = useFormState<UterusProtocol>(initialValue);
+  useEffect(() => {
+    setForm({
+      ...defaultUterusState,
+      ...(value || {}),
+      myomaNodesList: value?.myomaNodesList || [],
+    });
+  }, [value, setForm]);
+
   const updateField = useFieldUpdate(form, setForm, onChange);
   useConclusion(setForm, "uterus");
 

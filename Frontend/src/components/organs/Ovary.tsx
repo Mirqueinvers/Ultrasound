@@ -22,6 +22,13 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   };
 
   const [form, setForm] = useFormState<OvaryProtocol>(initialValue);
+  useEffect(() => {
+    setForm({
+      ...defaultOvaryState,
+      ...(value || {}),
+    });
+  }, [value, setForm]);
+
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const organName = side === "left" ? "leftOvary" : "rightOvary";

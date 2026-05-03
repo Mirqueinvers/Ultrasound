@@ -50,6 +50,22 @@ import {
   type SpleenDraft,
 } from "./src/shared/obpDraft";
 import {
+  createEmptyKidneyConcrementDraft,
+  createEmptyKidneyCystDraft,
+  createEmptyKidneyDraft,
+  createEmptyKidneyStudyDraft,
+  createEmptyUrinaryBladderDraft,
+  type KidneyDraft,
+  type KidneyStudyDraft,
+  type KidneyConcrementDraft,
+  type KidneyCystDraft,
+  type UrinaryBladderDraft,
+} from "./src/shared/kidneyDraft";
+import {
+  createEmptyOmtFemaleDraft,
+  type OmtFemaleDraft,
+} from "./src/shared/omtFemaleDraft";
+import {
   createSyncTimestamp,
   type MobileSyncSnapshot,
   type MobileSyncWireMessage,
@@ -96,7 +112,7 @@ function parseMobileSyncPayload(raw: string): { host: string; code: string } | n
   }
 }
 
-type MobileStudyData = StudyDraft | ObpDraft;
+type MobileStudyData = StudyDraft | ObpDraft | KidneyStudyDraft | OmtFemaleDraft;
 
 function isObpDraft(value: unknown): value is ObpDraft {
   return Boolean(
@@ -135,6 +151,112 @@ function normalizeObpDraft(value: unknown): ObpDraft {
   };
 }
 
+function normalizeKidneyDraft(value: unknown): KidneyStudyDraft {
+  const base = createEmptyKidneyStudyDraft();
+  const source = value && typeof value === "object" ? (value as Partial<KidneyStudyDraft>) : {};
+
+  const normalizeKidneySide = (kidney: unknown): KidneyDraft => {
+    const sourceKidney =
+      kidney && typeof kidney === "object" ? (kidney as Partial<KidneyDraft>) : {};
+
+    return {
+      ...createEmptyKidneyDraft(),
+      ...sourceKidney,
+      parenchymaConcrementslist: sourceKidney.parenchymaConcrementslist ?? [],
+      parenchymaCystslist: sourceKidney.parenchymaCystslist ?? [],
+      pcsConcrementslist: sourceKidney.pcsConcrementslist ?? [],
+      pcsCystslist: sourceKidney.pcsCystslist ?? [],
+    };
+  };
+
+  const normalizeBladder = (bladder: unknown): UrinaryBladderDraft => {
+    const sourceBladder =
+      bladder && typeof bladder === "object" ? (bladder as Partial<UrinaryBladderDraft>) : {};
+
+    return {
+      ...createEmptyUrinaryBladderDraft(),
+      ...sourceBladder,
+    };
+  };
+
+  return {
+    ...base,
+    ...source,
+    rightKidney: source.rightKidney ? normalizeKidneySide(source.rightKidney) : null,
+    leftKidney: source.leftKidney ? normalizeKidneySide(source.leftKidney) : null,
+    urinaryBladder: source.urinaryBladder ? normalizeBladder(source.urinaryBladder) : null,
+  };
+}
+
+function normalizeOmtFemaleDraft(value: unknown): OmtFemaleDraft {
+  const base = createEmptyOmtFemaleDraft();
+  const source = value && typeof value === "object" ? (value as Partial<OmtFemaleDraft>) : {};
+
+  const normalizeUterusNode = (node: unknown) => {
+    const sourceNode = node && typeof node === "object" ? (node as Partial<OmtFemaleDraft["uterus"]["myomaNodesList"][number]>) : {};
+    return {
+      number: typeof sourceNode.number === "number" ? sourceNode.number : 1,
+      wallLocation: sourceNode.wallLocation ?? "",
+      layerType: sourceNode.layerType ?? "",
+      size1: sourceNode.size1 ?? "",
+      size2: sourceNode.size2 ?? "",
+      contourClarity: sourceNode.contourClarity ?? "",
+      contourEvenness: sourceNode.contourEvenness ?? "",
+      echogenicity: sourceNode.echogenicity ?? "",
+      structure: sourceNode.structure ?? "",
+      cavityImpact: sourceNode.cavityImpact ?? "",
+      bloodFlow: sourceNode.bloodFlow ?? "",
+      comment: sourceNode.comment ?? "",
+    };
+  };
+
+  const normalizeOvary = (ovary: unknown): OmtFemaleDraft["leftOvary"] => {
+    const sourceOvary = ovary && typeof ovary === "object" ? (ovary as Partial<OmtFemaleDraft["leftOvary"]>) : {};
+
+    return {
+      ...createEmptyOmtFemaleDraft().leftOvary,
+      ...sourceOvary,
+      cystsList: sourceOvary.cystsList?.length
+        ? sourceOvary.cystsList.map((item) => ({
+            size: item.size ?? "",
+          }))
+        : [],
+    };
+  };
+
+  const normalizeBladder = (
+    bladder: unknown,
+  ): OmtFemaleDraft["urinaryBladder"] => {
+    const sourceBladder =
+      bladder && typeof bladder === "object" ? (bladder as Partial<OmtFemaleDraft["urinaryBladder"]>) : {};
+
+    return {
+      ...createEmptyOmtFemaleDraft().urinaryBladder,
+      ...sourceBladder,
+    };
+  };
+
+  const uterusSource =
+    source.uterus && typeof source.uterus === "object"
+      ? (source.uterus as Partial<OmtFemaleDraft["uterus"]>)
+      : {};
+
+  return {
+    ...base,
+    ...source,
+    uterus: {
+      ...base.uterus,
+      ...uterusSource,
+      myomaNodesList: uterusSource.myomaNodesList?.length
+        ? uterusSource.myomaNodesList.map((node) => normalizeUterusNode(node))
+        : [],
+    },
+    leftOvary: normalizeOvary(source.leftOvary),
+    rightOvary: normalizeOvary(source.rightOvary),
+    urinaryBladder: normalizeBladder(source.urinaryBladder),
+  };
+}
+
 function buildStudiesData(
   snapshot: MobileSyncSnapshot,
 ): Record<string, MobileStudyData> {
@@ -147,15 +269,40 @@ function buildStudiesData(
         return;
       }
 
-      const draft = value as Partial<StudyDraft>;
-      result[studyType] = {
-        general: draft.general ?? "",
-        sections: draft.sections ?? {},
+    if (studyType === "Почки") {
+      result[studyType] = normalizeKidneyDraft(value);
+      return;
+    }
+
+    if (studyType === "ОМТ (Ж)") {
+      result[studyType] = normalizeOmtFemaleDraft(value);
+      return;
+    }
+
+    const draft = value as Partial<StudyDraft>;
+    result[studyType] = {
+      general: draft.general ?? "",
+      sections: draft.sections ?? {},
       };
       return;
     }
 
-    result[studyType] = studyType === "ОБП" ? createEmptyObpDraft() : createEmptyStudyDraft();
+    if (studyType === "ОБП") {
+      result[studyType] = createEmptyObpDraft();
+      return;
+    }
+
+    if (studyType === "Почки") {
+      result[studyType] = createEmptyKidneyStudyDraft();
+      return;
+    }
+
+    if (studyType === "ОМТ (Ж)") {
+      result[studyType] = createEmptyOmtFemaleDraft();
+      return;
+    }
+
+    result[studyType] = createEmptyStudyDraft();
   });
 
   return result;
@@ -259,6 +406,22 @@ export default function App() {
     () => buildStudiesData(snapshot),
     [snapshot.studiesData],
   );
+
+  const createEmptyStudyValueForLabel = (label: string): MobileStudyData => {
+    if (label === "ОБП") {
+      return createEmptyObpDraft();
+    }
+
+    if (label === "Почки") {
+      return createEmptyKidneyStudyDraft();
+    }
+
+    if (label === "ОМТ (Ж)") {
+      return createEmptyOmtFemaleDraft();
+    }
+
+    return createEmptyStudyDraft();
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -658,7 +821,7 @@ export default function App() {
       sendStudiesPatch({
         mode: "set",
         studyType: label,
-        value: label === "ОБП" ? createEmptyObpDraft() : createEmptyStudyDraft(),
+        value: createEmptyStudyValueForLabel(label),
       });
     }
 
@@ -920,6 +1083,22 @@ export default function App() {
     });
   };
 
+  const updateKidneyStudy = (value: KidneyStudyDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "Почки",
+      value: normalizeKidneyDraft(value),
+    });
+  };
+
+  const updateOmtFemaleStudy = (value: OmtFemaleDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "ОМТ (Ж)",
+      value: normalizeOmtFemaleDraft(value),
+    });
+  };
+
   const updateObpGallbladderConcretionsList = (
     nextList: GallbladderConcretionDraft[],
   ) => {
@@ -1104,6 +1283,8 @@ export default function App() {
             onUpdateObpFreeFluidField={updateObpFreeFluidField}
             onUpdateObpConclusionField={updateObpConclusionField}
             onUpdateObpRecommendationsField={updateObpRecommendationsField}
+            onUpdateKidneyStudy={updateKidneyStudy}
+            onUpdateOmtFemaleStudy={updateOmtFemaleStudy}
           />
         )}
         {activeTab === "summary" && (

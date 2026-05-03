@@ -1,15 +1,25 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "../components/MobileField";
 import { SectionPanel } from "../components/SectionPanel";
 import { StatusPill } from "../components/StatusPill";
 import { ObpProtocolBlock } from "./obp/ObpProtocolBlock";
+import { KidneysProtocolBlock } from "./kidneys/KidneysProtocolBlock";
+import { OmtFemaleProtocolBlock } from "./omtFemale/OmtFemaleProtocolBlock";
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import {
   createEmptyObpDraft,
   type ObpDraft,
 } from "../shared/obpDraft";
+import {
+  createEmptyKidneyStudyDraft,
+  type KidneyStudyDraft,
+} from "../shared/kidneyDraft";
+import {
+  createEmptyOmtFemaleDraft,
+  type OmtFemaleDraft,
+} from "../shared/omtFemaleDraft";
 import { formatDateForMobileDisplay } from "../shared/formatDate";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
@@ -18,7 +28,7 @@ import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
 type DraftScreenProps = {
   styles: any;
   snapshot: MobileSyncSnapshot;
-  studiesData: Record<string, StudyDraft | ObpDraft>;
+  studiesData: Record<string, StudyDraft | ObpDraft | KidneyStudyDraft | OmtFemaleDraft>;
   activeProtocolManifest: ProtocolManifest | null;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onUpdateHeaderField: (
@@ -58,6 +68,8 @@ type DraftScreenProps = {
   ) => void;
   onUpdateObpConclusionField: (value: string) => void;
   onUpdateObpRecommendationsField: (value: string) => void;
+  onUpdateKidneyStudy: (value: KidneyStudyDraft) => void;
+  onUpdateOmtFemaleStudy: (value: OmtFemaleDraft) => void;
 };
 
 function formatBirthDateInput(value: string): string {
@@ -78,8 +90,29 @@ function formatStudyDateInput(value: string): string {
   return formatBirthDateInput(value);
 }
 
-function isObpDraft(value: StudyDraft | ObpDraft | undefined): value is ObpDraft {
+function isObpDraft(value: unknown): value is ObpDraft {
   return Boolean(value && typeof value === "object" && "liver" in value && "gallbladder" in value);
+}
+
+function isKidneyStudyDraft(value: unknown): value is KidneyStudyDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "rightKidney" in value &&
+      "leftKidney" in value &&
+      "urinaryBladder" in value,
+  );
+}
+
+function isOmtFemaleDraft(value: unknown): value is OmtFemaleDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "uterus" in value &&
+      "leftOvary" in value &&
+      "rightOvary" in value &&
+      "urinaryBladder" in value,
+  );
 }
 
 export function DraftScreen({
@@ -102,6 +135,8 @@ export function DraftScreen({
   onUpdateObpFreeFluidField,
   onUpdateObpConclusionField,
   onUpdateObpRecommendationsField,
+  onUpdateKidneyStudy,
+  onUpdateOmtFemaleStudy,
 }: DraftScreenProps) {
   const activeProtocolLabel = activeProtocolManifest?.selectionLabel ?? "";
   const currentStudyDraft = useMemo<StudyDraft>(
@@ -111,10 +146,22 @@ export function DraftScreen({
   );
 
   const activeObpDraft = useMemo(
-    () => (isObpDraft(studiesData["ОБП"]) ? studiesData["ОБП"] : createEmptyObpDraft()),
+    () => (isObpDraft(studiesData["РћР‘Рџ"]) ? studiesData["РћР‘Рџ"] : createEmptyObpDraft()),
     [studiesData],
   );
 
+  const activeKidneyDraft = useMemo(
+    () =>
+      isKidneyStudyDraft(studiesData["РџРѕС‡РєРё"])
+        ? studiesData["РџРѕС‡РєРё"]
+        : createEmptyKidneyStudyDraft(),
+    [studiesData],
+  );
+
+  const activeOmtFemaleDraft = useMemo(
+    () => (isOmtFemaleDraft(studiesData["ОМТ (Ж)"]) ? studiesData["ОМТ (Ж)"] : createEmptyOmtFemaleDraft()),
+    [studiesData],
+  );
   return (
     <SectionPanel styles={styles} title="Draft Editor" subtitle="Draft Editor">
       <View style={styles.formGrid}>
@@ -212,6 +259,18 @@ export function DraftScreen({
               onUpdateConclusionField={onUpdateObpConclusionField}
               onUpdateRecommendationsField={onUpdateObpRecommendationsField}
             />
+          ) : activeProtocolManifest.id === "kidneys" ? (
+            <KidneysProtocolBlock
+              styles={styles}
+              value={activeKidneyDraft}
+              onChange={onUpdateKidneyStudy}
+            />
+          ) : activeProtocolManifest.id === "omt_female" ? (
+            <OmtFemaleProtocolBlock
+              styles={styles}
+              value={activeOmtFemaleDraft}
+              onChange={onUpdateOmtFemaleStudy}
+            />
           ) : (
             <>
               <MobileField
@@ -271,3 +330,5 @@ export function DraftScreen({
     </SectionPanel>
   );
 }
+
+
