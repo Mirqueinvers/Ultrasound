@@ -34,6 +34,10 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
     value ?? defaultScrotumState
   );
 
+  useEffect(() => {
+    setForm(value ?? defaultScrotumState);
+  }, [value]);
+
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 

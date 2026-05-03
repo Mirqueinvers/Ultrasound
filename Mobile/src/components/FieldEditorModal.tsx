@@ -218,7 +218,11 @@ export function FieldEditorModal({
                 return (
                   <Pressable
                     key={option.value}
-                    onPress={() => onSave(option.value)}
+                    onPress={() => {
+                      setDraftValue(option.value);
+                      onSave(option.value);
+                      onCancel();
+                    }}
                     style={({ pressed }) => [
                       {
                         paddingVertical: 16,

@@ -1,4 +1,4 @@
-﻿import { Fragment, useMemo, useState } from "react";
+import { Fragment, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -12,6 +12,7 @@ import {
   ProtocolOrganHeader,
   ProtocolSectionHeader,
 } from "../../components/protocol/ProtocolHeaders";
+import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type {
   GallbladderConcretionDraft,
   GallbladderDraft,
@@ -303,7 +304,7 @@ const OBP_CONCLUSION_SAMPLES: Array<{ title: string; value: string }> = [
 
 export function ObpProtocolBlock({
   styles,
-  obpDraft,
+  obpDraft: incomingObpDraft,
   onUpdateLiverField,
   onUpdateGallbladderField,
   onUpdateGallbladderConcretionsList,
@@ -317,17 +318,19 @@ export function ObpProtocolBlock({
   onUpdateRecommendationsField,
 }: ObpProtocolBlockProps) {
   const [editorState, setEditorState] = useState<EditorState>(null);
-  const activeGallbladder = obpDraft.gallbladder;
-  const isCholecystectomy = activeGallbladder.position === "холецистэктомия";
-  const activePancreas = obpDraft.pancreas;
-  const activeSpleen = obpDraft.spleen;
-  const hasLiverFocalLesions = obpDraft.liver.focalLesionsPresence === "Определяются";
-  const hasGallbladderConcretions = activeGallbladder.concretions === "Определяются";
-  const hasGallbladderPolyps = activeGallbladder.polyps === "Определяются";
+  const [draft, setDraft] = useState<ObpDraft>(incomingObpDraft);
+
+  const activeGallbladder = draft.gallbladder;
+  const isCholecystectomy = isNormalizedMatch(activeGallbladder.position, "холецистэктомия");
+  const activePancreas = draft.pancreas;
+  const activeSpleen = draft.spleen;
+  const hasLiverFocalLesions = isNormalizedMatch(draft.liver.focalLesionsPresence, "определяются");
+  const hasGallbladderConcretions = isNormalizedMatch(activeGallbladder.concretions, "определяются");
+  const hasGallbladderPolyps = isNormalizedMatch(activeGallbladder.polyps, "определяются");
   const hasPancreasPathologicalFormations =
-    activePancreas.pathologicalFormations === "Определяются";
+    isNormalizedMatch(activePancreas.pathologicalFormations, "определяются");
   const hasSpleenPathologicalFormations =
-    activeSpleen.pathologicalFormations === "Определяются";
+    isNormalizedMatch(activeSpleen.pathologicalFormations, "определяются");
 
   const liverFields: LiverFieldSpec[] = [
     { key: "rightLobeAP", label: "Правая доля, ПЗР", kind: "number", placeholder: "мм" },
@@ -412,6 +415,103 @@ export function ObpProtocolBlock({
 
   const hasValue = (currentValue: string) => currentValue.trim().length > 0;
 
+  const updateDraft = (producer: (current: ObpDraft) => ObpDraft) => {
+    setDraft((current) => {
+      const next = producer(current);
+      return next;
+    });
+  };
+
+  const updateLiverFieldValue = (field: keyof LiverDraft, value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      liver: {
+        ...current.liver,
+        [field]: value,
+      },
+    }));
+    onUpdateLiverField(field, value);
+  };
+
+  const updateGallbladderFieldValue = (field: keyof GallbladderDraft, value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      gallbladder: {
+        ...current.gallbladder,
+        [field]: value,
+      },
+    }));
+    onUpdateGallbladderField(field, value);
+  };
+
+  const updateGallbladderConcretions = (nextList: GallbladderConcretionDraft[]) => {
+    updateDraft((current) => ({
+      ...current,
+      gallbladder: {
+        ...current.gallbladder,
+        concretionsList: nextList,
+      },
+    }));
+    onUpdateGallbladderConcretionsList(nextList);
+  };
+
+  const updateGallbladderPolyps = (nextList: GallbladderPolypDraft[]) => {
+    updateDraft((current) => ({
+      ...current,
+      gallbladder: {
+        ...current.gallbladder,
+        polypsList: nextList,
+      },
+    }));
+    onUpdateGallbladderPolypsList(nextList);
+  };
+
+  const updatePancreasFieldValue = (field: keyof PancreasDraft, value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      pancreas: {
+        ...current.pancreas,
+        [field]: value,
+      },
+    }));
+    onUpdatePancreasField(field, value);
+  };
+
+  const updateSpleenFieldValue = (field: keyof SpleenDraft, value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      spleen: {
+        ...current.spleen,
+        [field]: value,
+      },
+    }));
+    onUpdateSpleenField(field, value);
+  };
+
+  const updateFreeFluidFieldValue = (field: "freeFluid" | "freeFluidDetails", value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      [field]: value,
+    }));
+    onUpdateFreeFluidField(field, value);
+  };
+
+  const updateConclusionFieldValue = (value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      conclusion: value,
+    }));
+    onUpdateConclusionField(value);
+  };
+
+  const updateRecommendationsFieldValue = (value: string) => {
+    updateDraft((current) => ({
+      ...current,
+      recommendations: value,
+    }));
+    onUpdateRecommendationsField(value);
+  };
+
   const renderInlineSectionHeader = (label: string, note?: string) => (
     <ProtocolSectionHeader title={label} note={note} />
   );
@@ -437,7 +537,7 @@ export function ObpProtocolBlock({
     const nextList = activeGallbladder.concretionsList.map((item, itemIndex) =>
       itemIndex === index ? { ...item, [field]: value } : item,
     );
-    onUpdateGallbladderConcretionsList(nextList);
+    updateGallbladderConcretions(nextList);
   };
 
   const updateGallbladderPolypItem = (
@@ -448,15 +548,7 @@ export function ObpProtocolBlock({
     const nextList = activeGallbladder.polypsList.map((item, itemIndex) =>
       itemIndex === index ? { ...item, [field]: value } : item,
     );
-    onUpdateGallbladderPolypsList(nextList);
-  };
-
-  const updatePancreasFieldValue = (field: keyof PancreasDraft, value: string) => {
-    onUpdatePancreasField(field, value);
-  };
-
-  const updateSpleenFieldValue = (field: keyof SpleenDraft, value: string) => {
-    onUpdateSpleenField(field, value);
+    updateGallbladderPolyps(nextList);
   };
 
   return (
@@ -522,7 +614,7 @@ export function ObpProtocolBlock({
             return null;
           }
 
-          const currentValue = obpDraft.liver[field.key];
+          const currentValue = draft.liver[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
           const isReadOnly = field.key === "rightLobeTotal" || field.key === "leftLobeTotal";
 
@@ -543,7 +635,7 @@ export function ObpProtocolBlock({
                       placeholder: field.placeholder,
                       multiline: field.multiline,
                       options: field.options,
-                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                      onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
                   }}
                   style={({ pressed }) => [
@@ -589,7 +681,7 @@ export function ObpProtocolBlock({
                       placeholder: field.placeholder,
                       multiline: field.multiline,
                       options: field.options,
-                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                      onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
                   }}
                   style={({ pressed }) => [
@@ -635,7 +727,7 @@ export function ObpProtocolBlock({
                       placeholder: field.placeholder,
                       multiline: field.multiline,
                       options: field.options,
-                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                      onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
                   }}
                   style={({ pressed }) => [
@@ -681,7 +773,7 @@ export function ObpProtocolBlock({
                       placeholder: field.placeholder,
                       multiline: field.multiline,
                       options: field.options,
-                      onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                      onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
                   }}
                   style={({ pressed }) => [
@@ -725,7 +817,7 @@ export function ObpProtocolBlock({
                   placeholder: field.placeholder,
                   multiline: field.multiline,
                   options: field.options,
-                  onSave: (nextValue) => onUpdateLiverField(field.key, nextValue),
+                  onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                 });
               }}
               style={({ pressed }) => [
@@ -776,7 +868,7 @@ export function ObpProtocolBlock({
                   placeholder: field.placeholder,
                   multiline: field.multiline,
                   options: field.options,
-                  onSave: (nextValue) => onUpdateGallbladderField(field.key, nextValue),
+                  onSave: (nextValue) => updateGallbladderFieldValue(field.key, nextValue),
                 });
               }}
               style={({ pressed }) => [
@@ -859,7 +951,7 @@ export function ObpProtocolBlock({
                             actionLabel="Удалить"
                             actionVariant="danger"
                             onActionPress={() =>
-                              onUpdateGallbladderConcretionsList(
+                              updateGallbladderConcretions(
                                 activeGallbladder.concretionsList.filter(
                                   (_, itemIndex) => itemIndex !== index,
                                 ),
@@ -949,7 +1041,7 @@ export function ObpProtocolBlock({
                             actionLabel="Удалить"
                             actionVariant="danger"
                             onActionPress={() =>
-                              onUpdateGallbladderPolypsList(
+                              updateGallbladderPolyps(
                                 activeGallbladder.polypsList.filter(
                                   (_, itemIndex) => itemIndex !== index,
                                 ),
@@ -1020,7 +1112,7 @@ export function ObpProtocolBlock({
             return null;
           }
 
-          const currentValue = activePancreas[field.key];
+          const currentValue = draft.pancreas[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
 
           return (
@@ -1074,7 +1166,7 @@ export function ObpProtocolBlock({
             return null;
           }
 
-          const currentValue = activeSpleen[field.key];
+          const currentValue = draft.spleen[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
 
           return (
@@ -1129,48 +1221,48 @@ export function ObpProtocolBlock({
             openEditor({
               title: obpFinalFields[0].label,
               mode: "select",
-              value: obpDraft.freeFluid,
+              value: draft.freeFluid,
               options: obpFinalFields[0].options,
-              onSave: (nextValue) => onUpdateFreeFluidField("freeFluid", nextValue),
+              onSave: (nextValue) => updateFreeFluidFieldValue("freeFluid", nextValue),
             });
           }}
           style={({ pressed }) => [
             styles.obpFieldRow,
-            hasValue(obpDraft.freeFluid) && styles.obpFieldRowFilled,
+            hasValue(draft.freeFluid) && styles.obpFieldRowFilled,
             pressed && styles.obpFieldRowPressed,
           ]}
         >
           <View style={styles.obpFieldRowContent}>
             <Text style={styles.obpFieldLabel}>{obpFinalFields[0].label}</Text>
             <Text style={styles.obpFieldValue}>
-              {obpDraft.freeFluid || "Нажмите для ввода"}
+              {draft.freeFluid || "Нажмите для ввода"}
             </Text>
           </View>
           <Text style={styles.obpFieldType}>select</Text>
         </Pressable>
 
-        {obpDraft.freeFluid === "определяется" && (
+        {isNormalizedMatch(draft.freeFluid, "определяется") && (
           <Pressable
             onPress={() => {
               openEditor({
                 title: obpFinalFields[1].label,
                 mode: "text",
-                value: obpDraft.freeFluidDetails,
+                value: draft.freeFluidDetails,
                 placeholder: obpFinalFields[1].placeholder,
                 multiline: true,
-                onSave: (nextValue) => onUpdateFreeFluidField("freeFluidDetails", nextValue),
+                onSave: (nextValue) => updateFreeFluidFieldValue("freeFluidDetails", nextValue),
               });
             }}
             style={({ pressed }) => [
               styles.obpFieldRow,
-              hasValue(obpDraft.freeFluidDetails) && styles.obpFieldRowFilled,
+              hasValue(draft.freeFluidDetails) && styles.obpFieldRowFilled,
               pressed && styles.obpFieldRowPressed,
             ]}
           >
             <View style={styles.obpFieldRowContent}>
               <Text style={styles.obpFieldLabel}>{obpFinalFields[1].label}</Text>
               <Text style={styles.obpFieldValue}>
-                {obpDraft.freeFluidDetails || "Нажмите для ввода"}
+                {draft.freeFluidDetails || "Нажмите для ввода"}
               </Text>
             </View>
             <Text style={styles.obpFieldType}>text</Text>
@@ -1183,34 +1275,34 @@ export function ObpProtocolBlock({
 
         <ProtocolFieldRow
           label={obpFinalFields[2].label}
-          value={obpDraft.conclusion || "Нажмите для ввода"}
+          value={draft.conclusion || "Нажмите для ввода"}
           typeLabel="text"
-          filled={hasValue(obpDraft.conclusion)}
+          filled={hasValue(draft.conclusion)}
           onPress={() => {
             openEditor({
               title: obpFinalFields[2].label,
               mode: "text",
-              value: obpDraft.conclusion,
+              value: draft.conclusion,
               placeholder: obpFinalFields[2].placeholder,
               multiline: true,
-              onSave: onUpdateConclusionField,
+              onSave: updateConclusionFieldValue,
             });
           }}
         />
 
         <ProtocolFieldRow
           label={obpFinalFields[3].label}
-          value={obpDraft.recommendations || "Нажмите для ввода"}
+          value={draft.recommendations || "Нажмите для ввода"}
           typeLabel="text"
-          filled={hasValue(obpDraft.recommendations)}
+          filled={hasValue(draft.recommendations)}
           onPress={() => {
             openEditor({
               title: obpFinalFields[3].label,
               mode: "text",
-              value: obpDraft.recommendations,
+              value: draft.recommendations,
               placeholder: obpFinalFields[3].placeholder,
               multiline: true,
-              onSave: onUpdateRecommendationsField,
+              onSave: updateRecommendationsFieldValue,
             });
           }}
         />
@@ -1218,3 +1310,4 @@ export function ObpProtocolBlock({
     </View>
   );
 }
+

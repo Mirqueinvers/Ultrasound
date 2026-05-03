@@ -66,6 +66,17 @@ import {
   type OmtFemaleDraft,
 } from "./src/shared/omtFemaleDraft";
 import {
+  createEmptyOmtMaleDraft,
+  type OmtMaleDraft,
+  type ProstateDraft,
+} from "./src/shared/omtMaleDraft";
+import {
+  createEmptyScrotumDraft,
+  createEmptySingleTestisDraft,
+  type ScrotumDraft,
+  type SingleTestisDraft,
+} from "./src/shared/scrotumDraft";
+import {
   createSyncTimestamp,
   type MobileSyncSnapshot,
   type MobileSyncWireMessage,
@@ -112,7 +123,7 @@ function parseMobileSyncPayload(raw: string): { host: string; code: string } | n
   }
 }
 
-type MobileStudyData = StudyDraft | ObpDraft | KidneyStudyDraft | OmtFemaleDraft;
+type MobileStudyData = StudyDraft | ObpDraft | KidneyStudyDraft | ScrotumDraft | OmtFemaleDraft | OmtMaleDraft;
 
 function isObpDraft(value: unknown): value is ObpDraft {
   return Boolean(
@@ -182,9 +193,9 @@ function normalizeKidneyDraft(value: unknown): KidneyStudyDraft {
   return {
     ...base,
     ...source,
-    rightKidney: source.rightKidney ? normalizeKidneySide(source.rightKidney) : null,
-    leftKidney: source.leftKidney ? normalizeKidneySide(source.leftKidney) : null,
-    urinaryBladder: source.urinaryBladder ? normalizeBladder(source.urinaryBladder) : null,
+    rightKidney: normalizeKidneySide(source.rightKidney ?? {}),
+    leftKidney: normalizeKidneySide(source.leftKidney ?? {}),
+    urinaryBladder: normalizeBladder(source.urinaryBladder ?? {}),
   };
 }
 
@@ -257,6 +268,70 @@ function normalizeOmtFemaleDraft(value: unknown): OmtFemaleDraft {
   };
 }
 
+function normalizeProstateDraft(value: unknown): ProstateDraft {
+  const base = createEmptyOmtMaleDraft().prostate;
+  const source = value && typeof value === "object" ? (value as Partial<ProstateDraft>) : {};
+
+  return {
+    ...base,
+    ...source,
+  };
+}
+
+function normalizeOmtMaleDraft(value: unknown): OmtMaleDraft {
+  const base = createEmptyOmtMaleDraft();
+  const source = value && typeof value === "object" ? (value as Partial<OmtMaleDraft>) : {};
+
+  const normalizeBladder = (
+    bladder: unknown,
+  ): OmtMaleDraft["urinaryBladder"] => {
+    const sourceBladder =
+      bladder && typeof bladder === "object" ? (bladder as Partial<OmtMaleDraft["urinaryBladder"]>) : {};
+
+    return {
+      ...createEmptyOmtMaleDraft().urinaryBladder,
+      ...sourceBladder,
+    };
+  };
+
+  return {
+    ...base,
+    ...source,
+    prostate: normalizeProstateDraft(source.prostate),
+    urinaryBladder: normalizeBladder(source.urinaryBladder),
+  };
+}
+
+function normalizeSingleTestisDraft(value: unknown): SingleTestisDraft {
+  const base = createEmptySingleTestisDraft();
+  const source = value && typeof value === "object" ? (value as Partial<SingleTestisDraft>) : {};
+
+  return {
+    ...base,
+    ...source,
+  };
+}
+
+function normalizeScrotumDraft(value: unknown): ScrotumDraft {
+  const base = createEmptyScrotumDraft();
+  const source = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  const testisSource =
+    source.testis && typeof source.testis === "object"
+      ? (source.testis as Partial<{ rightTestis: unknown; leftTestis: unknown }>)
+      : (source as Partial<{ rightTestis: unknown; leftTestis: unknown }>);
+
+  return {
+    ...base,
+    conclusion: typeof source.conclusion === "string" ? source.conclusion : base.conclusion,
+    recommendations:
+      typeof source.recommendations === "string" ? source.recommendations : base.recommendations,
+    testis: {
+      rightTestis: normalizeSingleTestisDraft(testisSource.rightTestis ?? {}),
+      leftTestis: normalizeSingleTestisDraft(testisSource.leftTestis ?? {}),
+    },
+  };
+}
+
 function buildStudiesData(
   snapshot: MobileSyncSnapshot,
 ): Record<string, MobileStudyData> {
@@ -276,6 +351,16 @@ function buildStudiesData(
 
     if (studyType === "ОМТ (Ж)") {
       result[studyType] = normalizeOmtFemaleDraft(value);
+      return;
+    }
+
+    if (studyType === "Органы мошонки") {
+      result[studyType] = normalizeScrotumDraft(value);
+      return;
+    }
+
+    if (studyType === "ОМТ (М)") {
+      result[studyType] = normalizeOmtMaleDraft(value);
       return;
     }
 
@@ -299,6 +384,16 @@ function buildStudiesData(
 
     if (studyType === "ОМТ (Ж)") {
       result[studyType] = createEmptyOmtFemaleDraft();
+      return;
+    }
+
+    if (studyType === "Органы мошонки") {
+      result[studyType] = createEmptyScrotumDraft();
+      return;
+    }
+
+    if (studyType === "ОМТ (М)") {
+      result[studyType] = createEmptyOmtMaleDraft();
       return;
     }
 
@@ -418,6 +513,14 @@ export default function App() {
 
     if (label === "ОМТ (Ж)") {
       return createEmptyOmtFemaleDraft();
+    }
+
+    if (label === "Органы мошонки") {
+      return createEmptyScrotumDraft();
+    }
+
+    if (label === "ОМТ (М)") {
+      return createEmptyOmtMaleDraft();
     }
 
     return createEmptyStudyDraft();
@@ -1099,6 +1202,22 @@ export default function App() {
     });
   };
 
+  const updateScrotumStudy = (value: ScrotumDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "Органы мошонки",
+      value: normalizeScrotumDraft(value),
+    });
+  };
+
+  const updateOmtMaleStudy = (value: OmtMaleDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "ОМТ (М)",
+      value: normalizeOmtMaleDraft(value),
+    });
+  };
+
   const updateObpGallbladderConcretionsList = (
     nextList: GallbladderConcretionDraft[],
   ) => {
@@ -1284,7 +1403,9 @@ export default function App() {
             onUpdateObpConclusionField={updateObpConclusionField}
             onUpdateObpRecommendationsField={updateObpRecommendationsField}
             onUpdateKidneyStudy={updateKidneyStudy}
+            onUpdateScrotumStudy={updateScrotumStudy}
             onUpdateOmtFemaleStudy={updateOmtFemaleStudy}
+            onUpdateOmtMaleStudy={updateOmtMaleStudy}
           />
         )}
         {activeTab === "summary" && (

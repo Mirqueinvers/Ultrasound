@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -178,9 +178,12 @@ export function KidneysProtocolBlock({
 }: KidneysProtocolBlockProps) {
   const [form, setForm] = useState<KidneyStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
+  const localDirtyRef = useRef(false);
 
   useEffect(() => {
-    setForm(value);
+    if (!localDirtyRef.current) {
+      setForm(value);
+    }
   }, [value]);
 
   const hasAnyKidneyData = useMemo(
@@ -198,6 +201,7 @@ export function KidneysProtocolBlock({
   const updateStudy = (
     producer: (current: KidneyStudyDraft) => KidneyStudyDraft,
   ) => {
+    localDirtyRef.current = true;
     setForm((current) => {
       const next = producer(current);
       onChange(next);

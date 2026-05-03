@@ -6,6 +6,8 @@ import { SectionPanel } from "../components/SectionPanel";
 import { StatusPill } from "../components/StatusPill";
 import { ObpProtocolBlock } from "./obp/ObpProtocolBlock";
 import { KidneysProtocolBlock } from "./kidneys/KidneysProtocolBlock";
+import { ScrotumProtocolBlock } from "./scrotum/ScrotumProtocolBlock";
+import { OmtMaleProtocolBlock } from "./omtMale/OmtMaleProtocolBlock";
 import { OmtFemaleProtocolBlock } from "./omtFemale/OmtFemaleProtocolBlock";
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import {
@@ -17,9 +19,17 @@ import {
   type KidneyStudyDraft,
 } from "../shared/kidneyDraft";
 import {
+  createEmptyScrotumDraft,
+  type ScrotumDraft,
+} from "../shared/scrotumDraft";
+import {
   createEmptyOmtFemaleDraft,
   type OmtFemaleDraft,
 } from "../shared/omtFemaleDraft";
+import {
+  createEmptyOmtMaleDraft,
+  type OmtMaleDraft,
+} from "../shared/omtMaleDraft";
 import { formatDateForMobileDisplay } from "../shared/formatDate";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
@@ -28,7 +38,7 @@ import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
 type DraftScreenProps = {
   styles: any;
   snapshot: MobileSyncSnapshot;
-  studiesData: Record<string, StudyDraft | ObpDraft | KidneyStudyDraft | OmtFemaleDraft>;
+  studiesData: Record<string, StudyDraft | ObpDraft | KidneyStudyDraft | ScrotumDraft | OmtFemaleDraft | OmtMaleDraft>;
   activeProtocolManifest: ProtocolManifest | null;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onUpdateHeaderField: (
@@ -69,7 +79,9 @@ type DraftScreenProps = {
   onUpdateObpConclusionField: (value: string) => void;
   onUpdateObpRecommendationsField: (value: string) => void;
   onUpdateKidneyStudy: (value: KidneyStudyDraft) => void;
+  onUpdateScrotumStudy: (value: ScrotumDraft) => void;
   onUpdateOmtFemaleStudy: (value: OmtFemaleDraft) => void;
+  onUpdateOmtMaleStudy: (value: OmtMaleDraft) => void;
 };
 
 function formatBirthDateInput(value: string): string {
@@ -115,6 +127,17 @@ function isOmtFemaleDraft(value: unknown): value is OmtFemaleDraft {
   );
 }
 
+function isOmtMaleDraft(value: unknown): value is OmtMaleDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "prostate" in value &&
+      "urinaryBladder" in value &&
+      "conclusion" in value &&
+      "recommendations" in value,
+  );
+}
+
 export function DraftScreen({
   styles,
   snapshot,
@@ -136,7 +159,9 @@ export function DraftScreen({
   onUpdateObpConclusionField,
   onUpdateObpRecommendationsField,
   onUpdateKidneyStudy,
+  onUpdateScrotumStudy,
   onUpdateOmtFemaleStudy,
+  onUpdateOmtMaleStudy,
 }: DraftScreenProps) {
   const activeProtocolLabel = activeProtocolManifest?.selectionLabel ?? "";
   const currentStudyDraft = useMemo<StudyDraft>(
@@ -158,8 +183,19 @@ export function DraftScreen({
     [studiesData],
   );
 
+  const activeScrotumDraft = useMemo(
+    () =>
+      (studiesData["Органы мошонки"] as ScrotumDraft | undefined) ?? createEmptyScrotumDraft(),
+    [studiesData],
+  );
+
   const activeOmtFemaleDraft = useMemo(
     () => (isOmtFemaleDraft(studiesData["ОМТ (Ж)"]) ? studiesData["ОМТ (Ж)"] : createEmptyOmtFemaleDraft()),
+    [studiesData],
+  );
+
+  const activeOmtMaleDraft = useMemo(
+    () => (isOmtMaleDraft(studiesData["ОМТ (М)"]) ? studiesData["ОМТ (М)"] : createEmptyOmtMaleDraft()),
     [studiesData],
   );
   return (
@@ -265,11 +301,23 @@ export function DraftScreen({
               value={activeKidneyDraft}
               onChange={onUpdateKidneyStudy}
             />
+          ) : activeProtocolManifest.id === "scrotum" ? (
+            <ScrotumProtocolBlock
+              styles={styles}
+              value={activeScrotumDraft}
+              onChange={onUpdateScrotumStudy}
+            />
           ) : activeProtocolManifest.id === "omt_female" ? (
             <OmtFemaleProtocolBlock
               styles={styles}
               value={activeOmtFemaleDraft}
               onChange={onUpdateOmtFemaleStudy}
+            />
+          ) : activeProtocolManifest.id === "omt_male" ? (
+            <OmtMaleProtocolBlock
+              styles={styles}
+              value={activeOmtMaleDraft}
+              onChange={onUpdateOmtMaleStudy}
             />
           ) : (
             <>

@@ -30,6 +30,10 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
     value ?? defaultOmtMaleState
   );
 
+  useEffect(() => {
+    setForm(value ?? defaultOmtMaleState);
+  }, [value]);
+
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 

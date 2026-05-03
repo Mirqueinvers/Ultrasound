@@ -138,9 +138,9 @@ export function createEmptyUrinaryBladderDraft(): UrinaryBladderDraft {
 
 export function createEmptyKidneyStudyDraft(): KidneyStudyDraft {
   return {
-    rightKidney: null,
-    leftKidney: null,
-    urinaryBladder: null,
+    rightKidney: createEmptyKidneyDraft(),
+    leftKidney: createEmptyKidneyDraft(),
+    urinaryBladder: createEmptyUrinaryBladderDraft(),
     conclusion: "",
     recommendations: "",
   };

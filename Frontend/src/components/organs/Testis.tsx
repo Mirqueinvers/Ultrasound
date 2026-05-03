@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/Testis.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { normalRanges } from "@components/common";
 import {
   ButtonSelect,
@@ -48,14 +48,20 @@ const TestisSide: React.FC<{
     React.RefObject<HTMLDivElement | null>
   >;
 }> = ({ side, value, onChange, sectionRefs }) => {
-  const initialValue: SingleTestisProtocol = {
-    ...defaultSingleTestisState,
-    ...(value || {}),
-  };
-
-  const [form, setForm] = useFormState<SingleTestisProtocol>(
-    initialValue
+  const initialValue: SingleTestisProtocol = useMemo(
+    () => ({
+      ...defaultSingleTestisState,
+      ...(value || {}),
+    }),
+    [value],
   );
+
+  const [form, setForm] = useFormState<SingleTestisProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm(initialValue);
+  }, [initialValue, setForm]);
+
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const key = side === "right" ? "rightTestis" : "leftTestis";
@@ -332,9 +338,19 @@ export const Testis: React.FC<TestisWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const [form, setForm] = useFormState<TestisProtocol>(
-    value ?? defaultTestisState
+  const initialValue = useMemo(
+    () => ({
+      ...defaultTestisState,
+      ...(value ?? {}),
+    }),
+    [value],
   );
+
+  const [form, setForm] = useFormState<TestisProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm(initialValue);
+  }, [initialValue, setForm]);
 
   const updateRight = (right: SingleTestisProtocol) => {
     const updated: TestisProtocol = { ...form, rightTestis: right };
