@@ -10,6 +10,7 @@ import {
   createEmptyObpDraft,
   type ObpDraft,
 } from "../shared/obpDraft";
+import { formatDateForMobileDisplay } from "../shared/formatDate";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
 import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
@@ -73,6 +74,10 @@ function formatBirthDateInput(value: string): string {
   return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
 }
 
+function formatStudyDateInput(value: string): string {
+  return formatBirthDateInput(value);
+}
+
 function isObpDraft(value: StudyDraft | ObpDraft | undefined): value is ObpDraft {
   return Boolean(value && typeof value === "object" && "liver" in value && "gallbladder" in value);
 }
@@ -125,7 +130,7 @@ export function DraftScreen({
             <MobileField
               styles={styles}
               label="Date of birth"
-              value={snapshot.header.patientDateOfBirth}
+              value={formatDateForMobileDisplay(snapshot.header.patientDateOfBirth)}
               onChangeText={(value) =>
                 onUpdateHeaderField("patientDateOfBirth", formatBirthDateInput(value))
               }
@@ -136,9 +141,11 @@ export function DraftScreen({
             <MobileField
               styles={styles}
               label="Study date"
-              value={snapshot.header.researchDate}
-              onChangeText={(value) => onUpdateHeaderField("researchDate", value)}
-              placeholder="2026-04-28"
+              value={formatDateForMobileDisplay(snapshot.header.researchDate)}
+              onChangeText={(value) =>
+                onUpdateHeaderField("researchDate", formatStudyDateInput(value))
+              }
+              placeholder="01.01.2026"
             />
           </View>
         </View>
@@ -264,4 +271,3 @@ export function DraftScreen({
     </SectionPanel>
   );
 }
-

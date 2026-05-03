@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+﻿import { Fragment, useMemo, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -239,6 +239,61 @@ const OBP_FREE_FLUID_OPTIONS: FieldEditorOption[] = [
   { value: "определяется", label: "Определяется" },
 ];
 
+const OBP_CONCLUSION_SAMPLES: Array<{ title: string; value: string }> = [
+  {
+    title: "Норма",
+    value: "УЗИ-признаков патологии органов брюшной полости не выявлено.",
+  },
+  {
+    title: "Диффузные изменения поджелудочной железы",
+    value: "Эхографические признаки диффузных изменений поджелудочной железы.",
+  },
+  {
+    title: "Хр. панкреатит",
+    value: "Эхографические признаки хронического панкреатита.",
+  },
+  {
+    title: "О. панкреатит",
+    value: "Эхографические признаки острого панкреатита.",
+  },
+  {
+    title: "Хр. холецистит",
+    value: "Эхографические признаки хронического холецистита.",
+  },
+  {
+    title: "О. холецистит",
+    value: "Эхографические признаки острого холецистита.",
+  },
+  {
+    title: "Калькулезный холецистит",
+    value: "Эхографические признаки калькулезного холецистита.",
+  },
+  {
+    title: "Полип желчного пузыря",
+    value: "Эхографические признаки полипа(ов) желчного пузыря.",
+  },
+  {
+    title: "Стеатоз",
+    value: "Эхографические признаки стеатоза.",
+  },
+  {
+    title: "Гепатомегалия",
+    value: "Эхографические признаки гепатомегалии.",
+  },
+  {
+    title: "Цирроз",
+    value: "Эхографические признаки цирроза печени.",
+  },
+  {
+    title: "Спленомегалия",
+    value: "Эхографические признаки спленомегалии.",
+  },
+  {
+    title: "Диффузные изменения селезенки",
+    value: "Эхографические признаки диффузных изменений селезенки.",
+  },
+];
+
 export function ObpProtocolBlock({
   styles,
   obpDraft,
@@ -403,6 +458,47 @@ export function ObpProtocolBlock({
         options={editorState?.options}
         placeholder={editorState?.placeholder}
         multiline={editorState?.multiline}
+        footerContent={
+          editorState?.title === obpFinalFields[2].label
+            ? ({ value, setValue, close }) => (
+                <View style={styles.obpSampleList}>
+                  {OBP_CONCLUSION_SAMPLES.map((sample) => (
+                    <Pressable
+                      key={sample.title}
+                      onPress={() => {
+                        const nextValue = value
+                          ? `${value}${value.endsWith("\n") ? "" : "\n"}${sample.value}`
+                          : sample.value;
+                        setValue(nextValue);
+                      }}
+                      style={({ pressed }) => [
+                        styles.obpSampleButton,
+                        pressed && styles.obpSampleButtonPressed,
+                      ]}
+                    >
+                      <Text style={styles.obpSampleButtonTitle}>{sample.title}</Text>
+                      <Text style={styles.obpSampleButtonText}>{sample.value}</Text>
+                    </Pressable>
+                  ))}
+
+                  <Pressable
+                    onPress={close}
+                    style={({ pressed }) => [
+                      styles.secondaryButton,
+                      {
+                        alignSelf: "flex-start",
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      },
+                      pressed && styles.buttonPressed,
+                    ]}
+                  >
+                    <Text style={styles.secondaryButtonText}>Закрыть</Text>
+                  </Pressable>
+                </View>
+              )
+            : undefined
+        }
         onCancel={() => setEditorState(null)}
         onSave={saveEditor}
       />
@@ -918,14 +1014,14 @@ export function ObpProtocolBlock({
         )}
       </View>
 
-      <View style={styles.obpMobileHintCard}>
-        <Text style={styles.obpMobileHintTitle}>Итоговое заключение</Text>
-        <Text style={styles.obpMobileHintText}>
-          Заполните общее заключение и рекомендации для всего ОБП.
-        </Text>
-      </View>
+      <View style={styles.sectionCard}>
+        <View style={styles.obpMobileHintCard}>
+          <Text style={styles.obpMobileHintTitle}>Итоговое заключение</Text>
+          <Text style={styles.obpMobileHintText}>
+            Нажмите на поле заключения, чтобы открыть образцы и быстро вставить готовую формулировку.
+          </Text>
+        </View>
 
-      <View style={styles.obpFieldList}>
         <Pressable
           onPress={() => {
             openEditor({

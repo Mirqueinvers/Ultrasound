@@ -371,6 +371,32 @@ export const styles = StyleSheet.create({
     color: "#cbd5e1",
     lineHeight: 20,
   },
+  obpSampleList: {
+    gap: 8,
+  },
+  obpSampleButton: {
+    backgroundColor: "rgba(15, 23, 42, 0.92)",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.14)",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    gap: 4,
+  },
+  obpSampleButtonPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.99 }],
+  },
+  obpSampleButtonTitle: {
+    color: "#f8fafc",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  obpSampleButtonText: {
+    color: "#cbd5e1",
+    fontSize: 12,
+    lineHeight: 18,
+  },
   obpFieldList: {
     gap: 10,
   },
@@ -504,6 +530,36 @@ export const styles = StyleSheet.create({
   },
   saveButtonDisabled: {
     backgroundColor: "rgba(56, 189, 248, 0.28)",
+  },
+  printButton: {
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 18,
+    backgroundColor: "#0ea5e9",
+    ...shadow(0.22, 10, 18),
+  },
+  printButtonText: {
+    color: "#f8fafc",
+    fontWeight: "800",
+    fontSize: 15,
+  },
+  clearButton: {
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 18,
+    backgroundColor: "#ef4444",
+    ...shadow(0.22, 10, 18),
+  },
+  clearButtonText: {
+    color: "#fff7f7",
+    fontWeight: "800",
+    fontSize: 15,
   },
   saveSuccessText: {
     color: "#86efac",

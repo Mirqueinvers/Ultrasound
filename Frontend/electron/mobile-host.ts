@@ -537,6 +537,14 @@ class MobileHostService {
       return;
     }
 
+    if (message.command === "draft:print") {
+      return;
+    }
+
+    if (message.command === "draft:clear") {
+      return;
+    }
+
     if (message.command === "draft:close") {
       this.closeDraftSession(message.updatedAt);
       return;

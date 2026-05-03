@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Modal,
   Pressable,
@@ -7,6 +7,8 @@ import {
   TextInput,
   View,
 } from "react-native";
+
+import { isNormalizedMatch } from "../shared/normalizeSelectValue";
 
 type FieldEditorMode = "number" | "select" | "text";
 
@@ -23,6 +25,11 @@ type FieldEditorModalProps = {
   options?: FieldEditorOption[];
   placeholder?: string;
   multiline?: boolean;
+  footerContent?: (context: {
+    value: string;
+    setValue: (nextValue: string) => void;
+    close: () => void;
+  }) => ReactNode;
   onCancel: () => void;
   onSave: (value: string) => void;
 };
@@ -37,6 +44,7 @@ export function FieldEditorModal({
   options = [],
   placeholder,
   multiline = false,
+  footerContent,
   onCancel,
   onSave,
 }: FieldEditorModalProps) {
@@ -49,7 +57,8 @@ export function FieldEditorModal({
   }, [visible, value]);
 
   const selectedOption = useMemo(
-    () => options.find((option) => option.value === draftValue)?.value ?? "",
+    () =>
+      options.find((option) => isNormalizedMatch(option.value, draftValue))?.value ?? "",
     [draftValue, options],
   );
 
@@ -236,24 +245,30 @@ export function FieldEditorModal({
           )}
 
           {mode === "text" && (
-            <TextInput
-              autoFocus
-              value={draftValue}
-              onChangeText={setDraftValue}
-              placeholder={placeholder}
-              placeholderTextColor="#64748b"
-              multiline={multiline}
-              style={{
-                flex: 1,
-                borderRadius: 20,
-                backgroundColor: "#101a31",
-                color: "#f8fafc",
-                padding: 16,
-                textAlignVertical: multiline ? "top" : "center",
+            <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 8 }}>
+              <TextInput
+                autoFocus
+                value={draftValue}
+                onChangeText={setDraftValue}
+                placeholder={placeholder}
+                placeholderTextColor="#64748b"
+                multiline={multiline}
+                style={{
+                  borderRadius: 20,
+                  backgroundColor: "#101a31",
+                  color: "#f8fafc",
+                  padding: 16,
+                  textAlignVertical: multiline ? "top" : "center",
                 fontSize: 16,
                 minHeight: multiline ? 180 : 64,
               }}
-            />
+              />
+              {footerContent?.({
+                value: draftValue,
+                setValue: setDraftValue,
+                close: onCancel,
+              })}
+            </ScrollView>
           )}
 
           {mode !== "select" && (

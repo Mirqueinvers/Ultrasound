@@ -52,6 +52,18 @@ export type MobileSyncCommand =
     }
   | {
       type: "sync:command";
+      command: "draft:print";
+      origin: MobileSyncOrigin;
+      updatedAt: string;
+    }
+  | {
+      type: "sync:command";
+      command: "draft:clear";
+      origin: MobileSyncOrigin;
+      updatedAt: string;
+    }
+  | {
+      type: "sync:command";
       command: "draft:close";
       origin: MobileSyncOrigin;
       updatedAt: string;

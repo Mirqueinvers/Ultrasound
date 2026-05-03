@@ -206,6 +206,9 @@ export default function App() {
 
   const hostUrl = normalizeHostUrl(hostUrlInput);
   const connected = connectionState === "connected" && socketStatus === "open";
+  const markDraftDirty = () => {
+    setSaveState((current) => (current === "saved" ? "idle" : current));
+  };
 
   const selectedProtocolManifests = useMemo(() => {
     return snapshot.selection.selectedStudies
@@ -223,6 +226,31 @@ export default function App() {
 
     return selectedProtocolManifests[0] ?? null;
   }, [focusedProtocolId, selectedProtocolManifests]);
+
+  useEffect(() => {
+    if (snapshot.selection.selectedStudies.length === 0) {
+      if (focusedProtocolId !== null) {
+        setFocusedProtocolId(null);
+      }
+      return;
+    }
+
+    if (!focusedProtocolId) {
+      return;
+    }
+
+    const focused = getProtocolManifestById(focusedProtocolId);
+    if (
+      !focused ||
+      !snapshot.selection.selectedStudies.includes(focused.selectionLabel)
+    ) {
+      const nextSelected = snapshot.selection.selectedStudies[0];
+      const nextManifest = nextSelected
+        ? getProtocolManifestByLabel(nextSelected)
+        : null;
+      setFocusedProtocolId(nextManifest?.id ?? null);
+    }
+  }, [focusedProtocolId, snapshot.selection.selectedStudies]);
 
   const reviewIssues = useMemo(() => getDraftReviewIssues(snapshot), [snapshot]);
   const canSaveDraft = connected && snapshot.session.isDraftActive && reviewIssues.length === 0;
@@ -331,6 +359,7 @@ export default function App() {
         ...patch,
       },
     }));
+    markDraftDirty();
 
     emitWireMessage({
       type: "sync:update",
@@ -351,6 +380,7 @@ export default function App() {
         ...patch,
       },
     }));
+    markDraftDirty();
 
     emitWireMessage({
       type: "sync:update",
@@ -402,6 +432,7 @@ export default function App() {
         studiesData: nextStudiesData,
       };
     });
+    markDraftDirty();
 
     emitWireMessage({
       type: "sync:update",
@@ -512,6 +543,10 @@ export default function App() {
           if (message.type === "sync:command") {
             if (message.command === "draft:saved") {
               setSaveState("saved");
+              return;
+            }
+
+            if (message.command === "draft:print") {
               return;
             }
           }
@@ -708,6 +743,42 @@ export default function App() {
     emitWireMessage({
       type: "sync:command",
       command: "draft:save",
+      origin: "mobile",
+      updatedAt: createSyncTimestamp(),
+    });
+  };
+
+  const requestDesktopPrint = () => {
+    if (!connected) {
+      setConnectionError("Connect to the desktop host first.");
+      return;
+    }
+
+    if (saveState !== "saved") {
+      setConnectionError("Save the draft on the desktop first.");
+      return;
+    }
+
+    setConnectionError("");
+    emitWireMessage({
+      type: "sync:command",
+      command: "draft:print",
+      origin: "mobile",
+      updatedAt: createSyncTimestamp(),
+    });
+  };
+
+  const requestDesktopClear = () => {
+    if (!connected) {
+      setConnectionError("Connect to the desktop host first.");
+      return;
+    }
+
+    setConnectionError("");
+    setSaveState("idle");
+    emitWireMessage({
+      type: "sync:command",
+      command: "draft:clear",
       origin: "mobile",
       updatedAt: createSyncTimestamp(),
     });
@@ -1042,8 +1113,10 @@ export default function App() {
             reviewIssues={reviewIssues}
             canSaveDraft={canSaveDraft}
             saveState={saveState}
-                onRequestDesktopSave={requestDesktopSave}
-              />
+            onRequestDesktopSave={requestDesktopSave}
+            onRequestDesktopPrint={requestDesktopPrint}
+            onRequestDesktopClear={requestDesktopClear}
+          />
         )}
 
         <View style={{ height: 110 }} />

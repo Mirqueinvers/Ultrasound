@@ -1,8 +1,9 @@
-import { Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 import { InlineStat } from "../components/InlineStat";
 import { SectionPanel } from "../components/SectionPanel";
 import { StatusPill } from "../components/StatusPill";
+import { formatDateForMobileDisplay } from "../shared/formatDate";
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 
@@ -15,6 +16,8 @@ type SummaryScreenProps = {
   canSaveDraft: boolean;
   saveState: SaveState;
   onRequestDesktopSave: () => void;
+  onRequestDesktopPrint: () => void;
+  onRequestDesktopClear: () => void;
 };
 
 export function SummaryScreen({
@@ -24,11 +27,16 @@ export function SummaryScreen({
   canSaveDraft,
   saveState,
   onRequestDesktopSave,
+  onRequestDesktopPrint,
+  onRequestDesktopClear,
 }: SummaryScreenProps) {
   const isSaved = saveState === "saved";
-  const buttonLabel = saveState === "requested"
-    ? "Sending to desktop..."
-    : "Save to desktop";
+  const buttonLabel =
+    saveState === "requested"
+      ? "Sending to desktop..."
+      : isSaved
+        ? "Saved on desktop"
+        : "Save to desktop";
 
   return (
     <SectionPanel
@@ -45,12 +53,14 @@ export function SummaryScreen({
         <InlineStat
           styles={styles}
           label="Date of birth"
-          value={snapshot.header.patientDateOfBirth || "Not set"}
+          value={
+            formatDateForMobileDisplay(snapshot.header.patientDateOfBirth) || "Not set"
+          }
         />
         <InlineStat
           styles={styles}
           label="Study date"
-          value={snapshot.header.researchDate || "Not set"}
+          value={formatDateForMobileDisplay(snapshot.header.researchDate) || "Not set"}
         />
         <InlineStat
           styles={styles}
@@ -121,23 +131,60 @@ export function SummaryScreen({
         <Pressable
           disabled={
             saveState === "requested" ||
-            !canSaveDraft
+            !canSaveDraft ||
+            isSaved
           }
           onPress={onRequestDesktopSave}
           style={({ pressed }) => [
             styles.primaryButton,
             styles.saveButton,
-            (saveState === "requested" || !canSaveDraft) &&
+            (saveState === "requested" || !canSaveDraft || isSaved) &&
               styles.saveButtonDisabled,
             pressed &&
               saveState !== "requested" &&
               canSaveDraft &&
+              !isSaved &&
               styles.buttonPressed,
           ]}
         >
           <Text style={styles.primaryButtonText}>
             {buttonLabel}
           </Text>
+        </Pressable>
+
+        {isSaved ? (
+          <Pressable
+            onPress={onRequestDesktopPrint}
+            style={({ pressed }) => [
+              styles.printButton,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.printButtonText}>Print on desktop</Text>
+          </Pressable>
+        ) : null}
+
+        <Pressable
+          onPress={() => {
+            Alert.alert(
+              "Clear current draft?",
+              "All unsaved changes will be cleared on the desktop.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Clear",
+                  style: "destructive",
+                  onPress: onRequestDesktopClear,
+                },
+              ],
+            );
+          }}
+          style={({ pressed }) => [
+            styles.clearButton,
+            pressed && styles.buttonPressed,
+          ]}
+        >
+          <Text style={styles.clearButtonText}>Clear on desktop</Text>
         </Pressable>
 
         <Text style={styles.reviewHintText}>

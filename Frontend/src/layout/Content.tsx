@@ -45,6 +45,8 @@ interface ContentProps {
   isMultiSelectMode: boolean;
   isDraftActive: boolean;
   mobileSaveRequestAt: string | null;
+  mobilePrintRequestAt: string | null;
+  mobileClearRequestAt: string | null;
   onClearResearch: () => void;
   selectedDirectoryItem: string;
 }
@@ -54,6 +56,8 @@ const Content: React.FC<ContentProps> = ({
   selectedStudies,
   isDraftActive,
   mobileSaveRequestAt,
+  mobilePrintRequestAt,
+  mobileClearRequestAt,
   onClearResearch,
   selectedDirectoryItem,
 }) => {
@@ -74,6 +78,7 @@ const Content: React.FC<ContentProps> = ({
     React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] =
     React.useState(false);
+  const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
 
   const sectionRefs = useSectionRefs();
   const availableSectionKeys = useAvailableSectionKeys(selectedStudies);
@@ -126,6 +131,8 @@ const Content: React.FC<ContentProps> = ({
   });
 
   const processedMobileSaveRequestAt = React.useRef<string | null>(null);
+  const processedMobilePrintRequestAt = React.useRef<string | null>(null);
+  const processedMobileClearRequestAt = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (!mobileSaveRequestAt || mobileSaveRequestAt === processedMobileSaveRequestAt.current) {
@@ -139,6 +146,35 @@ const Content: React.FC<ContentProps> = ({
     processedMobileSaveRequestAt.current = mobileSaveRequestAt;
     void saveResearch(paymentType);
   }, [isDraftActive, isSaving, mobileSaveRequestAt, paymentType, saveResearch]);
+
+  React.useEffect(() => {
+    if (
+      !mobilePrintRequestAt ||
+      mobilePrintRequestAt === processedMobilePrintRequestAt.current
+    ) {
+      return;
+    }
+
+    if (!isDraftActive) {
+      return;
+    }
+
+    processedMobilePrintRequestAt.current = mobilePrintRequestAt;
+    setPrintAutoToken(mobilePrintRequestAt);
+    setIsPrintModalOpen(true);
+  }, [isDraftActive, mobilePrintRequestAt]);
+
+  React.useEffect(() => {
+    if (
+      !mobileClearRequestAt ||
+      mobileClearRequestAt === processedMobileClearRequestAt.current
+    ) {
+      return;
+    }
+
+    processedMobileClearRequestAt.current = mobileClearRequestAt;
+    handleClear();
+  }, [mobileClearRequestAt]);
 
   const handleSaveResearch = () => {
     saveResearch(paymentType);
@@ -366,7 +402,11 @@ const Content: React.FC<ContentProps> = ({
 
       <PrintModal
         isOpen={isPrintModalOpen}
-        onClose={() => setIsPrintModalOpen(false)}
+        onClose={() => {
+          setIsPrintModalOpen(false);
+          setPrintAutoToken(null);
+        }}
+        autoPrintToken={printAutoToken}
       />
     </div>
   );

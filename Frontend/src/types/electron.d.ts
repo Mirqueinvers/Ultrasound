@@ -39,8 +39,28 @@ export interface SavedProtocol {
   printOverrides: Record<string, string>;
 }
 
+export interface PrinterInfo {
+  name: string;
+  isDefault: boolean;
+  status?: number;
+  options?: Record<string, unknown>;
+}
+
 export interface ProtocolAPI {
+  getPrinters: () => Promise<{
+    success: boolean;
+    printers: PrinterInfo[];
+    message?: string;
+  }>;
   getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+  printHtml: (data: {
+    content: string;
+    title?: string;
+    printerName?: string;
+  }) => Promise<{
+    success: boolean;
+    message?: string;
+  }>;
   savePrintOverrides: (data: {
     researchId: number;
     overrides: Record<string, string>;

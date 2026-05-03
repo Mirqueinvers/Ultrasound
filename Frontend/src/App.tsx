@@ -72,6 +72,8 @@ function AppContent() {
   const [selectedDirectoryItem, setSelectedDirectoryItem] = useState<string>("");
   const [isDraftActive, setIsDraftActive] = useState<boolean>(false);
   const [mobileSaveRequestAt, setMobileSaveRequestAt] = useState<string | null>(null);
+  const [mobilePrintRequestAt, setMobilePrintRequestAt] = useState<string | null>(null);
+  const [mobileClearRequestAt, setMobileClearRequestAt] = useState<string | null>(null);
 
   const publishSelectionSync = (selection: {
     activeSection: string;
@@ -114,6 +116,7 @@ function AppContent() {
         setIsDraftActive(Boolean(syncMessage.state.session.isDraftActive));
         if (!syncMessage.state.session.isDraftActive) {
           setMobileSaveRequestAt(null);
+          setMobilePrintRequestAt(null);
         }
         return;
       }
@@ -126,6 +129,16 @@ function AppContent() {
 
         if (syncMessage.command === "draft:saved") {
           setMobileSaveRequestAt(null);
+          return;
+        }
+
+        if (syncMessage.command === "draft:print") {
+          setMobilePrintRequestAt(syncMessage.updatedAt);
+          return;
+        }
+
+        if (syncMessage.command === "draft:clear") {
+          setMobileClearRequestAt(syncMessage.updatedAt);
           return;
         }
         return;
@@ -150,6 +163,14 @@ function AppContent() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (activeSection !== "uzi-protocols") {
+      setMobileSaveRequestAt(null);
+      setMobilePrintRequestAt(null);
+      setMobileClearRequestAt(null);
+    }
+  }, [activeSection]);
 
   const handleToggleStudy = (study: string) => {
     const next = selectedStudies.includes(study)
@@ -200,6 +221,7 @@ function AppContent() {
     setSelectedStudies([]);
     setIsDraftActive(true);
     setMobileSaveRequestAt(null);
+    setMobilePrintRequestAt(null);
     publishSelectionSync({
       activeSection,
       selectedStudy: "",
@@ -211,6 +233,9 @@ function AppContent() {
 
   const handleNavigateToProfile = () => {
     setActiveSection("profile");
+    setMobileSaveRequestAt(null);
+    setMobilePrintRequestAt(null);
+    setMobileClearRequestAt(null);
     publishSelectionSync({
       activeSection: "profile",
       selectedStudy,
@@ -235,6 +260,11 @@ function AppContent() {
     setActiveSection(section);
     if (section === "uzi-protocols") {
       setIsMultiSelectMode(true);
+    }
+    if (section !== "uzi-protocols") {
+      setMobileSaveRequestAt(null);
+      setMobilePrintRequestAt(null);
+      setMobileClearRequestAt(null);
     }
     publishSelectionSync({
       activeSection: section,
@@ -367,7 +397,7 @@ function AppContent() {
             selectedDirectoryItem={selectedDirectoryItem}
             onDirectoryItemSelect={handleDirectoryItemSelect}
           >
-              <Content
+            <Content
                 selectedStudy={selectedStudy}
                 activeSection={activeSection}
                 selectedStudies={selectedStudies}
@@ -375,6 +405,8 @@ function AppContent() {
                 isMultiSelectMode={isMultiSelectMode}
                 isDraftActive={isDraftActive}
                 mobileSaveRequestAt={mobileSaveRequestAt}
+                mobilePrintRequestAt={mobilePrintRequestAt}
+                mobileClearRequestAt={mobileClearRequestAt}
                 onClearResearch={handleClearResearch}
                 selectedDirectoryItem={selectedDirectoryItem}
               />

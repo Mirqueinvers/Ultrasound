@@ -1,4 +1,5 @@
 import React from "react";
+import { isNormalizedMatch } from "@utils/normalizeSelectValue";
 
 interface Option {
   value: string;
@@ -20,11 +21,11 @@ export const ButtonSelect: React.FC<ButtonSelectProps> = ({
   options,
   disabled = false,
 }) => {
+
   const handleClick = (optionValue: string) => {
     if (disabled) return;
 
-    // Тоггл по клику на активную
-    if (value === optionValue) {
+    if (isNormalizedMatch(value, optionValue)) {
       onChange("");
     } else {
       onChange(optionValue);
@@ -41,7 +42,7 @@ export const ButtonSelect: React.FC<ButtonSelectProps> = ({
 
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
-          const isActive = value === option.value;
+          const isActive = isNormalizedMatch(value, option.value);
 
           return (
             <button

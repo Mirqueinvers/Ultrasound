@@ -1,6 +1,7 @@
 import React from "react";
 import { ButtonSelect } from "./ButtonSelect";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { isNormalizedMatch } from "@utils/normalizeSelectValue";
 
 interface Option {
   value: string;
@@ -32,12 +33,12 @@ export const SelectWithTextarea: React.FC<SelectWithTextareaProps> = ({
   rows = 3,
   disabled = false,
 }) => {
-  const showTextarea = selectValue === triggerValue;
+  const showTextarea = isNormalizedMatch(selectValue, triggerValue);
 
   const handleSelectChange = (value: string) => {
     onSelectChange(value);
 
-    if (value !== triggerValue && textareaValue) {
+    if (!isNormalizedMatch(value, triggerValue) && textareaValue) {
       onTextareaChange("");
     }
   };

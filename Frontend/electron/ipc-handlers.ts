@@ -1,6 +1,7 @@
 // ultrasound/frontend/electron/ipc-handlers.ts
-import { ipcMain, BrowserWindow, dialog } from "electron";
+import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { promises as fs } from "node:fs";
+import path from "node:path";
 import { DatabaseManager } from "./database/database";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
@@ -294,6 +295,121 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
           success: false,
           message: "Не удалось сохранить HTML-файл",
         };
+      }
+    }
+  );
+
+  ipcMain.handle("protocol:getPrinters", async () => {
+    try {
+      const targetWindow = mainWindow && !mainWindow.isDestroyed() ? mainWindow : undefined;
+      const printers = targetWindow ? await targetWindow.webContents.getPrintersAsync() : [];
+      return {
+        success: true,
+        printers: printers.map((printer) => ({
+          name: printer.name,
+          isDefault: false,
+        })),
+      };
+    } catch (error) {
+      console.error("Get printers error:", error);
+      return {
+        success: false,
+        printers: [],
+        message: "Не удалось получить список принтеров",
+      };
+    }
+  });
+
+  ipcMain.handle(
+    "protocol:printHtml",
+    async (
+      _event,
+      data: { content: string; title?: string; printerName?: string }
+    ) => {
+      const printWindow = new BrowserWindow({
+        show: false,
+        webPreferences: {
+          contextIsolation: true,
+          nodeIntegration: false,
+          sandbox: false,
+        },
+      });
+      const tempHtmlPath = path.join(
+        app.getPath("temp"),
+        `ultrasound-print-${Date.now()}.html`,
+      );
+
+      try {
+        const html = data.content.trim();
+        const pageTitle = data.title?.trim() || "Ultrasound protocol";
+        const payload = html || "<html><head><title>Ultrasound protocol</title></head><body></body></html>";
+        const targetHtml = payload.includes("<html")
+          ? payload
+          : `<!doctype html><html><head><meta charset="utf-8"><title>${pageTitle}</title></head><body>${payload}</body></html>`;
+
+        await fs.writeFile(tempHtmlPath, targetHtml, "utf8");
+        printWindow.setTitle(pageTitle);
+        await printWindow.loadFile(tempHtmlPath);
+
+        await printWindow.webContents.executeJavaScript(
+          "document.fonts ? document.fonts.ready.then(() => true) : Promise.resolve(true)"
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 250));
+
+        const printers = (await printWindow.webContents.getPrintersAsync()) as Array<{
+          name: string;
+        }>;
+        const selectedPrinter = data.printerName?.trim()
+          ? printers.find((printer) => printer.name === data.printerName!.trim())
+          : printers[0];
+        const deviceName = selectedPrinter?.name?.trim() || undefined;
+
+        const printed = await new Promise<boolean>((resolve) => {
+          printWindow.webContents.print(
+            {
+              silent: true,
+              printBackground: true,
+              deviceName,
+            },
+            (success, failureReason) => {
+              if (success) {
+                resolve(true);
+                return;
+              }
+
+              console.error("Silent print failure:", {
+                deviceName,
+                failureReason,
+              });
+              resolve(false);
+            }
+          );
+        });
+
+        if (!printed) {
+          return {
+            success: false,
+            message: "Не удалось отправить документ на печать",
+          };
+        }
+
+        return { success: true };
+      } catch (error) {
+        console.error("Silent print error:", error);
+        return {
+          success: false,
+          message: "Не удалось отправить документ на печать",
+        };
+      } finally {
+        try {
+          await fs.unlink(tempHtmlPath);
+        } catch {
+          // Ignore cleanup errors.
+        }
+        if (!printWindow.isDestroyed()) {
+          printWindow.close();
+        }
       }
     }
   );
