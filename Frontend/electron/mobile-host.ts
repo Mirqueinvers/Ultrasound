@@ -362,6 +362,7 @@ class MobileHostService {
       this.clients.add(socket);
       this.sendStatus(socket);
       this.sendSnapshot(socket);
+      this.notifyRendererSelectionFocus();
 
       socket.on("message", (raw) => {
         const messageText = raw.toString();
@@ -475,6 +476,22 @@ class MobileHostService {
     }
 
     this.rendererWindow?.webContents.send(RENDERER_CHANNEL, message);
+  }
+
+  private notifyRendererSelectionFocus(): void {
+    if (!this.rendererWindow) {
+      return;
+    }
+
+    this.rendererWindow.webContents.send(RENDERER_CHANNEL, {
+      type: "sync:update",
+      fragment: "selection",
+      data: {
+        activeSection: "uzi-protocols",
+      },
+      origin: "desktop",
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   private applyUpdate(message: Extract<MobileSyncWireMessage, { type: "sync:update" }>): void {

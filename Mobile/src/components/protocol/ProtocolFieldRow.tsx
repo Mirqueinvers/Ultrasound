@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type ProtocolFieldRowProps = {
@@ -9,7 +10,7 @@ type ProtocolFieldRowProps = {
   onPress?: () => void;
 };
 
-export function ProtocolFieldRow({
+function ProtocolFieldRowComponent({
   label,
   value,
   typeLabel,
@@ -36,6 +37,8 @@ export function ProtocolFieldRow({
     </Pressable>
   );
 }
+
+export const ProtocolFieldRow = memo(ProtocolFieldRowComponent);
 
 const rowStyles = StyleSheet.create({
   row: {
@@ -79,4 +82,3 @@ const rowStyles = StyleSheet.create({
     alignSelf: "flex-end",
   },
 });
-
