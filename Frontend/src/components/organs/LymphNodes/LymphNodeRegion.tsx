@@ -1,15 +1,15 @@
 // src/components/organs/LymphNodes/LymphNodeRegion.tsx
 
 import React from "react";
+import { Plus } from "lucide-react";
+import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { LymphNode } from "./LymphNode";
-import { Fieldset, ButtonSelect } from "@/UI";
-import type {
-  LymphNodeRegionProps,
-  LymphNodeProtocol,
+import {
+  defaultLymphNodeState,
+  type LymphNodeRegionProps,
+  type LymphNodeProtocol,
 } from "@/types/organs/lymphNodes";
-import { defaultLymphNodeState } from "@/types/organs/lymphNodes";
-import { Plus } from "lucide-react";
 
 export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
   title,
@@ -33,25 +33,24 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
 
     onChange({
       ...value,
+      detected: "detected",
       nodes: [...value.nodes, newNode],
     });
   };
 
-  const handleUpdateNode = (index: number) => (
-    field: keyof LymphNodeProtocol,
-    fieldValue: string
-  ) => {
-    const updatedNodes = [...value.nodes];
-    updatedNodes[index] = {
-      ...updatedNodes[index],
-      [field]: fieldValue,
-    };
+  const handleUpdateNode = (index: number) =>
+    (field: keyof LymphNodeProtocol, fieldValue: string) => {
+      const updatedNodes = [...value.nodes];
+      updatedNodes[index] = {
+        ...updatedNodes[index],
+        [field]: fieldValue,
+      };
 
-    onChange({
-      ...value,
-      nodes: updatedNodes,
-    });
-  };
+      onChange({
+        ...value,
+        nodes: updatedNodes,
+      });
+    };
 
   const handleDeleteNode = (index: number) => {
     const updatedNodes = value.nodes.filter((_, i) => i !== index);
@@ -65,14 +64,12 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
     <ResearchSectionCard title={title} headerClassName="bg-sky-500">
       <Fieldset title="">
         <ButtonSelect
-          label=""
+          label="Определение"
           value={value.detected}
-          onChange={(val) =>
-            handleDetectionChange(val as "not_detected" | "detected")
-          }
+          onChange={(val) => handleDetectionChange(val as "not_detected" | "detected")}
           options={[
-            { value: "not_detected", label: "не определяются" },
-            { value: "detected", label: "определяются" },
+            { value: "not_detected", label: "Не определяются" },
+            { value: "detected", label: "Определяются" },
           ]}
         />
 
@@ -80,17 +77,15 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
           <div className="mt-6 space-y-4">
             {value.nodes.length === 0 ? (
               <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-                <p className="text-slate-500 text-sm mb-4">
-                  Лимфоузлы не добавлены
-                </p>
-                <div className="flex gap-3 justify-center">
+                <p className="text-slate-500 text-sm mb-4">Лимфатические узлы не добавлены</p>
+                <div className="flex gap-3 justify-center flex-wrap">
                   <button
                     type="button"
                     onClick={() => handleAddNode("right")}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                   >
                     <Plus size={18} />
-                    Добавить справа
+                    Добавить правый узел
                   </button>
                   <button
                     type="button"
@@ -98,7 +93,7 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                   >
                     <Plus size={18} />
-                    Добавить слева
+                    Добавить левый узел
                   </button>
                 </div>
               </div>
@@ -113,22 +108,22 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
                   />
                 ))}
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <button
                     type="button"
                     onClick={() => handleAddNode("right")}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
+                    className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
                   >
                     <Plus size={18} />
-                    Добавить справа
+                    Добавить правый узел
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAddNode("left")}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
+                    className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
                   >
                     <Plus size={18} />
-                    Добавить слева
+                    Добавить левый узел
                   </button>
                 </div>
               </>

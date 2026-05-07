@@ -1,17 +1,20 @@
-// Frontend/src/components/organs/Breast/BreastCommon.tsx
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { Fieldset, ButtonSelect } from "@/UI";
-import { useFormState, useFieldUpdate } from "@hooks";
-import { BreastSide } from "./BreastSide";
+import { useFieldUpdate, useFormState } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import type { 
-  BreastProtocol, 
-  BreastCommonProps,
-  BreastSideProtocol 
-} from "@/types";
-import { defaultBreastState } from "@types";
+import { BreastSide } from "./BreastSide";
+import type { BreastCommonProps, BreastProtocol } from "@types";
+import { defaultBreastState } from "@/types/defaultStates";
 
-export const BreastCommon: React.FC<BreastCommonProps> = ({
+const STRUCTURE_OPTIONS = [
+  { value: "преимущественно жировая ткань", label: "преимущественно жировая ткань" },
+  { value: "преимущественно железистая ткань", label: "преимущественно железистая ткань" },
+  { value: "жировая и железистая", label: "жировая и железистая" },
+  { value: "жировая и фиброзная", label: "жировая и фиброзная" },
+  { value: "жировая железистая и фиброзная", label: "жировая железистая и фиброзная" },
+];
+
+const BreastCommon: React.FC<BreastCommonProps> = ({
   value,
   onChange,
   sectionRefs,
@@ -22,128 +25,91 @@ export const BreastCommon: React.FC<BreastCommonProps> = ({
   };
 
   const [form, setForm] = useFormState<BreastProtocol>(initialValue);
+
+  useEffect(() => {
+    setForm({
+      ...defaultBreastState,
+      ...(value || {}),
+    });
+  }, [value, setForm]);
+
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   useEffect(() => {
     if (!form.lastMenstruationDate) {
-      if (form.cycleDay !== "") {
-        const draft = { ...form, cycleDay: "" };
-        setForm(draft);
-        onChange?.(draft);
+      if (form.cycleDay) {
+        updateField("cycleDay", "");
       }
       return;
     }
 
-    const lastMenstruation = new Date(form.lastMenstruationDate);
-    const today = new Date();
-
-    if (isNaN(lastMenstruation.getTime())) {
+    const parsed = new Date(form.lastMenstruationDate);
+    if (Number.isNaN(parsed.getTime())) {
+      if (form.cycleDay) {
+        updateField("cycleDay", "");
+      }
       return;
     }
 
-    const diffTime = today.getTime() - lastMenstruation.getTime();
-    const diffDays = Math.floor(
-      diffTime / (1000 * 60 * 60 * 24)
-    );
-    const cycleDay = (diffDays + 1).toString();
+    const diffTime = Date.now() - parsed.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const nextCycleDay = diffDays > 0 ? String(diffDays) : "";
 
-    if (form.cycleDay !== cycleDay) {
-      const draft = { ...form, cycleDay };
-      setForm(draft);
-      onChange?.(draft);
+    if (nextCycleDay !== form.cycleDay) {
+      updateField("cycleDay", nextCycleDay);
     }
-  }, [form.lastMenstruationDate]);
-
-  const handleBreastChange =
-    (side: "right" | "left") => (value: BreastSideProtocol) => {
-      const draft = {
-        ...form,
-        [side === "right" ? "rightBreast" : "leftBreast"]: value,
-      };
-      setForm(draft);
-      onChange?.(draft);
-    };
+  }, [form.lastMenstruationDate, form.cycleDay]);
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Общая информация */}
       <Fieldset title="Общая информация">
-        <label className={labelClasses}>
+        <label className={labelClasses + " w-full"}>
           Дата последней менструации
           <input
             type="date"
             className={inputClasses}
             value={form.lastMenstruationDate}
-            onChange={(e) =>
-              updateField("lastMenstruationDate", e.target.value)
-            }
+            onChange={(e) => updateField("lastMenstruationDate", e.target.value)}
           />
         </label>
 
-        <label className={labelClasses}>
+        <label className={labelClasses + " w-full"}>
           День цикла
           <input
             type="text"
-            className={inputClasses + " bg-gray-50"}
-            value={form.cycleDay}
+            className={`${inputClasses} bg-gray-50`}
+            value={form.cycleDay || ""}
             readOnly
             disabled
             placeholder="Рассчитывается автоматически"
           />
         </label>
+
+        <ButtonSelect
+          label="Структура молочных желез"
+          value={form.structure}
+          onChange={(val) => updateField("structure", val)}
+          options={STRUCTURE_OPTIONS}
+        />
       </Fieldset>
 
-      {/* Правая молочная железа */}
       <div ref={sectionRefs?.["Молочные железы:правая железа"]}>
         <BreastSide
           side="right"
           value={form.rightBreast}
-          onChange={handleBreastChange("right")}
+          onChange={(nextValue) => updateField("rightBreast", nextValue)}
         />
       </div>
 
-      {/* Левая молочная железа */}
       <div ref={sectionRefs?.["Молочные железы:левая железа"]}>
         <BreastSide
           side="left"
           value={form.leftBreast}
-          onChange={handleBreastChange("left")}
+          onChange={(nextValue) => updateField("leftBreast", nextValue)}
         />
       </div>
-
-      {/* Структура молочных желез */}
-      <Fieldset title="Структура молочных желез">
-        <ButtonSelect
-          label=""
-          value={form.structure}
-          onChange={(val) => updateField("structure", val)}
-          options={[
-            {
-              value: "преимущественно жировая ткань",
-              label: "преимущественно жировая ткань",
-            },
-            {
-              value: "преимущественно железистая ткань",
-              label: "преимущественно железистая ткань",
-            },
-            {
-              value: "жировая и железистая",
-              label: "жировая и железистая",
-            },
-            {
-              value: "жировая и фиброзная",
-              label: "жировая и фиброзная",
-            },
-            {
-              value: "жировая железистая и фиброзная",
-              label: "жировая железистая и фиброзная",
-            },
-          ]}
-        />
-      </Fieldset>
     </div>
   );
 };
 
 export default BreastCommon;
-export type { BreastProtocol } from "@/types";

@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/LymphNodes.tsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import LymphNodesCommon from "@organs/LymphNodes/LymphNodesCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -12,21 +12,8 @@ import type {
 import { defaultLymphNodesStudyState } from "@/types";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
-type LymphNodesSectionKey = Extract<
-  SectionKey,
-  | "Лимфатические узлы:Поднижнечелюстные"
-  | "Лимфатические узлы:Шейные"
-  | "Лимфатические узлы:Подключичные"
-  | "Лимфатические узлы:Надключичные"
-  | "Лимфатические узлы:Подмышечные"
-  | "Лимфатические узлы:Паховые"
->;
-
 interface LymphNodesWithSectionsProps extends LymphNodesStudyProps {
-  sectionRefs?: Record<
-    LymphNodesSectionKey,
-    React.RefObject<HTMLDivElement | null>
-  >;
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
 export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
@@ -35,15 +22,19 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
   sectionRefs,
 }) => {
   const [form, setForm] = useState<LymphNodesStudyProtocol>(
-    value ?? defaultLymphNodesStudyState
+    value ?? defaultLymphNodesStudyState,
   );
+
+  useEffect(() => {
+    setForm(value ?? defaultLymphNodesStudyState);
+  }, [value]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: LymphNodesStudyProtocol) => {
     setForm(updated);
-    setStudyData("Лимфатические узлы", updated);
+    setStudyData("Лимфоузлы", updated);
     onChange?.(updated);
   };
 
@@ -67,19 +58,15 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
     setCurrentOrgan("lymphNodes");
   };
 
-  // Обработчик события добавления текста образца заключения
   useEffect(() => {
     const handleAddConclusionText = (event: CustomEvent) => {
       const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-lymphNodes') return;
-      
+
+      if (studyId !== "study-lymphNodes") return;
+
       const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
+      const newConclusion = currentConclusion ? `${currentConclusion} ${text}` : text;
+
       const updated = {
         ...form,
         conclusion: newConclusion,
@@ -87,20 +74,23 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
       };
       setForm(updated);
       onChange?.(updated);
-      setStudyData("Лимфатические узлы", updated);
+      setStudyData("Лимфоузлы", updated);
     };
 
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
+    window.addEventListener("add-conclusion-text", handleAddConclusionText as EventListener);
+
     return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+      window.removeEventListener(
+        "add-conclusion-text",
+        handleAddConclusionText as EventListener,
+      );
     };
   }, [form, onChange, setStudyData]);
 
   return (
     <div className="flex flex-col gap-6">
       <div className="text-2xl font-semibold text-center mt-2 mb-4">
-        Ультразвуковое исследование лимфатических узлов
+        Ультразвуковое исследование периферических лимфатических узлов
       </div>
 
       <LymphNodesCommon

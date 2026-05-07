@@ -62,10 +62,10 @@ export const defaultLymphNodeRegionState: LymphNodeRegionProtocol = {
 };
 
 export const defaultLymphNodesState: LymphNodesProtocol = {
-  submandibular: defaultLymphNodeRegionState,
-  cervical: defaultLymphNodeRegionState,
-  subclavian: defaultLymphNodeRegionState,
-  supraclavicular: defaultLymphNodeRegionState,
-  axillary: defaultLymphNodeRegionState,
-  inguinal: defaultLymphNodeRegionState,
+  submandibular: { ...defaultLymphNodeRegionState, nodes: [] },
+  cervical: { ...defaultLymphNodeRegionState, nodes: [] },
+  subclavian: { ...defaultLymphNodeRegionState, nodes: [] },
+  supraclavicular: { ...defaultLymphNodeRegionState, nodes: [] },
+  axillary: { ...defaultLymphNodeRegionState, nodes: [] },
+  inguinal: { ...defaultLymphNodeRegionState, nodes: [] },
 };

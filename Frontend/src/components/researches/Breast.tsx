@@ -1,5 +1,4 @@
-// Frontend/src/components/researches/Breast.tsx
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -8,8 +7,8 @@ import type {
   BreastStudyProtocol,
   BreastStudyProps,
   BreastProtocol,
-} from "@/types";
-import { defaultBreastStudyState } from "@/types";
+} from "@types";
+import { defaultBreastStudyState } from "@types";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BreastSectionKey = Extract<
@@ -33,6 +32,10 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
   const [form, setForm] = useState<BreastStudyProtocol>(
     value ?? defaultBreastStudyState
   );
+
+  useEffect(() => {
+    setForm(value ?? defaultBreastStudyState);
+  }, [value]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
@@ -63,19 +66,17 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
     setCurrentOrgan("breast");
   };
 
-  // Обработчик события добавления текста образца заключения
   useEffect(() => {
     const handleAddConclusionText = (event: CustomEvent) => {
       const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-breast') return;
-      
+
+      if (studyId !== "study-breast") return;
+
       const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
+      const newConclusion = currentConclusion
         ? `${currentConclusion} ${text}`
         : text;
-      
+
       const updated = {
         ...form,
         conclusion: newConclusion,
@@ -86,10 +87,16 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
       setStudyData("Молочные железы", updated);
     };
 
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
+    window.addEventListener(
+      "add-conclusion-text",
+      handleAddConclusionText as EventListener
+    );
+
     return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
+      window.removeEventListener(
+        "add-conclusion-text",
+        handleAddConclusionText as EventListener
+      );
     };
   }, [form, onChange, setStudyData]);
 

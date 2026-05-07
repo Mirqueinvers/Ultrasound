@@ -1,5 +1,5 @@
-// Подсказки для размеров молочной железы
-import React from 'react';
+﻿// Подсказки для размеров молочной железы
+import React from "react";
 
 interface SizeTextData {
   title: string;
@@ -8,7 +8,7 @@ interface SizeTextData {
 
 export const breastHints: Record<string, SizeTextData> = {
   size1: {
-    title: 'Размер узла, первый размер',
+    title: "Размер узла, первый размер",
     content: (
       <div className="space-y-2">
         <p className="text-xs">Первый линейный размер образования</p>
@@ -21,10 +21,10 @@ export const breastHints: Record<string, SizeTextData> = {
           </p>
         </div>
       </div>
-    )
+    ),
   },
   size2: {
-    title: 'Размер узла, второй размер',
+    title: "Размер узла, второй размер",
     content: (
       <div className="space-y-2">
         <p className="text-xs">Второй линейный размер образования</p>
@@ -37,10 +37,10 @@ export const breastHints: Record<string, SizeTextData> = {
           </p>
         </div>
       </div>
-    )
+    ),
   },
   depth: {
-    title: 'Размер узла, глубина',
+    title: "Размер узла, глубина",
     content: (
       <div className="space-y-2">
         <p className="text-xs">Передне-задний размер образования</p>
@@ -53,8 +53,8 @@ export const breastHints: Record<string, SizeTextData> = {
           </p>
         </div>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export type BreastHintKey = keyof typeof breastHints;

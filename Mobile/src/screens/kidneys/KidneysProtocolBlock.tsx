@@ -672,7 +672,7 @@ export function KidneysProtocolBlock({
                 <Pressable
                   onPress={() => {
                     openEditor({
-                      title: `${title}: ${field.label}`,
+                      title: `${title}: Описание патологических образований паренхимы`,
                       mode: field.kind,
                       value: currentValue,
                       placeholder: field.placeholder,
@@ -704,6 +704,36 @@ export function KidneysProtocolBlock({
                       "Добавьте хотя бы один конкремент.",
                     )}
                   </View>
+                )}
+
+
+                {field.key === "parenchymaPathologicalFormations" && showParenchymaPathology && (
+                  <Pressable
+                    onPress={() =>
+                      openEditor({
+                        title: `${title}: Описание патологических образований паренхимы`,
+                        mode: "text",
+                        value: kidney.parenchymaPathologicalFormationsText,
+                        placeholder: "Введите описание",
+                        multiline: true,
+                        onSave: (nextValue) =>
+                          updateKidneyField(side, "parenchymaPathologicalFormationsText", nextValue),
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.obpFieldRow,
+                      kidney.parenchymaPathologicalFormationsText.trim().length > 0 && styles.obpFieldRowFilled,
+                      pressed && styles.obpFieldRowPressed,
+                    ]}
+                  >
+                    <View style={styles.obpFieldRowContent}>
+                      <Text style={styles.obpFieldLabel}>Описание патологических образований паренхимы</Text>
+                      <Text style={styles.obpFieldValue}>
+                        {kidney.parenchymaPathologicalFormationsText || "Нажмите для ввода"}
+                      </Text>
+                    </View>
+                    <Text style={styles.obpFieldType}>text</Text>
+                  </Pressable>
                 )}
 
                 {field.key === "pcsConcrements" && showPcsConcrements && (
@@ -1120,7 +1150,7 @@ export function KidneysProtocolBlock({
                   </ProtocolCard>
                 )}
 
-                {showPcsPathology && (
+                {field.key === "pcsPathologicalFormations" && showPcsPathology && (
                   <Pressable
                     onPress={() =>
                       openEditor({

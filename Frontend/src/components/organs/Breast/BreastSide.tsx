@@ -1,11 +1,10 @@
-// src/components/organs/Breast/BreastSide.tsx
-import React from "react";
+﻿import React, { useEffect } from "react";
+import { Plus } from "lucide-react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useListManager } from "@hooks";
-import { BreastNodeComponent } from "./BreastNode";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import { Plus } from "lucide-react";
+import { BreastNodeComponent } from "./BreastNode";
 import type { BreastSideProtocol, BreastNode, BreastSideProps } from "@types";
 import { defaultBreastSideState } from "@/types/defaultStates";
 
@@ -22,6 +21,14 @@ export const BreastSide: React.FC<BreastSideProps> = ({
 
   const [form, setForm] = useFormState<BreastSideProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
+
+  useEffect(() => {
+    setForm({
+      ...defaultBreastSideState,
+      ...(value || {}),
+      nodesList: value?.nodesList || [],
+    });
+  }, [value, setForm]);
 
   const title =
     side === "left" ? "Левая молочная железа" : "Правая молочная железа";
@@ -41,20 +48,20 @@ export const BreastSide: React.FC<BreastSideProps> = ({
       size2: "",
       depth: "",
       direction: "",
-      echogenicity: "средняя",
-      echostructure: "однородная",
-      contour: "четкий ровный",
-      orientation: "горизонтальная",
-      bloodFlow: "не изменен",
+      echogenicity: "",
+      echostructure: "",
+      contour: "",
+      orientation: "",
+      bloodFlow: "",
       comment: "",
     };
     nodesManager.addItem(newNode);
   };
 
-  const updateSelect = (field: keyof BreastSideProtocol, value: string) => {
-    const draft: BreastSideProtocol = { ...form, [field]: value };
+  const updateSelect = (field: keyof BreastSideProtocol, nextValue: string) => {
+    const draft: BreastSideProtocol = { ...form, [field]: nextValue };
 
-    if (field === "volumeFormations" && value === "не определяются") {
+    if (field === "volumeFormations" && nextValue === "не определяются") {
       draft.nodesList = [];
     }
 
@@ -152,14 +159,14 @@ export const BreastSide: React.FC<BreastSideProps> = ({
                 <BreastNodeComponent
                   key={index}
                   node={node}
-                  onUpdate={(field, value) => {
-                    nodesManager.updateItem(index, field, value);
+                  onUpdate={(field, nextValue) => {
+                    nodesManager.updateItem(index, field, nextValue);
                   }}
                   onRemove={() => {
                     nodesManager.removeItem(index);
                     const updatedNodes = form.nodesList
-                      .filter((_, i) => i !== index)
-                      .map((n, i) => ({ ...n, number: i + 1 }));
+                      .filter((_, nodeIndex) => nodeIndex !== index)
+                      .map((item, nodeIndex) => ({ ...item, number: nodeIndex + 1 }));
                     const draft = { ...form, nodesList: updatedNodes };
                     setForm(draft);
                     onChange?.(draft);

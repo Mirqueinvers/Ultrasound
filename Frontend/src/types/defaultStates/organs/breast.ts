@@ -1,5 +1,4 @@
-// src/types/defaultStates/organs/breast.ts
-import type { BreastProtocol, BreastSideProtocol } from "../../organs/breast";
+﻿import type { BreastProtocol, BreastSideProtocol } from "../../organs/breast";
 
 export const defaultBreastSideState: BreastSideProtocol = {
   skin: "не изменена",

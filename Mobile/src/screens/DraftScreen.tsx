@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "../components/MobileField";
@@ -9,6 +9,9 @@ import { KidneysProtocolBlock } from "./kidneys/KidneysProtocolBlock";
 import { ScrotumProtocolBlock } from "./scrotum/ScrotumProtocolBlock";
 import { OmtMaleProtocolBlock } from "./omtMale/OmtMaleProtocolBlock";
 import { OmtFemaleProtocolBlock } from "./omtFemale/OmtFemaleProtocolBlock";
+import { ThyroidProtocolBlock } from "./thyroid/ThyroidProtocolBlock";
+import { BreastProtocolBlock } from "./breast/BreastProtocolBlock";
+import { LymphNodesProtocolBlock } from "./lymphNodes/LymphNodesProtocolBlock";
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import {
   createEmptyObpDraft,
@@ -30,6 +33,18 @@ import {
   createEmptyOmtMaleDraft,
   type OmtMaleDraft,
 } from "../shared/omtMaleDraft";
+import {
+  createEmptyThyroidStudyDraft,
+  type ThyroidStudyDraft,
+} from "../shared/thyroidDraft";
+import {
+  createEmptyBreastStudyDraft,
+  type BreastStudyDraft,
+} from "../shared/breastDraft";
+import {
+  createEmptyLymphNodesStudyDraft,
+  type LymphNodesStudyDraft,
+} from "../shared/lymphNodesDraft";
 import { formatDateForMobileDisplay } from "../shared/formatDate";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
@@ -38,7 +53,18 @@ import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
 type DraftScreenProps = {
   styles: any;
   snapshot: MobileSyncSnapshot;
-  studiesData: Record<string, StudyDraft | ObpDraft | KidneyStudyDraft | ScrotumDraft | OmtFemaleDraft | OmtMaleDraft>;
+  studiesData: Record<
+    string,
+    | StudyDraft
+    | ObpDraft
+    | KidneyStudyDraft
+    | ScrotumDraft
+    | OmtFemaleDraft
+    | OmtMaleDraft
+    | ThyroidStudyDraft
+    | BreastStudyDraft
+    | LymphNodesStudyDraft
+  >;
   activeProtocolManifest: ProtocolManifest | null;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onUpdateHeaderField: (
@@ -82,6 +108,9 @@ type DraftScreenProps = {
   onUpdateScrotumStudy: (value: ScrotumDraft) => void;
   onUpdateOmtFemaleStudy: (value: OmtFemaleDraft) => void;
   onUpdateOmtMaleStudy: (value: OmtMaleDraft) => void;
+  onUpdateThyroidStudy: (value: ThyroidStudyDraft) => void;
+  onUpdateBreastStudy: (value: BreastStudyDraft) => void;
+  onUpdateLymphNodesStudy: (value: LymphNodesStudyDraft) => void;
 };
 
 function formatBirthDateInput(value: string): string {
@@ -138,6 +167,36 @@ function isOmtMaleDraft(value: unknown): value is OmtMaleDraft {
   );
 }
 
+function isThyroidStudyDraft(value: unknown): value is ThyroidStudyDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "thyroid" in value &&
+      "conclusion" in value &&
+      "recommendations" in value,
+  );
+}
+
+function isBreastStudyDraft(value: unknown): value is BreastStudyDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "breast" in value &&
+      "conclusion" in value &&
+      "recommendations" in value,
+  );
+}
+
+function isLymphNodesStudyDraft(value: unknown): value is LymphNodesStudyDraft {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "lymphNodes" in value &&
+      "conclusion" in value &&
+      "recommendations" in value,
+  );
+}
+
 export function DraftScreen({
   styles,
   snapshot,
@@ -162,6 +221,9 @@ export function DraftScreen({
   onUpdateScrotumStudy,
   onUpdateOmtFemaleStudy,
   onUpdateOmtMaleStudy,
+  onUpdateThyroidStudy,
+  onUpdateBreastStudy,
+  onUpdateLymphNodesStudy,
 }: DraftScreenProps) {
   const activeProtocolLabel = activeProtocolManifest?.selectionLabel ?? "";
   const currentStudyDraft = useMemo<StudyDraft>(
@@ -171,14 +233,14 @@ export function DraftScreen({
   );
 
   const activeObpDraft = useMemo(
-    () => (isObpDraft(studiesData["РћР‘Рџ"]) ? studiesData["РћР‘Рџ"] : createEmptyObpDraft()),
+    () => (isObpDraft(studiesData["ОБП"]) ? studiesData["ОБП"] : createEmptyObpDraft()),
     [studiesData],
   );
 
   const activeKidneyDraft = useMemo(
     () =>
-      isKidneyStudyDraft(studiesData["РџРѕС‡РєРё"])
-        ? studiesData["РџРѕС‡РєРё"]
+      isKidneyStudyDraft(studiesData["Почки"])
+        ? studiesData["Почки"]
         : createEmptyKidneyStudyDraft(),
     [studiesData],
   );
@@ -198,6 +260,36 @@ export function DraftScreen({
     () => (isOmtMaleDraft(studiesData["ОМТ (М)"]) ? studiesData["ОМТ (М)"] : createEmptyOmtMaleDraft()),
     [studiesData],
   );
+
+  const activeThyroidDraft = useMemo(
+    () =>
+      isThyroidStudyDraft(studiesData["Щитовидная железа"])
+        ? studiesData["Щитовидная железа"]
+        : createEmptyThyroidStudyDraft(),
+    [studiesData],
+  );
+
+  const activeBreastDraft = useMemo(
+    () =>
+      isBreastStudyDraft(studiesData["Молочные железы"])
+        ? studiesData["Молочные железы"]
+        : createEmptyBreastStudyDraft(),
+    [studiesData],
+  );
+
+  const activeLymphNodesDraft = useMemo(
+    () =>
+      isLymphNodesStudyDraft(studiesData["Лимфоузлы"])
+        ? studiesData["Лимфоузлы"]
+        : createEmptyLymphNodesStudyDraft(),
+    [studiesData],
+  );
+
+
+
+
+
+
   return (
     <SectionPanel styles={styles} title="Draft Editor" subtitle="Draft Editor">
       <View style={styles.formGrid}>
@@ -319,6 +411,24 @@ export function DraftScreen({
               value={activeOmtMaleDraft}
               onChange={onUpdateOmtMaleStudy}
             />
+          ) : activeProtocolManifest.id === "thyroid" ? (
+            <ThyroidProtocolBlock
+              styles={styles}
+              value={activeThyroidDraft}
+              onChange={onUpdateThyroidStudy}
+            />
+          ) : activeProtocolManifest.id === "breast" ? (
+            <BreastProtocolBlock
+              styles={styles}
+              value={activeBreastDraft}
+              onChange={onUpdateBreastStudy}
+            />
+          ) : activeProtocolManifest.id === "lymph_nodes" ? (
+            <LymphNodesProtocolBlock
+              styles={styles}
+              value={activeLymphNodesDraft}
+              onChange={onUpdateLymphNodesStudy}
+            />
           ) : (
             <>
               <MobileField
@@ -378,5 +488,3 @@ export function DraftScreen({
     </SectionPanel>
   );
 }
-
-

@@ -71,6 +71,24 @@ import {
   type ProstateDraft,
 } from "./src/shared/omtMaleDraft";
 import {
+  createEmptyThyroidStudyDraft,
+  type ThyroidStudyDraft,
+} from "./src/shared/thyroidDraft";
+import {
+  createEmptyBreastStudyDraft,
+  createEmptyBreastSideDraft,
+  createEmptyBreastNodeDraft,
+  type BreastStudyDraft,
+  type BreastProtocolDraft,
+  type BreastSideDraft,
+  type BreastNodeDraft,
+} from "./src/shared/breastDraft";
+import {
+  createEmptyLymphNodesStudyDraft,
+  normalizeLymphNodesStudyDraft,
+  type LymphNodesStudyDraft,
+} from "./src/shared/lymphNodesDraft";
+import {
   createEmptyScrotumDraft,
   createEmptySingleTestisDraft,
   type ScrotumDraft,
@@ -123,7 +141,16 @@ function parseMobileSyncPayload(raw: string): { host: string; code: string } | n
   }
 }
 
-type MobileStudyData = StudyDraft | ObpDraft | KidneyStudyDraft | ScrotumDraft | OmtFemaleDraft | OmtMaleDraft;
+type MobileStudyData =
+  | StudyDraft
+  | ObpDraft
+  | KidneyStudyDraft
+  | ScrotumDraft
+  | OmtFemaleDraft
+  | OmtMaleDraft
+  | ThyroidStudyDraft
+  | BreastStudyDraft
+  | LymphNodesStudyDraft;
 
 function isObpDraft(value: unknown): value is ObpDraft {
   return Boolean(
@@ -302,6 +329,124 @@ function normalizeOmtMaleDraft(value: unknown): OmtMaleDraft {
   };
 }
 
+function normalizeThyroidDraft(value: unknown): ThyroidStudyDraft {
+  const base = createEmptyThyroidStudyDraft();
+  const source = value && typeof value === "object" ? (value as Partial<ThyroidStudyDraft>) : {};
+
+  const normalizeNode = (node: unknown) => {
+    const sourceNode =
+      node && typeof node === "object"
+        ? (node as Partial<ThyroidStudyDraft["thyroid"]["rightLobe"]["nodesList"][number]>)
+        : {};
+
+    return {
+      ...createEmptyThyroidStudyDraft().thyroid.rightLobe.nodesList[0] ?? undefined,
+      number: typeof sourceNode.number === "number" ? sourceNode.number : 1,
+      size1: sourceNode.size1 ?? "",
+      size2: sourceNode.size2 ?? "",
+      echogenicity: sourceNode.echogenicity ?? "изоэхогенный",
+      echostructure: sourceNode.echostructure ?? "однородная",
+      contour: sourceNode.contour ?? "четкий ровный",
+      echogenicFoci: sourceNode.echogenicFoci ?? "",
+      orientation: sourceNode.orientation ?? "горизонтальная",
+      bloodFlow: sourceNode.bloodFlow ?? "не изменен",
+      comment: sourceNode.comment ?? "",
+      tiradsCategory: sourceNode.tiradsCategory ?? "",
+    };
+  };
+
+  const normalizeLobe = (
+    lobe: unknown,
+  ): ThyroidStudyDraft["thyroid"]["rightLobe"] => {
+    const sourceLobe =
+      lobe && typeof lobe === "object"
+        ? (lobe as Partial<ThyroidStudyDraft["thyroid"]["rightLobe"]>)
+        : {};
+
+    return {
+      ...base.thyroid.rightLobe,
+      ...sourceLobe,
+      nodesList: sourceLobe.nodesList?.length
+        ? sourceLobe.nodesList.map((node) => normalizeNode(node))
+        : [],
+    };
+  };
+
+  const thyroidSource =
+    source.thyroid && typeof source.thyroid === "object"
+      ? (source.thyroid as Partial<ThyroidStudyDraft["thyroid"]>)
+      : {};
+
+  return {
+    ...base,
+    ...source,
+    thyroid: {
+      ...base.thyroid,
+      ...thyroidSource,
+      rightLobe: normalizeLobe(thyroidSource.rightLobe),
+      leftLobe: normalizeLobe(thyroidSource.leftLobe),
+    },
+  };
+}
+
+function normalizeBreastStudyDraft(value: unknown): BreastStudyDraft {
+  const base = createEmptyBreastStudyDraft();
+  const source = value && typeof value === "object" ? (value as Partial<BreastStudyDraft>) : {};
+
+  const normalizeNode = (node: unknown): BreastNodeDraft => {
+    const sourceNode =
+      node && typeof node === "object" ? (node as Partial<BreastNodeDraft>) : {};
+
+    return {
+      ...createEmptyBreastNodeDraft(),
+      ...sourceNode,
+      number: typeof sourceNode.number === "number" ? sourceNode.number : 1,
+      size1: sourceNode.size1 ?? "",
+      size2: sourceNode.size2 ?? "",
+      depth: sourceNode.depth ?? "",
+      direction: sourceNode.direction ?? "",
+      echogenicity: sourceNode.echogenicity ?? "средняя",
+      echostructure: sourceNode.echostructure ?? "однородная",
+      contour: sourceNode.contour ?? "четкий ровный",
+      orientation: sourceNode.orientation ?? "горизонтальная",
+      bloodFlow: sourceNode.bloodFlow ?? "не изменен",
+      comment: sourceNode.comment ?? "",
+    };
+  };
+
+  const normalizeSide = (side: unknown): BreastSideDraft => {
+    const sourceSide =
+      side && typeof side === "object" ? (side as Partial<BreastSideDraft>) : {};
+
+    return {
+      ...createEmptyBreastSideDraft(),
+      ...sourceSide,
+      nodesList: Array.isArray(sourceSide.nodesList)
+        ? sourceSide.nodesList.map((node) => normalizeNode(node))
+        : [],
+    };
+  };
+
+  const breastSource =
+    source.breast && typeof source.breast === "object"
+      ? (source.breast as Partial<BreastProtocolDraft>)
+      : {};
+
+  return {
+    ...base,
+    ...source,
+    breast: {
+      ...base.breast,
+      ...breastSource,
+      rightBreast: normalizeSide(breastSource.rightBreast),
+      leftBreast: normalizeSide(breastSource.leftBreast),
+    },
+    conclusion: typeof source.conclusion === "string" ? source.conclusion : base.conclusion,
+    recommendations:
+      typeof source.recommendations === "string" ? source.recommendations : base.recommendations,
+  };
+}
+
 function normalizeSingleTestisDraft(value: unknown): SingleTestisDraft {
   const base = createEmptySingleTestisDraft();
   const source = value && typeof value === "object" ? (value as Partial<SingleTestisDraft>) : {};
@@ -344,30 +489,44 @@ function buildStudiesData(
         return;
       }
 
-    if (studyType === "Почки") {
-      result[studyType] = normalizeKidneyDraft(value);
-      return;
-    }
+      if (studyType === "Почки") {
+        result[studyType] = normalizeKidneyDraft(value);
+        return;
+      };
 
-    if (studyType === "ОМТ (Ж)") {
-      result[studyType] = normalizeOmtFemaleDraft(value);
-      return;
-    }
+      if (studyType === "ОМТ (Ж)") {
+        result[studyType] = normalizeOmtFemaleDraft(value);
+        return;
+      }
 
-    if (studyType === "Органы мошонки") {
-      result[studyType] = normalizeScrotumDraft(value);
-      return;
-    }
+      if (studyType === "Органы мошонки") {
+        result[studyType] = normalizeScrotumDraft(value);
+        return;
+      }
 
-    if (studyType === "ОМТ (М)") {
-      result[studyType] = normalizeOmtMaleDraft(value);
-      return;
-    }
+      if (studyType === "ОМТ (М)") {
+        result[studyType] = normalizeOmtMaleDraft(value);
+        return;
+      }
 
-    const draft = value as Partial<StudyDraft>;
-    result[studyType] = {
-      general: draft.general ?? "",
-      sections: draft.sections ?? {},
+      if (studyType === "Щитовидная железа") {
+        result[studyType] = normalizeThyroidDraft(value);
+        return;
+      }
+
+      if (studyType === "Молочные железы") {
+        result[studyType] = normalizeBreastStudyDraft(value);
+        return;
+      }
+
+      if (studyType === "Лимфоузлы" || studyType === "Лимфатические узлы") {
+        result[studyType] = normalizeLymphNodesStudyDraft(value);
+        return;
+      }
+      const draft = value as Partial<StudyDraft>;
+      result[studyType] = {
+        general: draft.general ?? "",
+        sections: draft.sections ?? {},
       };
       return;
     }
@@ -397,8 +556,22 @@ function buildStudiesData(
       return;
     }
 
-    result[studyType] = createEmptyStudyDraft();
+    if (studyType === "Щитовидная железа") {
+      result[studyType] = createEmptyThyroidStudyDraft();
+      return;
+    }
+
+    if (studyType === "Молочные железы") {
+      result[studyType] = createEmptyBreastStudyDraft();
+      return;
+    }
+
+    if (studyType === "Лимфоузлы" || studyType === "Лимфатические узлы") {
+      result[studyType] = createEmptyLymphNodesStudyDraft();
+      return;
+    }
   });
+
 
   return result;
 }
@@ -507,24 +680,31 @@ export default function App() {
       return createEmptyObpDraft();
     }
 
-    if (label === "Почки") {
+    if (label === "ОБП??") {
       return createEmptyKidneyStudyDraft();
     }
 
-    if (label === "ОМТ (Ж)") {
+    if (label === "ОБП (?)") {
       return createEmptyOmtFemaleDraft();
     }
 
-    if (label === "Органы мошонки") {
-      return createEmptyScrotumDraft();
+    if (label === "ОБП (?)") {
+      return createEmptyOmtMaleDraft();
     }
 
-    if (label === "ОМТ (М)") {
-      return createEmptyOmtMaleDraft();
+    if (label === "ОБПОБП?? ОБПОБП") {
+      return createEmptyBreastStudyDraft();
+    }
+
+    if (label === "ОБПОБПОБП") {
+      return createEmptyLymphNodesStudyDraft();
     }
 
     return createEmptyStudyDraft();
   };
+
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -1218,6 +1398,30 @@ export default function App() {
     });
   };
 
+  const updateThyroidStudy = (value: ThyroidStudyDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "Щитовидная железа",
+      value: normalizeThyroidDraft(value),
+    });
+  };
+
+  const updateBreastStudy = (value: BreastStudyDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "Молочные железы",
+      value: normalizeBreastStudyDraft(value),
+    });
+  };
+
+  const updateLymphNodesStudy = (value: LymphNodesStudyDraft) => {
+    sendStudiesPatch({
+      mode: "set",
+      studyType: "Лимфоузлы",
+      value: normalizeLymphNodesStudyDraft(value),
+    });
+  };
+
   const updateObpGallbladderConcretionsList = (
     nextList: GallbladderConcretionDraft[],
   ) => {
@@ -1237,7 +1441,9 @@ export default function App() {
     });
   };
 
-  const updateObpGallbladderPolypsList = (nextList: GallbladderPolypDraft[]) => {
+  const updateObpGallbladderPolypsList = (
+    nextList: GallbladderPolypDraft[],
+  ) => {
     const currentObp = normalizeObpDraft(studiesData["ОБП"]);
     const nextObp: ObpDraft = {
       ...currentObp,
@@ -1269,6 +1475,7 @@ export default function App() {
       createEmptyGallbladderPolypDraft(),
     ]);
   };
+
 
   useEffect(() => {
     return () => {
@@ -1406,6 +1613,9 @@ export default function App() {
             onUpdateScrotumStudy={updateScrotumStudy}
             onUpdateOmtFemaleStudy={updateOmtFemaleStudy}
             onUpdateOmtMaleStudy={updateOmtMaleStudy}
+            onUpdateThyroidStudy={updateThyroidStudy}
+            onUpdateBreastStudy={updateBreastStudy}
+            onUpdateLymphNodesStudy={updateLymphNodesStudy}
           />
         )}
         {activeTab === "summary" && (

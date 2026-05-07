@@ -34,6 +34,10 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     value ?? defaultThyroidStudyState
   );
 
+  useEffect(() => {
+    setForm(value ?? defaultThyroidStudyState);
+  }, [value]);
+
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 

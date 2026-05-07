@@ -1,6 +1,4 @@
-// c:/Projects/Ultrasound/Frontend/src/types/breast.ts
-
-import type { SectionKey } from "@/components/common/OrgNavigation";
+﻿import type { SectionKey } from "@/components/common/OrgNavigation";
 
 export interface BreastNode {
   number: number;
@@ -53,7 +51,7 @@ export interface BreastSideProps {
   onChange?: (value: BreastSideProtocol) => void;
 }
 
-export interface BreastNodeProps {  
+export interface BreastNodeProps {
   node: BreastNode;
   onUpdate: (field: keyof BreastNode, value: string) => void;
   onRemove: () => void;

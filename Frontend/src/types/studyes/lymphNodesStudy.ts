@@ -1,5 +1,5 @@
-// Frontend/src/types/studyes/lymphNodesStudy.ts
-import type { LymphNodesProtocol } from '../organs/lymphNodes';
+// src/types/studyes/lymphNodesStudy.ts
+import type { LymphNodesProtocol } from "../organs/lymphNodes";
 
 export interface LymphNodesStudyProtocol {
   lymphNodes: LymphNodesProtocol | null;

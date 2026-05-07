@@ -1,6 +1,6 @@
 // src/types/defaultStates/index.ts
 
-// Органы
+// ??????
 export * from "./organs/kidney";
 export * from "./organs/gallbladder";
 export * from "./organs/liver";
@@ -18,7 +18,7 @@ export * from "./organs/brachioCephalicArteries";
 export * from "./organs/lowerExtremityVeins";
 export * from "./organs/breast";
 
-// Исследования
+// ????????????
 export * from "./studyes/childDispensary";
 export * from "./studyes/softTissue";
 export * from "./studyes/obp";
@@ -33,3 +33,4 @@ export * from "./studyes/salivaryGlandsStudy";
 export * from "./studyes/brachioCephalicArteriesStudy";
 export * from "./studyes/lowerExtremityVeinsStudy";
 export * from "./studyes/urinaryBladderStudy";
+export * from "./lymphNodesStudy";

@@ -67,6 +67,10 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
   );
   const updateField = useFieldUpdate(form, setForm, onChange);
 
+  useEffect(() => {
+    setForm(value ?? defaultThyroidState);
+  }, [value, setForm]);
+
   const rightVolumeValue = parseVolume(form.rightLobe.volume);
   const leftVolumeValue = parseVolume(form.leftLobe.volume);
   const calculatedTotalVolume = rightVolumeValue + leftVolumeValue;

@@ -2,68 +2,60 @@
 
 import React from "react";
 import { ButtonSelect } from "@/UI";
-import type { LymphNodeProps } from "@/types/organs/lymphNodes";
+import { inputClasses, labelClasses } from "@utils/formClasses";
 import { Trash2 } from "lucide-react";
+import type { LymphNodeProps } from "@/types/organs/lymphNodes";
 
-export const LymphNode: React.FC<LymphNodeProps> = ({
-  node,
-  onUpdate,
-  onDelete,
-}) => {
+export const LymphNode: React.FC<LymphNodeProps> = ({ node, onUpdate, onDelete }) => {
   return (
     <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg">
       <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
         <span className="text-white font-bold text-sm">
-          Лимфоузел ({node.side === "right" ? "справа" : "слева"})
+          {node.side === "right" ? "Правый" : "Левый"} узел
         </span>
         <button
           type="button"
           onClick={onDelete}
           className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-          title="Удалить лимфоузел"
+          title="Удалить узел"
         >
           <Trash2 size={16} />
         </button>
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Размеры узла */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Размер 1 (мм)
-            </label>
+          <label className={labelClasses}>
+            Размер 1 (мм)
             <input
               type="text"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              className={inputClasses}
               value={node.size1}
               onChange={(e) => onUpdate("size1", e.target.value)}
               placeholder="0.0"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Размер 2 (мм)
-            </label>
+          </label>
+
+          <label className={labelClasses}>
+            Размер 2 (мм)
             <input
               type="text"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              className={inputClasses}
               value={node.size2}
               onChange={(e) => onUpdate("size2", e.target.value)}
               placeholder="0.0"
             />
-          </div>
+          </label>
         </div>
 
-        {/* Характеристики */}
         <div className="space-y-3">
           <ButtonSelect
             label="Эхогенность"
             value={node.echogenicity}
             onChange={(val) => onUpdate("echogenicity", val)}
             options={[
-              { value: "повышенная", label: "повышенная" },
-              { value: "пониженная", label: "пониженная" },
+              { value: "изоэхогенный", label: "изоэхогенный" },
+              { value: "гипоэхогенный", label: "гипоэхогенный" },
             ]}
           />
 
@@ -92,9 +84,9 @@ export const LymphNode: React.FC<LymphNodeProps> = ({
             value={node.contour}
             onChange={(val) => onUpdate("contour", val)}
             options={[
-              { value: "четкий ровный", label: "четкий ровный" },
-              { value: "четкий не ровный", label: "четкий не ровный" },
-              { value: "не четкий", label: "не четкий" },
+              { value: "ровный четкий", label: "ровный четкий" },
+              { value: "нечеткий", label: "нечеткий" },
+              { value: "неровный", label: "неровный" },
             ]}
           />
 
@@ -103,8 +95,8 @@ export const LymphNode: React.FC<LymphNodeProps> = ({
             value={node.bloodFlow}
             onChange={(val) => onUpdate("bloodFlow", val)}
             options={[
-              { value: "не изменен", label: "не изменен" },
-              { value: "усилен", label: "усилен" },
+              { value: "не определяется", label: "не определяется" },
+              { value: "сохранен", label: "сохранен" },
             ]}
           />
         </div>

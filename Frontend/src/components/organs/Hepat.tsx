@@ -189,12 +189,11 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             value={form.contours}
             onChange={(val) => updateField("contours", val)}
             options={[
-              { value: "четкий,ровный", label: "четкий, ровный" },
-              { value: "четкий, неровнй", label: "четкий, неровный" },
+              { value: "четкий, ровный", label: "четкий, ровный" },
+              { value: "четкий, неровный", label: "четкий, неровный" },
               { value: "бугристый", label: "бугристый" },
             ]}
           />
-
           <ButtonSelect
             label="Угол нижнего края"
             value={form.lowerEdgeAngle}

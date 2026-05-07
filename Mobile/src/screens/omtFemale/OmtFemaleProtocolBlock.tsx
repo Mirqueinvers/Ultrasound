@@ -49,7 +49,7 @@ const UTERUS_STATUS_OPTIONS: FieldEditorOption[] = [
   { value: "обычное", label: "Обычное" },
   { value: "субтотальная гистерэктомия", label: "Субтотальная гистерэктомия" },
   { value: "тотальная гистерэктомия", label: "Тотальная гистерэктомия" },
-  { value: "гистеросальпингоовариектомия", label: "Гистеросальпингоовариектомия" },
+  { value: "гистеросальпингоовариэктомия", label: "Гистеросальпингоовариэктомия" },
   { value: "радикальная гистерэктомия", label: "Радикальная гистерэктомия" },
 ];
 
@@ -881,7 +881,7 @@ export function OmtFemaleProtocolBlock({
                                       { value: "задняя", label: "Задняя" },
                                       { value: "правая боковая", label: "Правая боковая" },
                                       { value: "левая боковая", label: "Левая боковая" },
-                                      { value: "дна", label: "Дно" },
+                                      { value: "дно", label: "Дно" },
                                     ],
                                     onSave: (nextValue) => updateMyomaNode(index, "wallLocation", nextValue),
                                   }),

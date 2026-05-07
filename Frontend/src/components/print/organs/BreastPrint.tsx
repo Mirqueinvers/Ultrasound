@@ -1,5 +1,4 @@
-// /components/print/organs/BreastPrint.tsx
-import React from "react";
+﻿import React from "react";
 import type {
   BreastProtocol,
   BreastSideProtocol,
@@ -20,13 +19,10 @@ const formatDate = (isoDate?: string): string => {
 const formatSideHeader = (side: BreastSideProtocol): string => {
   const parts: string[] = [];
 
-  // Кожа
   if (side.skin?.trim()) {
     if (side.skin === "изменена" && side.skinComment?.trim()) {
-      // если «изменена» — берём только текст из поля
       parts.push(side.skinComment.trim());
     } else {
-      // иначе стандартная фраза
       parts.push(
         `кожа ${side.skin.toLowerCase()}${
           side.skinComment?.trim() ? `: ${side.skinComment.trim()}` : ""
@@ -35,13 +31,10 @@ const formatSideHeader = (side: BreastSideProtocol): string => {
     }
   }
 
-  // Соски и ареолы
   if (side.nipples?.trim()) {
     if (side.nipples === "изменены" && side.nipplesComment?.trim()) {
-      // если «изменены» — берём только текст из поля
       parts.push(side.nipplesComment.trim());
     } else {
-      // иначе стандартная фраза
       parts.push(
         `соски и ареолы ${side.nipples.toLowerCase()}${
           side.nipplesComment?.trim() ? `: ${side.nipplesComment.trim()}` : ""
@@ -50,7 +43,6 @@ const formatSideHeader = (side: BreastSideProtocol): string => {
     }
   }
 
-  // Млечные протоки — как было
   if (side.milkDucts?.trim()) {
     parts.push(`млечные протоки ${side.milkDucts.toLowerCase()}`);
   }
@@ -61,10 +53,8 @@ const formatSideHeader = (side: BreastSideProtocol): string => {
   return `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
 };
 
-
-
 const formatSideNodesIntro = (
-  label: string,
+  label: "Правая молочная железа" | "Левая молочная железа",
   side: BreastSideProtocol
 ): string => {
   const loc =
@@ -96,9 +86,7 @@ const formatSideNodesIntro = (
   return `${loc} определяется ${countText}.`;
 };
 
-const formatSideNodesList = (
-  side: BreastSideProtocol
-): React.ReactNode[] => {
+const formatSideNodesList = (side: BreastSideProtocol): React.ReactNode[] => {
   const nodes = side.nodesList || [];
   if (!nodes.length) return [];
 
@@ -174,7 +162,6 @@ const renderSideBlock = (
   );
 };
 
-
 export const BreastPrint: React.FC<BreastPrintProps> = ({ value }) => {
   const {
     lastMenstruationDate,
@@ -203,7 +190,7 @@ export const BreastPrint: React.FC<BreastPrintProps> = ({ value }) => {
   const hasAnyContent =
     rightBreast ||
     leftBreast ||
-    infoLines.some((b) => b && b.trim().length > 0);
+    infoLines.some((line) => line && line.trim().length > 0);
 
   if (!hasAnyContent) return null;
 

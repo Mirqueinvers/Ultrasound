@@ -1,7 +1,6 @@
 // src/components/organs/LymphNodes/LymphNodesCommon.tsx
 
-import React from "react";
-import { useFormState } from "@hooks";
+import React, { useEffect, useState } from "react";
 import { LymphNodeRegion } from "./LymphNodeRegion";
 import type {
   LymphNodesProtocol,
@@ -15,9 +14,13 @@ export const LymphNodesCommon: React.FC<LymphNodesCommonProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const [form, setForm] = useFormState<LymphNodesProtocol>(
-    value ?? defaultLymphNodesState
+  const [form, setForm] = useState<LymphNodesProtocol>(
+    value ?? defaultLymphNodesState,
   );
+
+  useEffect(() => {
+    setForm(value ?? defaultLymphNodesState);
+  }, [value]);
 
   const handleRegionChange =
     (region: keyof LymphNodesProtocol) =>

@@ -77,10 +77,9 @@ const PROSTATE_ECHOTEXTURE_OPTIONS: FieldEditorOption[] = [
 ];
 
 const YES_NO_OPTIONS: FieldEditorOption[] = [
-  { value: "не определяется", label: "не определяется" },
-  { value: "определяется", label: "определяется" },
+  { value: "не определяются", label: "не определяются" },
+  { value: "определяются", label: "определяются" },
 ];
-
 const PROSTATE_BLAADDER_PROTRUSION_OPTIONS: FieldEditorOption[] = [
   { value: "не выступает", label: "не выступает" },
   { value: "выступает", label: "выступает" },
@@ -167,7 +166,7 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
   const isOrdinaryPosition = isNormalizedMatch(prostate.position, "обычное");
   const showEchotextureText = isNormalizedMatch(prostate.echotexture, "неоднородная");
-  const showPathologicLesionsText = isNormalizedMatch(prostate.pathologicLesions, "определяется");
+  const showPathologicLesionsText = isNormalizedMatch(prostate.pathologicLesions, "определяются");
   const showProtrusionMm = isNormalizedMatch(prostate.bladderProtrusion, "выступает");
   const showResidualBlock = isNormalizedMatch(urinaryBladder.residualStatus, "определяется");
   const showContentsText = isNormalizedMatch(urinaryBladder.contents, "неоднородное");
@@ -216,8 +215,7 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
       if (field === "bladderProtrusion" && nextValue !== "выступает") {
         nextProstate.bladderProtrusionMm = "";
       }
-
-      if (field === "pathologicLesions" && nextValue !== "определяется") {
+      if (field === "pathologicLesions" && nextValue !== "определяются") {
         nextProstate.pathologicLesionsText = "";
       }
 

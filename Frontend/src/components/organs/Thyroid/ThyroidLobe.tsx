@@ -41,6 +41,14 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   const [form, setForm] = useFormState<ThyroidLobeProtocol>(initialValue);
   const updateField = useFieldUpdate(form, setForm, onChange);
 
+  useEffect(() => {
+    setForm({
+      ...defaultThyroidLobeState,
+      ...(value || {}),
+      nodesList: value?.nodesList || [],
+    });
+  }, [value, setForm]);
+
   const organName = side === "left" ? "leftThyroidLobe" : "rightThyroidLobe";
 
   const lengthFocus = useFieldFocus(organName, "length");

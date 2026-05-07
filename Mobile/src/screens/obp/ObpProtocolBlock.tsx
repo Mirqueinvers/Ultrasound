@@ -13,6 +13,10 @@ import {
   ProtocolSectionHeader,
 } from "../../components/protocol/ProtocolHeaders";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import {
+  createEmptyGallbladderConcretionDraft,
+  createEmptyGallbladderPolypDraft,
+} from "../../shared/obpDraft";
 import type {
   GallbladderConcretionDraft,
   GallbladderDraft,
@@ -134,16 +138,14 @@ const HOMOGENEITY_OPTIONS: FieldEditorOption[] = [
 ];
 
 const CONTOURS_OPTIONS: FieldEditorOption[] = [
-  { value: "чёткий, ровный", label: "Чёткий, ровный" },
-  { value: "чёткий, не ровный", label: "Чёткий, не ровный" },
-  { value: "бугристый", label: "Бугристый" },
+  { value: "четкий, ровный", label: "четкий, ровный" },
+  { value: "четкий, неровный", label: "четкий, неровный" },
+  { value: "бугристый", label: "бугристый" },
 ];
-
 const LOWER_EDGE_OPTIONS: FieldEditorOption[] = [
-  { value: "заострён", label: "Заострён" },
-  { value: "закруглён", label: "Закруглён" },
+  { value: "заострён", label: "заострён" },
+  { value: "закруглён", label: "закруглён" },
 ];
-
 const FOCAL_OPTIONS: FieldEditorOption[] = [
   { value: "не определяются", label: "Не определяются" },
   { value: "определяются", label: "Определяются" },
@@ -183,7 +185,13 @@ const GALLBLADDER_YES_NO_OPTIONS: FieldEditorOption[] = [
   { value: "Определяются", label: "Определяются" },
 ];
 
-const GALLBLADDER_POSITION_DETAIL_OPTIONS: FieldEditorOption[] = [
+const GALLBLADDER_CONCRETION_POSITION_OPTIONS: FieldEditorOption[] = [
+  { value: "шейки", label: "Шейка" },
+  { value: "тела", label: "Тело" },
+  { value: "дна", label: "Дно" },
+];
+
+const GALLBLADDER_POLYP_POSITION_OPTIONS: FieldEditorOption[] = [
   { value: "шейке", label: "Шейка" },
   { value: "теле", label: "Тело" },
   { value: "дне", label: "Дно" },
@@ -236,10 +244,9 @@ const SPLEEN_ECHOSTRUCTURE_OPTIONS: FieldEditorOption[] = [
 ];
 
 const SPLEEN_CONTOUR_OPTIONS: FieldEditorOption[] = [
-  { value: "чёткий, ровный", label: "Чёткий, ровный" },
-  { value: "чёткий, не ровный", label: "Чёткий, не ровный" },
-  { value: "не чёткий", label: "Не чёткий" },
-  { value: "бугристый", label: "Бугристый" },
+  { value: "ровные", label: "четкий, ровный" },
+  { value: "неровные", label: "четкий, неровный" },
+  { value: "бугристые", label: "бугристый" },
 ];
 
 const OBP_FREE_FLUID_OPTIONS: FieldEditorOption[] = [
@@ -370,12 +377,12 @@ export function ObpProtocolBlock({
 
   const gallbladderConcretionFields: GallbladderConcretionFieldSpec[] = [
     { key: "size", label: "Размер", kind: "number", placeholder: "мм" },
-    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_POSITION_DETAIL_OPTIONS },
+    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_CONCRETION_POSITION_OPTIONS },
   ];
 
   const gallbladderPolypFields: GallbladderPolypFieldSpec[] = [
     { key: "size", label: "Размер", kind: "number", placeholder: "мм" },
-    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_POSITION_DETAIL_OPTIONS },
+    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_POLYP_POSITION_OPTIONS },
     { key: "wall", label: "Стенка", kind: "select", options: GALLBLADDER_POLYP_WALL_OPTIONS },
   ];
 
@@ -398,7 +405,7 @@ export function ObpProtocolBlock({
     { key: "width", label: "Ширина", kind: "number", placeholder: "мм" },
     { key: "echogenicity", label: "Эхогенность", kind: "select", options: SPLEEN_ECHOGENICITY_OPTIONS },
     { key: "echostructure", label: "Эхоструктура", kind: "select", options: SPLEEN_ECHOSTRUCTURE_OPTIONS },
-    { key: "contours", label: "Контуры", kind: "select", options: SPLEEN_CONTOUR_OPTIONS },
+    { key: "contours", label: "Контур", kind: "select", options: SPLEEN_CONTOUR_OPTIONS },
     { key: "pathologicalFormations", label: "Патологические образования", kind: "select", options: YES_NO_OPTIONS },
     { key: "pathologicalFormationsText", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true },
     { key: "splenicVein", label: "Селезёночная вена", kind: "number", placeholder: "мм" },
@@ -464,6 +471,22 @@ export function ObpProtocolBlock({
       },
     }));
     onUpdateGallbladderPolypsList(nextList);
+  };
+
+  const handleAddGallbladderConcretion = () => {
+    updateGallbladderConcretions([
+      ...activeGallbladder.concretionsList,
+      createEmptyGallbladderConcretionDraft(),
+    ]);
+    onAddGallbladderConcretion();
+  };
+
+  const handleAddGallbladderPolyp = () => {
+    updateGallbladderPolyps([
+      ...activeGallbladder.polypsList,
+      createEmptyGallbladderPolypDraft(),
+    ]);
+    onAddGallbladderPolyp();
   };
 
   const updatePancreasFieldValue = (field: keyof PancreasDraft, value: string) => {
@@ -1009,7 +1032,7 @@ export function ObpProtocolBlock({
 
                       <ProtocolActionButton
                         label="+ Конкремент"
-                        onPress={onAddGallbladderConcretion}
+                        onPress={handleAddGallbladderConcretion}
                       />
                     </View>
                   </View>
@@ -1093,7 +1116,7 @@ export function ObpProtocolBlock({
                         ))
                       )}
 
-                      <ProtocolActionButton label="+ Полип" onPress={onAddGallbladderPolyp} />
+                      <ProtocolActionButton label="+ Полип" onPress={handleAddGallbladderPolyp} />
                     </View>
                   </View>
                 )}

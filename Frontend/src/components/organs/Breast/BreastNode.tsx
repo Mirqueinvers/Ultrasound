@@ -1,5 +1,4 @@
-// src/components/organs/Breast/BreastNode.tsx
-import React from "react";
+﻿import React from "react";
 import { ButtonSelect } from "@/UI";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { Trash2, Plus } from "lucide-react";
@@ -15,11 +14,8 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
   return (
     <>
       <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg">
-        {/* Заголовок с номером и кнопкой удаления */}
         <div className="bg-sky-500 px-4 py-2 flex items-center justify-between">
-          <span className="text-white font-bold text-sm">
-            Узел #{node.number}
-          </span>
+          <span className="text-white font-bold text-sm">Узел #{node.number}</span>
           <button
             type="button"
             onClick={onRemove}
@@ -30,9 +26,7 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
           </button>
         </div>
 
-        {/* Контент узла */}
         <div className="p-4 space-y-4">
-          {/* Размеры */}
           <div className="grid grid-cols-3 gap-3">
             <label className={labelClasses}>
               Размер 1 (мм)
@@ -68,7 +62,6 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
             </label>
           </div>
 
-          {/* Направление */}
           <label className={labelClasses}>
             Направление узла (часы)
             <input
@@ -82,7 +75,6 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
             />
           </label>
 
-          {/* Характеристики */}
           <div className="space-y-3">
             <ButtonSelect
               label="Эхогенность"
@@ -140,12 +132,11 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
             />
           </div>
 
-          {/* Комментарий */}
           <label className={labelClasses + " w-full"}>
             Комментарий к узлу
             <textarea
               rows={3}
-              className={inputClasses + "resize-y"}
+              className={inputClasses + " resize-y"}
               value={node.comment}
               onChange={(e) => onUpdate("comment", e.target.value)}
               placeholder="Дополнительные заметки..."
@@ -154,7 +145,6 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
         </div>
       </div>
 
-      {/* Кнопка добавления узла (если это последний узел) */}
       {isLast && onAdd && (
         <button
           type="button"
