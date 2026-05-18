@@ -313,6 +313,8 @@ export function OmtFemaleProtocolBlock({
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -321,6 +323,8 @@ export function OmtFemaleProtocolBlock({
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -581,35 +585,27 @@ export function OmtFemaleProtocolBlock({
         <View style={styles.obpFieldList}>
           <ProtocolSectionHeader title="Положение" />
           {renderRow(
-            "Положение",
-            uterus.uterusStatus || "Нажмите для ввода",
-            "select",
-            Boolean(uterus.uterusStatus),
-            () =>
-              openEditor({
-                title: "Положение матки",
-                mode: "select",
-                value: uterus.uterusStatus,
-                options: UTERUS_STATUS_OPTIONS,
-                onSave: (nextValue) => updateUterusField("uterusStatus", nextValue),
-              }),
-          )}
+          "Положение",
+          uterus.uterusStatus || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.uterusStatus),
+          undefined,
+          undefined,
+          UTERUS_STATUS_OPTIONS,
+          (nextValue) => updateUterusField("uterusStatus", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Информация об исследовании" />
           {renderRow(
-            "Вид исследования",
-            uterus.studyType || "Нажмите для ввода",
-            "select",
-            Boolean(uterus.studyType),
-            () =>
-              openEditor({
-                title: "Вид исследования",
-                mode: "select",
-                value: uterus.studyType,
-                options: UTERUS_STUDY_TYPE_OPTIONS,
-                onSave: (nextValue) => updateUterusField("studyType", nextValue),
-              }),
-          )}
+          "Вид исследования",
+          uterus.studyType || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.studyType),
+          undefined,
+          undefined,
+          UTERUS_STUDY_TYPE_OPTIONS,
+          (nextValue) => updateUterusField("studyType", nextValue),
+        )}
           {renderRow(
             "Дата последней менструации",
             formatDateDisplay(uterus.lastMenstruationDate) || "Нажмите для ввода",
@@ -633,19 +629,15 @@ export function OmtFemaleProtocolBlock({
             true,
           )}
           {renderRow(
-            "Менопауза",
-            uterus.menopause || "Нажмите для ввода",
-            "select",
-            Boolean(uterus.menopause),
-            () =>
-              openEditor({
-                title: "Менопауза",
-                mode: "select",
-                value: uterus.menopause,
-                options: MENOPAUSE_OPTIONS,
-                onSave: (nextValue) => updateUterusField("menopause", nextValue),
-              }),
-          )}
+          "Менопауза",
+          uterus.menopause || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.menopause),
+          undefined,
+          undefined,
+          MENOPAUSE_OPTIONS,
+          (nextValue) => updateUterusField("menopause", nextValue),
+        )}
 
           {isNormalizedMatch(uterus.uterusStatus, "обычное") && (
             <>
@@ -703,50 +695,38 @@ export function OmtFemaleProtocolBlock({
 
               <ProtocolSectionHeader title="Форма матки" />
               {renderRow(
-                "Форма",
-                uterus.shape || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.shape),
-                () =>
-                  openEditor({
-                    title: "Форма матки",
-                    mode: "select",
-                    value: uterus.shape,
-                    options: UTERUS_SHAPE_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("shape", nextValue),
-                  }),
-              )}
+          "Форма",
+          uterus.shape || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.shape),
+          undefined,
+          undefined,
+          UTERUS_SHAPE_OPTIONS,
+          (nextValue) => updateUterusField("shape", nextValue),
+        )}
               <ProtocolSectionHeader title="Положение матки" />
               {renderRow(
-                "Положение",
-                uterus.position || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.position),
-                () =>
-                  openEditor({
-                    title: "Положение матки",
-                    mode: "select",
-                    value: uterus.position,
-                    options: UTERUS_POSITION_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("position", nextValue),
-                  }),
-              )}
+          "Положение",
+          uterus.position || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.position),
+          undefined,
+          undefined,
+          UTERUS_POSITION_OPTIONS,
+          (nextValue) => updateUterusField("position", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Строение миометрия" />
               {renderRow(
-                "Структура",
-                uterus.myometriumStructure || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.myometriumStructure),
-                () =>
-                  openEditor({
-                    title: "Структура миометрия",
-                    mode: "select",
-                    value: uterus.myometriumStructure,
-                    options: UTERUS_STRUCTURE_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("myometriumStructure", nextValue),
-                  }),
-              )}
+          "Структура",
+          uterus.myometriumStructure || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.myometriumStructure),
+          undefined,
+          undefined,
+          UTERUS_STRUCTURE_OPTIONS,
+          (nextValue) => updateUterusField("myometriumStructure", nextValue),
+        )}
               {uterus.myometriumStructure === "неоднородная" && renderRow(
                 "Описание",
                 uterus.myometriumStructureText || "Нажмите для ввода",
@@ -763,33 +743,25 @@ export function OmtFemaleProtocolBlock({
                   }),
               )}
               {renderRow(
-                "Эхогенность",
-                uterus.myometriumEchogenicity || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.myometriumEchogenicity),
-                () =>
-                  openEditor({
-                    title: "Эхогенность миометрия",
-                    mode: "select",
-                    value: uterus.myometriumEchogenicity,
-                    options: UTERUS_ECHOGENICITY_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("myometriumEchogenicity", nextValue),
-                  }),
-              )}
+          "Эхогенность",
+          uterus.myometriumEchogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.myometriumEchogenicity),
+          undefined,
+          undefined,
+          UTERUS_ECHOGENICITY_OPTIONS,
+          (nextValue) => updateUterusField("myometriumEchogenicity", nextValue),
+        )}
               {renderRow(
-                "Полость матки",
-                uterus.uterineCavity || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.uterineCavity),
-                () =>
-                  openEditor({
-                    title: "Полость матки",
-                    mode: "select",
-                    value: uterus.uterineCavity,
-                    options: UTERINE_CAVITY_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("uterineCavity", nextValue),
-                  }),
-              )}
+          "Полость матки",
+          uterus.uterineCavity || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.uterineCavity),
+          undefined,
+          undefined,
+          UTERINE_CAVITY_OPTIONS,
+          (nextValue) => updateUterusField("uterineCavity", nextValue),
+        )}
               {showUterineCavityText && renderRow(
                 "Описание расширения",
                 uterus.uterineCavityText || "Нажмите для ввода",
@@ -808,19 +780,15 @@ export function OmtFemaleProtocolBlock({
 
               <ProtocolSectionHeader title="Объемные образования" />
               {renderRow(
-                "Определяются",
-                uterus.myomaNodesPresence || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.myomaNodesPresence),
-                () =>
-                  openEditor({
-                    title: "Объемные образования",
-                    mode: "select",
-                    value: uterus.myomaNodesPresence,
-                    options: YES_NO_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("myomaNodesPresence", nextValue),
-                  }),
-              )}
+          "Определяются",
+          uterus.myomaNodesPresence || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.myomaNodesPresence),
+          undefined,
+          undefined,
+          YES_NO_OPTIONS,
+          (nextValue) => updateUterusField("myomaNodesPresence", nextValue),
+        )}
 
               {showMyomaNodes && (
                 <View style={styles.obpFieldList}>
@@ -868,148 +836,116 @@ export function OmtFemaleProtocolBlock({
                                   }),
                               )}
                               {renderRow(
-                                "По стенке матки",
-                                node.wallLocation || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.wallLocation),
-                                () =>
-                                  openEditor({
-                                    title: `По стенке матки #${index + 1}`,
-                                    mode: "select",
-                                    value: node.wallLocation,
-                                    options: [
+          "По стенке матки",
+          node.wallLocation || "Нажмите для ввода",
+          "select",
+          Boolean(node.wallLocation),
+          undefined,
+          undefined,
+          [
                                       { value: "передняя", label: "Передняя" },
                                       { value: "задняя", label: "Задняя" },
                                       { value: "правая боковая", label: "Правая боковая" },
                                       { value: "левая боковая", label: "Левая боковая" },
                                       { value: "дно", label: "Дно" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "wallLocation", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "wallLocation", nextValue),
+        )}
                               {renderRow(
-                                "По слою матки",
-                                node.layerType || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.layerType),
-                                () =>
-                                  openEditor({
-                                    title: `По слою матки #${index + 1}`,
-                                    mode: "select",
-                                    value: node.layerType,
-                                    options: [
+          "По слою матки",
+          node.layerType || "Нажмите для ввода",
+          "select",
+          Boolean(node.layerType),
+          undefined,
+          undefined,
+          [
                                       { value: "интрамуральная", label: "Интрамуральная" },
                                       { value: "субсерозная", label: "Субсерозная" },
                                       { value: "субмукозная", label: "Субмукозная" },
                                       { value: "интралигаментарная", label: "Интралигаментарная" },
                                       { value: "на ножке", label: "На ножке" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "layerType", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "layerType", nextValue),
+        )}
                               {renderRow(
-                                "Четкость контура",
-                                node.contourClarity || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.contourClarity),
-                                () =>
-                                  openEditor({
-                                    title: `Четкость контура #${index + 1}`,
-                                    mode: "select",
-                                    value: node.contourClarity,
-                                    options: [
+          "Четкость контура",
+          node.contourClarity || "Нажмите для ввода",
+          "select",
+          Boolean(node.contourClarity),
+          undefined,
+          undefined,
+          [
                                       { value: "четкие", label: "Четкие" },
                                       { value: "нечеткие", label: "Нечеткие" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "contourClarity", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "contourClarity", nextValue),
+        )}
                               {renderRow(
-                                "Ровность контура",
-                                node.contourEvenness || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.contourEvenness),
-                                () =>
-                                  openEditor({
-                                    title: `Ровность контура #${index + 1}`,
-                                    mode: "select",
-                                    value: node.contourEvenness,
-                                    options: [
+          "Ровность контура",
+          node.contourEvenness || "Нажмите для ввода",
+          "select",
+          Boolean(node.contourEvenness),
+          undefined,
+          undefined,
+          [
                                       { value: "ровные", label: "Ровные" },
                                       { value: "неровные", label: "Неровные" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "contourEvenness", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "contourEvenness", nextValue),
+        )}
                               {renderRow(
-                                "Эхогенность",
-                                node.echogenicity || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.echogenicity),
-                                () =>
-                                  openEditor({
-                                    title: `Эхогенность узла #${index + 1}`,
-                                    mode: "select",
-                                    value: node.echogenicity,
-                                    options: [
+          "Эхогенность",
+          node.echogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(node.echogenicity),
+          undefined,
+          undefined,
+          [
                                       { value: "гипоэхогенный", label: "Гипоэхогенный" },
                                       { value: "гиперэхогенный", label: "Гиперэхогенный" },
                                       { value: "изоэхогенный", label: "Изоэхогенный" },
                                       { value: "гетерогенный", label: "Гетерогенный" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "echogenicity", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "echogenicity", nextValue),
+        )}
                               {renderRow(
-                                "Структура",
-                                node.structure || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.structure),
-                                () =>
-                                  openEditor({
-                                    title: `Структура узла #${index + 1}`,
-                                    mode: "select",
-                                    value: node.structure,
-                                    options: UTERUS_STRUCTURE_OPTIONS,
-                                    onSave: (nextValue) => updateMyomaNode(index, "structure", nextValue),
-                                  }),
-                              )}
+          "Структура",
+          node.structure || "Нажмите для ввода",
+          "select",
+          Boolean(node.structure),
+          undefined,
+          undefined,
+          UTERUS_STRUCTURE_OPTIONS,
+          (nextValue) => updateMyomaNode(index, "structure", nextValue),
+        )}
                               {renderRow(
-                                "Влияние на полость",
-                                node.cavityImpact || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.cavityImpact),
-                                () =>
-                                  openEditor({
-                                    title: `Влияние на полость #${index + 1}`,
-                                    mode: "select",
-                                    value: node.cavityImpact,
-                                    options: [
+          "Влияние на полость",
+          node.cavityImpact || "Нажмите для ввода",
+          "select",
+          Boolean(node.cavityImpact),
+          undefined,
+          undefined,
+          [
                                       { value: "не деформирует", label: "Не деформирует" },
                                       { value: "деформирует полость", label: "Деформирует полость" },
                                       { value: "смещает эндометрий", label: "Смещает эндометрий" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "cavityImpact", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "cavityImpact", nextValue),
+        )}
                               {renderRow(
-                                "Кровоток",
-                                node.bloodFlow || "Нажмите для ввода",
-                                "select",
-                                Boolean(node.bloodFlow),
-                                () =>
-                                  openEditor({
-                                    title: `Кровоток #${index + 1}`,
-                                    mode: "select",
-                                    value: node.bloodFlow,
-                                    options: [
+          "Кровоток",
+          node.bloodFlow || "Нажмите для ввода",
+          "select",
+          Boolean(node.bloodFlow),
+          undefined,
+          undefined,
+          [
                                       { value: "не изменен", label: "Не изменен" },
                                       { value: "усилен", label: "Усилен" },
                                       { value: "обеднен", label: "Обеднен" },
                                     ],
-                                    onSave: (nextValue) => updateMyomaNode(index, "bloodFlow", nextValue),
-                                  }),
-                              )}
+          (nextValue) => updateMyomaNode(index, "bloodFlow", nextValue),
+        )}
                               {renderRow(
                                 "Комментарий",
                                 node.comment || "Нажмите для ввода",
@@ -1052,19 +988,15 @@ export function OmtFemaleProtocolBlock({
                   }),
               )}
               {renderRow(
-                "Структура",
-                uterus.endometriumStructure || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.endometriumStructure),
-                () =>
-                  openEditor({
-                    title: "Структура эндометрия",
-                    mode: "select",
-                    value: uterus.endometriumStructure,
-                    options: ENDOMETRIUM_STRUCTURE_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("endometriumStructure", nextValue),
-                  }),
-              )}
+          "Структура",
+          uterus.endometriumStructure || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.endometriumStructure),
+          undefined,
+          undefined,
+          ENDOMETRIUM_STRUCTURE_OPTIONS,
+          (nextValue) => updateUterusField("endometriumStructure", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Шейка матки" />
               {renderRow(
@@ -1082,19 +1014,15 @@ export function OmtFemaleProtocolBlock({
                   }),
               )}
               {renderRow(
-                "Эхоструктура",
-                uterus.cervixEchostructure || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.cervixEchostructure),
-                () =>
-                  openEditor({
-                    title: "Эхоструктура шейки матки",
-                    mode: "select",
-                    value: uterus.cervixEchostructure,
-                    options: CERVIX_ECHOSTRUCTURE_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("cervixEchostructure", nextValue),
-                  }),
-              )}
+          "Эхоструктура",
+          uterus.cervixEchostructure || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.cervixEchostructure),
+          undefined,
+          undefined,
+          CERVIX_ECHOSTRUCTURE_OPTIONS,
+          (nextValue) => updateUterusField("cervixEchostructure", nextValue),
+        )}
               {showCervixEchostructureText && renderRow(
                 "Описание эхоструктуры",
                 uterus.cervixEchostructureText || "Нажмите для ввода",
@@ -1111,19 +1039,15 @@ export function OmtFemaleProtocolBlock({
                   }),
               )}
               {renderRow(
-                "Цервикальный канал",
-                uterus.cervicalCanal || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.cervicalCanal),
-                () =>
-                  openEditor({
-                    title: "Цервикальный канал",
-                    mode: "select",
-                    value: uterus.cervicalCanal,
-                    options: CERVICAL_CANAL_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("cervicalCanal", nextValue),
-                  }),
-              )}
+          "Цервикальный канал",
+          uterus.cervicalCanal || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.cervicalCanal),
+          undefined,
+          undefined,
+          CERVICAL_CANAL_OPTIONS,
+          (nextValue) => updateUterusField("cervicalCanal", nextValue),
+        )}
               {showCervicalCanalText && renderRow(
                 "Описание канала",
                 uterus.cervicalCanalText || "Нажмите для ввода",
@@ -1142,19 +1066,15 @@ export function OmtFemaleProtocolBlock({
 
           <ProtocolSectionHeader title="Свободная жидкость в малом тазу" />
               {renderRow(
-                "Определение",
-                uterus.freeFluid || "Нажмите для ввода",
-                "select",
-                Boolean(uterus.freeFluid),
-                () =>
-                  openEditor({
-                    title: "Свободная жидкость",
-                    mode: "select",
-                    value: uterus.freeFluid,
-                    options: FREE_FLUID_OPTIONS,
-                    onSave: (nextValue) => updateUterusField("freeFluid", nextValue),
-                  }),
-              )}
+          "Определение",
+          uterus.freeFluid || "Нажмите для ввода",
+          "select",
+          Boolean(uterus.freeFluid),
+          undefined,
+          undefined,
+          FREE_FLUID_OPTIONS,
+          (nextValue) => updateUterusField("freeFluid", nextValue),
+        )}
               {showFreeFluidText && renderRow(
                 "Описание",
                 uterus.freeFluidText || "Нажмите для ввода",
@@ -1201,19 +1121,15 @@ export function OmtFemaleProtocolBlock({
             <ProtocolOrganHeader title={title} />
             <View style={styles.obpFieldList}>
               {renderRow(
-                "Положение",
-                ovary.position || "Нажмите для ввода",
-                "select",
-                Boolean(ovary.position),
-                () =>
-                  openEditor({
-                    title: `${title}: положение`,
-                    mode: "select",
-                    value: ovary.position,
-                    options: OVARY_POSITION_OPTIONS,
-                    onSave: (nextValue) => updateOvaryField(side, "position", nextValue),
-                  }),
-              )}
+          "Положение",
+          ovary.position || "Нажмите для ввода",
+          "select",
+          Boolean(ovary.position),
+          undefined,
+          undefined,
+          OVARY_POSITION_OPTIONS,
+          (nextValue) => updateOvaryField(side, "position", nextValue),
+        )}
 
               {isVisible && (
                 <>
@@ -1271,51 +1187,39 @@ export function OmtFemaleProtocolBlock({
 
                   <ProtocolSectionHeader title="Форма" />
                   {renderRow(
-                    "Форма",
-                    ovary.shape || "Нажмите для ввода",
-                    "select",
-                    Boolean(ovary.shape),
-                    () =>
-                      openEditor({
-                        title: `${title}: форма`,
-                        mode: "select",
-                        value: ovary.shape,
-                        options: OVARY_SHAPE_OPTIONS,
-                        onSave: (nextValue) => updateOvaryField(side, "shape", nextValue),
-                      }),
-                  )}
+          "Форма",
+          ovary.shape || "Нажмите для ввода",
+          "select",
+          Boolean(ovary.shape),
+          undefined,
+          undefined,
+          OVARY_SHAPE_OPTIONS,
+          (nextValue) => updateOvaryField(side, "shape", nextValue),
+        )}
 
                   <ProtocolSectionHeader title="Контур" />
                   {renderRow(
-                    "Контур",
-                    ovary.contour || "Нажмите для ввода",
-                    "select",
-                    Boolean(ovary.contour),
-                    () =>
-                      openEditor({
-                        title: `${title}: контур`,
-                        mode: "select",
-                        value: ovary.contour,
-                        options: OVARY_CONTOUR_OPTIONS,
-                        onSave: (nextValue) => updateOvaryField(side, "contour", nextValue),
-                      }),
-                  )}
+          "Контур",
+          ovary.contour || "Нажмите для ввода",
+          "select",
+          Boolean(ovary.contour),
+          undefined,
+          undefined,
+          OVARY_CONTOUR_OPTIONS,
+          (nextValue) => updateOvaryField(side, "contour", nextValue),
+        )}
 
                   <ProtocolSectionHeader title="Кисты" />
                   {renderRow(
-                    "Определение",
-                    ovary.cysts || "Нажмите для ввода",
-                    "select",
-                    Boolean(ovary.cysts),
-                    () =>
-                      openEditor({
-                        title: `${title}: кисты`,
-                        mode: "select",
-                        value: ovary.cysts,
-                        options: OVARY_CYST_OPTIONS,
-                        onSave: (nextValue) => updateOvaryField(side, "cysts", nextValue),
-                      }),
-                  )}
+          "Определение",
+          ovary.cysts || "Нажмите для ввода",
+          "select",
+          Boolean(ovary.cysts),
+          undefined,
+          undefined,
+          OVARY_CYST_OPTIONS,
+          (nextValue) => updateOvaryField(side, "cysts", nextValue),
+        )}
 
                   {isNormalizedMatch(ovary.cysts, "определяются") && (
                     <View style={styles.obpFieldList}>
@@ -1397,19 +1301,15 @@ export function OmtFemaleProtocolBlock({
 
                   <ProtocolSectionHeader title="Образования" />
                   {renderRow(
-                    "Определение",
-                    ovary.formations || "Нажмите для ввода",
-                    "select",
-                    Boolean(ovary.formations),
-                    () =>
-                      openEditor({
-                        title: `${title}: образования`,
-                        mode: "select",
-                        value: ovary.formations,
-                        options: OVARY_FORMATION_OPTIONS,
-                        onSave: (nextValue) => updateOvaryField(side, "formations", nextValue),
-                      }),
-                  )}
+          "Определение",
+          ovary.formations || "Нажмите для ввода",
+          "select",
+          Boolean(ovary.formations),
+          undefined,
+          undefined,
+          OVARY_FORMATION_OPTIONS,
+          (nextValue) => updateOvaryField(side, "formations", nextValue),
+        )}
                   {isNormalizedMatch(ovary.formations, "определяются") && renderRow(
                     "Описание",
                     ovary.formationsText || "Нажмите для ввода",
@@ -1520,19 +1420,15 @@ export function OmtFemaleProtocolBlock({
 
           <ProtocolSectionHeader title="Объем остаточной мочи" />
           {renderRow(
-            "Определение",
-            urinaryBladder.residualStatus || "Нажмите для ввода",
-            "select",
-            Boolean(urinaryBladder.residualStatus),
-            () =>
-              openEditor({
-                title: "Объем остаточной мочи",
-                mode: "select",
-                value: urinaryBladder.residualStatus,
-                options: BLADDER_RESIDUAL_OPTIONS,
-                onSave: (nextValue) => updateBladderField("residualStatus", nextValue),
-              }),
-          )}
+          "Определение",
+          urinaryBladder.residualStatus || "Нажмите для ввода",
+          "select",
+          Boolean(urinaryBladder.residualStatus),
+          undefined,
+          undefined,
+          BLADDER_RESIDUAL_OPTIONS,
+          (nextValue) => updateBladderField("residualStatus", nextValue),
+        )}
           {isNormalizedMatch(urinaryBladder.residualStatus, "определяется") && (
             <>
               {renderRow(
@@ -1590,19 +1486,15 @@ export function OmtFemaleProtocolBlock({
 
           <ProtocolSectionHeader title="Содержимое" />
           {renderRow(
-            "Характер",
-            urinaryBladder.contents || "Нажмите для ввода",
-            "select",
-            Boolean(urinaryBladder.contents),
-            () =>
-              openEditor({
-                title: "Характер содержимого",
-                mode: "select",
-                value: urinaryBladder.contents,
-                options: BLADDER_CONTENT_OPTIONS,
-                onSave: (nextValue) => updateBladderField("contents", nextValue),
-              }),
-          )}
+          "Характер",
+          urinaryBladder.contents || "Нажмите для ввода",
+          "select",
+          Boolean(urinaryBladder.contents),
+          undefined,
+          undefined,
+          BLADDER_CONTENT_OPTIONS,
+          (nextValue) => updateBladderField("contents", nextValue),
+        )}
           {showContentsText && renderRow(
             "Описание содержимого",
             urinaryBladder.contentsText || "Нажмите для ввода",

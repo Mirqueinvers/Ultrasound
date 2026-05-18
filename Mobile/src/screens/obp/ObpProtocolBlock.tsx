@@ -423,6 +423,37 @@ export function ObpProtocolBlock({
 
   const hasValue = (currentValue: string) => currentValue.trim().length > 0;
 
+  const renderObpFieldRow = ({
+    label,
+    value,
+    kind,
+    filled,
+    readonly,
+    onPress,
+    options,
+    onSelectOption,
+  }: {
+    label: string;
+    value: string;
+    kind: "number" | "select" | "text" | "auto";
+    filled: boolean;
+    readonly?: boolean;
+    onPress?: () => void;
+    options?: FieldEditorOption[];
+    onSelectOption?: (value: string) => void;
+  }) => (
+    <ProtocolFieldRow
+      label={label}
+      value={value}
+      typeLabel={readonly ? "auto" : kind === "number" ? "numpad" : kind}
+      filled={filled}
+      readonly={readonly}
+      onPress={kind === "select" ? undefined : onPress}
+      options={kind === "select" ? options : undefined}
+      onSelectOption={kind === "select" ? onSelectOption : undefined}
+    />
+  );
+
   const updateDraft = (producer: (current: ObpDraft) => ObpDraft) => {
     setDraft((current) => {
       const next = producer(current);
@@ -646,8 +677,13 @@ export function ObpProtocolBlock({
             return (
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Размеры")}
-                <Pressable
-                  onPress={() => {
+                {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  readonly: isReadOnly,
+  onPress: () => {
                     if (isReadOnly) {
                       return;
                     }
@@ -661,29 +697,10 @@ export function ObpProtocolBlock({
                       options: field.options,
                       onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    hasValue(currentValue) && styles.obpFieldRowFilled,
-                    isReadOnly && styles.obpFieldRowReadonly,
-                    pressed && !isReadOnly && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                  </View>
-
-                  <Text style={styles.obpFieldType}>
-                    {isReadOnly
-                      ? "auto"
-                      : field.kind === "number"
-                        ? "numpad"
-                        : field.kind === "select"
-                          ? "select"
-                          : "text"}
-                  </Text>
-                </Pressable>
+                  },
+  options: field.options,
+  onSelectOption: (nextValue) => updateLiverFieldValue(field.key, nextValue),
+})}
               </Fragment>
             );
           }
@@ -692,8 +709,13 @@ export function ObpProtocolBlock({
             return (
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Структура")}
-                <Pressable
-                  onPress={() => {
+                {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  readonly: isReadOnly,
+  onPress: () => {
                     if (isReadOnly) {
                       return;
                     }
@@ -707,29 +729,10 @@ export function ObpProtocolBlock({
                       options: field.options,
                       onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    hasValue(currentValue) && styles.obpFieldRowFilled,
-                    isReadOnly && styles.obpFieldRowReadonly,
-                    pressed && !isReadOnly && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                  </View>
-
-                  <Text style={styles.obpFieldType}>
-                    {isReadOnly
-                      ? "auto"
-                      : field.kind === "number"
-                        ? "numpad"
-                        : field.kind === "select"
-                          ? "select"
-                          : "text"}
-                  </Text>
-                </Pressable>
+                  },
+  options: field.options,
+  onSelectOption: (nextValue) => updateLiverFieldValue(field.key, nextValue),
+})}
               </Fragment>
             );
           }
@@ -738,8 +741,13 @@ export function ObpProtocolBlock({
             return (
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Сосуды")}
-                <Pressable
-                  onPress={() => {
+                {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  readonly: isReadOnly,
+  onPress: () => {
                     if (isReadOnly) {
                       return;
                     }
@@ -753,29 +761,10 @@ export function ObpProtocolBlock({
                       options: field.options,
                       onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    hasValue(currentValue) && styles.obpFieldRowFilled,
-                    isReadOnly && styles.obpFieldRowReadonly,
-                    pressed && !isReadOnly && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                  </View>
-
-                  <Text style={styles.obpFieldType}>
-                    {isReadOnly
-                      ? "auto"
-                      : field.kind === "number"
-                        ? "numpad"
-                        : field.kind === "select"
-                          ? "select"
-                          : "text"}
-                  </Text>
-                </Pressable>
+                  },
+  options: field.options,
+  onSelectOption: (nextValue) => updateLiverFieldValue(field.key, nextValue),
+})}
               </Fragment>
             );
           }
@@ -784,8 +773,13 @@ export function ObpProtocolBlock({
             return (
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Дополнительно")}
-                <Pressable
-                  onPress={() => {
+                {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  readonly: isReadOnly,
+  onPress: () => {
                     if (isReadOnly) {
                       return;
                     }
@@ -799,37 +793,21 @@ export function ObpProtocolBlock({
                       options: field.options,
                       onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                     });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    hasValue(currentValue) && styles.obpFieldRowFilled,
-                    isReadOnly && styles.obpFieldRowReadonly,
-                    pressed && !isReadOnly && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                  </View>
-
-                  <Text style={styles.obpFieldType}>
-                    {isReadOnly
-                      ? "auto"
-                      : field.kind === "number"
-                        ? "numpad"
-                        : field.kind === "select"
-                          ? "select"
-                          : "text"}
-                  </Text>
-                </Pressable>
+                  },
+  options: field.options,
+  onSelectOption: (nextValue) => updateLiverFieldValue(field.key, nextValue),
+})}
               </Fragment>
             );
           }
 
-          return (
-            <Pressable
-              key={field.key}
-              onPress={() => {
+          return renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  readonly: isReadOnly,
+  onPress: () => {
                 if (isReadOnly) {
                   return;
                 }
@@ -843,30 +821,10 @@ export function ObpProtocolBlock({
                   options: field.options,
                   onSave: (nextValue) => updateLiverFieldValue(field.key, nextValue),
                 });
-              }}
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                hasValue(currentValue) && styles.obpFieldRowFilled,
-                isReadOnly && styles.obpFieldRowReadonly,
-                pressed && !isReadOnly && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-              </View>
-
-              <Text style={styles.obpFieldType}>
-                {isReadOnly
-                  ? "auto"
-                  : field.kind === "number"
-                    ? "numpad"
-                    : field.kind === "select"
-                      ? "select"
-                      : "text"}
-              </Text>
-            </Pressable>
-          );
+              },
+  options: field.options,
+  onSelectOption: (nextValue) => updateLiverFieldValue(field.key, nextValue),
+});
         })}
       </View>
 
@@ -881,10 +839,12 @@ export function ObpProtocolBlock({
           const currentValue = activeGallbladder[field.key];
           const displayValue = currentValue || 'Нажмите для ввода';
 
-          const fieldRow = (
-            <Pressable
-              key={field.key}
-              onPress={() => {
+          const fieldRow = renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  onPress: () => {
                 openEditor({
                   title: field.label,
                   mode: field.kind,
@@ -894,27 +854,10 @@ export function ObpProtocolBlock({
                   options: field.options,
                   onSave: (nextValue) => updateGallbladderFieldValue(field.key, nextValue),
                 });
-              }}
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                hasValue(currentValue) && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                <Text style={styles.obpFieldValue}>{displayValue}</Text>
-              </View>
-
-              <Text style={styles.obpFieldType}>
-                {field.kind === 'number'
-                  ? 'numpad'
-                  : field.kind === 'select'
-                    ? 'select'
-                    : 'text'}
-              </Text>
-            </Pressable>
-          );
+              },
+  options: field.options,
+  onSelectOption: (nextValue) => updateGallbladderFieldValue(field.key, nextValue),
+});
 
           if (field.key === "position") {
             return (
@@ -988,10 +931,12 @@ export function ObpProtocolBlock({
                                 const currentItemValue = item[itemField.key];
                                 const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
 
-                                return (
-                                  <Pressable
-                                    key={`${itemField.key}-${index}`}
-                                    onPress={() => {
+                                return renderObpFieldRow({
+  label: itemField.label,
+  value: itemDisplayValue,
+  kind: itemField.kind,
+  filled: hasValue(currentItemValue),
+  onPress: () => {
                                       openEditor({
                                         title: `${itemField.label} #${index + 1}`,
                                         mode: itemField.kind,
@@ -1005,26 +950,15 @@ export function ObpProtocolBlock({
                                             nextValue,
                                           ),
                                       });
-                                    }}
-                                    style={[
-                                      styles.obpFieldRow,
-                                      hasValue(currentItemValue) && styles.obpFieldRowFilled,
-                                    ]}
-                                  >
-                                    <View style={styles.obpFieldRowContent}>
-                                      <Text style={styles.obpFieldLabel}>{itemField.label}</Text>
-                                      <Text style={styles.obpFieldValue}>{itemDisplayValue}</Text>
-                                    </View>
-
-                                    <Text style={styles.obpFieldType}>
-                                      {itemField.kind === 'number'
-                                        ? 'numpad'
-                                        : itemField.kind === 'select'
-                                          ? 'select'
-                                          : 'text'}
-                                    </Text>
-                                  </Pressable>
-                                );
+                                    },
+  options: itemField.options,
+  onSelectOption: (nextValue) =>
+                                          updateGallbladderConcretionItem(
+                                            index,
+                                            itemField.key,
+                                            nextValue,
+                                          ),
+});
                               })}
                             </View>
                           </ProtocolCard>
@@ -1078,10 +1012,12 @@ export function ObpProtocolBlock({
                                 const currentItemValue = item[itemField.key];
                                 const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
 
-                                return (
-                                  <Pressable
-                                    key={`${itemField.key}-${index}`}
-                                    onPress={() => {
+                                return renderObpFieldRow({
+  label: itemField.label,
+  value: itemDisplayValue,
+  kind: itemField.kind,
+  filled: hasValue(currentItemValue),
+  onPress: () => {
                                       openEditor({
                                         title: `${itemField.label} #${index + 1}`,
                                         mode: itemField.kind,
@@ -1091,26 +1027,11 @@ export function ObpProtocolBlock({
                                         onSave: (nextValue) =>
                                           updateGallbladderPolypItem(index, itemField.key, nextValue),
                                       });
-                                    }}
-                                    style={[
-                                      styles.obpFieldRow,
-                                      hasValue(currentItemValue) && styles.obpFieldRowFilled,
-                                    ]}
-                                  >
-                                    <View style={styles.obpFieldRowContent}>
-                                      <Text style={styles.obpFieldLabel}>{itemField.label}</Text>
-                                      <Text style={styles.obpFieldValue}>{itemDisplayValue}</Text>
-                                    </View>
-
-                                    <Text style={styles.obpFieldType}>
-                                      {itemField.kind === 'number'
-                                        ? 'numpad'
-                                        : itemField.kind === 'select'
-                                          ? 'select'
-                                          : 'text'}
-                                    </Text>
-                                  </Pressable>
-                                );
+                                    },
+  options: itemField.options,
+  onSelectOption: (nextValue) =>
+                                          updateGallbladderPolypItem(index, itemField.key, nextValue),
+});
                               })}
                             </View>
                           </ProtocolCard>
@@ -1146,8 +1067,12 @@ export function ObpProtocolBlock({
               {field.key === "wirsungDuct" && renderInlineSectionHeader("Вирсунгов проток")}
               {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
-              <Pressable
-                onPress={() => {
+              {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  onPress: () => {
                   openEditor({
                     title: field.label,
                     mode: field.kind,
@@ -1157,26 +1082,10 @@ export function ObpProtocolBlock({
                     options: field.options,
                     onSave: (nextValue) => updatePancreasFieldValue(field.key, nextValue),
                   });
-                }}
-                style={({ pressed }) => [
-                  styles.obpFieldRow,
-                  hasValue(currentValue) && styles.obpFieldRowFilled,
-                  pressed && styles.obpFieldRowPressed,
-                ]}
-              >
-                <View style={styles.obpFieldRowContent}>
-                  <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                  <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                </View>
-
-                <Text style={styles.obpFieldType}>
-                  {field.kind === "number"
-                    ? "numpad"
-                    : field.kind === "select"
-                      ? "select"
-                      : "text"}
-                </Text>
-              </Pressable>
+                },
+  options: field.options,
+  onSelectOption: (nextValue) => updatePancreasFieldValue(field.key, nextValue),
+})}
             </Fragment>
           );
         })}
@@ -1201,8 +1110,12 @@ export function ObpProtocolBlock({
               {field.key === "splenicVein" && renderInlineSectionHeader("Сосуды")}
               {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
-              <Pressable
-                onPress={() => {
+              {renderObpFieldRow({
+  label: field.label,
+  value: displayValue,
+  kind: field.kind,
+  filled: hasValue(currentValue),
+  onPress: () => {
                   openEditor({
                     title: field.label,
                     mode: field.kind,
@@ -1212,26 +1125,10 @@ export function ObpProtocolBlock({
                     options: field.options,
                     onSave: (nextValue) => updateSpleenFieldValue(field.key, nextValue),
                   });
-                }}
-                style={({ pressed }) => [
-                  styles.obpFieldRow,
-                  hasValue(currentValue) && styles.obpFieldRowFilled,
-                  pressed && styles.obpFieldRowPressed,
-                ]}
-              >
-                <View style={styles.obpFieldRowContent}>
-                  <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                  <Text style={styles.obpFieldValue}>{displayValue}</Text>
-                </View>
-
-                <Text style={styles.obpFieldType}>
-                  {field.kind === "number"
-                    ? "numpad"
-                    : field.kind === "select"
-                      ? "select"
-                      : "text"}
-                </Text>
-              </Pressable>
+                },
+  options: field.options,
+  onSelectOption: (nextValue) => updateSpleenFieldValue(field.key, nextValue),
+})}
             </Fragment>
           );
         })}
@@ -1240,8 +1137,12 @@ export function ObpProtocolBlock({
       <ProtocolOrganHeader title="Свободная жидкость" />
 
       <View style={styles.obpFieldList}>
-        <Pressable
-          onPress={() => {
+        {renderObpFieldRow({
+  label: obpFinalFields[0].label,
+  value: draft.freeFluid || "Нажмите для ввода",
+  kind: "select",
+  filled: hasValue(draft.freeFluid),
+  onPress: () => {
             openEditor({
               title: obpFinalFields[0].label,
               mode: "select",
@@ -1249,21 +1150,10 @@ export function ObpProtocolBlock({
               options: obpFinalFields[0].options,
               onSave: (nextValue) => updateFreeFluidFieldValue("freeFluid", nextValue),
             });
-          }}
-          style={({ pressed }) => [
-            styles.obpFieldRow,
-            hasValue(draft.freeFluid) && styles.obpFieldRowFilled,
-            pressed && styles.obpFieldRowPressed,
-          ]}
-        >
-          <View style={styles.obpFieldRowContent}>
-            <Text style={styles.obpFieldLabel}>{obpFinalFields[0].label}</Text>
-            <Text style={styles.obpFieldValue}>
-              {draft.freeFluid || "Нажмите для ввода"}
-            </Text>
-          </View>
-          <Text style={styles.obpFieldType}>select</Text>
-        </Pressable>
+          },
+  options: obpFinalFields[0].options,
+  onSelectOption: (nextValue) => updateFreeFluidFieldValue("freeFluid", nextValue),
+})}
 
         {isNormalizedMatch(draft.freeFluid, "определяется") && (
           <Pressable
@@ -1334,4 +1224,3 @@ export function ObpProtocolBlock({
     </View>
   );
 }
-

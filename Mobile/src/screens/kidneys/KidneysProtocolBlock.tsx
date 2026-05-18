@@ -492,23 +492,20 @@ export function KidneysProtocolBlock({
     label: string,
     valueText: string,
     filled: boolean,
-    typeLabel: string,
-    onPress: () => void,
+    typeLabel: "numpad" | "select" | "text" | "auto",
+    onPress?: () => void,
+    options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
-    <Pressable
+    <ProtocolFieldRow
+      label={label}
+      value={valueText}
+      typeLabel={typeLabel}
+      filled={filled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.obpFieldRow,
-        filled && styles.obpFieldRowFilled,
-        pressed && styles.obpFieldRowPressed,
-      ]}
-    >
-      <View style={styles.obpFieldRowContent}>
-        <Text style={styles.obpFieldLabel}>{label}</Text>
-        <Text style={styles.obpFieldValue}>{valueText || "Нажмите для ввода"}</Text>
-      </View>
-      <Text style={styles.obpFieldType}>{typeLabel}</Text>
-    </Pressable>
+      options={options}
+      onSelectOption={onSelectOption}
+    />
   );
 
   const renderKidneySide = (title: string, side: "rightKidney" | "leftKidney") => {
@@ -670,32 +667,33 @@ export function KidneysProtocolBlock({
                   renderInlineSectionHeader("ЧЛС")
                 )}
 
-                <Pressable
-                  onPress={() => {
-                    openEditor({
-                      title: `${title}: Описание патологических образований паренхимы`,
-                      mode: field.kind,
-                      value: currentValue,
-                      placeholder: field.placeholder,
-                      multiline: field.multiline,
-                      options: field.options,
-                      onSave: (nextValue) => updateKidneyField(side, field.key, nextValue),
-                    });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    filled && styles.obpFieldRowFilled,
-                    pressed && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{currentDisplay}</Text>
-                  </View>
-                  <Text style={styles.obpFieldType}>
-                    {field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-                  </Text>
-                </Pressable>
+                <ProtocolFieldRow
+                  label={field.label}
+                  value={currentDisplay}
+                  typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+                  filled={filled}
+                  onPress={
+                    field.kind === "select"
+                      ? undefined
+                      : () => {
+                          openEditor({
+                            title: `${title}: Описание патологических образований паренхимы`,
+                            mode: field.kind,
+                            value: currentValue,
+                            placeholder: field.placeholder,
+                            multiline: field.multiline,
+                            options: field.options,
+                            onSave: (nextValue) => updateKidneyField(side, field.key, nextValue),
+                          });
+                        }
+                  }
+                  options={field.kind === "select" ? field.options : undefined}
+                  onSelectOption={
+                    field.kind === "select"
+                      ? (nextValue) => updateKidneyField(side, field.key, nextValue)
+                      : undefined
+                  }
+                />
                 {field.key === "parenchymaConcrements" && showParenchymaConcrements && (
                   <View style={styles.obpFieldList}>
                     {renderConcrementSection(
@@ -905,37 +903,22 @@ export function KidneysProtocolBlock({
                                   <Text style={styles.obpFieldType}>numpad</Text>
                                 </Pressable>
 
-                                <Pressable
-                                  onPress={() =>
-                                    openEditor({
-                                      title: `Локализация #${index + 1}`,
-                                      mode: "select",
-                                      value: item.location,
-                                      options: KIDNEY_LOCATION_OPTIONS,
-                                      onSave: (nextValue) =>
-                                        updateKidneyListItem(
-                                          side,
-                                          "pcsCystslist",
-                                          index,
-                                          "location",
-                                          nextValue,
-                                        ),
-                                    })
-                                  }
-                                  style={({ pressed }) => [
-                                    styles.obpFieldRow,
-                                    item.location.trim().length > 0 && styles.obpFieldRowFilled,
-                                    pressed && styles.obpFieldRowPressed,
-                                  ]}
-                                >
-                                  <View style={styles.obpFieldRowContent}>
-                                    <Text style={styles.obpFieldLabel}>Локализация</Text>
-                                    <Text style={styles.obpFieldValue}>
-                                      {item.location || "Нажмите для ввода"}
-                                    </Text>
-                                  </View>
-                                  <Text style={styles.obpFieldType}>select</Text>
-                                </Pressable>
+                                {renderFieldRow(
+                                  "Локализация",
+                                  item.location || "Нажмите для ввода",
+                                  item.location.trim().length > 0,
+                                  "select",
+                                  undefined,
+                                  KIDNEY_LOCATION_OPTIONS,
+                                  (nextValue) =>
+                                    updateKidneyListItem(
+                                      side,
+                                      "pcsCystslist",
+                                      index,
+                                      "location",
+                                      nextValue,
+                                    ),
+                                )}
                               </View>
                             </ProtocolCard>
                           );
@@ -1106,37 +1089,22 @@ export function KidneysProtocolBlock({
                                   <Text style={styles.obpFieldType}>numpad</Text>
                                 </Pressable>
 
-                                <Pressable
-                                  onPress={() =>
-                                    openEditor({
-                                      title: `Локализация #${index + 1}`,
-                                      mode: "select",
-                                      value: item.location,
-                                      options: KIDNEY_LOCATION_OPTIONS,
-                                      onSave: (nextValue) =>
-                                        updateKidneyListItem(
-                                          side,
-                                          "parenchymaCystslist",
-                                          index,
-                                          "location",
-                                          nextValue,
-                                        ),
-                                    })
-                                  }
-                                  style={({ pressed }) => [
-                                    styles.obpFieldRow,
-                                    item.location.trim().length > 0 && styles.obpFieldRowFilled,
-                                    pressed && styles.obpFieldRowPressed,
-                                  ]}
-                                >
-                                  <View style={styles.obpFieldRowContent}>
-                                    <Text style={styles.obpFieldLabel}>Локализация</Text>
-                                    <Text style={styles.obpFieldValue}>
-                                      {item.location || "Нажмите для ввода"}
-                                    </Text>
-                                  </View>
-                                  <Text style={styles.obpFieldType}>select</Text>
-                                </Pressable>
+                                {renderFieldRow(
+                                  "Локализация",
+                                  item.location || "Нажмите для ввода",
+                                  item.location.trim().length > 0,
+                                  "select",
+                                  undefined,
+                                  KIDNEY_LOCATION_OPTIONS,
+                                  (nextValue) =>
+                                    updateKidneyListItem(
+                                      side,
+                                      "parenchymaCystslist",
+                                      index,
+                                      "location",
+                                      nextValue,
+                                    ),
+                                )}
                               </View>
                             </ProtocolCard>
                           );
@@ -1184,55 +1152,29 @@ export function KidneysProtocolBlock({
           })}
 
           {renderInlineSectionHeader("Синус")}
-          <Pressable
-            onPress={() =>
-              openEditor({
-                title: `${title}: Почечный синус`,
-                mode: "select",
-                value: kidney.sinus,
-                options: [
-                  { value: "без включений", label: "Без включений" },
-                  { value: "с включениями", label: "С включениями" },
-                ],
-                onSave: (nextValue) => updateKidneyField(side, "sinus", nextValue),
-              })
-            }
-            style={({ pressed }) => [
-              styles.obpFieldRow,
-              kidney.sinus.trim().length > 0 && styles.obpFieldRowFilled,
-              pressed && styles.obpFieldRowPressed,
-            ]}
-          >
-            <View style={styles.obpFieldRowContent}>
-              <Text style={styles.obpFieldLabel}>Почечный синус</Text>
-              <Text style={styles.obpFieldValue}>{kidney.sinus || "Нажмите для ввода"}</Text>
-            </View>
-            <Text style={styles.obpFieldType}>select</Text>
-          </Pressable>
+          {renderFieldRow(
+            "Почечный синус",
+            kidney.sinus || "Нажмите для ввода",
+            kidney.sinus.trim().length > 0,
+            "select",
+            undefined,
+            [
+              { value: "без включений", label: "Без включений" },
+              { value: "с включениями", label: "С включениями" },
+            ],
+            (nextValue) => updateKidneyField(side, "sinus", nextValue),
+          )}
 
           {renderInlineSectionHeader("Область надпочечников")}
-          <Pressable
-            onPress={() =>
-              openEditor({
-                title: `${title}: Область надпочечников`,
-                mode: "select",
-                value: kidney.adrenalArea,
-                options: KIDNEY_ADRENAL_OPTIONS,
-                onSave: (nextValue) => updateKidneyField(side, "adrenalArea", nextValue),
-              })
-            }
-            style={({ pressed }) => [
-              styles.obpFieldRow,
-              kidney.adrenalArea.trim().length > 0 && styles.obpFieldRowFilled,
-              pressed && styles.obpFieldRowPressed,
-            ]}
-          >
-            <View style={styles.obpFieldRowContent}>
-              <Text style={styles.obpFieldLabel}>Область надпочечников</Text>
-              <Text style={styles.obpFieldValue}>{kidney.adrenalArea || "Нажмите для ввода"}</Text>
-            </View>
-            <Text style={styles.obpFieldType}>select</Text>
-          </Pressable>
+          {renderFieldRow(
+            "Область надпочечников",
+            kidney.adrenalArea || "Нажмите для ввода",
+            kidney.adrenalArea.trim().length > 0,
+            "select",
+            undefined,
+            KIDNEY_ADRENAL_OPTIONS,
+            (nextValue) => updateKidneyField(side, "adrenalArea", nextValue),
+          )}
 
           {showAdrenalText && (
             <Pressable
@@ -1407,32 +1349,31 @@ export function KidneysProtocolBlock({
                   </View>
                 )}
 
-                <Pressable
-                  onPress={() => {
-                    openEditor({
-                      title: `Мочевой пузырь: ${field.label}`,
-                      mode: field.kind,
-                      value: currentValue,
-                      placeholder: field.placeholder,
-                      multiline: field.multiline,
-                      options: field.options,
-                      onSave: (nextValue) => updateBladderField(field.key, nextValue),
-                    });
-                  }}
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    filled && styles.obpFieldRowFilled,
-                    pressed && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>{field.label}</Text>
-                    <Text style={styles.obpFieldValue}>{currentDisplay}</Text>
-                  </View>
-                  <Text style={styles.obpFieldType}>
-                    {field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-                  </Text>
-                </Pressable>
+                <ProtocolFieldRow
+                  label={field.label}
+                  value={currentDisplay}
+                  typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+                  filled={filled}
+                  onPress={
+                    field.kind === "select"
+                      ? undefined
+                      : () => {
+                          openEditor({
+                            title: `Мочевой пузырь: ${field.label}`,
+                            mode: field.kind,
+                            value: currentValue,
+                            placeholder: field.placeholder,
+                            multiline: field.multiline,
+                            options: field.options,
+                            onSave: (nextValue) => updateBladderField(field.key, nextValue),
+                          });
+                        }
+                  }
+                  options={field.kind === "select" ? field.options : undefined}
+                  onSelectOption={
+                    field.kind === "select" ? (nextValue) => updateBladderField(field.key, nextValue) : undefined
+                  }
+                />
               </Fragment>
             );
           })}

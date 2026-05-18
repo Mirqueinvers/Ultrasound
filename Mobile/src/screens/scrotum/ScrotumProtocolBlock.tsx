@@ -204,6 +204,8 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -212,6 +214,8 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -285,51 +289,39 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
           <ProtocolSectionHeader title="Расположение" />
           {renderRow(
-            "Расположение",
-            testis.location || "Нажмите для ввода",
-            "select",
-            Boolean(testis.location),
-            () =>
-              openEditor({
-                title: `${title}: расположение`,
-                mode: "select",
-                value: testis.location,
-                options: LOCATION_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "location", nextValue),
-              }),
-          )}
+          "Расположение",
+          testis.location || "Нажмите для ввода",
+          "select",
+          Boolean(testis.location),
+          undefined,
+          undefined,
+          LOCATION_OPTIONS,
+          (nextValue) => updateTestisField(side, "location", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Контур" />
           {renderRow(
-            "Контур",
-            testis.contour || "Нажмите для ввода",
-            "select",
-            Boolean(testis.contour),
-            () =>
-              openEditor({
-                title: `${title}: контур`,
-                mode: "select",
-                value: testis.contour,
-                options: CONTOUR_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "contour", nextValue),
-              }),
-          )}
+          "Контур",
+          testis.contour || "Нажмите для ввода",
+          "select",
+          Boolean(testis.contour),
+          undefined,
+          undefined,
+          CONTOUR_OPTIONS,
+          (nextValue) => updateTestisField(side, "contour", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Капсула" />
           {renderRow(
-            "Капсула",
-            testis.capsule || "Нажмите для ввода",
-            "select",
-            Boolean(testis.capsule),
-            () =>
-              openEditor({
-                title: `${title}: капсула`,
-                mode: "select",
-                value: testis.capsule,
-                options: CAPSULE_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "capsule", nextValue),
-              }),
-          )}
+          "Капсула",
+          testis.capsule || "Нажмите для ввода",
+          "select",
+          Boolean(testis.capsule),
+          undefined,
+          undefined,
+          CAPSULE_OPTIONS,
+          (nextValue) => updateTestisField(side, "capsule", nextValue),
+        )}
           {showCapsuleText &&
             renderRow(
               "Описание",
@@ -349,35 +341,27 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
           <ProtocolSectionHeader title="Эхогенность" />
           {renderRow(
-            "Эхогенность",
-            testis.echogenicity || "Нажмите для ввода",
-            "select",
-            Boolean(testis.echogenicity),
-            () =>
-              openEditor({
-                title: `${title}: эхогенность`,
-                mode: "select",
-                value: testis.echogenicity,
-                options: ECHOGENICITY_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "echogenicity", nextValue),
-              }),
-          )}
+          "Эхогенность",
+          testis.echogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(testis.echogenicity),
+          undefined,
+          undefined,
+          ECHOGENICITY_OPTIONS,
+          (nextValue) => updateTestisField(side, "echogenicity", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Эхоструктура" />
           {renderRow(
-            "Эхоструктура",
-            testis.echotexture || "Нажмите для ввода",
-            "select",
-            Boolean(testis.echotexture),
-            () =>
-              openEditor({
-                title: `${title}: эхоструктура`,
-                mode: "select",
-                value: testis.echotexture,
-                options: ECHOTEXTURE_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "echotexture", nextValue),
-              }),
-          )}
+          "Эхоструктура",
+          testis.echotexture || "Нажмите для ввода",
+          "select",
+          Boolean(testis.echotexture),
+          undefined,
+          undefined,
+          ECHOTEXTURE_OPTIONS,
+          (nextValue) => updateTestisField(side, "echotexture", nextValue),
+        )}
           {showEchotextureText &&
             renderRow(
               "Описание",
@@ -397,19 +381,15 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
           <ProtocolSectionHeader title="Структура средостения" />
           {renderRow(
-            "Структура средостения",
-            testis.mediastinum || "Нажмите для ввода",
-            "select",
-            Boolean(testis.mediastinum),
-            () =>
-              openEditor({
-                title: `${title}: структура средостения`,
-                mode: "select",
-                value: testis.mediastinum,
-                options: MEDIASTINUM_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "mediastinum", nextValue),
-              }),
-          )}
+          "Структура средостения",
+          testis.mediastinum || "Нажмите для ввода",
+          "select",
+          Boolean(testis.mediastinum),
+          undefined,
+          undefined,
+          MEDIASTINUM_OPTIONS,
+          (nextValue) => updateTestisField(side, "mediastinum", nextValue),
+        )}
           {showMediastinumText &&
             renderRow(
               "Описание",
@@ -429,35 +409,27 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
           <ProtocolSectionHeader title="Кровоток в яичке" />
           {renderRow(
-            "Кровоток",
-            testis.bloodFlow || "Нажмите для ввода",
-            "select",
-            Boolean(testis.bloodFlow),
-            () =>
-              openEditor({
-                title: `${title}: кровоток`,
-                mode: "select",
-                value: testis.bloodFlow,
-                options: BLOOD_FLOW_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "bloodFlow", nextValue),
-              }),
-          )}
+          "Кровоток",
+          testis.bloodFlow || "Нажмите для ввода",
+          "select",
+          Boolean(testis.bloodFlow),
+          undefined,
+          undefined,
+          BLOOD_FLOW_OPTIONS,
+          (nextValue) => updateTestisField(side, "bloodFlow", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Придаток яичка" />
           {renderRow(
-            "Придаток",
-            testis.appendage || "Нажмите для ввода",
-            "select",
-            Boolean(testis.appendage),
-            () =>
-              openEditor({
-                title: `${title}: придаток`,
-                mode: "select",
-                value: testis.appendage,
-                options: APPENDAGE_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "appendage", nextValue),
-              }),
-          )}
+          "Придаток",
+          testis.appendage || "Нажмите для ввода",
+          "select",
+          Boolean(testis.appendage),
+          undefined,
+          undefined,
+          APPENDAGE_OPTIONS,
+          (nextValue) => updateTestisField(side, "appendage", nextValue),
+        )}
           {showAppendageText &&
             renderRow(
               "Описание",
@@ -477,19 +449,15 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
           <ProtocolSectionHeader title="Количество жидкости в оболочках" />
           {renderRow(
-            "Количество жидкости",
-            testis.fluidAmount || "Нажмите для ввода",
-            "select",
-            Boolean(testis.fluidAmount),
-            () =>
-              openEditor({
-                title: `${title}: количество жидкости`,
-                mode: "select",
-                value: testis.fluidAmount,
-                options: FLUID_AMOUNT_OPTIONS,
-                onSave: (nextValue) => updateTestisField(side, "fluidAmount", nextValue),
-              }),
-          )}
+          "Количество жидкости",
+          testis.fluidAmount || "Нажмите для ввода",
+          "select",
+          Boolean(testis.fluidAmount),
+          undefined,
+          undefined,
+          FLUID_AMOUNT_OPTIONS,
+          (nextValue) => updateTestisField(side, "fluidAmount", nextValue),
+        )}
           {showFluidAmountText &&
             renderRow(
               "Описание",

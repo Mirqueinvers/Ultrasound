@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+
 type ProtocolFieldRowProps = {
   label: string;
   value: string;
@@ -8,6 +10,8 @@ type ProtocolFieldRowProps = {
   filled?: boolean;
   readonly?: boolean;
   onPress?: () => void;
+  options?: Array<{ label: string; value: string }>;
+  onSelectOption?: (value: string) => void;
 };
 
 function ProtocolFieldRowComponent({
@@ -17,23 +21,60 @@ function ProtocolFieldRowComponent({
   filled,
   readonly,
   onPress,
+  options = [],
+  onSelectOption,
 }: ProtocolFieldRowProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={readonly || !onPress}
-      style={({ pressed }) => [
-        rowStyles.row,
-        filled && rowStyles.rowFilled,
-        readonly && rowStyles.rowReadonly,
-        pressed && !readonly && rowStyles.rowPressed,
-      ]}
-    >
+  const showInlineOptions = typeLabel === "select" && options.length > 0;
+  const rowState = [rowStyles.row, filled && rowStyles.rowFilled, readonly && rowStyles.rowReadonly];
+
+  const content = (
+    <>
       <View style={rowStyles.content}>
         <Text style={rowStyles.label}>{label}</Text>
         <Text style={rowStyles.value}>{value || "Нажмите для ввода"}</Text>
       </View>
       <Text style={rowStyles.type}>{typeLabel}</Text>
+
+      {showInlineOptions ? (
+        <View style={rowStyles.optionWrap}>
+          {options.map((option) => {
+            const active =
+              Boolean(value) &&
+              (isNormalizedMatch(option.value, value) || isNormalizedMatch(option.label, value));
+
+            return (
+              <Pressable
+                key={option.value}
+                disabled={readonly || !onSelectOption}
+                onPress={() => onSelectOption?.(option.value)}
+                style={({ pressed }) => [
+                  rowStyles.optionChip,
+                  active ? rowStyles.optionChipActive : rowStyles.optionChipInactive,
+                  pressed && !readonly && rowStyles.optionChipPressed,
+                ]}
+              >
+                <Text style={[rowStyles.optionText, active && rowStyles.optionTextActive]}>
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+    </>
+  );
+
+  if (showInlineOptions) {
+    return <View style={rowState}>{content}</View>;
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={readonly || !onPress}
+      style={({ pressed }) => [...rowState, pressed && !readonly && rowStyles.rowPressed]}
+    >
+      {content}
     </Pressable>
   );
 }
@@ -80,5 +121,38 @@ const rowStyles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 1,
     alignSelf: "flex-end",
+  },
+  optionWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 2,
+  },
+  optionChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  optionChipActive: {
+    borderColor: "rgba(34, 197, 94, 0.55)",
+    backgroundColor: "rgba(4, 120, 87, 0.24)",
+  },
+  optionChipInactive: {
+    borderColor: "rgba(148, 163, 184, 0.16)",
+    backgroundColor: "rgba(148, 163, 184, 0.08)",
+  },
+  optionChipPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
+  },
+  optionText: {
+    color: "#cbd5e1",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  optionTextActive: {
+    color: "#f8fafc",
+    fontWeight: "800",
   },
 });

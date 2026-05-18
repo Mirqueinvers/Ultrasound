@@ -179,6 +179,8 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -187,6 +189,8 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -336,35 +340,27 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
         <View style={styles.obpFieldList}>
           <ProtocolSectionHeader title="Информация об исследовании" />
           {renderRow(
-            "Вид исследования",
-            prostate.studyType || "Нажмите для ввода",
-            "select",
-            Boolean(prostate.studyType),
-            () =>
-              openEditor({
-                title: "Вид исследования",
-                mode: "select",
-                value: prostate.studyType,
-                options: PROSTATE_STUDY_TYPE_OPTIONS,
-                onSave: (nextValue) => updateProstateField("studyType", nextValue),
-              }),
-          )}
+          "Вид исследования",
+          prostate.studyType || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.studyType),
+          undefined,
+          undefined,
+          PROSTATE_STUDY_TYPE_OPTIONS,
+          (nextValue) => updateProstateField("studyType", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Положение" />
           {renderRow(
-            "Положение",
-            prostate.position || "Нажмите для ввода",
-            "select",
-            Boolean(prostate.position),
-            () =>
-              openEditor({
-                title: "Положение простаты",
-                mode: "select",
-                value: prostate.position,
-                options: PROSTATE_POSITION_OPTIONS,
-                onSave: (nextValue) => updateProstateField("position", nextValue),
-              }),
-          )}
+          "Положение",
+          prostate.position || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.position),
+          undefined,
+          undefined,
+          PROSTATE_POSITION_OPTIONS,
+          (nextValue) => updateProstateField("position", nextValue),
+        )}
 
           {isOrdinaryPosition && (
             <>
@@ -422,83 +418,63 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
               <ProtocolSectionHeader title="Контур" />
               {renderRow(
-                "Контур",
-                prostate.contour || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.contour),
-                () =>
-                  openEditor({
-                    title: "Простата: контур",
-                    mode: "select",
-                    value: prostate.contour,
-                    options: PROSTATE_CONTOUR_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("contour", nextValue),
-                  }),
-              )}
+          "Контур",
+          prostate.contour || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.contour),
+          undefined,
+          undefined,
+          PROSTATE_CONTOUR_OPTIONS,
+          (nextValue) => updateProstateField("contour", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Симметричность" />
               {renderRow(
-                "Симметричность",
-                prostate.symmetry || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.symmetry),
-                () =>
-                  openEditor({
-                    title: "Простата: симметричность",
-                    mode: "select",
-                    value: prostate.symmetry,
-                    options: PROSTATE_SYMMETRY_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("symmetry", nextValue),
-                  }),
-              )}
+          "Симметричность",
+          prostate.symmetry || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.symmetry),
+          undefined,
+          undefined,
+          PROSTATE_SYMMETRY_OPTIONS,
+          (nextValue) => updateProstateField("symmetry", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Форма" />
               {renderRow(
-                "Форма",
-                prostate.shape || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.shape),
-                () =>
-                  openEditor({
-                    title: "Простата: форма",
-                    mode: "select",
-                    value: prostate.shape,
-                    options: PROSTATE_SHAPE_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("shape", nextValue),
-                  }),
-              )}
+          "Форма",
+          prostate.shape || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.shape),
+          undefined,
+          undefined,
+          PROSTATE_SHAPE_OPTIONS,
+          (nextValue) => updateProstateField("shape", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Эхогенность" />
               {renderRow(
-                "Эхогенность",
-                prostate.echogenicity || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.echogenicity),
-                () =>
-                  openEditor({
-                    title: "Простата: эхогенность",
-                    mode: "select",
-                    value: prostate.echogenicity,
-                    options: PROSTATE_ECHOGENICITY_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("echogenicity", nextValue),
-                  }),
-              )}
+          "Эхогенность",
+          prostate.echogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.echogenicity),
+          undefined,
+          undefined,
+          PROSTATE_ECHOGENICITY_OPTIONS,
+          (nextValue) => updateProstateField("echogenicity", nextValue),
+        )}
 
               <ProtocolSectionHeader title="Эхоструктура" />
               {renderRow(
-                "Эхоструктура",
-                prostate.echotexture || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.echotexture),
-                () =>
-                  openEditor({
-                    title: "Простата: эхоструктура",
-                    mode: "select",
-                    value: prostate.echotexture,
-                    options: PROSTATE_ECHOTEXTURE_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("echotexture", nextValue),
-                  }),
-              )}
+          "Эхоструктура",
+          prostate.echotexture || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.echotexture),
+          undefined,
+          undefined,
+          PROSTATE_ECHOTEXTURE_OPTIONS,
+          (nextValue) => updateProstateField("echotexture", nextValue),
+        )}
               {showEchotextureText &&
                 renderRow(
                   "Описание",
@@ -518,19 +494,15 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
               <ProtocolSectionHeader title="В просвет мочевого пузыря" />
               {renderRow(
-                "Выпячивание",
-                prostate.bladderProtrusion || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.bladderProtrusion),
-                () =>
-                  openEditor({
-                    title: "Простата: выпячивание в просвет мочевого пузыря",
-                    mode: "select",
-                    value: prostate.bladderProtrusion,
-                    options: PROSTATE_BLAADDER_PROTRUSION_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("bladderProtrusion", nextValue),
-                  }),
-              )}
+          "Выпячивание",
+          prostate.bladderProtrusion || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.bladderProtrusion),
+          undefined,
+          undefined,
+          PROSTATE_BLAADDER_PROTRUSION_OPTIONS,
+          (nextValue) => updateProstateField("bladderProtrusion", nextValue),
+        )}
               {showProtrusionMm &&
                 renderRow(
                   "Выпячивание на (мм)",
@@ -549,19 +521,15 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
               <ProtocolSectionHeader title="Патологические образования" />
               {renderRow(
-                "Определение",
-                prostate.pathologicLesions || "Нажмите для ввода",
-                "select",
-                Boolean(prostate.pathologicLesions),
-                () =>
-                  openEditor({
-                    title: "Простата: патологические образования",
-                    mode: "select",
-                    value: prostate.pathologicLesions,
-                    options: YES_NO_OPTIONS,
-                    onSave: (nextValue) => updateProstateField("pathologicLesions", nextValue),
-                  }),
-              )}
+          "Определение",
+          prostate.pathologicLesions || "Нажмите для ввода",
+          "select",
+          Boolean(prostate.pathologicLesions),
+          undefined,
+          undefined,
+          YES_NO_OPTIONS,
+          (nextValue) => updateProstateField("pathologicLesions", nextValue),
+        )}
               {showPathologicLesionsText &&
                 renderRow(
                   "Описание",
@@ -671,19 +639,15 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
           <ProtocolSectionHeader title="Объем остаточной мочи" />
           {renderRow(
-            "Определение",
-            urinaryBladder.residualStatus || "Нажмите для ввода",
-            "select",
-            Boolean(urinaryBladder.residualStatus),
-            () =>
-              openEditor({
-                title: "Объем остаточной мочи",
-                mode: "select",
-                value: urinaryBladder.residualStatus,
-                options: BLADDER_RESIDUAL_OPTIONS,
-                onSave: (nextValue) => updateBladderField("residualStatus", nextValue),
-              }),
-          )}
+          "Определение",
+          urinaryBladder.residualStatus || "Нажмите для ввода",
+          "select",
+          Boolean(urinaryBladder.residualStatus),
+          undefined,
+          undefined,
+          BLADDER_RESIDUAL_OPTIONS,
+          (nextValue) => updateBladderField("residualStatus", nextValue),
+        )}
 
           {showResidualBlock && (
             <>
@@ -742,19 +706,15 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
 
           <ProtocolSectionHeader title="Содержимое" />
           {renderRow(
-            "Характер содержимого",
-            urinaryBladder.contents || "Нажмите для ввода",
-            "select",
-            Boolean(urinaryBladder.contents),
-            () =>
-              openEditor({
-                title: "Характер содержимого",
-                mode: "select",
-                value: urinaryBladder.contents,
-                options: BLADDER_CONTENT_OPTIONS,
-                onSave: (nextValue) => updateBladderField("contents", nextValue),
-              }),
-          )}
+          "Характер содержимого",
+          urinaryBladder.contents || "Нажмите для ввода",
+          "select",
+          Boolean(urinaryBladder.contents),
+          undefined,
+          undefined,
+          BLADDER_CONTENT_OPTIONS,
+          (nextValue) => updateBladderField("contents", nextValue),
+        )}
           {showContentsText &&
             renderRow(
               "Описание содержимого",

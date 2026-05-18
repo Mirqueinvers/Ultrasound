@@ -212,6 +212,8 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -220,6 +222,8 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -277,14 +281,10 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
           node.echogenicity || "Введите значение",
           "select",
           Boolean(node.echogenicity),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: Эхогенность`,
-              mode: "select",
-              value: node.echogenicity,
-              options: LYMPH_NODE_ECHOGENICITY_OPTIONS,
-              onSave: (nextValue) => updateNodeField(regionKey, index, "echogenicity", nextValue),
-            }),
+          undefined,
+          undefined,
+          LYMPH_NODE_ECHOGENICITY_OPTIONS,
+          (nextValue) => updateNodeField(regionKey, index, "echogenicity", nextValue),
         )}
 
         {renderField(
@@ -292,14 +292,10 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
           node.echostructure || "Введите значение",
           "select",
           Boolean(node.echostructure),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: Эхоструктура`,
-              mode: "select",
-              value: node.echostructure,
-              options: LYMPH_NODE_ECHOSTRUCTURE_OPTIONS,
-              onSave: (nextValue) => updateNodeField(regionKey, index, "echostructure", nextValue),
-            }),
+          undefined,
+          undefined,
+          LYMPH_NODE_ECHOSTRUCTURE_OPTIONS,
+          (nextValue) => updateNodeField(regionKey, index, "echostructure", nextValue),
         )}
 
         {renderField(
@@ -307,14 +303,10 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
           node.shape || "Введите значение",
           "select",
           Boolean(node.shape),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: Форма`,
-              mode: "select",
-              value: node.shape,
-              options: LYMPH_NODE_SHAPE_OPTIONS,
-              onSave: (nextValue) => updateNodeField(regionKey, index, "shape", nextValue),
-            }),
+          undefined,
+          undefined,
+          LYMPH_NODE_SHAPE_OPTIONS,
+          (nextValue) => updateNodeField(regionKey, index, "shape", nextValue),
         )}
 
         {renderField(
@@ -322,14 +314,10 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
           node.contour || "Введите значение",
           "select",
           Boolean(node.contour),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: Контур`,
-              mode: "select",
-              value: node.contour,
-              options: LYMPH_NODE_CONTOUR_OPTIONS,
-              onSave: (nextValue) => updateNodeField(regionKey, index, "contour", nextValue),
-            }),
+          undefined,
+          undefined,
+          LYMPH_NODE_CONTOUR_OPTIONS,
+          (nextValue) => updateNodeField(regionKey, index, "contour", nextValue),
         )}
 
         {renderField(
@@ -337,14 +325,10 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
           node.bloodFlow || "Введите значение",
           "select",
           Boolean(node.bloodFlow),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: Кровоток`,
-              mode: "select",
-              value: node.bloodFlow,
-              options: LYMPH_NODE_BLOOD_FLOW_OPTIONS,
-              onSave: (nextValue) => updateNodeField(regionKey, index, "bloodFlow", nextValue),
-            }),
+          undefined,
+          undefined,
+          LYMPH_NODE_BLOOD_FLOW_OPTIONS,
+          (nextValue) => updateNodeField(regionKey, index, "bloodFlow", nextValue),
         )}
       </View>
     </ProtocolCard>
@@ -360,20 +344,16 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
       <ProtocolCard title={title} key={regionKey}>
         <View style={styles.obpFieldList}>
           {renderField(
-            "Определение",
-            region.detected === "detected" ? "Определяются" : "Не определяются",
-            "select",
-            region.detected === "detected",
-            () =>
-              openEditor({
-                title: `${title}: Определение`,
-                mode: "select",
-                value: region.detected,
-                options: DETECTION_OPTIONS,
-                onSave: (nextValue) =>
+          "Определение",
+          region.detected === "detected" ? "Определяются" : "Не определяются",
+          "select",
+          region.detected === "detected",
+          undefined,
+          undefined,
+          DETECTION_OPTIONS,
+          (nextValue) =>
                   updateRegionField(regionKey, "detected", nextValue as LymphNodeRegionDraft["detected"]),
-              }),
-          )}
+        )}
 
           {region.detected === "detected" && (
             <View style={styles.obpFieldList}>

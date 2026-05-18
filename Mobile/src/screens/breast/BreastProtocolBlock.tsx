@@ -307,6 +307,8 @@ export function BreastProtocolBlock({
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -315,6 +317,8 @@ export function BreastProtocolBlock({
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -398,14 +402,10 @@ export function BreastProtocolBlock({
           node.echogenicity || "Нажмите для ввода",
           "select",
           Boolean(node.echogenicity),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: эхогенность`,
-              mode: "select",
-              value: node.echogenicity,
-              options: BREAST_NODE_ECHOGENICITY_OPTIONS,
-              onSave: (nextValue) => updateNodeField(side, index, "echogenicity", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_NODE_ECHOGENICITY_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "echogenicity", nextValue),
         )}
 
         {renderRow(
@@ -413,14 +413,10 @@ export function BreastProtocolBlock({
           node.echostructure || "Нажмите для ввода",
           "select",
           Boolean(node.echostructure),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: эхоструктура`,
-              mode: "select",
-              value: node.echostructure,
-              options: BREAST_NODE_ECHOSTRUCTURE_OPTIONS,
-              onSave: (nextValue) => updateNodeField(side, index, "echostructure", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_NODE_ECHOSTRUCTURE_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "echostructure", nextValue),
         )}
 
         {renderRow(
@@ -428,14 +424,10 @@ export function BreastProtocolBlock({
           node.contour || "Нажмите для ввода",
           "select",
           Boolean(node.contour),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: контур`,
-              mode: "select",
-              value: node.contour,
-              options: BREAST_NODE_CONTOUR_OPTIONS,
-              onSave: (nextValue) => updateNodeField(side, index, "contour", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_NODE_CONTOUR_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "contour", nextValue),
         )}
 
         {renderRow(
@@ -443,14 +435,10 @@ export function BreastProtocolBlock({
           node.orientation || "Нажмите для ввода",
           "select",
           Boolean(node.orientation),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: ориентация`,
-              mode: "select",
-              value: node.orientation,
-              options: BREAST_NODE_ORIENTATION_OPTIONS,
-              onSave: (nextValue) => updateNodeField(side, index, "orientation", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_NODE_ORIENTATION_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "orientation", nextValue),
         )}
 
         {renderRow(
@@ -458,14 +446,10 @@ export function BreastProtocolBlock({
           node.bloodFlow || "Нажмите для ввода",
           "select",
           Boolean(node.bloodFlow),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: кровоток`,
-              mode: "select",
-              value: node.bloodFlow,
-              options: BREAST_NODE_BLOOD_FLOW_OPTIONS,
-              onSave: (nextValue) => updateNodeField(side, index, "bloodFlow", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_NODE_BLOOD_FLOW_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "bloodFlow", nextValue),
         )}
 
         {renderRow(
@@ -499,19 +483,15 @@ export function BreastProtocolBlock({
         <View style={styles.obpFieldList}>
           <ProtocolSectionHeader title="Общие характеристики" />
           {renderRow(
-            "Кожа",
-            breastSide.skin || "Нажмите для ввода",
-            "select",
-            Boolean(breastSide.skin),
-            () =>
-              openEditor({
-                title: `${title}: кожа`,
-                mode: "select",
-                value: breastSide.skin,
-                options: BREAST_SKIN_OPTIONS,
-                onSave: (nextValue) => updateSideField(side, "skin", nextValue),
-              }),
-          )}
+          "Кожа",
+          breastSide.skin || "Нажмите для ввода",
+          "select",
+          Boolean(breastSide.skin),
+          undefined,
+          undefined,
+          BREAST_SKIN_OPTIONS,
+          (nextValue) => updateSideField(side, "skin", nextValue),
+        )}
           {isNormalizedMatch(breastSide.skin, "изменена") &&
             renderRow(
               "Описание изменений кожи",
@@ -530,19 +510,15 @@ export function BreastProtocolBlock({
             )}
 
           {renderRow(
-            "Соски и ареолы",
-            breastSide.nipples || "Нажмите для ввода",
-            "select",
-            Boolean(breastSide.nipples),
-            () =>
-              openEditor({
-                title: `${title}: соски и ареолы`,
-                mode: "select",
-                value: breastSide.nipples,
-                options: BREAST_NIPPLES_OPTIONS,
-                onSave: (nextValue) => updateSideField(side, "nipples", nextValue),
-              }),
-          )}
+          "Соски и ареолы",
+          breastSide.nipples || "Нажмите для ввода",
+          "select",
+          Boolean(breastSide.nipples),
+          undefined,
+          undefined,
+          BREAST_NIPPLES_OPTIONS,
+          (nextValue) => updateSideField(side, "nipples", nextValue),
+        )}
           {isNormalizedMatch(breastSide.nipples, "изменены") &&
             renderRow(
               "Описание изменений сосков и ареол",
@@ -561,35 +537,27 @@ export function BreastProtocolBlock({
             )}
 
           {renderRow(
-            "Млечные протоки",
-            breastSide.milkDucts || "Нажмите для ввода",
-            "select",
-            Boolean(breastSide.milkDucts),
-            () =>
-              openEditor({
-                title: `${title}: млечные протоки`,
-                mode: "select",
-                value: breastSide.milkDucts,
-                options: BREAST_MILK_DUCTS_OPTIONS,
-                onSave: (nextValue) => updateSideField(side, "milkDucts", nextValue),
-              }),
-          )}
+          "Млечные протоки",
+          breastSide.milkDucts || "Нажмите для ввода",
+          "select",
+          Boolean(breastSide.milkDucts),
+          undefined,
+          undefined,
+          BREAST_MILK_DUCTS_OPTIONS,
+          (nextValue) => updateSideField(side, "milkDucts", nextValue),
+        )}
 
           <ProtocolSectionHeader title="Объемные образования" />
           {renderRow(
-            "Определение",
-            breastSide.volumeFormations || "Нажмите для ввода",
-            "select",
-            Boolean(breastSide.volumeFormations),
-            () =>
-              openEditor({
-                title: `${title}: объемные образования`,
-                mode: "select",
-                value: breastSide.volumeFormations,
-                options: BREAST_VOLUME_FORMATIONS_OPTIONS,
-                onSave: (nextValue) => updateSideField(side, "volumeFormations", nextValue),
-              }),
-          )}
+          "Определение",
+          breastSide.volumeFormations || "Нажмите для ввода",
+          "select",
+          Boolean(breastSide.volumeFormations),
+          undefined,
+          undefined,
+          BREAST_VOLUME_FORMATIONS_OPTIONS,
+          (nextValue) => updateSideField(side, "volumeFormations", nextValue),
+        )}
 
           {showNodeList && (
             <View style={styles.obpFieldList}>
@@ -679,14 +647,10 @@ export function BreastProtocolBlock({
           breast.structure || "Нажмите для ввода",
           "select",
           Boolean(breast.structure),
-          () =>
-            openEditor({
-              title: "Структура молочных желез",
-              mode: "select",
-              value: breast.structure,
-              options: BREAST_STRUCTURE_OPTIONS,
-              onSave: (nextValue) => updateBreastField("structure", nextValue),
-            }),
+          undefined,
+          undefined,
+          BREAST_STRUCTURE_OPTIONS,
+          (nextValue) => updateBreastField("structure", nextValue),
         )}
       </View>
 

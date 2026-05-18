@@ -424,6 +424,8 @@ export function ThyroidProtocolBlock({
     filled: boolean,
     onPress?: () => void,
     readonly?: boolean,
+  options?: FieldEditorOption[],
+    onSelectOption?: (value: string) => void,
   ) => (
     <ProtocolFieldRow
       label={label}
@@ -432,6 +434,8 @@ export function ThyroidProtocolBlock({
       filled={filled}
       readonly={readonly}
       onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
     />
   );
 
@@ -499,19 +503,15 @@ export function ThyroidProtocolBlock({
 
           <ProtocolSectionHeader title="Объемные образования" />
           {renderField(
-            "Определение",
-            lobe.volumeFormations || "Нажмите для ввода",
-            "select",
-            Boolean(lobe.volumeFormations),
-            () =>
-              openEditor({
-                title: `${title}: объемные образования`,
-                mode: "select",
-                value: lobe.volumeFormations,
-                options: THYROID_VOLUME_FORMATIONS_OPTIONS,
-                onSave: (nextValue) => updateLobeField(side, "volumeFormations", nextValue),
-              }),
-          )}
+          "Определение",
+          lobe.volumeFormations || "Нажмите для ввода",
+          "select",
+          Boolean(lobe.volumeFormations),
+          undefined,
+          undefined,
+          THYROID_VOLUME_FORMATIONS_OPTIONS,
+          (nextValue) => updateLobeField(side, "volumeFormations", nextValue),
+        )}
 
           {showNodes && (
             <View style={styles.obpFieldList}>
@@ -566,99 +566,75 @@ export function ThyroidProtocolBlock({
                       </View>
 
                       {renderField(
-                        "Эхогенность",
-                        node.echogenicity || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.echogenicity),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: эхогенность`,
-                            mode: "select",
-                            value: node.echogenicity,
-                            options: THYROID_NODE_ECHOGENICITY_OPTIONS,
-                            onSave: (nextValue) =>
+          "Эхогенность",
+          node.echogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(node.echogenicity),
+          undefined,
+          undefined,
+          THYROID_NODE_ECHOGENICITY_OPTIONS,
+          (nextValue) =>
                               updateNodeField(side, index, "echogenicity", nextValue),
-                          }),
-                      )}
+        )}
 
                       {renderField(
-                        "Эхоструктура",
-                        node.echostructure || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.echostructure),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: эхоструктура`,
-                            mode: "select",
-                            value: node.echostructure,
-                            options: THYROID_NODE_ECHOSTRUCTURE_OPTIONS,
-                            onSave: (nextValue) =>
+          "Эхоструктура",
+          node.echostructure || "Нажмите для ввода",
+          "select",
+          Boolean(node.echostructure),
+          undefined,
+          undefined,
+          THYROID_NODE_ECHOSTRUCTURE_OPTIONS,
+          (nextValue) =>
                               updateNodeField(side, index, "echostructure", nextValue),
-                          }),
-                      )}
+        )}
 
                       {renderField(
-                        "Контур",
-                        node.contour || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.contour),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: контур`,
-                            mode: "select",
-                            value: node.contour,
-                            options: THYROID_NODE_CONTOUR_OPTIONS,
-                            onSave: (nextValue) => updateNodeField(side, index, "contour", nextValue),
-                          }),
-                      )}
+          "Контур",
+          node.contour || "Нажмите для ввода",
+          "select",
+          Boolean(node.contour),
+          undefined,
+          undefined,
+          THYROID_NODE_CONTOUR_OPTIONS,
+          (nextValue) => updateNodeField(side, index, "contour", nextValue),
+        )}
 
                       {renderField(
-                        "Эхогенные фокусы",
-                        node.echogenicFoci || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.echogenicFoci),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: эхогенные фокусы`,
-                            mode: "select",
-                            value: node.echogenicFoci,
-                            options: THYROID_NODE_ECHOGENIC_FOCI_OPTIONS,
-                            onSave: (nextValue) =>
+          "Эхогенные фокусы",
+          node.echogenicFoci || "Нажмите для ввода",
+          "select",
+          Boolean(node.echogenicFoci),
+          undefined,
+          undefined,
+          THYROID_NODE_ECHOGENIC_FOCI_OPTIONS,
+          (nextValue) =>
                               updateNodeField(side, index, "echogenicFoci", nextValue),
-                          }),
-                      )}
+        )}
 
                       {renderField(
-                        "Ориентация",
-                        node.orientation || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.orientation),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: ориентация`,
-                            mode: "select",
-                            value: node.orientation,
-                            options: THYROID_NODE_ORIENTATION_OPTIONS,
-                            onSave: (nextValue) =>
+          "Ориентация",
+          node.orientation || "Нажмите для ввода",
+          "select",
+          Boolean(node.orientation),
+          undefined,
+          undefined,
+          THYROID_NODE_ORIENTATION_OPTIONS,
+          (nextValue) =>
                               updateNodeField(side, index, "orientation", nextValue),
-                          }),
-                      )}
+        )}
 
                       {renderField(
-                        "Кровоток",
-                        node.bloodFlow || "Нажмите для ввода",
-                        "select",
-                        Boolean(node.bloodFlow),
-                        () =>
-                          openEditor({
-                            title: `Узел #${index + 1}: кровоток`,
-                            mode: "select",
-                            value: node.bloodFlow,
-                            options: THYROID_NODE_BLOOD_FLOW_OPTIONS,
-                            onSave: (nextValue) =>
+          "Кровоток",
+          node.bloodFlow || "Нажмите для ввода",
+          "select",
+          Boolean(node.bloodFlow),
+          undefined,
+          undefined,
+          THYROID_NODE_BLOOD_FLOW_OPTIONS,
+          (nextValue) =>
                               updateNodeField(side, index, "bloodFlow", nextValue),
-                          }),
-                      )}
+        )}
 
                       {renderField(
                         "Комментарий",
@@ -804,75 +780,55 @@ export function ThyroidProtocolBlock({
             rightToLeftRatio={thyroid.rightToLeftRatio}
           />
           {renderField(
-            "Эхогенность железы",
-            thyroid.echogenicity || "Нажмите для ввода",
-            "select",
-            Boolean(thyroid.echogenicity),
-            () =>
-              openEditor({
-                title: "Эхогенность железы",
-                mode: "select",
-                value: thyroid.echogenicity,
-                options: THYROID_ECHOGENICITY_OPTIONS,
-                onSave: (nextValue) => updateThyroidField("echogenicity", nextValue),
-              }),
-          )}
+          "Эхогенность железы",
+          thyroid.echogenicity || "Нажмите для ввода",
+          "select",
+          Boolean(thyroid.echogenicity),
+          undefined,
+          undefined,
+          THYROID_ECHOGENICITY_OPTIONS,
+          (nextValue) => updateThyroidField("echogenicity", nextValue),
+        )}
           {renderField(
-            "Эхоструктура",
-            thyroid.echostructure || "Нажмите для ввода",
-            "select",
-            Boolean(thyroid.echostructure),
-            () =>
-              openEditor({
-                title: "Эхоструктура",
-                mode: "select",
-                value: thyroid.echostructure,
-                options: THYROID_ECHOSTRUCTURE_OPTIONS,
-                onSave: (nextValue) => updateThyroidField("echostructure", nextValue),
-              }),
-          )}
+          "Эхоструктура",
+          thyroid.echostructure || "Нажмите для ввода",
+          "select",
+          Boolean(thyroid.echostructure),
+          undefined,
+          undefined,
+          THYROID_ECHOSTRUCTURE_OPTIONS,
+          (nextValue) => updateThyroidField("echostructure", nextValue),
+        )}
           {renderField(
-            "Контур",
-            thyroid.contour || "Нажмите для ввода",
-            "select",
-            Boolean(thyroid.contour),
-            () =>
-              openEditor({
-                title: "Контур железы",
-                mode: "select",
-                value: thyroid.contour,
-                options: THYROID_CONTOUR_OPTIONS,
-                onSave: (nextValue) => updateThyroidField("contour", nextValue),
-              }),
-          )}
+          "Контур",
+          thyroid.contour || "Нажмите для ввода",
+          "select",
+          Boolean(thyroid.contour),
+          undefined,
+          undefined,
+          THYROID_CONTOUR_OPTIONS,
+          (nextValue) => updateThyroidField("contour", nextValue),
+        )}
           {renderField(
-            "Симметричность",
-            thyroid.symmetry || "Нажмите для ввода",
-            "select",
-            Boolean(thyroid.symmetry),
-            () =>
-              openEditor({
-                title: "Симметричность",
-                mode: "select",
-                value: thyroid.symmetry,
-                options: THYROID_SYMMETRY_OPTIONS,
-                onSave: (nextValue) => updateThyroidField("symmetry", nextValue),
-              }),
-          )}
+          "Симметричность",
+          thyroid.symmetry || "Нажмите для ввода",
+          "select",
+          Boolean(thyroid.symmetry),
+          undefined,
+          undefined,
+          THYROID_SYMMETRY_OPTIONS,
+          (nextValue) => updateThyroidField("symmetry", nextValue),
+        )}
           {renderField(
-            "Положение",
-            thyroid.position || "Нажмите для ввода",
-            "select",
-            Boolean(thyroid.position),
-            () =>
-              openEditor({
-                title: "Положение железы",
-                mode: "select",
-                value: thyroid.position,
-                options: THYROID_POSITION_OPTIONS,
-                onSave: (nextValue) => updateThyroidField("position", nextValue),
-              }),
-          )}
+          "Положение",
+          thyroid.position || "Нажмите для ввода",
+          "select",
+          Boolean(thyroid.position),
+          undefined,
+          undefined,
+          THYROID_POSITION_OPTIONS,
+          (nextValue) => updateThyroidField("position", nextValue),
+        )}
         </View>
       </View>
 
