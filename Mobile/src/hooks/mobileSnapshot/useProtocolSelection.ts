@@ -38,6 +38,7 @@ export function useProtocolSelection({
   setSaveState: (value: SetStateAction<SaveState>) => void;
 }) {
   const [focusedProtocolId, setFocusedProtocolIdState] = useState<ProtocolId | null>(null);
+  const [activeSectionId, setActiveSectionIdState] = useState<string | null>(null);
 
   const selectedProtocolManifests = useMemo(() => {
     return snapshot.selection.selectedStudies
@@ -58,6 +59,16 @@ export function useProtocolSelection({
 
     return selectedProtocolManifests[0] ?? null;
   }, [focusedProtocolId, selectedProtocolManifests]);
+
+  useEffect(() => {
+    if (!activeProtocolManifest) {
+      setActiveSectionIdState(null);
+      return;
+    }
+
+    const firstSectionId = activeProtocolManifest.sections[0]?.id ?? null;
+    setActiveSectionIdState(firstSectionId);
+  }, [activeProtocolManifest?.id]);
 
   useEffect(() => {
     if (snapshot.selection.selectedStudies.length === 0) {
@@ -140,6 +151,8 @@ export function useProtocolSelection({
   return {
     focusedProtocolId,
     setFocusedProtocolId: setFocusedProtocolIdState,
+    activeSectionId,
+    setActiveSectionId: setActiveSectionIdState,
     selectedProtocolManifests,
     activeProtocolManifest,
     toggleProtocol,

@@ -6,6 +6,7 @@ import { type TabKey } from "./src/components/TabBar";
 import { BottomNav } from "./src/components/BottomNav";
 import { AppHeader } from "./src/components/AppHeader";
 import { ScannerOverlay } from "./src/components/ScannerOverlay";
+import { ProtocolNav } from "./src/components/ProtocolNav";
 import { ConnectScreen } from "./src/screens/ConnectScreen";
 import { DraftScreen } from "./src/screens/DraftScreen";
 import { LibraryScreen } from "./src/screens/LibraryScreen";
@@ -22,7 +23,7 @@ const BOTTOM_SPACER_HEIGHT = 110;
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [, setSessionId] = useState<string | null>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
 
   const {
@@ -56,6 +57,8 @@ export default function App() {
     activeProtocolManifest,
     focusedProtocolId,
     setFocusedProtocolId,
+    activeSectionId,
+    setActiveSectionId,
     reviewIssues,
     canSaveDraft,
     studiesData,
@@ -90,7 +93,7 @@ export default function App() {
         <View style={styles.blobB} />
       </View>
 
-      <AppHeader styles={styles} connected={connected} sessionId={sessionId} />
+      <AppHeader styles={styles} />
 
       {(connectionState === "checking" || connectionState === "connecting") && (
         <View style={styles.connectionNotice}>
@@ -101,6 +104,15 @@ export default function App() {
           </Text>
         </View>
       )}
+
+      <ProtocolNav
+        styles={styles}
+        selectedStudies={snapshot.selection.selectedStudies}
+        activeProtocolManifest={activeProtocolManifest}
+        activeSectionId={activeSectionId}
+        onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
+        onSelectSection={setActiveSectionId}
+      />
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -143,6 +155,7 @@ export default function App() {
             snapshot={snapshot}
             studiesData={studiesData}
             activeProtocolManifest={activeProtocolManifest}
+            activeSectionId={activeSectionId}
             obpActions={obpActions}
             protocolUpdateHandlers={protocolUpdateHandlers}
             onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}

@@ -12,6 +12,7 @@ import type { AppStyles } from "../../styles/appStyles";
 
 export type ProtocolRendererContext = {
   styles: AppStyles;
+  activeSectionId: string | null;
   obpActions: ObpDraftActions;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
   activeObpDraft: ObpDraft;

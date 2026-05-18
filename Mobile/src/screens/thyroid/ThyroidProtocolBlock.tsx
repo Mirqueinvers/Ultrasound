@@ -1,4 +1,4 @@
-import { Fragment, memo, useState, type ReactNode } from "react";
+﻿import { Fragment, memo, useState, type ReactNode } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -47,6 +47,7 @@ type ThyroidProtocolBlockProps = {
   styles: AppStyles;
   value: ThyroidStudyDraft;
   onChange: (value: ThyroidStudyDraft) => void;
+  activeSectionId?: string | null;
 };
 
 type ThyroidAutoIndicatorsProps = {
@@ -265,6 +266,7 @@ export function ThyroidProtocolBlock({
   styles,
   value,
   onChange,
+  activeSectionId = null,
 }: ThyroidProtocolBlockProps) {
   const [form, setForm] = useState<ThyroidStudyDraft>(
     value ?? createEmptyThyroidStudyDraft(),
@@ -443,6 +445,11 @@ export function ThyroidProtocolBlock({
     const lobe = side === "right" ? thyroid.rightLobe : thyroid.leftLobe;
     const title = side === "right" ? "Правая доля" : "Левая доля";
     const showNodes = isNormalizedMatch(lobe.volumeFormations, "определяются");
+    const sectionId = side === "right" ? "thyroid.right_lobe" : "thyroid.left_lobe";
+
+    if (activeSectionId && activeSectionId !== sectionId) {
+      return null;
+    }
 
     return (
       <View style={styles.kidneyPlainSection} key={side}>
@@ -902,3 +909,4 @@ export function ThyroidProtocolBlock({
 }
 
 export default ThyroidProtocolBlock;
+

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+﻿import { Fragment, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -108,6 +108,7 @@ type ObpFinalFieldSpec = {
 type ObpProtocolBlockProps = {
   styles: AppStyles;
   obpDraft: ObpDraft;
+  activeSectionId?: string | null;
   onUpdateLiverField: (field: keyof LiverDraft, value: string) => void;
   onUpdateGallbladderField: (field: keyof GallbladderDraft, value: string) => void;
   onUpdateGallbladderConcretionsList: (
@@ -313,6 +314,7 @@ const OBP_CONCLUSION_SAMPLES: Array<{ title: string; value: string }> = [
 export function ObpProtocolBlock({
   styles,
   obpDraft: incomingObpDraft,
+  activeSectionId,
   onUpdateLiverField,
   onUpdateGallbladderField,
   onUpdateGallbladderConcretionsList,
@@ -421,9 +423,44 @@ export function ObpProtocolBlock({
     { key: "recommendations", label: "Рекомендации", kind: "text", placeholder: "Введите рекомендации", multiline: true },
   ];
 
+  const OBP_SECTION_IDS = {
+    liver: "obp.liver",
+    gallbladder: "obp.gallbladder",
+    pancreas: "obp.pancreas",
+    spleen: "obp.spleen",
+  } as const;
+
+  function resolveActiveObpSection(sectionId: string | null | undefined) {
+    if (!sectionId) {
+      return null;
+    }
+
+    switch (sectionId) {
+      case OBP_SECTION_IDS.liver:
+        return OBP_SECTION_IDS.liver;
+      case OBP_SECTION_IDS.gallbladder:
+        return OBP_SECTION_IDS.gallbladder;
+      case OBP_SECTION_IDS.pancreas:
+        return OBP_SECTION_IDS.pancreas;
+      case OBP_SECTION_IDS.spleen:
+        return OBP_SECTION_IDS.spleen;
+      default:
+        return OBP_SECTION_IDS.liver;
+    }
+  }
+
+  const resolvedActiveSectionId = resolveActiveObpSection(activeSectionId);
+  const showAllSections = resolvedActiveSectionId === null;
+  const showLiverSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.liver;
+  const showGallbladderSection =
+    showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.gallbladder;
+  const showPancreasSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.pancreas;
+  const showSpleenSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.spleen;
+
   const hasValue = (currentValue: string) => currentValue.trim().length > 0;
 
   const renderObpFieldRow = ({
+    itemKey,
     label,
     value,
     kind,
@@ -433,6 +470,7 @@ export function ObpProtocolBlock({
     options,
     onSelectOption,
   }: {
+    itemKey: string;
     label: string;
     value: string;
     kind: "number" | "select" | "text" | "auto";
@@ -443,6 +481,7 @@ export function ObpProtocolBlock({
     onSelectOption?: (value: string) => void;
   }) => (
     <ProtocolFieldRow
+      key={itemKey}
       label={label}
       value={value}
       typeLabel={readonly ? "auto" : kind === "number" ? "numpad" : kind}
@@ -661,6 +700,8 @@ export function ObpProtocolBlock({
         onSave={saveEditor}
       />
 
+      {showLiverSection && (
+        <>
       <ProtocolOrganHeader title="Печень" />
 
       <View style={styles.obpFieldList}>
@@ -678,6 +719,7 @@ export function ObpProtocolBlock({
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Размеры")}
                 {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -710,6 +752,7 @@ export function ObpProtocolBlock({
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Структура")}
                 {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -742,6 +785,7 @@ export function ObpProtocolBlock({
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Сосуды")}
                 {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -774,6 +818,7 @@ export function ObpProtocolBlock({
               <Fragment key={field.key}>
                 {renderInlineSectionHeader("Дополнительно")}
                 {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -802,6 +847,7 @@ export function ObpProtocolBlock({
           }
 
           return renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -827,7 +873,11 @@ export function ObpProtocolBlock({
 });
         })}
       </View>
+        </>
+      )}
 
+      {showGallbladderSection && (
+        <>
       <ProtocolOrganHeader title="Желчный пузырь" />
 
       <View style={styles.obpFieldList}>
@@ -840,6 +890,7 @@ export function ObpProtocolBlock({
           const displayValue = currentValue || 'Нажмите для ввода';
 
           const fieldRow = renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -932,6 +983,7 @@ export function ObpProtocolBlock({
                                 const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
 
                                 return renderObpFieldRow({
+  itemKey: itemField.key,
   label: itemField.label,
   value: itemDisplayValue,
   kind: itemField.kind,
@@ -1013,6 +1065,7 @@ export function ObpProtocolBlock({
                                 const itemDisplayValue = currentItemValue || 'Нажмите для ввода';
 
                                 return renderObpFieldRow({
+  itemKey: itemField.key,
   label: itemField.label,
   value: itemDisplayValue,
   kind: itemField.kind,
@@ -1049,6 +1102,10 @@ export function ObpProtocolBlock({
           return fieldRow;
         })}
       </View>
+        </>
+      )}
+      {showPancreasSection && (
+        <>
       <ProtocolOrganHeader title="Поджелудочная железа" />
 
       <View style={styles.obpFieldList}>
@@ -1068,6 +1125,7 @@ export function ObpProtocolBlock({
               {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
               {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -1090,7 +1148,11 @@ export function ObpProtocolBlock({
           );
         })}
       </View>
+        </>
+      )}
 
+      {showSpleenSection && (
+        <>
       <ProtocolOrganHeader title="Селезёнка" />
 
       <View style={styles.obpFieldList}>
@@ -1111,6 +1173,7 @@ export function ObpProtocolBlock({
               {field.key === "additional" && renderInlineSectionHeader("Дополнительно")}
 
               {renderObpFieldRow({
+  itemKey: field.key,
   label: field.label,
   value: displayValue,
   kind: field.kind,
@@ -1133,11 +1196,14 @@ export function ObpProtocolBlock({
           );
         })}
       </View>
+        </>
+      )}
 
       <ProtocolOrganHeader title="Свободная жидкость" />
 
       <View style={styles.obpFieldList}>
         {renderObpFieldRow({
+  itemKey: obpFinalFields[0].key,
   label: obpFinalFields[0].label,
   value: draft.freeFluid || "Нажмите для ввода",
   kind: "select",
@@ -1224,3 +1290,5 @@ export function ObpProtocolBlock({
     </View>
   );
 }
+
+

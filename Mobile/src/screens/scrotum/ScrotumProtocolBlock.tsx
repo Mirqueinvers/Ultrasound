@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+﻿import { useEffect, useState, type ReactNode } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import { FieldEditorModal, type FieldEditorOption } from "../../components/FieldEditorModal";
@@ -37,6 +37,7 @@ type ScrotumProtocolBlockProps = {
   styles: AppStyles;
   value: ScrotumDraft;
   onChange: (value: ScrotumDraft) => void;
+  activeSectionId?: string | null;
 };
 
 const LOCATION_OPTIONS: FieldEditorOption[] = [
@@ -115,7 +116,12 @@ function computeVolume(length: string, width: string, depth: string): string {
   return ((l * w * d * 0.523) / 1000).toFixed(2);
 }
 
-export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtocolBlockProps) {
+export function ScrotumProtocolBlock({
+  styles,
+  value,
+  onChange,
+  activeSectionId = null,
+}: ScrotumProtocolBlockProps) {
   const [form, setForm] = useState<ScrotumDraft>(value ?? createEmptyScrotumDraft());
   const [editorState, setEditorState] = useState<EditorState>(null);
 
@@ -145,6 +151,12 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 
   const isConclusionEditor = editorState?.title === "Заключение органов мошонки";
 
+  const activeTestisSide =
+    activeSectionId === "scrotum.right_testis"
+      ? "right"
+      : activeSectionId === "scrotum.left_testis"
+        ? "left"
+        : null;
   const updateTestisField = (
     side: "right" | "left",
     field: keyof SingleTestisDraft,
@@ -552,8 +564,16 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
         onSave={saveEditor}
       />
 
-      {renderTestis("right")}
-      {renderTestis("left")}
+      {activeTestisSide ? (
+        renderTestis(activeTestisSide)
+      ) : activeSectionId ? (
+        renderTestis("right")
+      ) : (
+        <>
+          {renderTestis("right")}
+          {renderTestis("left")}
+        </>
+      )}
 
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
@@ -640,3 +660,5 @@ export function ScrotumProtocolBlock({ styles, value, onChange }: ScrotumProtoco
 }
 
 export default ScrotumProtocolBlock;
+
+

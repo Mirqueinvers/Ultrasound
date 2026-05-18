@@ -5,12 +5,14 @@ import type { KidneyStudyDraft } from "../../shared/kidneyDraft";
 
 type RenderKidneysProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeKidneyDraft: KidneyStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
 
 export function renderKidneys({
   styles,
+  activeSectionId,
   activeKidneyDraft,
   protocolUpdateHandlers,
 }: RenderKidneysProps) {
@@ -19,6 +21,7 @@ export function renderKidneys({
       styles={styles}
       value={activeKidneyDraft}
       onChange={protocolUpdateHandlers.updateKidneyStudy}
+      activeSectionId={activeSectionId}
     />
   );
 }

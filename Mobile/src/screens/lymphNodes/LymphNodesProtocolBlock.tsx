@@ -39,6 +39,7 @@ type LymphNodesProtocolBlockProps = {
   styles: AppStyles;
   value: LymphNodesStudyDraft;
   onChange: (value: LymphNodesStudyDraft) => void;
+  activeSectionId?: string | null;
 };
 
 const REGION_FIELDS = [
@@ -81,7 +82,12 @@ const LYMPH_NODE_BLOOD_FLOW_OPTIONS: FieldEditorOption[] = [
   { value: "сохранен", label: "сохранен" },
 ];
 
-export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesProtocolBlockProps) {
+export function LymphNodesProtocolBlock({
+  styles,
+  value,
+  onChange,
+  activeSectionId = null,
+}: LymphNodesProtocolBlockProps) {
   const [form, setForm] = useState<LymphNodesStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
 
@@ -90,6 +96,20 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
   }, [value]);
 
   const lymphNodes = form.lymphNodes;
+  const activeRegionKey =
+    activeSectionId === "lymph_nodes.submandibular"
+      ? "submandibular"
+      : activeSectionId === "lymph_nodes.cervical"
+        ? "cervical"
+        : activeSectionId === "lymph_nodes.subclavian"
+          ? "subclavian"
+          : activeSectionId === "lymph_nodes.supraclavicular"
+            ? "supraclavicular"
+            : activeSectionId === "lymph_nodes.axillary"
+              ? "axillary"
+              : activeSectionId === "lymph_nodes.inguinal"
+                ? "inguinal"
+                : null;
 
   const updateForm = (updater: (current: LymphNodesStudyDraft) => LymphNodesStudyDraft) => {
     setForm((current) => {
@@ -403,11 +423,19 @@ export function LymphNodesProtocolBlock({ styles, value, onChange }: LymphNodesP
         <ProtocolOrganHeader title="Лимфатические узлы" />
       </View>
 
-      {REGION_FIELDS.map(({ key, title }) => (
-        <View key={key} style={styles.kidneyPlainSection}>
-          {renderRegion(key, title)}
+      {activeRegionKey ? (
+        <View style={styles.kidneyPlainSection}>{renderRegion(activeRegionKey, REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? "")}</View>
+      ) : activeSectionId ? (
+        <View style={styles.kidneyPlainSection}>
+          {renderRegion("submandibular", REGION_FIELDS[0].title)}
         </View>
-      ))}
+      ) : (
+        REGION_FIELDS.map(({ key, title }) => (
+          <View key={key} style={styles.kidneyPlainSection}>
+            {renderRegion(key, title)}
+          </View>
+        ))
+      )}
 
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />

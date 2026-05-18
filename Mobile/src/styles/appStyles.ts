@@ -44,9 +44,9 @@ export const styles = StyleSheet.create({
   },
   chrome: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 14,
-    gap: 14,
+    paddingTop: 14,
+    paddingBottom: 10,
+    gap: 10,
   },
   kicker: {
     color: "#7dd3fc",
@@ -73,6 +73,56 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
+  },
+  protocolNav: {
+    paddingHorizontal: 18,
+    paddingTop: 2,
+    paddingBottom: 10,
+    gap: 10,
+  },
+  protocolNavGroup: {
+    gap: 8,
+  },
+  protocolNavGroupTitle: {
+    color: "#7dd3fc",
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    fontSize: 10,
+    fontWeight: "800",
+  },
+  protocolNavChipWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  protocolNavChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.16)",
+    backgroundColor: "rgba(148, 163, 184, 0.08)",
+  },
+  protocolNavChipActive: {
+    borderColor: "rgba(34, 197, 94, 0.55)",
+    backgroundColor: "rgba(4, 120, 87, 0.22)",
+  },
+  protocolNavChipPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.985 }],
+  },
+  protocolNavChipText: {
+    color: "#cbd5e1",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  protocolNavChipTextActive: {
+    color: "#f8fafc",
+    fontWeight: "800",
+  },
+  protocolNavEmptyText: {
+    color: "#94a3b8",
+    paddingHorizontal: 2,
   },
   content: {
     paddingHorizontal: 18,

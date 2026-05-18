@@ -5,12 +5,14 @@ import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
 
 type RenderThyroidProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeThyroidDraft: ThyroidStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
 
 export function renderThyroid({
   styles,
+  activeSectionId,
   activeThyroidDraft,
   protocolUpdateHandlers,
 }: RenderThyroidProps) {
@@ -18,6 +20,7 @@ export function renderThyroid({
     <ThyroidProtocolBlock
       styles={styles}
       value={activeThyroidDraft}
+      activeSectionId={activeSectionId}
       onChange={protocolUpdateHandlers.updateThyroidStudy}
     />
   );

@@ -18,6 +18,7 @@ type DraftScreenProps = {
   snapshot: MobileSyncSnapshot;
   studiesData: MobileStudiesDataMap;
   activeProtocolManifest: ProtocolManifest | null;
+  activeSectionId: string | null;
   obpActions: ObpDraftActions;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
@@ -49,6 +50,7 @@ export function DraftScreen({
   snapshot,
   studiesData,
   activeProtocolManifest,
+  activeSectionId,
   obpActions,
   protocolUpdateHandlers,
   onSelectProtocol,
@@ -135,6 +137,7 @@ export function DraftScreen({
 
       <ProtocolDraftRenderer
         activeProtocolManifest={activeProtocolManifest}
+        activeSectionId={activeSectionId}
         studiesData={studiesData}
         styles={styles}
         obpActions={obpActions}

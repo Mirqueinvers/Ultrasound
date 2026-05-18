@@ -37,6 +37,7 @@ type OmtMaleProtocolBlockProps = {
   styles: AppStyles;
   value: OmtMaleDraft;
   onChange: (value: OmtMaleDraft) => void;
+  activeSectionId?: string | null;
 };
 
 const PROSTATE_STUDY_TYPE_OPTIONS: FieldEditorOption[] = [
@@ -130,7 +131,12 @@ function renderPairSize(first: string, second: string): string {
   return `${trimmedFirst}x${trimmedSecond}`;
 }
 
-export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtocolBlockProps) {
+export function OmtMaleProtocolBlock({
+  styles,
+  value,
+  onChange,
+  activeSectionId = null,
+}: OmtMaleProtocolBlockProps) {
   const [form, setForm] = useState<OmtMaleDraft>(value ?? createEmptyOmtMaleDraft());
   const [editorState, setEditorState] = useState<EditorState>(null);
 
@@ -171,6 +177,14 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
   const showProtrusionMm = isNormalizedMatch(prostate.bladderProtrusion, "выступает");
   const showResidualBlock = isNormalizedMatch(urinaryBladder.residualStatus, "определяется");
   const showContentsText = isNormalizedMatch(urinaryBladder.contents, "неоднородное");
+  const activeOmtMaleSection =
+    activeSectionId === "omt_male.prostate"
+      ? "prostate"
+      : activeSectionId === "omt_male.bladder"
+        ? "bladder"
+        : null;
+  const showProstateSection = !activeSectionId || activeOmtMaleSection === "prostate" || (!activeOmtMaleSection && Boolean(activeSectionId));
+  const showBladderSection = !activeSectionId ? true : activeOmtMaleSection === "bladder";
 
   const renderRow = (
     label: string,
@@ -335,6 +349,7 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
         onSave={saveEditor}
       />
 
+      {showProstateSection && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Простата" />
         <View style={styles.obpFieldList}>
@@ -567,7 +582,9 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
           )}
         </View>
       </View>
+      )}
 
+      {showBladderSection && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Мочевой пузырь" />
         <View style={styles.obpFieldList}>
@@ -750,6 +767,7 @@ export function OmtMaleProtocolBlock({ styles, value, onChange }: OmtMaleProtoco
           )}
         </View>
       </View>
+      )}
 
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />

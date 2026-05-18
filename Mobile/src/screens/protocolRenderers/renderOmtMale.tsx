@@ -5,12 +5,14 @@ import type { OmtMaleDraft } from "../../shared/omtMaleDraft";
 
 type RenderOmtMaleProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeOmtMaleDraft: OmtMaleDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
 
 export function renderOmtMale({
   styles,
+  activeSectionId,
   activeOmtMaleDraft,
   protocolUpdateHandlers,
 }: RenderOmtMaleProps) {
@@ -18,6 +20,7 @@ export function renderOmtMale({
     <OmtMaleProtocolBlock
       styles={styles}
       value={activeOmtMaleDraft}
+      activeSectionId={activeSectionId}
       onChange={protocolUpdateHandlers.updateOmtMaleStudy}
     />
   );

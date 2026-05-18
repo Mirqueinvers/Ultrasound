@@ -82,6 +82,7 @@ type KidneysProtocolBlockProps = {
   styles: AppStyles;
   value: KidneyStudyDraft;
   onChange: (value: KidneyStudyDraft) => void;
+  activeSectionId?: string | null;
 };
 
 const KIDNEY_CONTOUR_OPTIONS: FieldEditorOption[] = [
@@ -134,6 +135,29 @@ const RESIDUAL_STATUS_OPTIONS: FieldEditorOption[] = [
   { value: "не определяется", label: "Не определяется" },
 ];
 
+const KIDNEY_SECTION_IDS = {
+  right: "kidneys.right",
+  left: "kidneys.left",
+  bladder: "kidneys.bladder",
+} as const;
+
+function resolveActiveKidneySection(activeSectionId: string | null | undefined) {
+  if (!activeSectionId) {
+    return null;
+  }
+
+  switch (activeSectionId) {
+    case KIDNEY_SECTION_IDS.right:
+      return KIDNEY_SECTION_IDS.right;
+    case KIDNEY_SECTION_IDS.left:
+      return KIDNEY_SECTION_IDS.left;
+    case KIDNEY_SECTION_IDS.bladder:
+      return KIDNEY_SECTION_IDS.bladder;
+    default:
+      return KIDNEY_SECTION_IDS.right;
+  }
+}
+
 const KIDNEY_CONCLUSION_SAMPLES: Array<{ title: string; value: string }> = [
   { title: "Норма", value: "УЗ-признаков патологии почек не выявлено." },
   { title: "МКБ", value: "Эхографические признаки мочекаменной болезни." },
@@ -176,6 +200,7 @@ export function KidneysProtocolBlock({
   styles,
   value,
   onChange,
+  activeSectionId,
 }: KidneysProtocolBlockProps) {
   const [form, setForm] = useState<KidneyStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -510,6 +535,15 @@ export function KidneysProtocolBlock({
 
   const renderKidneySide = (title: string, side: "rightKidney" | "leftKidney") => {
     const kidney = ensureKidney(form, side);
+    if (
+      resolvedActiveSectionId &&
+      !(
+        (side === "rightKidney" && resolvedActiveSectionId === KIDNEY_SECTION_IDS.right) ||
+        (side === "leftKidney" && resolvedActiveSectionId === KIDNEY_SECTION_IDS.left)
+      )
+    ) {
+      return null;
+    }
     const isNephrectomy = isNormalizedMatch(kidney.position, "нефрэктомия");
     const showPositionText = ["опущение", "нефроптоз", "нефрэктомия"].some((option) =>
       isNormalizedMatch(kidney.position, option),
@@ -1266,6 +1300,9 @@ export function KidneysProtocolBlock({
 
   const renderBladder = () => {
     const bladder = ensureBladder(form);
+    if (resolvedActiveSectionId && resolvedActiveSectionId !== KIDNEY_SECTION_IDS.bladder) {
+      return null;
+    }
     const showResidualFields = isNormalizedMatch(bladder.residualStatus, "определяется");
     const showContentsText = isNormalizedMatch(bladder.contents, "неоднородное");
 
@@ -1435,6 +1472,8 @@ export function KidneysProtocolBlock({
       </View>
     );
   };
+
+  const resolvedActiveSectionId = resolveActiveKidneySection(activeSectionId);
 
   return (
     <View style={styles.activeProtocolBlock}>

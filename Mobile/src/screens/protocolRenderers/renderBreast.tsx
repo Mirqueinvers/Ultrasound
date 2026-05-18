@@ -5,12 +5,14 @@ import type { BreastStudyDraft } from "../../shared/breastDraft";
 
 type RenderBreastProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeBreastDraft: BreastStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
 
 export function renderBreast({
   styles,
+  activeSectionId,
   activeBreastDraft,
   protocolUpdateHandlers,
 }: RenderBreastProps) {
@@ -18,6 +20,7 @@ export function renderBreast({
     <BreastProtocolBlock
       styles={styles}
       value={activeBreastDraft}
+      activeSectionId={activeSectionId}
       onChange={protocolUpdateHandlers.updateBreastStudy}
     />
   );

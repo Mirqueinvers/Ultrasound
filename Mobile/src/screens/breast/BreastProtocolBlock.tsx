@@ -37,6 +37,7 @@ type BreastProtocolBlockProps = {
   styles: AppStyles;
   value: BreastStudyDraft;
   onChange: (value: BreastStudyDraft) => void;
+  activeSectionId?: string | null;
 };
 
 const BREAST_SKIN_OPTIONS: FieldEditorOption[] = [
@@ -155,6 +156,7 @@ export function BreastProtocolBlock({
   styles,
   value,
   onChange,
+  activeSectionId = null,
 }: BreastProtocolBlockProps) {
   const [form, setForm] = useState<BreastStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -186,6 +188,12 @@ export function BreastProtocolBlock({
   };
 
   const breast = form.breast;
+  const activeBreastSide =
+    activeSectionId === "breast.right"
+      ? "right"
+      : activeSectionId === "breast.left"
+        ? "left"
+        : null;
 
   const updateBreastField = <K extends keyof BreastProtocolDraft>(
     field: K,
@@ -637,8 +645,16 @@ export function BreastProtocolBlock({
         )}
       </View>
 
-      {renderSide("right")}
-      {renderSide("left")}
+      {activeBreastSide ? (
+        renderSide(activeBreastSide)
+      ) : activeSectionId ? (
+        renderSide("right")
+      ) : (
+        <>
+          {renderSide("right")}
+          {renderSide("left")}
+        </>
+      )}
 
       <View style={styles.kidneyPlainSection}>
         <ProtocolSectionHeader title="Структура молочных желез" />

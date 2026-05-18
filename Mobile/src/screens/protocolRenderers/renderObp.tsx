@@ -5,14 +5,16 @@ import type { ObpDraft } from "../../shared/obpDraft";
 
 type RenderObpProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeObpDraft: ObpDraft;
   obpActions: ObpDraftActions;
 };
 
-export function renderObp({ styles, activeObpDraft, obpActions }: RenderObpProps) {
+export function renderObp({ styles, activeSectionId, activeObpDraft, obpActions }: RenderObpProps) {
   return (
     <ObpProtocolBlock
       styles={styles}
+      activeSectionId={activeSectionId}
       obpDraft={activeObpDraft}
       onUpdateLiverField={obpActions.updateObpLiverField}
       onUpdateGallbladderField={obpActions.updateObpGallbladderField}

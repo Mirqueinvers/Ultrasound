@@ -204,7 +204,7 @@ export function useMobileSnapshot({
     });
   };
 
-  const { focusedProtocolId, setFocusedProtocolId, selectedProtocolManifests, activeProtocolManifest, toggleProtocol } =
+  const { focusedProtocolId, setFocusedProtocolId, activeSectionId, setActiveSectionId, activeProtocolManifest, toggleProtocol } =
     useProtocolSelection({
       snapshot,
       studiesData,
@@ -276,10 +276,11 @@ export function useMobileSnapshot({
 
   return {
     snapshot,
-    selectedProtocolManifests,
     activeProtocolManifest,
     focusedProtocolId,
     setFocusedProtocolId,
+    activeSectionId,
+    setActiveSectionId,
     reviewIssues,
     canSaveDraft,
     studiesData,

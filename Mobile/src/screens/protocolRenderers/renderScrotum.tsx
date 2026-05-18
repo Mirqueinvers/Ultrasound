@@ -5,12 +5,14 @@ import type { ScrotumDraft } from "../../shared/scrotumDraft";
 
 type RenderScrotumProps = {
   styles: AppStyles;
+  activeSectionId: string | null;
   activeScrotumDraft: ScrotumDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
 
 export function renderScrotum({
   styles,
+  activeSectionId,
   activeScrotumDraft,
   protocolUpdateHandlers,
 }: RenderScrotumProps) {
@@ -18,6 +20,7 @@ export function renderScrotum({
     <ScrotumProtocolBlock
       styles={styles}
       value={activeScrotumDraft}
+      activeSectionId={activeSectionId}
       onChange={protocolUpdateHandlers.updateScrotumStudy}
     />
   );

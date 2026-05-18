@@ -15,6 +15,7 @@ import { PROTOCOL_RENDERERS, type ProtocolRendererContext } from "./protocolRend
 
 type ProtocolDraftRendererProps = {
   activeProtocolManifest: ProtocolManifest | null;
+  activeSectionId: string | null;
   studiesData: MobileStudiesDataMap;
   styles: AppStyles;
   obpActions: ObpDraftActions;
@@ -25,6 +26,7 @@ type ProtocolDraftRendererProps = {
 
 export function ProtocolDraftRenderer({
   activeProtocolManifest,
+  activeSectionId,
   studiesData,
   styles,
   obpActions,
@@ -55,8 +57,14 @@ export function ProtocolDraftRenderer({
   const protocolRenderer = activeProtocolManifest
     ? PROTOCOL_RENDERERS[activeProtocolManifest.id as keyof typeof PROTOCOL_RENDERERS]
     : null;
+  const activeSection = activeProtocolManifest
+    ? activeProtocolManifest.sections.find((section) => section.id === activeSectionId) ??
+      activeProtocolManifest.sections[0] ??
+      null
+    : null;
   const rendererContext: ProtocolRendererContext = {
     styles,
+    activeSectionId,
     obpActions,
     protocolUpdateHandlers,
     activeObpDraft,
@@ -94,7 +102,7 @@ export function ProtocolDraftRenderer({
 
       {protocolRenderer ? (
         protocolRenderer(rendererContext)
-      ) : (
+      ) : activeSection ? (
         <>
           <MobileField
             styles={styles}
@@ -106,32 +114,37 @@ export function ProtocolDraftRenderer({
             minHeight={96}
           />
 
-          {activeProtocolManifest.sections.map((section) => (
-            <View key={section.id} style={styles.sectionCard}>
-              <View style={styles.sectionCardHeader}>
-                <View>
-                  <Text style={styles.sectionLabel}>{section.label}</Text>
-                  <Text style={styles.sectionDesktopKey}>{section.desktopKey}</Text>
-                </View>
-                <StatusPill styles={styles} tone="neutral">
-                  раздел
-                </StatusPill>
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionCardHeader}>
+              <View>
+                <Text style={styles.sectionLabel}>{activeSection.label}</Text>
+                <Text style={styles.sectionDesktopKey}>{activeSection.desktopKey}</Text>
               </View>
-
-              <MobileField
-                styles={styles}
-                label="Примечание раздела"
-                value={currentStudyDraft.sections?.[section.desktopKey] ?? ""}
-                onChangeText={(value) =>
-                  onUpdateSectionNote(activeProtocolManifest.selectionLabel, section.desktopKey, value)
-                }
-                placeholder={`Введите примечание для "${section.label.toLowerCase()}"`}
-                multiline
-                minHeight={110}
-              />
+              <StatusPill styles={styles} tone="neutral">
+                раздел
+              </StatusPill>
             </View>
-          ))}
+
+            <MobileField
+              styles={styles}
+              label="Примечание раздела"
+              value={currentStudyDraft.sections?.[activeSection.desktopKey] ?? ""}
+              onChangeText={(value) =>
+                onUpdateSectionNote(activeProtocolManifest.selectionLabel, activeSection.desktopKey, value)
+              }
+              placeholder={`Введите примечание для "${activeSection.label.toLowerCase()}"`}
+              multiline
+              minHeight={110}
+            />
+          </View>
         </>
+      ) : (
+        <View style={styles.emptyProtocolState}>
+          <Text style={styles.emptyProtocolTitle}>Активный раздел не найден</Text>
+          <Text style={styles.emptyProtocolText}>
+            Выберите раздел в верхней навигации, чтобы начать редактирование на телефоне.
+          </Text>
+        </View>
       )}
     </View>
   );
