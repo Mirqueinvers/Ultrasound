@@ -1,14 +1,16 @@
 // /components/print/researches/PleuralPrint.tsx
 import React from "react";
 import { useResearch } from "@contexts";
+import type { PleuralStudyProtocol } from "@types";
 import { PleuralPrint as PleuralPrintComponent } from "@/components/print/organs/PleuralPrint";
-import type { PleuralProtocol } from "@types";
 
 export const PleuralResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const pleuralData = studiesData["Плевральные полости"];
-  const pleuralProtocol = pleuralData?.pleural as PleuralProtocol | undefined;
+  const pleuralData = studiesData["Плевральные полости"] as
+    | PleuralStudyProtocol
+    | undefined;
+  const pleuralProtocol = pleuralData?.pleural;
 
   if (!pleuralProtocol) {
     return null;

@@ -19,6 +19,21 @@ import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPri
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
 import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
 import EditablePrintHtmlBlock from "@/components/print/EditablePrintHtmlBlock";
+import type {
+  ObpProtocol,
+  KidneyStudyProtocol,
+  UrinaryBladderStudyProtocol,
+  OmtFemaleProtocol,
+  OmtMaleProtocol,
+  ThyroidStudyProtocol,
+  BreastStudyProtocol,
+  ScrotumProtocol,
+  ChildDispensaryProtocol,
+  SoftTissueProtocol,
+  SalivaryGlandsStudyProtocol,
+  BrachioCephalicArteriesStudyProtocol,
+  LymphNodesStudyProtocol,
+} from "@types";
 
 type StudyBlockId =
   | "obp"
@@ -206,123 +221,138 @@ const PrintableSavedProtocol = React.forwardRef<
     studiesData["\u041b\u0438\u043c\u0444\u043e\u0443\u0437\u043b\u044b"] ||
     studiesData["lymphNodes"];
 
+  const obpProtocol = obpData as ObpProtocol | undefined;
+  const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
+  const bladderStudyProtocol = bladderStudyData as UrinaryBladderStudyProtocol | undefined;
+  const omtFemaleProtocol = omtFemaleData as OmtFemaleProtocol | undefined;
+  const omtMaleProtocol = omtMaleData as OmtMaleProtocol | undefined;
+  const thyroidProtocol = thyroidData as ThyroidStudyProtocol | undefined;
+  const breastProtocol = breastData as BreastStudyProtocol | undefined;
+  const scrotumProtocol = scrotumData as ScrotumProtocol | undefined;
+  const childDispensaryProtocol = childDispensaryData as ChildDispensaryProtocol | undefined;
+  const softTissueProtocol = softTissueData as SoftTissueProtocol | undefined;
+  const salivaryProtocol = salivaryData as SalivaryGlandsStudyProtocol | undefined;
+  const brachioCephalicArteriesProtocol =
+    brachioCephalicArteriesData as BrachioCephalicArteriesStudyProtocol | undefined;
+  const lymphNodesProtocol = lymphNodesData as LymphNodesStudyProtocol | undefined;
+
   const studyDefinitions = React.useMemo(
     () => ([
       {
         id: "obp",
         key: "obp",
         label: "\u041e\u0411\u041f",
-        studyData: obpData,
-        conclusion: obpData?.conclusion || "",
-        recommendations: obpData?.recommendations || "",
+        studyData: obpProtocol,
+        conclusion: obpProtocol?.conclusion || "",
+        recommendations: obpProtocol?.recommendations || "",
         element: <ObpPrint />,
       },
       {
         id: "kidneys",
         key: "kidneys",
         label: "\u041f\u043e\u0447\u043a\u0438",
-        studyData: kidneysData,
-        conclusion: kidneysData?.conclusion || "",
-        recommendations: kidneysData?.recommendations || "",
+        studyData: kidneysProtocol,
+        conclusion: kidneysProtocol?.conclusion || "",
+        recommendations: kidneysProtocol?.recommendations || "",
         element: <KidneysPrint />,
       },
       {
         id: "bladder",
         key: "bladder",
         label: "\u041c\u043e\u0447\u0435\u0432\u043e\u0439 \u043f\u0443\u0437\u044b\u0440\u044c",
-        studyData: bladderStudyData,
-        conclusion: bladderStudyData?.conclusion || "",
-        recommendations: bladderStudyData?.recommendations || "",
+        studyData: bladderStudyProtocol,
+        conclusion: bladderStudyProtocol?.conclusion || "",
+        recommendations: bladderStudyProtocol?.recommendations || "",
         element: <UrinaryBladderStudyPrint />,
       },
       {
         id: "omtFemale",
         key: "omt-female",
         label: "\u041e\u041c\u0422 (\u0416)",
-        studyData: omtFemaleData,
-        conclusion: omtFemaleData?.conclusion || "",
-        recommendations: omtFemaleData?.recommendations || "",
+        studyData: omtFemaleProtocol,
+        conclusion: omtFemaleProtocol?.conclusion || "",
+        recommendations: omtFemaleProtocol?.recommendations || "",
         element: <OmtFemalePrint />,
       },
       {
         id: "omtMale",
         key: "omt-male",
         label: "\u041e\u041c\u0422 (\u041c)",
-        studyData: omtMaleData,
-        conclusion: omtMaleData?.conclusion || "",
-        recommendations: omtMaleData?.recommendations || "",
+        studyData: omtMaleProtocol,
+        conclusion: omtMaleProtocol?.conclusion || "",
+        recommendations: omtMaleProtocol?.recommendations || "",
         element: <OmtMalePrint />,
       },
       {
         id: "thyroid",
         key: "thyroid",
         label: "\u0429\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430\u044f \u0436\u0435\u043b\u0435\u0437\u0430",
-        studyData: thyroidData,
-        conclusion: thyroidData?.conclusion || "",
-        recommendations: thyroidData?.recommendations || "",
+        studyData: thyroidProtocol,
+        conclusion: thyroidProtocol?.conclusion || "",
+        recommendations: thyroidProtocol?.recommendations || "",
         element: <ThyroidResearchPrint />,
       },
       {
         id: "breast",
         key: "breast",
         label: "\u041c\u043e\u043b\u043e\u0447\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b",
-        studyData: breastData,
-        conclusion: breastData?.conclusion || "",
-        recommendations: breastData?.recommendations || "",
+        studyData: breastProtocol,
+        conclusion: breastProtocol?.conclusion || "",
+        recommendations: breastProtocol?.recommendations || "",
         element: <BreastResearchPrint />,
       },
       {
         id: "scrotum",
         key: "scrotum",
         label: "\u041e\u0440\u0433\u0430\u043d\u044b \u043c\u043e\u0448\u043e\u043d\u043a\u0438",
-        studyData: scrotumData,
-        conclusion: scrotumData?.conclusion || "",
-        recommendations: scrotumData?.recommendations || "",
+        studyData: scrotumProtocol,
+        conclusion: scrotumProtocol?.conclusion || "",
+        recommendations: scrotumProtocol?.recommendations || "",
         element: <ScrotumResearchPrint />,
       },
       {
         id: "salivaryGlands",
         key: "salivary-glands",
         label: "\u0421\u043b\u044e\u043d\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b",
-        studyData: salivaryData,
-        conclusion: salivaryData?.conclusion || "",
-        recommendations: salivaryData?.recommendations || "",
+        studyData: salivaryProtocol,
+        conclusion: salivaryProtocol?.conclusion || "",
+        recommendations: salivaryProtocol?.recommendations || "",
         element: <SalivaryGlandsResearchPrint />,
       },
       {
         id: "brachioCephalicArteries",
         key: "brachio-cephalic-arteries",
         label: "\u0411\u0426\u0410",
-        studyData: brachioCephalicArteriesData,
-        conclusion: brachioCephalicArteriesData?.conclusion || "",
-        recommendations: brachioCephalicArteriesData?.recommendations || "",
+        studyData: brachioCephalicArteriesProtocol,
+        conclusion: brachioCephalicArteriesProtocol?.conclusion || "",
+        recommendations: brachioCephalicArteriesProtocol?.recommendations || "",
         element: <BrachioCephalicArteriesResearchPrint />,
       },
       {
         id: "lymphNodes",
         key: "lymph-nodes",
         label: "\u041b\u0438\u043c\u0444\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u0443\u0437\u043b\u044b",
-        studyData: lymphNodesData,
-        conclusion: lymphNodesData?.conclusion || "",
-        recommendations: lymphNodesData?.recommendations || "",
+        studyData: lymphNodesProtocol,
+        conclusion: lymphNodesProtocol?.conclusion || "",
+        recommendations: lymphNodesProtocol?.recommendations || "",
         element: <LymphNodesResearchPrint />,
       },
       {
         id: "childDispensary",
         key: "child-dispensary",
         label: "\u0414\u0435\u0442\u0441\u043a\u0430\u044f \u0434\u0438\u0441\u043f\u0430\u043d\u0441\u0435\u0440\u0438\u0437\u0430\u0446\u0438\u044f",
-        studyData: childDispensaryData,
-        conclusion: childDispensaryData?.conclusion || "",
-        recommendations: childDispensaryData?.recommendations || "",
+        studyData: childDispensaryProtocol,
+        conclusion: childDispensaryProtocol?.conclusion || "",
+        recommendations: childDispensaryProtocol?.recommendations || "",
         element: <ChildDispensaryPrint />,
       },
       {
         id: "softTissue",
         key: "soft-tissue",
         label: "\u041c\u044f\u0433\u043a\u0438\u0435 \u0442\u043a\u0430\u043d\u0438",
-        studyData: softTissueData,
-        conclusion: softTissueData?.conclusion || "",
-        recommendations: softTissueData?.recommendations || "",
+        studyData: softTissueProtocol,
+        conclusion: softTissueProtocol?.conclusion || "",
+        recommendations: softTissueProtocol?.recommendations || "",
         element: <SoftTissuePrint />,
       },
     ] as StudyBlockDefinition[]).filter((definition) => Boolean(definition.studyData)),

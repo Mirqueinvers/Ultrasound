@@ -2,13 +2,14 @@
 import React from "react";
 import { useResearch } from "@contexts";
 import { SalivaryGlandsPrint as SalivaryGlandsPrintComponent } from "@/components/print/organs/SalivaryGlandsPrint";
-import type { SalivaryGlandsProtocol } from "@types";
+import type { SalivaryGlandsProtocol, SalivaryGlandsStudyProtocol } from "@types";
 
 export const SalivaryGlandsResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const salivaryData = studiesData["Слюнные железы"];
-  const salivaryProtocol = salivaryData?.salivaryGlands as SalivaryGlandsProtocol | undefined;
+  const salivaryData = studiesData["РЎР»СЋРЅРЅС‹Рµ Р¶РµР»РµР·С‹"];
+  const salivaryStudy = salivaryData as SalivaryGlandsStudyProtocol | undefined;
+  const salivaryProtocol = salivaryStudy?.salivaryGlands as SalivaryGlandsProtocol | undefined;
 
   if (!salivaryProtocol) {
     return null;
@@ -17,7 +18,7 @@ export const SalivaryGlandsResearchPrint: React.FC = () => {
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        Ультразвуковое исследование слюнных желез
+        РЈР»СЊС‚СЂР°Р·РІСѓРєРѕРІРѕРµ РёСЃСЃР»РµРґРѕРІР°РЅРёРµ СЃР»СЋРЅРЅС‹С… Р¶РµР»РµР·
       </p>
 
       <SalivaryGlandsPrintComponent value={salivaryProtocol} />

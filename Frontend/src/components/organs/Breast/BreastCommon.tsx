@@ -35,6 +35,7 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
 
   const updateField = useFieldUpdate(form, setForm, onChange);
 
+
   useEffect(() => {
     if (!form.lastMenstruationDate) {
       if (form.cycleDay) {
@@ -97,7 +98,11 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
         <BreastSide
           side="right"
           value={form.rightBreast}
-          onChange={(nextValue) => updateField("rightBreast", nextValue)}
+          onChange={(nextValue) => {
+            const draft: BreastProtocol = { ...form, rightBreast: nextValue };
+            setForm(draft);
+            onChange?.(draft);
+          }}
         />
       </div>
 
@@ -105,7 +110,11 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
         <BreastSide
           side="left"
           value={form.leftBreast}
-          onChange={(nextValue) => updateField("leftBreast", nextValue)}
+          onChange={(nextValue) => {
+            const draft: BreastProtocol = { ...form, leftBreast: nextValue };
+            setForm(draft);
+            onChange?.(draft);
+          }}
         />
       </div>
     </div>
@@ -113,3 +122,7 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
 };
 
 export default BreastCommon;
+
+
+
+

@@ -2,6 +2,7 @@
 import React from "react";
 
 import { useResearch } from "@contexts";
+import type { ObpProtocol } from "@types";
 import HepatPrint from "@/components/print/organs/HepatPrint";
 import GallbladderPrint from "@/components/print/organs/GallbladderPrint";
 import PancreasPrint from "@/components/print/organs/PancreasPrint";
@@ -10,7 +11,7 @@ import SpleenPrint from "@/components/print/organs/SpleenPrint";
 export const ObpPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const obpData = studiesData["ОБП"];
+  const obpData = studiesData["ОБП"] as ObpProtocol | undefined;
   const liverData = obpData?.liver;
   const gallbladderData = obpData?.gallbladder;
   const pancreasData = obpData?.pancreas;
@@ -19,7 +20,7 @@ export const ObpPrint: React.FC = () => {
   const hasObpData =
     liverData ||
     gallbladderData ||
-   pancreasData ||
+    pancreasData ||
     spleenData ||
     obpData?.freeFluid;
 
@@ -27,9 +28,8 @@ export const ObpPrint: React.FC = () => {
     return null;
   }
 
-  const freeFluid = (obpData?.freeFluid as string | undefined) ?? "";
-  const freeFluidDetails =
-    (obpData?.freeFluidDetails as string | undefined) ?? "";
+  const freeFluid = obpData?.freeFluid ?? "";
+  const freeFluidDetails = obpData?.freeFluidDetails ?? "";
 
   let freeFluidLine: string;
 

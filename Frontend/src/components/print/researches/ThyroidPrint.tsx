@@ -1,14 +1,16 @@
 // /components/print/researches/ThyroidPrint.tsx
 import React from "react";
 import { useResearch } from "@contexts";
+import type { ThyroidStudyProtocol } from "@types";
 import ThyroidPrint from "@/components/print/organs/ThyroidPrint";
-import type { ThyroidProtocol } from "@types";
 
 export const ThyroidResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const thyroidData = studiesData["Щитовидная железа"];
-  const thyroidProtocol = thyroidData?.thyroid as ThyroidProtocol | undefined;
+  const thyroidData = studiesData["Щитовидная железа"] as
+    | ThyroidStudyProtocol
+    | undefined;
+  const thyroidProtocol = thyroidData?.thyroid;
 
   if (!thyroidProtocol) {
     return null;

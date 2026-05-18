@@ -2,28 +2,28 @@
 import React from "react";
 
 import { useResearch } from "@contexts";
+import type { UrinaryBladderProtocol, UrinaryBladderStudyProtocol } from "@types";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 
 export const UrinaryBladderStudyPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  // ключ исследования как у тебя в селекте/контенте
-  const bladderStudyData = studiesData["Мочевой пузырь"];
-  const bladderData = bladderStudyData?.urinaryBladder ?? bladderStudyData;
+  const bladderStudyData = studiesData["РњРѕС‡РµРІРѕР№ РїСѓР·С‹СЂСЊ"] as
+    | UrinaryBladderStudyProtocol
+    | undefined;
+  const bladderProtocol = bladderStudyData?.urinaryBladder as UrinaryBladderProtocol | undefined;
 
-  const hasBladderData = !!bladderData;
-
-  if (!hasBladderData) {
+  if (!bladderProtocol) {
     return null;
   }
 
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        Ультразвуковое исследование мочевого пузыря
+        РЈР»СЊС‚СЂР°Р·РІСѓРєРѕРІРѕРµ РёСЃСЃР»РµРґРѕРІР°РЅРёРµ РјРѕС‡РµРІРѕРіРѕ РїСѓР·С‹СЂСЏ
       </p>
 
-      <UrinaryBladderPrint value={bladderData} />
+      <UrinaryBladderPrint value={bladderProtocol} />
     </>
   );
 };

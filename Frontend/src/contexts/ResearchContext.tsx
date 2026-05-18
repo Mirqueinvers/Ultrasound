@@ -2,15 +2,13 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import {
-  createSyncTimestamp,
-  type MobileSyncWireMessage,
-} from "@/sync/mobileSync";
+import { createSyncTimestamp, type MobileSyncWireMessage } from "@/sync/mobileSync";
+import { useResearchMobileSync } from "@/hooks";
+import type { DesktopStudiesDataMap, DesktopStudyData } from "@/researches/types";
 
 interface ResearchContextType {
   patientFullName: string;
@@ -23,8 +21,8 @@ interface ResearchContextType {
   organization: string;
   setOrganization: (org: string) => void;
 
-  studiesData: { [studyType: string]: any };
-  setStudyData: (studyType: string, data: any) => void;
+  studiesData: DesktopStudiesDataMap;
+  setStudyData: (studyType: string, data: DesktopStudyData) => void;
   clearStudyData: (studyType: string) => void;
   clearStudiesData: () => void;
 
@@ -44,84 +42,22 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [patientDateOfBirth, setPatientDateOfBirthState] = useState("");
   const [researchDate, setResearchDateState] = useState(getCurrentDate);
   const [organization, setOrganizationState] = useState("");
-  const [studiesData, setStudiesDataState] = useState<{ [studyType: string]: any }>({});
+  const [studiesData, setStudiesDataState] = useState<DesktopStudiesDataMap>({});
 
   const publishSyncMessage = useCallback((message: MobileSyncWireMessage) => {
     void window.mobileHostAPI?.publishSync(message);
   }, []);
 
-  useEffect(() => {
-    if (!window.mobileHostAPI) {
-      return undefined;
-    }
+  useResearchMobileSync({
+    setPatientFullNameState,
+    setPatientDateOfBirthState,
+    setResearchDateState,
+    setOrganizationState,
+    setStudiesDataState,
+    getCurrentDate,
+  });
 
-    return window.mobileHostAPI.onSyncMessage((message) => {
-      const syncMessage = message as MobileSyncWireMessage | undefined;
-      if (!syncMessage || typeof syncMessage !== "object" || !("type" in syncMessage)) {
-        return;
-      }
-
-      if (syncMessage.type === "sync:snapshot") {
-        const { header, studiesData: nextStudiesData } = syncMessage.state;
-        setPatientFullNameState(header.patientFullName);
-        setPatientDateOfBirthState(header.patientDateOfBirth);
-        setResearchDateState(header.researchDate);
-        setOrganizationState(header.organization);
-        setStudiesDataState({ ...nextStudiesData });
-        return;
-      }
-
-      if (syncMessage.type !== "sync:update") {
-        return;
-      }
-
-      if (syncMessage.fragment === "header") {
-        const { data } = syncMessage;
-        if (Object.prototype.hasOwnProperty.call(data, "patientFullName")) {
-          setPatientFullNameState(data.patientFullName ?? "");
-        }
-        if (Object.prototype.hasOwnProperty.call(data, "patientDateOfBirth")) {
-          setPatientDateOfBirthState(data.patientDateOfBirth ?? "");
-        }
-        if (Object.prototype.hasOwnProperty.call(data, "researchDate")) {
-          setResearchDateState(data.researchDate ?? getCurrentDate());
-        }
-        if (Object.prototype.hasOwnProperty.call(data, "organization")) {
-          setOrganizationState(data.organization ?? "");
-        }
-        return;
-      }
-
-      if (syncMessage.fragment === "studiesData") {
-        const data = syncMessage.data;
-
-        if (data.mode === "replace") {
-          setStudiesDataState({ ...data.studiesData });
-          return;
-        }
-
-        if (data.mode === "set") {
-          setStudiesDataState((prev) => ({
-            ...prev,
-            [data.studyType]: data.value,
-          }));
-          return;
-        }
-
-        setStudiesDataState((prev) => {
-          if (!(data.studyType in prev)) {
-            return prev;
-          }
-
-          const next = { ...prev };
-          delete next[data.studyType];
-          return next;
-        });
-      }
-    });
-  }, [getCurrentDate]);
-
-  const setStudyData = useCallback((studyType: string, data: any) => {
+  const setStudyData = useCallback((studyType: string, data: DesktopStudyData) => {
     setStudiesDataState((prev) => ({
       ...prev,
       [studyType]: data,

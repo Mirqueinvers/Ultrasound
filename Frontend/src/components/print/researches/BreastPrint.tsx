@@ -1,14 +1,16 @@
 // /components/print/researches/BreastPrint.tsx
 import React from "react";
 import { useResearch } from "@contexts";
+import type { BreastStudyProtocol } from "@types";
 import BreastPrint from "@/components/print/organs/BreastPrint";
-import type { BreastProtocol } from "@types";
 
 export const BreastResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const breastData = studiesData["Молочные железы"];
-  const breastProtocol = breastData?.breast as BreastProtocol | undefined;
+  const breastData = studiesData["Молочные железы"] as
+    | BreastStudyProtocol
+    | undefined;
+  const breastProtocol = breastData?.breast;
 
   if (!breastProtocol) {
     return null;

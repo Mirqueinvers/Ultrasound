@@ -7,3 +7,7 @@ export * from './useConclusion';
 export * from './useSaveResearch';
 export * from './useAvailableSectionKeys';
 export * from './useSectionRefs';
+export * from './useMobileDraftCommands';
+export * from './useClearResearchDraft';
+export * from './useDesktopAppSelection';
+export * from './useResearchMobileSync';

@@ -1,22 +1,5 @@
-import React from "react";
+﻿import React from "react";
 
-import {
-  Obp,
-  Kidney,
-  OmtFemale,
-  OmtMale,
-  Scrotum,
-  Thyroid,
-  SalivaryGlands,
-  BrachioCephalicArteries,
-  LowerExtremityVeins,
-  Pleural,
-  Breast,
-  ChildDispensary,
-  SoftTissue,
-  UrinaryBladderResearch,
-  LymphNodes,
-} from "@components/researches";
 import ResearchHeader from "@components/common/ResearchHeader";
 import OrgNavigation, {
   type SectionKey,
@@ -30,19 +13,19 @@ import {
   useSectionRefs,
   useAvailableSectionKeys,
   useSaveResearch,
+  useMobileDraftCommands,
+  useClearResearchDraft,
 } from "@hooks";
 import {
   ResearchActions,
   SaveMessageAlert,
 } from "@/UI";
 import { SearchSection } from "@/components/search/SearchSection";
+import { renderDesktopResearch } from "../researches/desktopResearchRenderers";
 
 interface ContentProps {
-  selectedStudy: string;
   activeSection: string;
   selectedStudies: string[];
-  onRemoveStudy: (study: string) => void;
-  isMultiSelectMode: boolean;
   isDraftActive: boolean;
   mobileSaveRequestAt: string | null;
   mobilePrintRequestAt: string | null;
@@ -74,10 +57,8 @@ const Content: React.FC<ContentProps> = ({
     setOrganization,
   } = useResearch();
 
-  const [paymentType, setPaymentType] =
-    React.useState<"oms" | "paid">("oms");
-  const [isPrintModalOpen, setIsPrintModalOpen] =
-    React.useState(false);
+  const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
+  const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
   const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
 
   const sectionRefs = useSectionRefs();
@@ -130,66 +111,32 @@ const Content: React.FC<ContentProps> = ({
     },
   });
 
-  const processedMobileSaveRequestAt = React.useRef<string | null>(null);
-  const processedMobilePrintRequestAt = React.useRef<string | null>(null);
-  const processedMobileClearRequestAt = React.useRef<string | null>(null);
-
-  React.useEffect(() => {
-    if (!mobileSaveRequestAt || mobileSaveRequestAt === processedMobileSaveRequestAt.current) {
-      return;
-    }
-
-    if (!isDraftActive || isSaving) {
-      return;
-    }
-
-    processedMobileSaveRequestAt.current = mobileSaveRequestAt;
-    void saveResearch(paymentType);
-  }, [isDraftActive, isSaving, mobileSaveRequestAt, paymentType, saveResearch]);
-
-  React.useEffect(() => {
-    if (
-      !mobilePrintRequestAt ||
-      mobilePrintRequestAt === processedMobilePrintRequestAt.current
-    ) {
-      return;
-    }
-
-    if (!isDraftActive) {
-      return;
-    }
-
-    processedMobilePrintRequestAt.current = mobilePrintRequestAt;
-    setPrintAutoToken(mobilePrintRequestAt);
-    setIsPrintModalOpen(true);
-  }, [isDraftActive, mobilePrintRequestAt]);
-
-  React.useEffect(() => {
-    if (
-      !mobileClearRequestAt ||
-      mobileClearRequestAt === processedMobileClearRequestAt.current
-    ) {
-      return;
-    }
-
-    processedMobileClearRequestAt.current = mobileClearRequestAt;
-    handleClear();
-  }, [mobileClearRequestAt]);
-
   const handleSaveResearch = () => {
     saveResearch(paymentType);
   };
 
-  const handleClear = () => {
-    clearHeaderData();
-    clearStudiesData();
-    
-    if (user?.organization) {
-      setOrganization(user.organization);
-    }
+  const { clearResearchDraft } = useClearResearchDraft({
+    clearHeaderData,
+    clearStudiesData,
+    setOrganization,
+    userOrganization: user?.organization,
+    onClearResearch,
+  });
 
-    onClearResearch();
-  };
+  useMobileDraftCommands({
+    isDraftActive,
+    isSaving,
+    mobileSaveRequestAt,
+    mobilePrintRequestAt,
+    mobileClearRequestAt,
+    paymentType,
+    saveResearch,
+    onPrintRequest: (token) => {
+      setPrintAutoToken(token);
+      setIsPrintModalOpen(true);
+    },
+    onClearRequest: clearResearchDraft,
+  });
 
   const scrollToSection = (key: SectionKey) => {
     const ref = sectionRefs.current[key];
@@ -211,17 +158,14 @@ const Content: React.FC<ContentProps> = ({
     });
   };
 
-  // Поиск
   if (activeSection === "search") {
     return <SearchSection />;
   }
 
-  // Справочник
   if (activeSection === "directory") {
     return <Directory selectedDirectoryItem={selectedDirectoryItem} />;
   }
 
-  // Не "УЗИ протоколы"
   if (activeSection !== "uzi-protocols") {
     return (
       <div className="content">
@@ -257,130 +201,12 @@ const Content: React.FC<ContentProps> = ({
               key={index}
               className="rounded-lg p-4 bg-white shadow-sm"
             >
-              {study === "Почки" ? (
-                <Kidney
-                  value={studiesData["Почки"]}
-                  onChange={(updated) =>
-                    setStudyData("Почки", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "ОБП" ? (
-                <Obp
-                  value={studiesData["ОБП"]}
-                  onChange={(updated) =>
-                    setStudyData("ОБП", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "ОМТ (Ж)" ? (
-                <OmtFemale
-                  value={studiesData["ОМТ (Ж)"]}
-                  onChange={(updated) =>
-                    setStudyData("ОМТ (Ж)", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "ОМТ (М)" ? (
-                <OmtMale
-                  value={studiesData["ОМТ (М)"]}
-                  onChange={(updated) =>
-                    setStudyData("ОМТ (М)", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Органы мошонки" ? (
-                <Scrotum
-                  value={studiesData["Органы мошонки"]}
-                  onChange={(updated) =>
-                    setStudyData("Органы мошонки", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Щитовидная железа" ? (
-                <Thyroid
-                  value={studiesData["Щитовидная железа"]}
-                  onChange={(updated) =>
-                    setStudyData("Щитовидная железа", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Слюнные железы" ? (
-                <SalivaryGlands
-                  value={studiesData["Слюнные железы"]}
-                  onChange={(updated) =>
-                    setStudyData("Слюнные железы", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "БЦА" ? (
-                <BrachioCephalicArteries
-                  value={studiesData["БЦА"]}
-                  onChange={(updated) =>
-                    setStudyData("БЦА", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "УВНК" ? (
-                <LowerExtremityVeins
-                  value={studiesData["УВНК"]}
-                  onChange={(updated) =>
-                    setStudyData("УВНК", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Плевральные полости" ? (
-                <Pleural
-                  value={studiesData["Плевральные полости"]}
-                  onChange={(updated) =>
-                    setStudyData("Плевральные полости", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Молочные железы" ? (
-                <Breast
-                  value={studiesData["Молочные железы"]}
-                  onChange={(updated) =>
-                    setStudyData("Молочные железы", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Лимфоузлы" ? (
-                <LymphNodes
-                  value={studiesData["Лимфоузлы"]}
-                  onChange={(updated) =>
-                    setStudyData("Лимфоузлы", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Детская диспансеризация" ? (
-                <ChildDispensary
-                  value={
-                    studiesData["Детская диспансеризация"]
-                  }
-                  onChange={(updated) =>
-                    setStudyData(
-                      "Детская диспансеризация",
-                      updated
-                    )
-                  }
-                />
-              ) : study === "Мягких тканей" ? (
-                <SoftTissue
-                  value={studiesData["Мягких тканей"]}
-                  onChange={(updated) =>
-                    setStudyData("Мягких тканей", updated)
-                  }
-                  sectionRefs={sectionRefs.current}
-                />
-              ) : study === "Мочевой пузырь" ? (
-                <UrinaryBladderResearch
-                  value={studiesData["Мочевой пузырь"]}
-                  onChange={(updated) =>
-                    setStudyData("Мочевой пузырь", updated)
-                  }
-                />
-              ) : null}
+              {renderDesktopResearch({
+                study,
+                studiesData,
+                setStudyData,
+                sectionRefs,
+              })}
             </div>
           ))}
         </div>
@@ -393,7 +219,7 @@ const Content: React.FC<ContentProps> = ({
         <ResearchActions
           isSaving={isSaving}
           hasSelectedStudies={selectedStudies.length > 0}
-          onClear={handleClear}
+          onClear={clearResearchDraft}
           onPrint={() => setIsPrintModalOpen(true)}
           onSave={handleSaveResearch}
           isPrintEnabled={isSavedSuccessfully}

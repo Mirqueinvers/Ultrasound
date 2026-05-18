@@ -14,6 +14,18 @@ import BreastResearchPrint from "@/components/print/researches/BreastPrint";
 import ScrotumResearchPrint from "@/components/print/researches/ScrotumPrint";
 import ChildDispensaryPrint from "@/components/print/researches/ChildDispensaryPrint";
 import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
+import type {
+  ObpProtocol,
+  KidneyStudyProtocol,
+  UrinaryBladderStudyProtocol,
+  OmtFemaleProtocol,
+  OmtMaleProtocol,
+  ThyroidStudyProtocol,
+  BreastStudyProtocol,
+  ScrotumProtocol,
+  ChildDispensaryProtocol,
+  SoftTissueProtocol,
+} from "@types";
 
 export const PrintTestSection: React.FC = () => {
   const { studiesData } = useResearch();
@@ -30,165 +42,176 @@ export const PrintTestSection: React.FC = () => {
   const childDispensaryData = studiesData["Детская диспансеризация"];
   const softTissueData = studiesData["Мягких тканей"];
 
+  const obpProtocol = obpData as ObpProtocol | undefined;
+  const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
+  const bladderStudyProtocol = bladderStudyData as UrinaryBladderStudyProtocol | undefined;
+  const omtFemaleProtocol = omtFemaleData as OmtFemaleProtocol | undefined;
+  const omtMaleProtocol = omtMaleData as OmtMaleProtocol | undefined;
+  const thyroidProtocol = thyroidData as ThyroidStudyProtocol | undefined;
+  const breastProtocol = breastData as BreastStudyProtocol | undefined;
+  const scrotumProtocol = scrotumData as ScrotumProtocol | undefined;
+  const childDispensaryProtocol = childDispensaryData as ChildDispensaryProtocol | undefined;
+  const softTissueProtocol = softTissueData as SoftTissueProtocol | undefined;
+
   const conclusion =
-    (obpData?.conclusion || "") +
-    (obpData?.conclusion && kidneysData?.conclusion ? "\n" : "") +
-    (kidneysData?.conclusion || "") +
-    ((obpData?.conclusion || kidneysData?.conclusion) &&
-    bladderStudyData?.conclusion
+    (obpProtocol?.conclusion || "") +
+    (obpProtocol?.conclusion && kidneysProtocol?.conclusion ? "\n" : "") +
+    (kidneysProtocol?.conclusion || "") +
+    ((obpProtocol?.conclusion || kidneysProtocol?.conclusion) &&
+    bladderStudyProtocol?.conclusion
       ? "\n"
       : "") +
-    (bladderStudyData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion) &&
-      omtFemaleData?.conclusion)
+    (bladderStudyProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion) &&
+      omtFemaleProtocol?.conclusion)
       ? "\n"
       : "") +
-    (omtFemaleData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion) &&
-      omtMaleData?.conclusion)
+    (omtFemaleProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion) &&
+      omtMaleProtocol?.conclusion)
       ? "\n"
       : "") +
-    (omtMaleData?.conclusion || "") +
-    ((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion ||
-      omtMaleData?.conclusion) &&
-      thyroidData?.conclusion
+    (omtMaleProtocol?.conclusion || "") +
+    ((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion ||
+      omtMaleProtocol?.conclusion) &&
+      thyroidProtocol?.conclusion
       ? "\n"
       : "") +
-    (thyroidData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion ||
-      omtMaleData?.conclusion ||
-      thyroidData?.conclusion) &&
-      breastData?.conclusion)
+    (thyroidProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion ||
+      omtMaleProtocol?.conclusion ||
+      thyroidProtocol?.conclusion) &&
+      breastProtocol?.conclusion)
       ? "\n"
       : "") +
-    (breastData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion ||
-      omtMaleData?.conclusion ||
-      thyroidData?.conclusion ||
-      breastData?.conclusion) &&
-      scrotumData?.conclusion)
+    (breastProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion ||
+      omtMaleProtocol?.conclusion ||
+      thyroidProtocol?.conclusion ||
+      breastProtocol?.conclusion) &&
+      scrotumProtocol?.conclusion)
       ? "\n"
       : "") +
-    (scrotumData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion ||
-      omtMaleData?.conclusion ||
-      thyroidData?.conclusion ||
-      breastData?.conclusion ||
-      scrotumData?.conclusion) &&
-      childDispensaryData?.conclusion)
+    (scrotumProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion ||
+      omtMaleProtocol?.conclusion ||
+      thyroidProtocol?.conclusion ||
+      breastProtocol?.conclusion ||
+      scrotumProtocol?.conclusion) &&
+      childDispensaryProtocol?.conclusion)
       ? "\n"
       : "") +
-    (childDispensaryData?.conclusion || "") +
-    (((obpData?.conclusion ||
-      kidneysData?.conclusion ||
-      bladderStudyData?.conclusion ||
-      omtFemaleData?.conclusion ||
-      omtMaleData?.conclusion ||
-      thyroidData?.conclusion ||
-      breastData?.conclusion ||
-      scrotumData?.conclusion ||
-      childDispensaryData?.conclusion) &&
-      softTissueData?.conclusion)
+    (childDispensaryProtocol?.conclusion || "") +
+    (((obpProtocol?.conclusion ||
+      kidneysProtocol?.conclusion ||
+      bladderStudyProtocol?.conclusion ||
+      omtFemaleProtocol?.conclusion ||
+      omtMaleProtocol?.conclusion ||
+      thyroidProtocol?.conclusion ||
+      breastProtocol?.conclusion ||
+      scrotumProtocol?.conclusion ||
+      childDispensaryProtocol?.conclusion) &&
+      softTissueProtocol?.conclusion)
       ? "\n"
       : "") +
-    (softTissueData?.conclusion || "");
+    (softTissueProtocol?.conclusion || "");
 
   const recommendations =
-    (obpData?.recommendations || "") +
-    (obpData?.recommendations && kidneysData?.recommendations ? "\n" : "") +
-    (kidneysData?.recommendations || "") +
-    ((obpData?.recommendations || kidneysData?.recommendations) &&
-    bladderStudyData?.recommendations
+    (obpProtocol?.recommendations || "") +
+    (obpProtocol?.recommendations && kidneysProtocol?.recommendations ? "\n" : "") +
+    (kidneysProtocol?.recommendations || "") +
+    ((obpProtocol?.recommendations || kidneysProtocol?.recommendations) &&
+    bladderStudyProtocol?.recommendations
       ? "\n"
       : "") +
-    (bladderStudyData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations) &&
-      omtFemaleData?.recommendations)
+    (bladderStudyProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations) &&
+      omtFemaleProtocol?.recommendations)
       ? "\n"
       : "") +
-    (omtFemaleData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations) &&
-      omtMaleData?.recommendations)
+    (omtFemaleProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations) &&
+      omtMaleProtocol?.recommendations)
       ? "\n"
       : "") +
-    (omtMaleData?.recommendations || "") +
-    ((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations ||
-      omtMaleData?.recommendations) &&
-      thyroidData?.recommendations
+    (omtMaleProtocol?.recommendations || "") +
+    ((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations ||
+      omtMaleProtocol?.recommendations) &&
+      thyroidProtocol?.recommendations
       ? "\n"
       : "") +
-    (thyroidData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations ||
-      omtMaleData?.recommendations ||
-      thyroidData?.recommendations) &&
-      breastData?.recommendations)
+    (thyroidProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations ||
+      omtMaleProtocol?.recommendations ||
+      thyroidProtocol?.recommendations) &&
+      breastProtocol?.recommendations)
       ? "\n"
       : "") +
-    (breastData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations ||
-      omtMaleData?.recommendations ||
-      thyroidData?.recommendations ||
-      breastData?.recommendations) &&
-      scrotumData?.recommendations)
+    (breastProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations ||
+      omtMaleProtocol?.recommendations ||
+      thyroidProtocol?.recommendations ||
+      breastProtocol?.recommendations) &&
+      scrotumProtocol?.recommendations)
       ? "\n"
       : "") +
-    (scrotumData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations ||
-      omtMaleData?.recommendations ||
-      thyroidData?.recommendations ||
-      breastData?.recommendations ||
-      scrotumData?.recommendations) &&
-      childDispensaryData?.recommendations)
+    (scrotumProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations ||
+      omtMaleProtocol?.recommendations ||
+      thyroidProtocol?.recommendations ||
+      breastProtocol?.recommendations ||
+      scrotumProtocol?.recommendations) &&
+      childDispensaryProtocol?.recommendations)
       ? "\n"
       : "") +
-    (childDispensaryData?.recommendations || "") +
-    (((obpData?.recommendations ||
-      kidneysData?.recommendations ||
-      bladderStudyData?.recommendations ||
-      omtFemaleData?.recommendations ||
-      omtMaleData?.recommendations ||
-      thyroidData?.recommendations ||
-      breastData?.recommendations ||
-      scrotumData?.recommendations ||
-      childDispensaryData?.recommendations) &&
-      softTissueData?.recommendations)
+    (childDispensaryProtocol?.recommendations || "") +
+    (((obpProtocol?.recommendations ||
+      kidneysProtocol?.recommendations ||
+      bladderStudyProtocol?.recommendations ||
+      omtFemaleProtocol?.recommendations ||
+      omtMaleProtocol?.recommendations ||
+      thyroidProtocol?.recommendations ||
+      breastProtocol?.recommendations ||
+      scrotumProtocol?.recommendations ||
+      childDispensaryProtocol?.recommendations) &&
+      softTissueProtocol?.recommendations)
       ? "\n"
       : "") +
-    (softTissueData?.recommendations || "");
+    (softTissueProtocol?.recommendations || "");
 
   const doctorName = user?.name || "";
 
