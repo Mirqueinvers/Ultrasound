@@ -4,19 +4,19 @@ export function getDraftReviewIssues(snapshot: MobileSyncSnapshot): string[] {
   const issues: string[] = [];
 
   if (!snapshot.header.patientFullName.trim()) {
-    issues.push("Patient full name");
+    issues.push("ФИО пациента");
   }
 
   if (!snapshot.header.patientDateOfBirth.trim()) {
-    issues.push("Date of birth");
+    issues.push("Дата рождения");
   }
 
   if (!snapshot.header.researchDate.trim()) {
-    issues.push("Study date");
+    issues.push("Дата исследования");
   }
 
   if (snapshot.selection.selectedStudies.length === 0) {
-    issues.push("Select at least one protocol");
+    issues.push("Выберите хотя бы один протокол");
   }
 
   return issues;

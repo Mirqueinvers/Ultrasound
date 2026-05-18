@@ -1,4 +1,4 @@
-import { CameraView } from "expo-camera";
+﻿import { CameraView } from "expo-camera";
 import { Pressable, Text, View } from "react-native";
 
 type CameraPermissionLike = {
@@ -49,9 +49,9 @@ export function ScannerOverlay({
     <View style={styles.scannerOverlay}>
       <View style={styles.scannerHeader}>
         <View>
-          <Text style={styles.scannerTitle}>Scan QR</Text>
+          <Text style={styles.scannerTitle}>Сканировать QR</Text>
           <Text style={styles.scannerSubtitle}>
-            Use the camera to scan the QR code from the desktop profile.
+            Используйте камеру, чтобы отсканировать QR-код из профиля на компьютере.
           </Text>
         </View>
         <Pressable
@@ -61,7 +61,7 @@ export function ScannerOverlay({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.scannerCloseButtonText}>Close</Text>
+          <Text style={styles.scannerCloseButtonText}>Закрыть</Text>
         </Pressable>
       </View>
 
@@ -80,15 +80,15 @@ export function ScannerOverlay({
         />
       ) : (
         <View style={styles.scannerPermissionCard}>
-          <Text style={styles.scannerPermissionTitle}>Camera access needed</Text>
+          <Text style={styles.scannerPermissionTitle}>Нужен доступ к камере</Text>
           <Text style={styles.scannerPermissionText}>
-            Allow camera access, then scan the QR code again.
+            Разрешите доступ к камере, затем попробуйте отсканировать QR-код еще раз.
           </Text>
           <Pressable
             onPress={async () => {
               const permission = await requestCameraPermission();
               if (!permission.granted) {
-                setConnectionError("Camera access is required to scan the QR code.");
+                setConnectionError("Для сканирования QR-кода нужен доступ к камере.");
               }
             }}
             style={({ pressed }) => [
@@ -97,7 +97,7 @@ export function ScannerOverlay({
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text style={styles.primaryButtonText}>Allow camera</Text>
+            <Text style={styles.primaryButtonText}>Разрешить камеру</Text>
           </Pressable>
         </View>
       )}

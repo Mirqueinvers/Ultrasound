@@ -62,39 +62,39 @@ export function ConnectScreen({
 
       <SectionPanel
         styles={styles}
-        title="Mobile Sync"
-        subtitle="Keep the current study in sync with the desktop host."
+        title="Синхронизация"
+        subtitle="Синхронизируйте текущее исследование с рабочим местом."
       >
-        <InlineStat styles={styles} label="Host" value={hostUrl || "Not connected"} />
-        <InlineStat styles={styles} label="WS" value={hostUrl ? `${toWsUrl(hostUrl)}/ws` : "Not connected"} />
-        <InlineStat styles={styles} label="Socket" value={socketStatus === "open" ? "open" : "closed"} />
+        <InlineStat styles={styles} label="Хост" value={hostUrl || "Не подключено"} />
+        <InlineStat styles={styles} label="WS" value={hostUrl ? `${toWsUrl(hostUrl)}/ws` : "Не подключено"} />
+        <InlineStat styles={styles} label="Сокет" value={socketStatus === "open" ? "открыт" : "закрыт"} />
         <InlineStat
           styles={styles}
-          label="Session"
-          value={snapshot.session.sessionId ? snapshot.session.sessionId.slice(-8) : "No active session"}
+          label="Сессия"
+          value={snapshot.session.sessionId ? snapshot.session.sessionId.slice(-8) : "Нет активной сессии"}
         />
         <InlineStat
           styles={styles}
-          label="Active protocol"
-          value={snapshot.session.activeStudyLabel || "None selected"}
+          label="Активный протокол"
+          value={snapshot.session.activeStudyLabel || "Не выбран"}
         />
         <InlineStat
           styles={styles}
-          label="Save status"
+          label="Статус сохранения"
           value={
             saveState === "requested"
-              ? "Waiting for desktop save"
+              ? "Ожидание сохранения на компьютере"
               : saveState === "saved"
-                ? "Saved on desktop"
-                : "Idle"
+                ? "Сохранено на компьютере"
+                : "Без действий"
           }
         />
         <Text style={styles.helperText}>
-          Connect your phone to the desktop host to sync the current study live.
+          Подключите телефон к рабочему месту, чтобы синхронизировать текущее исследование.
         </Text>
         {saveState === "saved" ? (
           <Text style={styles.saveSuccessText}>
-            The research has been saved on the desktop.
+            Исследование сохранено на компьютере.
           </Text>
         ) : null}
       </SectionPanel>

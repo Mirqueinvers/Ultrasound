@@ -1,15 +1,10 @@
 ﻿import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { SafeAreaView, ScrollView, Text, View } from "react-native";
 
-import { StatusPill } from "./src/components/StatusPill";
 import { type TabKey } from "./src/components/TabBar";
+import { BottomNav } from "./src/components/BottomNav";
+import { AppHeader } from "./src/components/AppHeader";
 import { ScannerOverlay } from "./src/components/ScannerOverlay";
 import { ConnectScreen } from "./src/screens/ConnectScreen";
 import { DraftScreen } from "./src/screens/DraftScreen";
@@ -21,7 +16,6 @@ import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
 import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
-import { MOBILE_TABS } from "./src/navigation/mobileTabs";
 
 const BOTTOM_SPACER_HEIGHT = 110;
 
@@ -96,29 +90,14 @@ export default function App() {
         <View style={styles.blobB} />
       </View>
 
-      <View style={styles.chrome}>
-        <View>
-          <Text style={styles.kicker}>Ultrasound Mobile</Text>
-          <Text style={styles.title}>Ultrasound Mobile</Text>
-          <Text style={styles.subtitle}>Connect to the desktop host and sync studies live from your phone.</Text>
-        </View>
-
-        <View style={styles.statusRow}>
-          <StatusPill styles={styles} tone={connected ? "success" : "neutral"}>
-            {connected ? "Connected" : "Not connected"}
-          </StatusPill>
-          <StatusPill styles={styles} tone="accent">
-            {sessionId ? `Session ${sessionId.slice(-6)}` : "No session"}
-          </StatusPill>
-        </View>
-      </View>
+      <AppHeader styles={styles} connected={connected} sessionId={sessionId} />
 
       {(connectionState === "checking" || connectionState === "connecting") && (
         <View style={styles.connectionNotice}>
           <Text style={styles.connectionNoticeText}>
             {connectionState === "checking"
-              ? "Checking desktop host..."
-              : "Connecting to desktop..."}
+              ? "Проверка рабочего места..."
+              : "Подключение к рабочему месту..."}
           </Text>
         </View>
       )}
@@ -188,26 +167,7 @@ export default function App() {
         <View style={{ height: BOTTOM_SPACER_HEIGHT }} />
       </ScrollView>
 
-      <View style={styles.bottomNav}>
-        {MOBILE_TABS.map(({ key, label }) => {
-          const active = activeTab === key;
-          return (
-            <Pressable
-              key={key}
-              onPress={() => setActiveTab(key)}
-              style={({ pressed }) => [
-                styles.navItem,
-                active && styles.navItemActive,
-                pressed && styles.navItemPressed,
-              ]}
-            >
-              <Text style={[styles.navLabel, active && styles.navLabelActive]}>
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <BottomNav styles={styles} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <ScannerOverlay
         visible={scannerVisible}

@@ -1,5 +1,4 @@
-﻿import { useMemo } from "react";
-import { Pressable, Text, View } from "react-native";
+﻿import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "../components/MobileField";
 import { SectionPanel } from "../components/SectionPanel";
@@ -11,7 +10,6 @@ import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
 import type { ObpDraftActions } from "../protocols/obp/useObpDraftActions";
 import type { ProtocolUpdateHandlers } from "../hooks/useProtocolUpdateHandlers";
-import { getDesktopStudyKey } from "../sync/adapters";
 import type { AppStyles } from "../styles/appStyles";
 import type { MobileStudiesDataMap } from "../protocols/types";
 
@@ -58,31 +56,21 @@ export function DraftScreen({
   onUpdateGeneralNote,
   onUpdateSectionNote,
 }: DraftScreenProps) {
-  const activeProtocolLabel = activeProtocolManifest ? getDesktopStudyKey(activeProtocolManifest.id) : "";
-  const currentStudyDraft = useMemo(
-    () =>
-      (studiesData[activeProtocolLabel] as { general: string; sections: Record<string, string> } | undefined) ?? {
-        general: "",
-        sections: {},
-      },
-    [activeProtocolLabel, studiesData],
-  );
-
   return (
-    <SectionPanel styles={styles} title="Draft Editor" subtitle="Draft Editor">
+    <SectionPanel styles={styles} title="Черновик" subtitle="Редактор черновика">
       <View style={styles.formGrid}>
         <MobileField
           styles={styles}
-          label="Patient full name"
+          label="ФИО пациента"
           value={snapshot.header.patientFullName}
           onChangeText={(value) => onUpdateHeaderField("patientFullName", value)}
-          placeholder="Enter patient full name"
+          placeholder="Введите ФИО пациента"
         />
         <View style={styles.dualRow}>
           <View style={styles.dualCol}>
             <MobileField
               styles={styles}
-              label="Date of birth"
+              label="Дата рождения"
               value={formatDateForMobileDisplay(snapshot.header.patientDateOfBirth)}
               onChangeText={(value) =>
                 onUpdateHeaderField("patientDateOfBirth", formatBirthDateInput(value))
@@ -93,7 +81,7 @@ export function DraftScreen({
           <View style={styles.dualCol}>
             <MobileField
               styles={styles}
-              label="Study date"
+              label="Дата исследования"
               value={formatDateForMobileDisplay(snapshot.header.researchDate)}
               onChangeText={(value) =>
                 onUpdateHeaderField("researchDate", formatStudyDateInput(value))
@@ -104,17 +92,17 @@ export function DraftScreen({
         </View>
         <MobileField
           styles={styles}
-          label="Organization"
+          label="Организация"
           value={snapshot.header.organization}
           onChangeText={(value) => onUpdateHeaderField("organization", value)}
-          placeholder="Enter organization"
+          placeholder="Введите организацию"
           editable={false}
         />
       </View>
 
       <View style={styles.selectionChips}>
         {snapshot.selection.selectedStudies.length === 0 ? (
-          <Text style={styles.emptyState}>No studies selected yet.</Text>
+          <Text style={styles.emptyState}>Исследования пока не выбраны</Text>
         ) : (
           snapshot.selection.selectedStudies.map((label) => (
             <Pressable
@@ -136,11 +124,11 @@ export function DraftScreen({
       {activeProtocolManifest ? (
         <View style={styles.activeProtocolHeader}>
           <View>
-            <Text style={styles.blockLabel}>Active protocol</Text>
+            <Text style={styles.blockLabel}>Активный протокол</Text>
             <Text style={styles.blockTitle}>{activeProtocolManifest.selectionLabel}</Text>
           </View>
           <StatusPill styles={styles} tone="accent">
-            {activeProtocolManifest.sections.length} sections
+            {activeProtocolManifest.sections.length} разделов
           </StatusPill>
         </View>
       ) : null}

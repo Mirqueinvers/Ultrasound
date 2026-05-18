@@ -142,7 +142,7 @@ export function useMobileConnection({
     const resolvedPairingCode = (override?.pairingCode ?? pairingCode).trim();
 
     if (!resolvedHostUrl || !resolvedPairingCode) {
-      setConnectionError("Unable to parse the host URL.");
+      setConnectionError("Не удалось разобрать URL рабочего места.");
       return;
     }
 
@@ -158,7 +158,7 @@ export function useMobileConnection({
       };
 
       if (!healthJson.success) {
-        throw new Error(healthJson.message || "Host health check failed.");
+        throw new Error(healthJson.message || "Проверка рабочего места не удалась.");
       }
 
       const pairResponse = await fetch(`${resolvedHostUrl}/pair`, {
@@ -176,7 +176,7 @@ export function useMobileConnection({
       };
 
       if (!pairJson.success) {
-        throw new Error(pairJson.message || "Pairing failed.");
+        throw new Error(pairJson.message || "Сопряжение не удалось.");
       }
 
       setConnectionState("connecting");
@@ -222,7 +222,7 @@ export function useMobileConnection({
 
       socket.onerror = () => {
         setConnectionState("error");
-        setConnectionError("Failed to connect to the desktop host.");
+        setConnectionError("Не удалось подключиться к рабочему месту.");
       };
 
       socket.onclose = () => {
@@ -233,7 +233,7 @@ export function useMobileConnection({
       setConnectionState("error");
       setSocketStatus("closed");
       setConnectionError(
-        error instanceof Error ? error.message : "Failed to connect to the desktop host.",
+        error instanceof Error ? error.message : "Не удалось подключиться к рабочему месту.",
       );
     }
   };
@@ -254,7 +254,7 @@ export function useMobileConnection({
     if (!cameraPermission?.granted) {
       const permission = await requestCameraPermission();
       if (!permission.granted) {
-        setConnectionError("Allow camera access to scan the QR code.");
+        setConnectionError("Разрешите доступ к камере, чтобы сканировать QR-код.");
         return;
       }
     }
@@ -275,7 +275,7 @@ export function useMobileConnection({
     const parsed = parseMobileSyncPayload(payload);
 
     if (!parsed) {
-      setConnectionError("This QR code does not look like Ultrasound Mobile.");
+      setConnectionError("Этот QR-код не похож на Ultrasound Mobile.");
       return;
     }
 

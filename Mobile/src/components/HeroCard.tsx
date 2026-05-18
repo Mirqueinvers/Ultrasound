@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+﻿import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "./MobileField";
 import { StatusPill } from "./StatusPill";
@@ -38,21 +38,21 @@ export function HeroCard({
       <View style={styles.heroHeader}>
         <View style={styles.heroHeaderCopy}>
           <Text style={styles.heroTitle}>
-            {connected ? "Connected" : "Ready to connect"}
+            {connected ? "Подключено" : "Готов к подключению"}
           </Text>
           <Text style={styles.heroText}>
             {connected
-              ? "Your phone is linked to the desktop host. Start a study or continue editing live."
-              : "Scan the QR code on the desktop to connect your phone."}
+              ? "Телефон подключён к рабочему месту. Начните исследование или продолжайте редактирование."
+              : "Отсканируйте QR-код на компьютере, чтобы подключить телефон."}
           </Text>
         </View>
         <View style={styles.heroStatusWrap}>
           <StatusPill styles={styles} tone={connected ? "success" : "accent"}>
             {connectionState === "checking"
-              ? "Checking"
+              ? "Проверка"
               : connected
-                ? "Online"
-                : "Offline"}
+                ? "Онлайн"
+                : "Нет связи"}
           </StatusPill>
         </View>
       </View>
@@ -65,7 +65,7 @@ export function HeroCard({
 
       <MobileField
         styles={styles}
-        label="Desktop host"
+        label="Рабочее место"
         value={hostUrl}
         onChangeText={setHostUrl}
         placeholder="http://192.168.1.10:38241"
@@ -73,7 +73,7 @@ export function HeroCard({
 
       <MobileField
         styles={styles}
-        label="Pairing code"
+        label="Код сопряжения"
         value={pairingCode}
         onChangeText={setPairingCode}
         placeholder="123456"
@@ -88,7 +88,7 @@ export function HeroCard({
           ]}
         >
           <Text style={styles.primaryButtonText}>
-            {connected ? "Reconnect" : "Connect"}
+            {connected ? "Подключиться заново" : "Подключиться"}
           </Text>
         </Pressable>
 
@@ -99,7 +99,7 @@ export function HeroCard({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.secondaryButtonText}>Disconnect</Text>
+          <Text style={styles.secondaryButtonText}>Отключиться</Text>
         </Pressable>
 
         <Pressable
@@ -109,7 +109,7 @@ export function HeroCard({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.secondaryButtonText}>Scan QR</Text>
+          <Text style={styles.secondaryButtonText}>Сканировать QR</Text>
         </Pressable>
 
         <Pressable
@@ -119,7 +119,7 @@ export function HeroCard({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.secondaryButtonText}>Close session</Text>
+          <Text style={styles.secondaryButtonText}>Закрыть сессию</Text>
         </Pressable>
       </View>
     </View>

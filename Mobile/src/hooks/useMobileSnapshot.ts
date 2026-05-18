@@ -1,12 +1,13 @@
 ﻿import { useMemo, useState, type RefObject, type SetStateAction } from "react";
 
 import { type TabKey } from "../components/TabBar";
-import { createEmptyStudyDraft, createInitialMobileSnapshot, type StudyDraft } from "../shared/syncHelpers";
+import { createInitialMobileSnapshot } from "../shared/syncHelpers";
 import { type MobileSyncSnapshot, type MobileSyncWireMessage, createSyncTimestamp } from "../shared/mobileSync";
 import { useObpDraftActions, type ObpDraftActions } from "../protocols/obp/useObpDraftActions";
 import type { MobileStudiesDataMap } from "../protocols/types";
 import { buildStudiesData } from "./mobileSnapshot/buildStudiesData";
 import { getDraftReviewIssues } from "./mobileSnapshot/reviewIssues";
+import { useGenericStudyNotes } from "./mobileSnapshot/useGenericStudyNotes";
 import { useProtocolSelection } from "./mobileSnapshot/useProtocolSelection";
 import { useSnapshotSync } from "./mobileSnapshot/useSnapshotSync";
 import { getDesktopStudyKey, normalizeIncomingStudyData } from "../sync/adapters";
@@ -148,12 +149,12 @@ export function useMobileSnapshot({
 
   const requestDesktopSave = () => {
     if (!connected) {
-      setConnectionError("Connect to the desktop host first.");
+      setConnectionError("Сначала подключитесь к рабочему месту.");
       return;
     }
 
     if (!canSaveDraft) {
-      setConnectionError("Fill in the required fields before saving.");
+      setConnectionError("Заполните обязательные поля перед сохранением.");
       return;
     }
 
@@ -169,12 +170,12 @@ export function useMobileSnapshot({
 
   const requestDesktopPrint = () => {
     if (!connected) {
-      setConnectionError("Connect to the desktop host first.");
+      setConnectionError("Сначала подключитесь к рабочему месту.");
       return;
     }
 
     if (saveState !== "saved") {
-      setConnectionError("Save the draft on the desktop first.");
+      setConnectionError("Сначала сохраните черновик на компьютере.");
       return;
     }
 
@@ -189,7 +190,7 @@ export function useMobileSnapshot({
 
   const requestDesktopClear = () => {
     if (!connected) {
-      setConnectionError("Connect to the desktop host first.");
+      setConnectionError("Сначала подключитесь к рабочему месту.");
       return;
     }
 
@@ -261,44 +262,10 @@ export function useMobileSnapshot({
     addObpGallbladderPolyp,
   };
 
-  const updateSectionNote = (
-    protocolLabel: string,
-    sectionDesktopKey: string,
-    value: string,
-  ) => {
-    const currentDraft =
-      (studiesData[protocolLabel] as StudyDraft | undefined) ?? createEmptyStudyDraft();
-    const nextDraft: StudyDraft = {
-      general: currentDraft.general,
-      sections: {
-        ...currentDraft.sections,
-        [sectionDesktopKey]: value,
-      },
-    };
-
-    sendStudiesPatch({
-      mode: "set",
-      studyType: protocolLabel,
-      value: nextDraft,
-    });
-  };
-
-  const updateGeneralNote = (protocolLabel: string, value: string) => {
-    const currentDraft =
-      (studiesData[protocolLabel] as StudyDraft | undefined) ?? createEmptyStudyDraft();
-    const nextDraft: StudyDraft = {
-      general: value,
-      sections: {
-        ...currentDraft.sections,
-      },
-    };
-
-    sendStudiesPatch({
-      mode: "set",
-      studyType: protocolLabel,
-      value: nextDraft,
-    });
-  };
+  const { updateGeneralNote, updateSectionNote } = useGenericStudyNotes({
+    studiesData,
+    sendStudiesPatch,
+  });
 
   const updateHeaderField = (
     key: keyof MobileSyncSnapshot["header"],

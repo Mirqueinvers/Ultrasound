@@ -72,9 +72,9 @@ export function ProtocolDraftRenderer({
   if (!activeProtocolManifest) {
     return (
       <View style={styles.emptyProtocolState}>
-        <Text style={styles.emptyProtocolTitle}>No active protocol selected</Text>
+        <Text style={styles.emptyProtocolTitle}>Активный протокол не выбран</Text>
         <Text style={styles.emptyProtocolText}>
-          Pick a protocol from the library to start editing it on your phone.
+          Выберите протокол из списка, чтобы начать редактирование на телефоне.
         </Text>
       </View>
     );
@@ -84,11 +84,11 @@ export function ProtocolDraftRenderer({
     <View style={styles.activeProtocolBlock}>
       <View style={styles.activeProtocolHeader}>
         <View>
-          <Text style={styles.blockLabel}>Active protocol</Text>
+          <Text style={styles.blockLabel}>Активный протокол</Text>
           <Text style={styles.blockTitle}>{activeProtocolManifest.selectionLabel}</Text>
         </View>
         <StatusPill styles={styles} tone="accent">
-          {activeProtocolManifest.sections.length} sections
+          {activeProtocolManifest.sections.length} разделов
         </StatusPill>
       </View>
 
@@ -98,10 +98,10 @@ export function ProtocolDraftRenderer({
         <>
           <MobileField
             styles={styles}
-            label="General note"
+            label="Общее примечание"
             value={currentStudyDraft.general}
             onChangeText={(value) => onUpdateGeneralNote(activeProtocolManifest.selectionLabel, value)}
-            placeholder="Enter a general note"
+            placeholder="Введите общее примечание"
             multiline
             minHeight={96}
           />
@@ -114,18 +114,18 @@ export function ProtocolDraftRenderer({
                   <Text style={styles.sectionDesktopKey}>{section.desktopKey}</Text>
                 </View>
                 <StatusPill styles={styles} tone="neutral">
-                  section
+                  раздел
                 </StatusPill>
               </View>
 
               <MobileField
                 styles={styles}
-                label="Section note"
+                label="Примечание раздела"
                 value={currentStudyDraft.sections?.[section.desktopKey] ?? ""}
                 onChangeText={(value) =>
                   onUpdateSectionNote(activeProtocolManifest.selectionLabel, section.desktopKey, value)
                 }
-                placeholder={`Enter ${section.label.toLowerCase()} note`}
+                placeholder={`Введите примечание для "${section.label.toLowerCase()}"`}
                 multiline
                 minHeight={110}
               />

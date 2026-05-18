@@ -23,8 +23,8 @@ export function LibraryScreen({
   return (
     <SectionPanel
       styles={styles}
-      title="Library"
-      subtitle="Pick the study you want to edit on your phone."
+      title="Протоколы"
+      subtitle="Выберите исследование, которое хотите редактировать на телефоне."
     >
       <View style={styles.libraryGrid}>
         {manifests.map((manifest) => {
@@ -45,7 +45,7 @@ export function LibraryScreen({
               <View style={styles.protocolCardHeader}>
                 <Text style={styles.protocolTitle}>{manifest.selectionLabel}</Text>
                 <StatusPill styles={styles} tone={selected ? "success" : "neutral"}>
-                  {manifest.sections.length} sections
+                  {manifest.sections.length} разделов
                 </StatusPill>
               </View>
 
@@ -53,7 +53,7 @@ export function LibraryScreen({
               <View style={styles.cardFooterRow}>
                 <Text style={styles.cardFooterText}>{manifest.title}</Text>
                 <Text style={styles.cardFooterHint}>
-                  {selected ? "In draft" : "Tap to add"}
+                  {selected ? "В черновике" : "Нажмите, чтобы добавить"}
                 </Text>
               </View>
             </Pressable>

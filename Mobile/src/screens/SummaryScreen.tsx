@@ -1,4 +1,4 @@
-import { Alert, Pressable, Text, View } from "react-native";
+﻿import { Alert, Pressable, Text, View } from "react-native";
 
 import { InlineStat } from "../components/InlineStat";
 import { SectionPanel } from "../components/SectionPanel";
@@ -34,47 +34,47 @@ export function SummaryScreen({
   const isSaved = saveState === "saved";
   const buttonLabel =
     saveState === "requested"
-      ? "Sending to desktop..."
+      ? "Отправка на компьютер..."
       : isSaved
-        ? "Saved on desktop"
-        : "Save to desktop";
+        ? "Сохранено на компьютере"
+        : "Сохранить на компьютере";
 
   return (
     <SectionPanel
       styles={styles}
-      title="Summary"
-      subtitle="Current draft snapshot"
+      title="Итог"
+      subtitle="Текущее состояние черновика"
     >
       <View style={styles.summaryCard}>
         <InlineStat
           styles={styles}
-          label="Patient"
-          value={snapshot.header.patientFullName || "Not set"}
+          label="Пациент"
+          value={snapshot.header.patientFullName || "Не указано"}
         />
         <InlineStat
           styles={styles}
-          label="Date of birth"
+          label="Дата рождения"
           value={
-            formatDateForMobileDisplay(snapshot.header.patientDateOfBirth) || "Not set"
+            formatDateForMobileDisplay(snapshot.header.patientDateOfBirth) || "Не указано"
           }
         />
         <InlineStat
           styles={styles}
-          label="Study date"
-          value={formatDateForMobileDisplay(snapshot.header.researchDate) || "Not set"}
+          label="Дата исследования"
+          value={formatDateForMobileDisplay(snapshot.header.researchDate) || "Не указано"}
         />
         <InlineStat
           styles={styles}
-          label="Organization"
-          value={snapshot.header.organization || "Not set"}
+          label="Организация"
+          value={snapshot.header.organization || "Не указано"}
         />
       </View>
 
       <View style={styles.summaryCard}>
-        <Text style={styles.blockLabel}>Selected studies</Text>
+        <Text style={styles.blockLabel}>Выбранные исследования</Text>
         <View style={styles.summaryList}>
           {snapshot.selection.selectedStudies.length === 0 ? (
-            <Text style={styles.emptyState}>No studies selected yet.</Text>
+            <Text style={styles.emptyState}>Исследования пока не выбраны</Text>
           ) : (
             snapshot.selection.selectedStudies.map((label) => {
               const manifest = getProtocolManifestByLabel(label);
@@ -82,7 +82,7 @@ export function SummaryScreen({
                 <View key={label} style={styles.summaryListItem}>
                   <Text style={styles.summaryListTitle}>{label}</Text>
                   <Text style={styles.summaryListHint}>
-                    {manifest?.title ?? "Unknown protocol"}
+                    {manifest?.title ?? "Неизвестный протокол"}
                   </Text>
                 </View>
               );
@@ -94,9 +94,9 @@ export function SummaryScreen({
       <View style={styles.reviewCard}>
         <View style={styles.reviewHeader}>
           <View>
-            <Text style={styles.blockLabel}>Final review</Text>
+            <Text style={styles.blockLabel}>Финальная проверка</Text>
             <Text style={styles.reviewTitle}>
-              {canSaveDraft ? "Ready to save" : "Needs attention"}
+              {canSaveDraft ? "Готово к сохранению" : "Требует внимания"}
             </Text>
           </View>
           <StatusPill
@@ -104,20 +104,20 @@ export function SummaryScreen({
             tone={canSaveDraft ? "success" : "accent"}
           >
             {saveState === "requested"
-              ? "Saving..."
+              ? "Сохранение..."
               : saveState === "saved"
-                ? "Saved"
+                ? "Сохранено"
                 : canSaveDraft
-                  ? "Check complete"
-                  : "Incomplete"}
+                  ? "Проверка пройдена"
+                  : "Не заполнено"}
           </StatusPill>
         </View>
 
         <View style={styles.reviewList}>
           {reviewIssues.length === 0 ? (
             <Text style={styles.reviewReadyText}>
-              Patient and study details are complete. You can send this draft to
-              the desktop for saving.
+              Данные пациента и исследования заполнены. Можно отправить черновик
+              на компьютер для сохранения.
             </Text>
           ) : (
             reviewIssues.map((issue) => (
@@ -161,19 +161,19 @@ export function SummaryScreen({
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text style={styles.printButtonText}>Print on desktop</Text>
+            <Text style={styles.printButtonText}>Печать на компьютере</Text>
           </Pressable>
         ) : null}
 
         <Pressable
           onPress={() => {
             Alert.alert(
-              "Clear current draft?",
-              "All unsaved changes will be cleared on the desktop.",
+              "Очистить текущий черновик?",
+              "Все несохранённые изменения будут очищены на компьютере.",
               [
-                { text: "Cancel", style: "cancel" },
+                { text: "Отмена", style: "cancel" },
                 {
-                  text: "Clear",
+                  text: "Очистить",
                   style: "destructive",
                   onPress: onRequestDesktopClear,
                 },
@@ -185,11 +185,11 @@ export function SummaryScreen({
             pressed && styles.buttonPressed,
           ]}
         >
-          <Text style={styles.clearButtonText}>Clear on desktop</Text>
+          <Text style={styles.clearButtonText}>Очистить на компьютере</Text>
         </Pressable>
 
         <Text style={styles.reviewHintText}>
-          The desktop host writes the research to the database.
+          Рабочее место сохраняет исследование в базу данных.
         </Text>
       </View>
     </SectionPanel>
