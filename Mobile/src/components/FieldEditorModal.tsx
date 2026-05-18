@@ -1,13 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
+import { fieldEditorModalStyles } from "./FieldEditorModal.styles";
 import { isNormalizedMatch } from "../shared/normalizeSelectValue";
 
 type FieldEditorMode = "number" | "select" | "text";
@@ -57,8 +51,7 @@ export function FieldEditorModal({
   }, [visible, value]);
 
   const selectedOption = useMemo(
-    () =>
-      options.find((option) => isNormalizedMatch(option.value, draftValue))?.value ?? "",
+    () => options.find((option) => isNormalizedMatch(option.value, draftValue))?.value ?? "",
     [draftValue, options],
   );
 
@@ -88,27 +81,11 @@ export function FieldEditorModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(2, 6, 23, 0.96)",
-          padding: 16,
-          paddingTop: 48,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 16,
-          }}
-        >
-          <View style={{ flex: 1, paddingRight: 12 }}>
-            <Text style={{ color: "#f8fafc", fontSize: 22, fontWeight: "800" }}>
-              {title}
-            </Text>
-            <Text style={{ color: "#94a3b8", marginTop: 6 }}>
+      <View style={fieldEditorModalStyles.overlay}>
+        <View style={fieldEditorModalStyles.headerRow}>
+          <View style={fieldEditorModalStyles.headerTextWrap}>
+            <Text style={fieldEditorModalStyles.title}>{title}</Text>
+            <Text style={fieldEditorModalStyles.subtitle}>
               {mode === "number"
                 ? "Введите цифровое значение"
                 : mode === "select"
@@ -117,69 +94,23 @@ export function FieldEditorModal({
             </Text>
           </View>
 
-          <Pressable
-            onPress={onCancel}
-            style={{
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              borderRadius: 16,
-              backgroundColor: "rgba(148, 163, 184, 0.16)",
-              borderWidth: 1,
-              borderColor: "rgba(148, 163, 184, 0.24)",
-            }}
-          >
-            <Text style={{ color: "#e2e8f0", fontWeight: "700" }}>Закрыть</Text>
+          <Pressable onPress={onCancel} style={fieldEditorModalStyles.closeButton}>
+            <Text style={fieldEditorModalStyles.closeButtonText}>Закрыть</Text>
           </Pressable>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            borderRadius: 28,
-            backgroundColor: "#0f172a",
-            borderWidth: 1,
-            borderColor: "rgba(148, 163, 184, 0.16)",
-            padding: 16,
-            gap: 16,
-          }}
-        >
-          <View
-            style={{
-              padding: 14,
-              borderRadius: 20,
-              backgroundColor: "rgba(148, 163, 184, 0.08)",
-              borderWidth: 1,
-              borderColor: "rgba(148, 163, 184, 0.14)",
-            }}
-          >
-            <Text
-              style={{
-                color: "#7dd3fc",
-                fontSize: 11,
-                fontWeight: "800",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-              }}
-            >
-              Текущее значение
-            </Text>
-            <Text
-              style={{
-                color: "#f8fafc",
-                fontSize: 18,
-                fontWeight: "700",
-                marginTop: 8,
-                minHeight: 24,
-              }}
-            >
+        <View style={fieldEditorModalStyles.card}>
+          <View style={fieldEditorModalStyles.currentValueCard}>
+            <Text style={fieldEditorModalStyles.currentValueLabel}>Текущее значение</Text>
+            <Text style={fieldEditorModalStyles.currentValueText}>
               {draftValue || placeholder || "Пусто"}
             </Text>
           </View>
 
           {mode === "number" && (
-            <View style={{ gap: 12 }}>
+            <View style={fieldEditorModalStyles.numberPadContainer}>
               {numberPadRows.map((row) => (
-                <View key={row.join("-")} style={{ flexDirection: "row", gap: 10 }}>
+                <View key={row.join("-")} style={fieldEditorModalStyles.numberPadRow}>
                   {row.map((key) => {
                     const label = key === "backspace" ? "⌫" : key;
                     return (
@@ -187,22 +118,11 @@ export function FieldEditorModal({
                         key={key}
                         onPress={() => handleNumberKey(key)}
                         style={({ pressed }) => [
-                          {
-                            flex: 1,
-                            minHeight: 64,
-                            borderRadius: 18,
-                            alignItems: "center",
-                            justifyContent: "center",
-                            backgroundColor: "rgba(56, 189, 248, 0.14)",
-                            borderWidth: 1,
-                            borderColor: "rgba(56, 189, 248, 0.2)",
-                          },
-                          pressed && { opacity: 0.82, transform: [{ scale: 0.98 }] },
+                          fieldEditorModalStyles.numberKeyButton,
+                          pressed && fieldEditorModalStyles.numberKeyButtonPressed,
                         ]}
                       >
-                        <Text style={{ color: "#e0f2fe", fontSize: 22, fontWeight: "800" }}>
-                          {label}
-                        </Text>
+                        <Text style={fieldEditorModalStyles.numberKeyLabel}>{label}</Text>
                       </Pressable>
                     );
                   })}
@@ -212,7 +132,7 @@ export function FieldEditorModal({
           )}
 
           {mode === "select" && (
-            <ScrollView contentContainerStyle={{ gap: 10, paddingBottom: 8 }}>
+            <ScrollView contentContainerStyle={fieldEditorModalStyles.selectList}>
               {options.map((option) => {
                 const selected = selectedOption === option.value;
                 return (
@@ -224,24 +144,14 @@ export function FieldEditorModal({
                       onCancel();
                     }}
                     style={({ pressed }) => [
-                      {
-                        paddingVertical: 16,
-                        paddingHorizontal: 14,
-                        borderRadius: 18,
-                        borderWidth: 1,
-                        borderColor: selected
-                          ? "rgba(34, 197, 94, 0.5)"
-                          : "rgba(148, 163, 184, 0.16)",
-                        backgroundColor: selected
-                          ? "rgba(4, 120, 87, 0.18)"
-                          : "rgba(148, 163, 184, 0.08)",
-                      },
+                      fieldEditorModalStyles.selectOptionButton,
+                      selected
+                        ? fieldEditorModalStyles.selectOptionButtonSelected
+                        : fieldEditorModalStyles.selectOptionButtonUnselected,
                       pressed && { opacity: 0.88 },
                     ]}
                   >
-                    <Text style={{ color: "#f8fafc", fontSize: 16, fontWeight: "700" }}>
-                      {option.label}
-                    </Text>
+                    <Text style={fieldEditorModalStyles.selectOptionText}>{option.label}</Text>
                   </Pressable>
                 );
               })}
@@ -249,7 +159,7 @@ export function FieldEditorModal({
           )}
 
           {mode === "text" && (
-            <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 8 }}>
+            <ScrollView contentContainerStyle={fieldEditorModalStyles.textAreaList}>
               <TextInput
                 autoFocus
                 value={draftValue}
@@ -257,15 +167,10 @@ export function FieldEditorModal({
                 placeholder={placeholder}
                 placeholderTextColor="#64748b"
                 multiline={multiline}
-                style={{
-                  borderRadius: 20,
-                  backgroundColor: "#101a31",
-                  color: "#f8fafc",
-                  padding: 16,
-                  textAlignVertical: multiline ? "top" : "center",
-                fontSize: 16,
-                minHeight: multiline ? 180 : 64,
-              }}
+                style={[
+                  fieldEditorModalStyles.textInput,
+                  !multiline && fieldEditorModalStyles.textInputSingleLine,
+                ]}
               />
               {footerContent?.({
                 value: draftValue,
@@ -276,31 +181,19 @@ export function FieldEditorModal({
           )}
 
           {mode !== "select" && (
-            <View style={{ flexDirection: "row", gap: 10 }}>
+            <View style={fieldEditorModalStyles.footerRow}>
               <Pressable
                 onPress={onCancel}
-                style={{
-                  flex: 1,
-                  paddingVertical: 14,
-                  borderRadius: 18,
-                  backgroundColor: "rgba(148, 163, 184, 0.14)",
-                  alignItems: "center",
-                }}
+                style={[fieldEditorModalStyles.footerButton, fieldEditorModalStyles.footerCancelButton]}
               >
-                <Text style={{ color: "#e2e8f0", fontWeight: "700" }}>Отмена</Text>
+                <Text style={fieldEditorModalStyles.footerCancelText}>Отмена</Text>
               </Pressable>
 
               <Pressable
                 onPress={handleSave}
-                style={{
-                  flex: 1,
-                  paddingVertical: 14,
-                  borderRadius: 18,
-                  backgroundColor: "#22c55e",
-                  alignItems: "center",
-                }}
+                style={[fieldEditorModalStyles.footerButton, fieldEditorModalStyles.footerSaveButton]}
               >
-                <Text style={{ color: "#04110a", fontWeight: "800" }}>Готово</Text>
+                <Text style={fieldEditorModalStyles.footerSaveText}>Готово</Text>
               </Pressable>
             </View>
           )}
