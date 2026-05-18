@@ -10,6 +10,7 @@ import {
   type SpleenDraft,
 } from "../../shared/obpDraft";
 import { normalizeObpDraft } from "../../protocols";
+import type { MobileStudiesDataMap } from "../../protocols/types";
 import { getDesktopStudyKey } from "../../sync/adapters";
 
 type SendStudiesPatch = (message: {
@@ -18,15 +19,27 @@ type SendStudiesPatch = (message: {
   value: unknown;
 }) => void;
 
-type StudiesDataMap = Record<string, unknown>;
+export type ObpDraftActions = {
+  updateObpLiverField: (field: keyof LiverDraft, value: string) => void;
+  updateObpGallbladderField: (field: keyof GallbladderDraft, value: string) => void;
+  updateObpPancreasField: (field: keyof PancreasDraft, value: string) => void;
+  updateObpSpleenField: (field: keyof SpleenDraft, value: string) => void;
+  updateObpFreeFluidField: (field: "freeFluid" | "freeFluidDetails", value: string) => void;
+  updateObpConclusionField: (value: string) => void;
+  updateObpRecommendationsField: (value: string) => void;
+  updateObpGallbladderConcretionsList: (nextList: GallbladderConcretionDraft[]) => void;
+  updateObpGallbladderPolypsList: (nextList: GallbladderPolypDraft[]) => void;
+  addObpGallbladderConcretion: () => void;
+  addObpGallbladderPolyp: () => void;
+};
 
 export function useObpDraftActions({
   studiesData,
   sendStudiesPatch,
 }: {
-  studiesData: StudiesDataMap;
+  studiesData: MobileStudiesDataMap;
   sendStudiesPatch: SendStudiesPatch;
-}) {
+}): ObpDraftActions {
   const obpDesktopKey = getDesktopStudyKey("obp");
 
   const updateObpLiverField = (field: keyof LiverDraft, value: string) => {

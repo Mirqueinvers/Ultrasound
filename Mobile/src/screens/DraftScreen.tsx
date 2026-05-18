@@ -9,68 +9,23 @@ import { getProtocolManifestByLabel } from "../shared/protocols";
 import { formatDateForMobileDisplay } from "../shared/formatDate";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
 import type { ProtocolManifest } from "../shared/protocols";
-import type { ObpDraft } from "../shared/obpDraft";
-import type { KidneyStudyDraft } from "../shared/kidneyDraft";
-import type { ScrotumDraft } from "../shared/scrotumDraft";
-import type { OmtFemaleDraft } from "../shared/omtFemaleDraft";
-import type { OmtMaleDraft } from "../shared/omtMaleDraft";
-import type { ThyroidStudyDraft } from "../shared/thyroidDraft";
-import type { BreastStudyDraft } from "../shared/breastDraft";
-import type { LymphNodesStudyDraft } from "../shared/lymphNodesDraft";
-import type { StudyDraft } from "../shared/syncHelpers";
+import type { ObpDraftActions } from "../protocols/obp/useObpDraftActions";
+import type { ProtocolUpdateHandlers } from "../hooks/useProtocolUpdateHandlers";
 import { getDesktopStudyKey } from "../sync/adapters";
+import type { AppStyles } from "../styles/appStyles";
+import type { MobileStudiesDataMap } from "../protocols/types";
 
 type DraftScreenProps = {
-  styles: any;
+  styles: AppStyles;
   snapshot: MobileSyncSnapshot;
-  studiesData: Record<
-    string,
-    | StudyDraft
-    | ObpDraft
-    | KidneyStudyDraft
-    | ScrotumDraft
-    | OmtFemaleDraft
-    | OmtMaleDraft
-    | ThyroidStudyDraft
-    | BreastStudyDraft
-    | LymphNodesStudyDraft
-  >;
+  studiesData: MobileStudiesDataMap;
   activeProtocolManifest: ProtocolManifest | null;
+  obpActions: ObpDraftActions;
+  protocolUpdateHandlers: ProtocolUpdateHandlers;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onUpdateHeaderField: (key: keyof MobileSyncSnapshot["header"], value: string) => void;
   onUpdateGeneralNote: (protocolLabel: string, value: string) => void;
   onUpdateSectionNote: (protocolLabel: string, sectionDesktopKey: string, value: string) => void;
-  onUpdateObpLiverField: (field: keyof import("../shared/obpDraft").LiverDraft, value: string) => void;
-  onUpdateObpGallbladderField: (
-    field: keyof import("../shared/obpDraft").GallbladderDraft,
-    value: string,
-  ) => void;
-  onUpdateObpGallbladderConcretionsList: (
-    nextList: import("../shared/obpDraft").GallbladderConcretionDraft[],
-  ) => void;
-  onUpdateObpGallbladderPolypsList: (
-    nextList: import("../shared/obpDraft").GallbladderPolypDraft[],
-  ) => void;
-  onAddObpGallbladderConcretion: () => void;
-  onAddObpGallbladderPolyp: () => void;
-  onUpdateObpPancreasField: (
-    field: keyof import("../shared/obpDraft").PancreasDraft,
-    value: string,
-  ) => void;
-  onUpdateObpSpleenField: (
-    field: keyof import("../shared/obpDraft").SpleenDraft,
-    value: string,
-  ) => void;
-  onUpdateObpFreeFluidField: (field: "freeFluid" | "freeFluidDetails", value: string) => void;
-  onUpdateObpConclusionField: (value: string) => void;
-  onUpdateObpRecommendationsField: (value: string) => void;
-  onUpdateKidneyStudy: (value: KidneyStudyDraft) => void;
-  onUpdateScrotumStudy: (value: ScrotumDraft) => void;
-  onUpdateOmtFemaleStudy: (value: OmtFemaleDraft) => void;
-  onUpdateOmtMaleStudy: (value: OmtMaleDraft) => void;
-  onUpdateThyroidStudy: (value: ThyroidStudyDraft) => void;
-  onUpdateBreastStudy: (value: BreastStudyDraft) => void;
-  onUpdateLymphNodesStudy: (value: LymphNodesStudyDraft) => void;
 };
 
 function formatBirthDateInput(value: string): string {
@@ -96,33 +51,17 @@ export function DraftScreen({
   snapshot,
   studiesData,
   activeProtocolManifest,
+  obpActions,
+  protocolUpdateHandlers,
   onSelectProtocol,
   onUpdateHeaderField,
   onUpdateGeneralNote,
   onUpdateSectionNote,
-  onUpdateObpLiverField,
-  onUpdateObpGallbladderField,
-  onUpdateObpGallbladderConcretionsList,
-  onUpdateObpGallbladderPolypsList,
-  onAddObpGallbladderConcretion,
-  onAddObpGallbladderPolyp,
-  onUpdateObpPancreasField,
-  onUpdateObpSpleenField,
-  onUpdateObpFreeFluidField,
-  onUpdateObpConclusionField,
-  onUpdateObpRecommendationsField,
-  onUpdateKidneyStudy,
-  onUpdateScrotumStudy,
-  onUpdateOmtFemaleStudy,
-  onUpdateOmtMaleStudy,
-  onUpdateThyroidStudy,
-  onUpdateBreastStudy,
-  onUpdateLymphNodesStudy,
 }: DraftScreenProps) {
   const activeProtocolLabel = activeProtocolManifest ? getDesktopStudyKey(activeProtocolManifest.id) : "";
-  const currentStudyDraft = useMemo<StudyDraft>(
+  const currentStudyDraft = useMemo(
     () =>
-      (studiesData[activeProtocolLabel] as StudyDraft | undefined) ?? {
+      (studiesData[activeProtocolLabel] as { general: string; sections: Record<string, string> } | undefined) ?? {
         general: "",
         sections: {},
       },
@@ -210,26 +149,10 @@ export function DraftScreen({
         activeProtocolManifest={activeProtocolManifest}
         studiesData={studiesData}
         styles={styles}
+        obpActions={obpActions}
+        protocolUpdateHandlers={protocolUpdateHandlers}
         onUpdateGeneralNote={onUpdateGeneralNote}
         onUpdateSectionNote={onUpdateSectionNote}
-        onUpdateObpLiverField={onUpdateObpLiverField}
-        onUpdateObpGallbladderField={onUpdateObpGallbladderField}
-        onUpdateObpGallbladderConcretionsList={onUpdateObpGallbladderConcretionsList}
-        onUpdateObpGallbladderPolypsList={onUpdateObpGallbladderPolypsList}
-        onAddObpGallbladderConcretion={onAddObpGallbladderConcretion}
-        onAddObpGallbladderPolyp={onAddObpGallbladderPolyp}
-        onUpdateObpPancreasField={onUpdateObpPancreasField}
-        onUpdateObpSpleenField={onUpdateObpSpleenField}
-        onUpdateObpFreeFluidField={onUpdateObpFreeFluidField}
-        onUpdateObpConclusionField={onUpdateObpConclusionField}
-        onUpdateObpRecommendationsField={onUpdateObpRecommendationsField}
-        onUpdateKidneyStudy={onUpdateKidneyStudy}
-        onUpdateScrotumStudy={onUpdateScrotumStudy}
-        onUpdateOmtFemaleStudy={onUpdateOmtFemaleStudy}
-        onUpdateOmtMaleStudy={onUpdateOmtMaleStudy}
-        onUpdateThyroidStudy={onUpdateThyroidStudy}
-        onUpdateBreastStudy={onUpdateBreastStudy}
-        onUpdateLymphNodesStudy={onUpdateLymphNodesStudy}
       />
     </SectionPanel>
   );

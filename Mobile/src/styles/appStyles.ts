@@ -770,3 +770,5 @@ export const styles = StyleSheet.create({
     alignSelf: "stretch",
   },
 });
+
+export type AppStyles = typeof styles;

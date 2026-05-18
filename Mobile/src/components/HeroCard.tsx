@@ -2,9 +2,10 @@ import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "./MobileField";
 import { StatusPill } from "./StatusPill";
+import type { AppStyles } from "../styles/appStyles";
 
 type HeroCardProps = {
-  styles: any;
+  styles: AppStyles;
   connected: boolean;
   connectionState: "idle" | "checking" | "connecting" | "connected" | "error";
   connectionError: string;

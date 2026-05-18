@@ -6,11 +6,12 @@ import { StatusPill } from "../components/StatusPill";
 import { formatDateForMobileDisplay } from "../shared/formatDate";
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import type { MobileSyncSnapshot } from "../shared/mobileSync";
+import type { AppStyles } from "../styles/appStyles";
 
 type SaveState = "idle" | "requested" | "saved";
 
 type SummaryScreenProps = {
-  styles: any;
+  styles: AppStyles;
   snapshot: MobileSyncSnapshot;
   reviewIssues: string[];
   canSaveDraft: boolean;

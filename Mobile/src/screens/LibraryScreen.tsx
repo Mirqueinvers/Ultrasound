@@ -3,9 +3,10 @@ import { Pressable, Text, View } from "react-native";
 import { SectionPanel } from "../components/SectionPanel";
 import { StatusPill } from "../components/StatusPill";
 import type { ProtocolManifest } from "../shared/protocols";
+import type { AppStyles } from "../styles/appStyles";
 
 type LibraryScreenProps = {
-  styles: any;
+  styles: AppStyles;
   manifests: ProtocolManifest[];
   selectedStudies: string[];
   focusedProtocolId: string | null;

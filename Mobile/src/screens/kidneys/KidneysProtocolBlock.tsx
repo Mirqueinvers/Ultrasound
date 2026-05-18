@@ -24,6 +24,7 @@ import {
   type UrinaryBladderDraft,
 } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -78,7 +79,7 @@ type UrinaryBladderFieldSpec = {
 };
 
 type KidneysProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: KidneyStudyDraft;
   onChange: (value: KidneyStudyDraft) => void;
 };

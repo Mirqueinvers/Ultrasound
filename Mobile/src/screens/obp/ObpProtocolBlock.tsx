@@ -26,6 +26,7 @@ import type {
   PancreasDraft,
   SpleenDraft,
 } from "../../shared/obpDraft";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -105,7 +106,7 @@ type ObpFinalFieldSpec = {
 };
 
 type ObpProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   obpDraft: ObpDraft;
   onUpdateLiverField: (field: keyof LiverDraft, value: string) => void;
   onUpdateGallbladderField: (field: keyof GallbladderDraft, value: string) => void;

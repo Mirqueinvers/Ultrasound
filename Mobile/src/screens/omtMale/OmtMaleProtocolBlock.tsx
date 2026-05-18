@@ -11,6 +11,7 @@ import {
 } from "../../shared/omtMaleDraft";
 import { type UrinaryBladderDraft } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -33,7 +34,7 @@ type ConclusionSample = {
 };
 
 type OmtMaleProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: OmtMaleDraft;
   onChange: (value: OmtMaleDraft) => void;
 };

@@ -1,5 +1,4 @@
 ﻿import { StatusBar } from "expo-status-bar";
-import { CameraView } from "expo-camera";
 import { useRef, useState } from "react";
 import {
   Pressable,
@@ -9,11 +8,10 @@ import {
   View,
 } from "react-native";
 
-import { InlineStat } from "./src/components/InlineStat";
-import { HeroCard } from "./src/components/HeroCard";
-import { SectionPanel } from "./src/components/SectionPanel";
 import { StatusPill } from "./src/components/StatusPill";
 import { type TabKey } from "./src/components/TabBar";
+import { ScannerOverlay } from "./src/components/ScannerOverlay";
+import { ConnectScreen } from "./src/screens/ConnectScreen";
 import { DraftScreen } from "./src/screens/DraftScreen";
 import { LibraryScreen } from "./src/screens/LibraryScreen";
 import { SummaryScreen } from "./src/screens/SummaryScreen";
@@ -23,6 +21,9 @@ import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
 import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
+import { MOBILE_TABS } from "./src/navigation/mobileTabs";
+
+const BOTTOM_SPACER_HEIGHT = 110;
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
@@ -64,6 +65,7 @@ export default function App() {
     reviewIssues,
     canSaveDraft,
     studiesData,
+    obpActions,
     toggleProtocol,
     requestDesktopSave,
     requestDesktopPrint,
@@ -73,17 +75,6 @@ export default function App() {
     updateHeaderField,
     updateGeneralNote,
     updateSectionNote,
-    updateObpLiverField,
-    updateObpGallbladderField,
-    updateObpGallbladderConcretionsList,
-    updateObpGallbladderPolypsList,
-    addObpGallbladderConcretion,
-    addObpGallbladderPolyp,
-    updateObpPancreasField,
-    updateObpSpleenField,
-    updateObpFreeFluidField,
-    updateObpConclusionField,
-    updateObpRecommendationsField,
   } = useMobileSnapshot({
     connected,
     emitWireMessage,
@@ -95,15 +86,7 @@ export default function App() {
     wireMessageHandlerRef,
   });
 
-  const {
-    updateKidneyStudy,
-    updateScrotumStudy,
-    updateOmtFemaleStudy,
-    updateOmtMaleStudy,
-    updateThyroidStudy,
-    updateBreastStudy,
-    updateLymphNodesStudy,
-  } = useProtocolUpdateHandlers(updateStudyByProtocolId);
+  const protocolUpdateHandlers = useProtocolUpdateHandlers(updateStudyByProtocolId);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -145,57 +128,24 @@ export default function App() {
         showsVerticalScrollIndicator={false}
       >
         {activeTab === "connect" && (
-          <>
-            <HeroCard
-              styles={styles}
-              connected={connected}
-              connectionState={connectionState}
-              connectionError={connectionError}
-              hostUrl={hostUrl}
-              pairingCode={pairingCode}
-              setHostUrl={setHostUrlInput}
-              setPairingCode={setPairingCode}
-              connectToHost={connectToHost}
-              disconnect={disconnect}
-              openScanner={openScanner}
-              resetDraft={resetDraft}
-            />
-
-            <SectionPanel styles={styles} title="Mobile Sync" subtitle="Keep the current study in sync with the desktop host.">
-              <InlineStat styles={styles} label="Host" value={hostUrl || "Not connected"} />
-              <InlineStat styles={styles} label="WS" value={hostUrl ? `${toWsUrl(hostUrl)}/ws` : "Not connected"} />
-              <InlineStat styles={styles} label="Socket" value={socketStatus === "open" ? "open" : "closed"} />
-              <InlineStat
-                styles={styles}
-                label="Session"
-                value={snapshot.session.sessionId ? snapshot.session.sessionId.slice(-8) : "No active session"}
-              />
-              <InlineStat
-                styles={styles}
-                label="Active protocol"
-                value={snapshot.session.activeStudyLabel || "None selected"}
-              />
-              <InlineStat
-                styles={styles}
-                label="Save status"
-                value={
-                  saveState === "requested"
-                    ? "Waiting for desktop save"
-                    : saveState === "saved"
-                      ? "Saved on desktop"
-                      : "Idle"
-                }
-              />
-              <Text style={styles.helperText}>
-                Connect your phone to the desktop host to sync the current study live.
-              </Text>
-              {saveState === "saved" ? (
-                <Text style={styles.saveSuccessText}>
-                  The research has been saved on the desktop.
-                </Text>
-              ) : null}
-            </SectionPanel>
-          </>
+          <ConnectScreen
+            styles={styles}
+            connected={connected}
+            connectionState={connectionState}
+            connectionError={connectionError}
+            hostUrl={hostUrl}
+            pairingCode={pairingCode}
+            setHostUrl={setHostUrlInput}
+            setPairingCode={setPairingCode}
+            connectToHost={connectToHost}
+            disconnect={disconnect}
+            openScanner={openScanner}
+            resetDraft={resetDraft}
+            toWsUrl={toWsUrl}
+            socketStatus={socketStatus}
+            snapshot={snapshot}
+            saveState={saveState}
+          />
         )}
 
         {activeTab === "library" && (
@@ -214,28 +164,12 @@ export default function App() {
             snapshot={snapshot}
             studiesData={studiesData}
             activeProtocolManifest={activeProtocolManifest}
+            obpActions={obpActions}
+            protocolUpdateHandlers={protocolUpdateHandlers}
             onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
             onUpdateHeaderField={updateHeaderField}
             onUpdateGeneralNote={updateGeneralNote}
             onUpdateSectionNote={updateSectionNote}
-            onUpdateObpLiverField={updateObpLiverField}
-            onUpdateObpGallbladderField={updateObpGallbladderField}
-            onUpdateObpGallbladderConcretionsList={updateObpGallbladderConcretionsList}
-            onUpdateObpGallbladderPolypsList={updateObpGallbladderPolypsList}
-            onAddObpGallbladderConcretion={addObpGallbladderConcretion}
-            onAddObpGallbladderPolyp={addObpGallbladderPolyp}
-            onUpdateObpPancreasField={updateObpPancreasField}
-            onUpdateObpSpleenField={updateObpSpleenField}
-            onUpdateObpFreeFluidField={updateObpFreeFluidField}
-            onUpdateObpConclusionField={updateObpConclusionField}
-            onUpdateObpRecommendationsField={updateObpRecommendationsField}
-            onUpdateKidneyStudy={updateKidneyStudy}
-            onUpdateScrotumStudy={updateScrotumStudy}
-            onUpdateOmtFemaleStudy={updateOmtFemaleStudy}
-            onUpdateOmtMaleStudy={updateOmtMaleStudy}
-            onUpdateThyroidStudy={updateThyroidStudy}
-            onUpdateBreastStudy={updateBreastStudy}
-            onUpdateLymphNodesStudy={updateLymphNodesStudy}
           />
         )}
         {activeTab === "summary" && (
@@ -251,16 +185,11 @@ export default function App() {
           />
         )}
 
-        <View style={{ height: 110 }} />
+        <View style={{ height: BOTTOM_SPACER_HEIGHT }} />
       </ScrollView>
 
       <View style={styles.bottomNav}>
-        {([
-          ["connect", "Connect"],
-          ["library", "Library"],
-          ["draft", "Draft"],
-          ["summary", "Summary"],
-        ] as const).map(([key, label]) => {
+        {MOBILE_TABS.map(({ key, label }) => {
           const active = activeTab === key;
           return (
             <Pressable
@@ -280,64 +209,15 @@ export default function App() {
         })}
       </View>
 
-      {scannerVisible && (
-        <View style={styles.scannerOverlay}>
-          <View style={styles.scannerHeader}>
-            <View>
-              <Text style={styles.scannerTitle}>Scan QR</Text>
-              <Text style={styles.scannerSubtitle}>
-                Use the camera to scan the QR code from the desktop profile.
-              </Text>
-            </View>
-            <Pressable
-              onPress={closeScanner}
-              style={({ pressed }) => [
-                styles.scannerCloseButton,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={styles.scannerCloseButtonText}>Close</Text>
-            </Pressable>
-          </View>
-
-          {cameraPermission?.granted ? (
-            <CameraView
-              style={styles.scannerCamera}
-              facing="back"
-              barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-              onBarcodeScanned={(result) => {
-                if (!result.data) {
-                  return;
-                }
-
-                void handleQrScanned(result.data);
-              }}
-            />
-          ) : (
-            <View style={styles.scannerPermissionCard}>
-              <Text style={styles.scannerPermissionTitle}>Camera access needed</Text>
-              <Text style={styles.scannerPermissionText}>
-                Allow camera access, then scan the QR code again.
-              </Text>
-              <Pressable
-                onPress={async () => {
-                  const permission = await requestCameraPermission();
-                  if (!permission.granted) {
-                    setConnectionError("Camera access is required to scan the QR code.");
-                  }
-                }}
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  styles.scannerPermissionButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.primaryButtonText}>Allow camera</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
-      )}
+      <ScannerOverlay
+        visible={scannerVisible}
+        cameraPermission={cameraPermission}
+        requestCameraPermission={requestCameraPermission}
+        closeScanner={closeScanner}
+        handleQrScanned={handleQrScanned}
+        setConnectionError={setConnectionError}
+        styles={styles}
+      />
     </SafeAreaView>
   );
 }

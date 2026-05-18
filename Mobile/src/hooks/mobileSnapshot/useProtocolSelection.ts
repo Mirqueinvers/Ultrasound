@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type SetStateAction } from "react";
 import { type ProtocolManifest, getProtocolManifestById, type ProtocolId } from "../../shared/protocols";
 import { createSyncTimestamp, type MobileSyncSnapshot, type MobileSyncWireMessage } from "../../shared/mobileSync";
 import { createEmptyStudyDataByDesktopKey, getProtocolIdFromDesktopKey } from "../../sync/adapters";
+import type { MobileStudiesDataMap } from "../../protocols/types";
 
 type SaveState = "idle" | "requested" | "saved";
 
@@ -15,14 +16,14 @@ export function useProtocolSelection({
   setSaveState,
 }: {
   snapshot: MobileSyncSnapshot;
-  studiesData: Record<string, unknown>;
+  studiesData: MobileStudiesDataMap;
   emitWireMessage: (message: MobileSyncWireMessage) => void;
   sendSelectionPatch: (patch: Partial<MobileSyncSnapshot["selection"]>) => void;
   sendStudiesPatch: (
     message:
       | {
           mode: "replace";
-          studiesData: Record<string, unknown>;
+          studiesData: MobileStudiesDataMap;
         }
       | {
           mode: "set";

@@ -11,6 +11,7 @@ import {
   type SingleTestisDraft,
 } from "../../shared/scrotumDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -33,7 +34,7 @@ type ConclusionSample = {
 };
 
 type ScrotumProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: ScrotumDraft;
   onChange: (value: ScrotumDraft) => void;
 };

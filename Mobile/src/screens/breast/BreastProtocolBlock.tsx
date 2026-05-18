@@ -21,6 +21,7 @@ import {
   type BreastStudyDraft,
 } from "../../shared/breastDraft";
 import { formatDateForMobileDisplay } from "../../shared/formatDate";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -33,7 +34,7 @@ type EditorState = {
 } | null;
 
 type BreastProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: BreastStudyDraft;
   onChange: (value: BreastStudyDraft) => void;
 };

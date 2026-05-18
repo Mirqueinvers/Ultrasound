@@ -10,7 +10,7 @@ import type { ThyroidStudyDraft } from "../shared/thyroidDraft";
 
 type UpdateStudyByProtocolId = <T,>(protocolId: string, value: T) => void;
 
-type ProtocolUpdateHandlers = {
+export type ProtocolUpdateHandlers = {
   updateKidneyStudy: (value: KidneyStudyDraft) => void;
   updateScrotumStudy: (value: ScrotumDraft) => void;
   updateOmtFemaleStudy: (value: OmtFemaleDraft) => void;

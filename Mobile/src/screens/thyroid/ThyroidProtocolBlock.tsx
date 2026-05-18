@@ -1,4 +1,4 @@
-import { Fragment, useState, type ReactNode } from "react";
+import { Fragment, memo, useState, type ReactNode } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 
 import {
@@ -21,6 +21,7 @@ import {
   type ThyroidNodeDraft,
   type ThyroidStudyDraft,
 } from "../../shared/thyroidDraft";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -43,10 +44,42 @@ type ConclusionSample = {
 };
 
 type ThyroidProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: ThyroidStudyDraft;
   onChange: (value: ThyroidStudyDraft) => void;
 };
+
+type ThyroidAutoIndicatorsProps = {
+  styles: AppStyles;
+  totalVolume: string;
+  rightToLeftRatio: string;
+};
+
+const ThyroidAutoIndicators = memo(function ThyroidAutoIndicators({
+  styles,
+  totalVolume,
+  rightToLeftRatio,
+}: ThyroidAutoIndicatorsProps) {
+  return (
+    <>
+      <ProtocolFieldRow
+        label="Общий объем (мл)"
+        value={totalVolume || "Рассчитывается автоматически"}
+        typeLabel="auto"
+        filled={Boolean(totalVolume)}
+        readonly
+      />
+      <ProtocolFieldRow
+        label="Соотношение правой к левой"
+        value={rightToLeftRatio || "Рассчитывается автоматически"}
+        typeLabel="auto"
+        filled={Boolean(rightToLeftRatio)}
+        readonly
+      />
+    </>
+  );
+});
+
 
 const THYROID_ECHOGENICITY_OPTIONS: FieldEditorOption[] = [
   { value: "средняя", label: "Средняя" },
@@ -765,22 +798,11 @@ export function ThyroidProtocolBlock({
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Общие показатели" />
         <View style={styles.obpFieldList}>
-          {renderField(
-            "Общий объем (мл)",
-            thyroid.totalVolume || "Рассчитывается автоматически",
-            "auto",
-            Boolean(thyroid.totalVolume),
-            undefined,
-            true,
-          )}
-          {renderField(
-            "Соотношение правой к левой",
-            thyroid.rightToLeftRatio || "Рассчитывается автоматически",
-            "auto",
-            Boolean(thyroid.rightToLeftRatio),
-            undefined,
-            true,
-          )}
+          <ThyroidAutoIndicators
+            styles={styles}
+            totalVolume={thyroid.totalVolume}
+            rightToLeftRatio={thyroid.rightToLeftRatio}
+          />
           {renderField(
             "Эхогенность железы",
             thyroid.echogenicity || "Нажмите для ввода",

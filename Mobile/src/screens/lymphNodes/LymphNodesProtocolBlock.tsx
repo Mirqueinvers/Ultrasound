@@ -18,6 +18,7 @@ import {
   type LymphNodeRegionDraft,
   type LymphNodesStudyDraft,
 } from "../../shared/lymphNodesDraft";
+import type { AppStyles } from "../../styles/appStyles";
 
 type EditorState = {
   title: string;
@@ -35,7 +36,7 @@ type EditorState = {
 } | null;
 
 type LymphNodesProtocolBlockProps = {
-  styles: any;
+  styles: AppStyles;
   value: LymphNodesStudyDraft;
   onChange: (value: LymphNodesStudyDraft) => void;
 };

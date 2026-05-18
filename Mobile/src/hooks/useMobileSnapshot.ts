@@ -1,35 +1,17 @@
 ﻿import { useMemo, useState, type RefObject, type SetStateAction } from "react";
 
 import { type TabKey } from "../components/TabBar";
-import { type BreastStudyDraft } from "../shared/breastDraft";
 import { createEmptyStudyDraft, createInitialMobileSnapshot, type StudyDraft } from "../shared/syncHelpers";
 import { type MobileSyncSnapshot, type MobileSyncWireMessage, createSyncTimestamp } from "../shared/mobileSync";
-import { type KidneyStudyDraft } from "../shared/kidneyDraft";
-import { type LymphNodesStudyDraft } from "../shared/lymphNodesDraft";
-import { type OmtFemaleDraft } from "../shared/omtFemaleDraft";
-import { type OmtMaleDraft } from "../shared/omtMaleDraft";
-import { type ObpDraft } from "../shared/obpDraft";
-import { type ScrotumDraft } from "../shared/scrotumDraft";
-import { type ThyroidStudyDraft } from "../shared/thyroidDraft";
-import { useObpDraftActions } from "../protocols/obp/useObpDraftActions";
+import { useObpDraftActions, type ObpDraftActions } from "../protocols/obp/useObpDraftActions";
+import type { MobileStudiesDataMap } from "../protocols/types";
 import { buildStudiesData } from "./mobileSnapshot/buildStudiesData";
 import { getDraftReviewIssues } from "./mobileSnapshot/reviewIssues";
 import { useProtocolSelection } from "./mobileSnapshot/useProtocolSelection";
 import { useSnapshotSync } from "./mobileSnapshot/useSnapshotSync";
 import { getDesktopStudyKey, normalizeIncomingStudyData } from "../sync/adapters";
 
- type SaveState = "idle" | "requested" | "saved";
-
-type MobileStudyData =
-  | StudyDraft
-  | ObpDraft
-  | KidneyStudyDraft
-  | ScrotumDraft
-  | OmtFemaleDraft
-  | OmtMaleDraft
-  | ThyroidStudyDraft
-  | BreastStudyDraft
-  | LymphNodesStudyDraft;
+type SaveState = "idle" | "requested" | "saved";
 
 type UseMobileSnapshotOptions = {
   connected: boolean;
@@ -59,7 +41,7 @@ export function useMobileSnapshot({
   };
 
   const studiesData = useMemo(
-    () => buildStudiesData(snapshot) as Record<string, MobileStudyData>,
+    () => buildStudiesData(snapshot),
     [snapshot.studiesData],
   );
   const reviewIssues = useMemo(() => getDraftReviewIssues(snapshot), [snapshot]);
@@ -107,7 +89,7 @@ export function useMobileSnapshot({
     message:
       | {
           mode: "replace";
-          studiesData: Record<string, unknown>;
+          studiesData: MobileStudiesDataMap;
         }
       | {
           mode: "set";
@@ -265,6 +247,19 @@ export function useMobileSnapshot({
     studiesData,
     sendStudiesPatch,
   });
+  const obpActions: ObpDraftActions = {
+    updateObpLiverField,
+    updateObpGallbladderField,
+    updateObpPancreasField,
+    updateObpSpleenField,
+    updateObpFreeFluidField,
+    updateObpConclusionField,
+    updateObpRecommendationsField,
+    updateObpGallbladderConcretionsList,
+    updateObpGallbladderPolypsList,
+    addObpGallbladderConcretion,
+    addObpGallbladderPolyp,
+  };
 
   const updateSectionNote = (
     protocolLabel: string,
@@ -321,6 +316,7 @@ export function useMobileSnapshot({
     reviewIssues,
     canSaveDraft,
     studiesData,
+    obpActions,
     updateStudyByProtocolId,
     updateHeaderField,
     updateGeneralNote,
@@ -330,16 +326,5 @@ export function useMobileSnapshot({
     requestDesktopPrint,
     requestDesktopClear,
     resetDraft,
-    updateObpLiverField,
-    updateObpGallbladderField,
-    updateObpPancreasField,
-    updateObpSpleenField,
-    updateObpFreeFluidField,
-    updateObpConclusionField,
-    updateObpRecommendationsField,
-    updateObpGallbladderConcretionsList,
-    updateObpGallbladderPolypsList,
-    addObpGallbladderConcretion,
-    addObpGallbladderPolyp,
   };
 }
