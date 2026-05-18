@@ -16,21 +16,18 @@ type SaveState = "idle" | "requested" | "saved";
 type UseMobileConnectionOptions = {
   setActiveTab: (value: SetStateAction<TabKey>) => void;
   setSaveState: (value: SetStateAction<SaveState>) => void;
-  setSessionId: (value: SetStateAction<string | null>) => void;
   wireMessageHandlerRef: RefObject<((message: MobileSyncWireMessage) => void) | null>;
 };
 
 export function useMobileConnection({
   setActiveTab,
   setSaveState,
-  setSessionId,
   wireMessageHandlerRef,
 }: UseMobileConnectionOptions) {
   const [hostUrlInput, setHostUrlInput] = useState(initialHostUrl);
   const [pairingCode, setPairingCode] = useState("");
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
   const [connectionError, setConnectionError] = useState("");
-  const [sessionId, setSessionIdLocal] = useState<string | null>(null);
   const [socketStatus, setSocketStatus] = useState<SocketStatus>("closed");
   const [scannerVisible, setScannerVisible] = useState(false);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -196,8 +193,6 @@ export function useMobileConnection({
       socket.onopen = () => {
         setSocketStatus("open");
         setConnectionState("connected");
-        setSessionId(pairJson.sessionId ?? healthJson.status?.sessionId ?? null);
-        setSessionIdLocal(pairJson.sessionId ?? healthJson.status?.sessionId ?? null);
         setActiveTab("library");
 
         void Promise.all([
@@ -248,8 +243,6 @@ export function useMobileConnection({
     socketRef.current = null;
     setSocketStatus("closed");
     setConnectionState("idle");
-    setSessionId(null);
-    setSessionIdLocal(null);
     setSaveState("idle");
   };
 
@@ -297,21 +290,16 @@ export function useMobileConnection({
   };
 
   return {
-    hostUrlInput,
     pairingCode,
     connectionState,
     connectionError,
-    sessionId,
     socketStatus,
-    socketRef,
     scannerVisible,
     cameraPermission,
     requestCameraPermission,
     hostUrl,
     connected,
-    normalizeHostUrl,
     toWsUrl,
-    parseMobileSyncPayload,
     connectToHost,
     disconnect,
     openScanner,
@@ -320,7 +308,6 @@ export function useMobileConnection({
     setHostUrlInput,
     setPairingCode,
     setConnectionError,
-    setSessionId,
     emitWireMessage,
   };
 }

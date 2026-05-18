@@ -1,4 +1,4 @@
 export const breastAdapter = {
   protocolId: "breast",
-  desktopStudyKeys: ["Молочные железы"] as const,
+  legacyDesktopStudyKeys: ["Молочные железы"] as const,
 } as const;

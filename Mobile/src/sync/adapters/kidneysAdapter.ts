@@ -1,4 +1,4 @@
 export const kidneysAdapter = {
   protocolId: "kidneys",
-  desktopStudyKeys: ["Почки"] as const,
+  legacyDesktopStudyKeys: ["Почки"] as const,
 } as const;

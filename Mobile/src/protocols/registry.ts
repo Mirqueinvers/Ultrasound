@@ -9,7 +9,6 @@ import { createEmptyOmtFemaleDraft } from "../shared/omtFemaleDraft";
 import { createEmptyOmtMaleDraft } from "../shared/omtMaleDraft";
 import { createEmptyScrotumDraft } from "../shared/scrotumDraft";
 import { createEmptyThyroidStudyDraft } from "../shared/thyroidDraft";
-import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
 import { normalizeBreastStudyDraft } from "./breast/normalize";
 import { normalizeKidneyDraft } from "./kidneys/normalize";
 import { normalizeObpDraft } from "./obp/normalize";
@@ -88,10 +87,6 @@ export const MOBILE_PROTOCOL_REGISTRY = {
 
 const MOBILE_PROTOCOL_SELECTION_LABEL_TO_ID: Record<string, MobileProtocolId> = {
   ОБП: "obp",
-  "ОБП??": "obp",
-  "ОБП (?)": "obp",
-  "ОБПОБП?? ОБПОБП": "obp",
-  "ОБПОБПОБП": "obp",
   Почки: "kidneys",
   "Органы мошонки": "scrotum",
   "ОМТ (Ж)": "omt_female",
@@ -103,10 +98,6 @@ const MOBILE_PROTOCOL_SELECTION_LABEL_TO_ID: Record<string, MobileProtocolId> = 
 
 const MOBILE_PROTOCOL_DESKTOP_STUDY_TYPE_TO_ID: Record<string, MobileProtocolId> = {
   ОБП: "obp",
-  "ОБП??": "obp",
-  "ОБП (?)": "obp",
-  "ОБПОБП?? ОБПОБП": "obp",
-  "ОБПОБПОБП": "obp",
   Почки: "kidneys",
   "Органы мошонки": "scrotum",
   "ОМТ (Ж)": "omt_female",
@@ -117,44 +108,19 @@ const MOBILE_PROTOCOL_DESKTOP_STUDY_TYPE_TO_ID: Record<string, MobileProtocolId>
   "Лимфатические узлы": "lymph_nodes",
 };
 
+// Legacy aliases are kept only for compatibility with older saved desktop/mobile data.
+const LEGACY_PROTOCOL_ALIASES: Record<string, MobileProtocolId> = {
+  "ОБП??": "obp",
+  "ОБП (?)": "obp",
+  "ОБПОБП?? ОБПОБП": "obp",
+  "ОБПОБПОБП": "obp",
+};
+
 export function getMobileProtocolById(id: MobileProtocolId) {
   return MOBILE_PROTOCOL_REGISTRY[id] ?? null;
 }
 
-export function getMobileProtocolBySelectionLabel(label: string) {
-  const id = MOBILE_PROTOCOL_SELECTION_LABEL_TO_ID[label];
-  return id ? MOBILE_PROTOCOL_REGISTRY[id] : null;
-}
-
 export function getMobileProtocolByDesktopStudyType(studyType: string) {
-  const id = MOBILE_PROTOCOL_DESKTOP_STUDY_TYPE_TO_ID[studyType];
+  const id = MOBILE_PROTOCOL_DESKTOP_STUDY_TYPE_TO_ID[studyType] ?? LEGACY_PROTOCOL_ALIASES[studyType];
   return id ? MOBILE_PROTOCOL_REGISTRY[id] : null;
-}
-
-export function buildMobileStudiesData(snapshot: {
-  studiesData: Record<string, unknown>;
-}) {
-  const result: Record<string, unknown> = {};
-
-  Object.entries(snapshot.studiesData).forEach(([studyType, value]) => {
-    const protocol = getMobileProtocolByDesktopStudyType(studyType);
-
-    if (!value || typeof value !== "object") {
-      result[studyType] = protocol ? protocol.createEmpty() : createEmptyStudyDraft();
-      return;
-    }
-
-    if (!protocol) {
-      const draft = value as Partial<StudyDraft>;
-      result[studyType] = {
-        general: draft.general ?? "",
-        sections: draft.sections ?? {},
-      };
-      return;
-    }
-
-    result[studyType] = protocol.normalize(value);
-  });
-
-  return result;
 }

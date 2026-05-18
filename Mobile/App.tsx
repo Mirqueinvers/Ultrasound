@@ -21,6 +21,7 @@ import { styles } from "./src/styles/appStyles";
 import { PROTOCOL_MANIFESTS } from "./src/shared/protocols";
 import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
+import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
 
 export default function App() {
@@ -52,7 +53,6 @@ export default function App() {
   } = useMobileConnection({
     setActiveTab,
     setSaveState,
-    setSessionId,
     wireMessageHandlerRef,
   });
 
@@ -94,6 +94,16 @@ export default function App() {
     setSessionId,
     wireMessageHandlerRef,
   });
+
+  const {
+    updateKidneyStudy,
+    updateScrotumStudy,
+    updateOmtFemaleStudy,
+    updateOmtMaleStudy,
+    updateThyroidStudy,
+    updateBreastStudy,
+    updateLymphNodesStudy,
+  } = useProtocolUpdateHandlers(updateStudyByProtocolId);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -219,13 +229,13 @@ export default function App() {
             onUpdateObpFreeFluidField={updateObpFreeFluidField}
             onUpdateObpConclusionField={updateObpConclusionField}
             onUpdateObpRecommendationsField={updateObpRecommendationsField}
-            onUpdateKidneyStudy={(value) => updateStudyByProtocolId("kidneys", value)}
-            onUpdateScrotumStudy={(value) => updateStudyByProtocolId("scrotum", value)}
-            onUpdateOmtFemaleStudy={(value) => updateStudyByProtocolId("omt_female", value)}
-            onUpdateOmtMaleStudy={(value) => updateStudyByProtocolId("omt_male", value)}
-            onUpdateThyroidStudy={(value) => updateStudyByProtocolId("thyroid", value)}
-            onUpdateBreastStudy={(value) => updateStudyByProtocolId("breast", value)}
-            onUpdateLymphNodesStudy={(value) => updateStudyByProtocolId("lymph_nodes", value)}
+            onUpdateKidneyStudy={updateKidneyStudy}
+            onUpdateScrotumStudy={updateScrotumStudy}
+            onUpdateOmtFemaleStudy={updateOmtFemaleStudy}
+            onUpdateOmtMaleStudy={updateOmtMaleStudy}
+            onUpdateThyroidStudy={updateThyroidStudy}
+            onUpdateBreastStudy={updateBreastStudy}
+            onUpdateLymphNodesStudy={updateLymphNodesStudy}
           />
         )}
         {activeTab === "summary" && (

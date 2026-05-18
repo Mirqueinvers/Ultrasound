@@ -1,4 +1,4 @@
 export const thyroidAdapter = {
   protocolId: "thyroid",
-  desktopStudyKeys: ["Щитовидная железа"] as const,
+  legacyDesktopStudyKeys: ["Щитовидная железа"] as const,
 } as const;

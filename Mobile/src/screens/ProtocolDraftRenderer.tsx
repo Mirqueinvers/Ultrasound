@@ -23,6 +23,15 @@ import { createEmptyBreastStudyDraft, type BreastStudyDraft } from "../shared/br
 import { createEmptyLymphNodesStudyDraft, type LymphNodesStudyDraft } from "../shared/lymphNodesDraft";
 import { createEmptyStudyDraft, type StudyDraft } from "../shared/syncHelpers";
 import { getDesktopStudyKey } from "../sync/adapters";
+import {
+  isObpDraft,
+  isKidneyStudyDraft,
+  isOmtFemaleDraft,
+  isOmtMaleDraft,
+  isThyroidStudyDraft,
+  isBreastStudyDraft,
+  isLymphNodesStudyDraft,
+} from "../protocols";
 import { ObpProtocolBlock } from "./obp/ObpProtocolBlock";
 import { KidneysProtocolBlock } from "./kidneys/KidneysProtocolBlock";
 import { ScrotumProtocolBlock } from "./scrotum/ScrotumProtocolBlock";
@@ -33,6 +42,36 @@ import { BreastProtocolBlock } from "./breast/BreastProtocolBlock";
 import { LymphNodesProtocolBlock } from "./lymphNodes/LymphNodesProtocolBlock";
 
 type DraftRendererStyles = any;
+
+type ProtocolRendererContext = {
+  styles: DraftRendererStyles;
+  activeObpDraft: ObpDraft;
+  activeKidneyDraft: KidneyStudyDraft;
+  activeScrotumDraft: ScrotumDraft;
+  activeOmtFemaleDraft: OmtFemaleDraft;
+  activeOmtMaleDraft: OmtMaleDraft;
+  activeThyroidDraft: ThyroidStudyDraft;
+  activeBreastDraft: BreastStudyDraft;
+  activeLymphNodesDraft: LymphNodesStudyDraft;
+  onUpdateObpLiverField: (field: keyof LiverDraft, value: string) => void;
+  onUpdateObpGallbladderField: (field: keyof GallbladderDraft, value: string) => void;
+  onUpdateObpGallbladderConcretionsList: (nextList: GallbladderConcretionDraft[]) => void;
+  onUpdateObpGallbladderPolypsList: (nextList: GallbladderPolypDraft[]) => void;
+  onAddObpGallbladderConcretion: () => void;
+  onAddObpGallbladderPolyp: () => void;
+  onUpdateObpPancreasField: (field: keyof PancreasDraft, value: string) => void;
+  onUpdateObpSpleenField: (field: keyof SpleenDraft, value: string) => void;
+  onUpdateObpFreeFluidField: (field: "freeFluid" | "freeFluidDetails", value: string) => void;
+  onUpdateObpConclusionField: (value: string) => void;
+  onUpdateObpRecommendationsField: (value: string) => void;
+  onUpdateKidneyStudy: (value: KidneyStudyDraft) => void;
+  onUpdateScrotumStudy: (value: ScrotumDraft) => void;
+  onUpdateOmtFemaleStudy: (value: OmtFemaleDraft) => void;
+  onUpdateOmtMaleStudy: (value: OmtMaleDraft) => void;
+  onUpdateThyroidStudy: (value: ThyroidStudyDraft) => void;
+  onUpdateBreastStudy: (value: BreastStudyDraft) => void;
+  onUpdateLymphNodesStudy: (value: LymphNodesStudyDraft) => void;
+};
 
 type ProtocolDraftRendererProps = {
   activeProtocolManifest: ProtocolManifest | null;
@@ -60,71 +99,86 @@ type ProtocolDraftRendererProps = {
   onUpdateLymphNodesStudy: (value: LymphNodesStudyDraft) => void;
 };
 
-function isObpDraft(value: unknown): value is ObpDraft {
-  return Boolean(value && typeof value === "object" && "liver" in value && "gallbladder" in value);
-}
-
-function isKidneyStudyDraft(value: unknown): value is KidneyStudyDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "rightKidney" in value &&
-      "leftKidney" in value &&
-      "urinaryBladder" in value,
+function renderObp({
+  styles,
+  activeObpDraft,
+  onUpdateObpLiverField,
+  onUpdateObpGallbladderField,
+  onUpdateObpGallbladderConcretionsList,
+  onUpdateObpGallbladderPolypsList,
+  onAddObpGallbladderConcretion,
+  onAddObpGallbladderPolyp,
+  onUpdateObpPancreasField,
+  onUpdateObpSpleenField,
+  onUpdateObpFreeFluidField,
+  onUpdateObpConclusionField,
+  onUpdateObpRecommendationsField,
+}: ProtocolRendererContext) {
+  return (
+    <ObpProtocolBlock
+      styles={styles}
+      obpDraft={activeObpDraft}
+      onUpdateLiverField={onUpdateObpLiverField}
+      onUpdateGallbladderField={onUpdateObpGallbladderField}
+      onUpdateGallbladderConcretionsList={onUpdateObpGallbladderConcretionsList}
+      onUpdateGallbladderPolypsList={onUpdateObpGallbladderPolypsList}
+      onAddGallbladderConcretion={onAddObpGallbladderConcretion}
+      onAddGallbladderPolyp={onAddObpGallbladderPolyp}
+      onUpdatePancreasField={onUpdateObpPancreasField}
+      onUpdateSpleenField={onUpdateObpSpleenField}
+      onUpdateFreeFluidField={onUpdateObpFreeFluidField}
+      onUpdateConclusionField={onUpdateObpConclusionField}
+      onUpdateRecommendationsField={onUpdateObpRecommendationsField}
+    />
   );
 }
 
-function isOmtFemaleDraft(value: unknown): value is OmtFemaleDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "uterus" in value &&
-      "leftOvary" in value &&
-      "rightOvary" in value &&
-      "urinaryBladder" in value,
-  );
+function renderKidneys({ styles, activeKidneyDraft, onUpdateKidneyStudy }: ProtocolRendererContext) {
+  return <KidneysProtocolBlock styles={styles} value={activeKidneyDraft} onChange={onUpdateKidneyStudy} />;
 }
 
-function isOmtMaleDraft(value: unknown): value is OmtMaleDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "prostate" in value &&
-      "urinaryBladder" in value &&
-      "conclusion" in value &&
-      "recommendations" in value,
-  );
+function renderScrotum({ styles, activeScrotumDraft, onUpdateScrotumStudy }: ProtocolRendererContext) {
+  return <ScrotumProtocolBlock styles={styles} value={activeScrotumDraft} onChange={onUpdateScrotumStudy} />;
 }
 
-function isThyroidStudyDraft(value: unknown): value is ThyroidStudyDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "thyroid" in value &&
-      "conclusion" in value &&
-      "recommendations" in value,
-  );
+function renderOmtFemale({
+  styles,
+  activeOmtFemaleDraft,
+  onUpdateOmtFemaleStudy,
+}: ProtocolRendererContext) {
+  return <OmtFemaleProtocolBlock styles={styles} value={activeOmtFemaleDraft} onChange={onUpdateOmtFemaleStudy} />;
 }
 
-function isBreastStudyDraft(value: unknown): value is BreastStudyDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "breast" in value &&
-      "conclusion" in value &&
-      "recommendations" in value,
-  );
+function renderOmtMale({ styles, activeOmtMaleDraft, onUpdateOmtMaleStudy }: ProtocolRendererContext) {
+  return <OmtMaleProtocolBlock styles={styles} value={activeOmtMaleDraft} onChange={onUpdateOmtMaleStudy} />;
 }
 
-function isLymphNodesStudyDraft(value: unknown): value is LymphNodesStudyDraft {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "lymphNodes" in value &&
-      "conclusion" in value &&
-      "recommendations" in value,
-  );
+function renderThyroid({ styles, activeThyroidDraft, onUpdateThyroidStudy }: ProtocolRendererContext) {
+  return <ThyroidProtocolBlock styles={styles} value={activeThyroidDraft} onChange={onUpdateThyroidStudy} />;
 }
+
+function renderBreast({ styles, activeBreastDraft, onUpdateBreastStudy }: ProtocolRendererContext) {
+  return <BreastProtocolBlock styles={styles} value={activeBreastDraft} onChange={onUpdateBreastStudy} />;
+}
+
+function renderLymphNodes({
+  styles,
+  activeLymphNodesDraft,
+  onUpdateLymphNodesStudy,
+}: ProtocolRendererContext) {
+  return <LymphNodesProtocolBlock styles={styles} value={activeLymphNodesDraft} onChange={onUpdateLymphNodesStudy} />;
+}
+
+const PROTOCOL_RENDERERS = {
+  obp: renderObp,
+  kidneys: renderKidneys,
+  scrotum: renderScrotum,
+  omt_female: renderOmtFemale,
+  omt_male: renderOmtMale,
+  thyroid: renderThyroid,
+  breast: renderBreast,
+  lymph_nodes: renderLymphNodes,
+} as const;
 
 export function ProtocolDraftRenderer({
   activeProtocolManifest,
@@ -230,6 +284,10 @@ export function ProtocolDraftRenderer({
     [studiesData],
   );
 
+  const protocolRenderer = activeProtocolManifest
+    ? PROTOCOL_RENDERERS[activeProtocolManifest.id as keyof typeof PROTOCOL_RENDERERS]
+    : null;
+
   if (!activeProtocolManifest) {
     return (
       <View style={styles.emptyProtocolState}>
@@ -253,36 +311,36 @@ export function ProtocolDraftRenderer({
         </StatusPill>
       </View>
 
-      {activeProtocolManifest.id === "obp" ? (
-        <ObpProtocolBlock
-          styles={styles}
-          obpDraft={activeObpDraft}
-          onUpdateLiverField={onUpdateObpLiverField}
-          onUpdateGallbladderField={onUpdateObpGallbladderField}
-          onUpdateGallbladderConcretionsList={onUpdateObpGallbladderConcretionsList}
-          onUpdateGallbladderPolypsList={onUpdateObpGallbladderPolypsList}
-          onAddGallbladderConcretion={onAddObpGallbladderConcretion}
-          onAddGallbladderPolyp={onAddObpGallbladderPolyp}
-          onUpdatePancreasField={onUpdateObpPancreasField}
-          onUpdateSpleenField={onUpdateObpSpleenField}
-          onUpdateFreeFluidField={onUpdateObpFreeFluidField}
-          onUpdateConclusionField={onUpdateObpConclusionField}
-          onUpdateRecommendationsField={onUpdateObpRecommendationsField}
-        />
-      ) : activeProtocolManifest.id === "kidneys" ? (
-        <KidneysProtocolBlock styles={styles} value={activeKidneyDraft} onChange={onUpdateKidneyStudy} />
-      ) : activeProtocolManifest.id === "scrotum" ? (
-        <ScrotumProtocolBlock styles={styles} value={activeScrotumDraft} onChange={onUpdateScrotumStudy} />
-      ) : activeProtocolManifest.id === "omt_female" ? (
-        <OmtFemaleProtocolBlock styles={styles} value={activeOmtFemaleDraft} onChange={onUpdateOmtFemaleStudy} />
-      ) : activeProtocolManifest.id === "omt_male" ? (
-        <OmtMaleProtocolBlock styles={styles} value={activeOmtMaleDraft} onChange={onUpdateOmtMaleStudy} />
-      ) : activeProtocolManifest.id === "thyroid" ? (
-        <ThyroidProtocolBlock styles={styles} value={activeThyroidDraft} onChange={onUpdateThyroidStudy} />
-      ) : activeProtocolManifest.id === "breast" ? (
-        <BreastProtocolBlock styles={styles} value={activeBreastDraft} onChange={onUpdateBreastStudy} />
-      ) : activeProtocolManifest.id === "lymph_nodes" ? (
-        <LymphNodesProtocolBlock styles={styles} value={activeLymphNodesDraft} onChange={onUpdateLymphNodesStudy} />
+      {protocolRenderer ? (
+        protocolRenderer({
+          styles,
+          activeObpDraft,
+          activeKidneyDraft,
+          activeScrotumDraft,
+          activeOmtFemaleDraft,
+          activeOmtMaleDraft,
+          activeThyroidDraft,
+          activeBreastDraft,
+          activeLymphNodesDraft,
+          onUpdateObpLiverField,
+          onUpdateObpGallbladderField,
+          onUpdateObpGallbladderConcretionsList,
+          onUpdateObpGallbladderPolypsList,
+          onAddObpGallbladderConcretion,
+          onAddObpGallbladderPolyp,
+          onUpdateObpPancreasField,
+          onUpdateObpSpleenField,
+          onUpdateObpFreeFluidField,
+          onUpdateObpConclusionField,
+          onUpdateObpRecommendationsField,
+          onUpdateKidneyStudy,
+          onUpdateScrotumStudy,
+          onUpdateOmtFemaleStudy,
+          onUpdateOmtMaleStudy,
+          onUpdateThyroidStudy,
+          onUpdateBreastStudy,
+          onUpdateLymphNodesStudy,
+        })
       ) : (
         <>
           <MobileField

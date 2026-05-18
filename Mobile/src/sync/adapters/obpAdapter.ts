@@ -1,4 +1,4 @@
 export const obpAdapter = {
   protocolId: "obp",
-  desktopStudyKeys: ["ОБП"] as const,
+  legacyDesktopStudyKeys: ["ОБП"] as const,
 } as const;
