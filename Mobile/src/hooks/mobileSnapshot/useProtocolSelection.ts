@@ -6,6 +6,7 @@ import { createEmptyStudyDataByDesktopKey, getProtocolIdFromDesktopKey } from ".
 import type { MobileStudiesDataMap } from "../../protocols/types";
 
 type SaveState = "idle" | "requested" | "saved";
+export type DraftMode = "patient" | "protocol";
 
 export function useProtocolSelection({
   snapshot,
@@ -39,6 +40,7 @@ export function useProtocolSelection({
 }) {
   const [focusedProtocolId, setFocusedProtocolIdState] = useState<ProtocolId | null>(null);
   const [activeSectionId, setActiveSectionIdState] = useState<string | null>(null);
+  const [activeDraftMode, setActiveDraftModeState] = useState<DraftMode>("patient");
 
   const selectedProtocolManifests = useMemo(() => {
     return snapshot.selection.selectedStudies
@@ -63,6 +65,7 @@ export function useProtocolSelection({
   useEffect(() => {
     if (!activeProtocolManifest) {
       setActiveSectionIdState(null);
+      setActiveDraftModeState("patient");
       return;
     }
 
@@ -74,6 +77,9 @@ export function useProtocolSelection({
     if (snapshot.selection.selectedStudies.length === 0) {
       if (focusedProtocolId !== null) {
         setFocusedProtocolIdState(null);
+      }
+      if (activeDraftMode !== "patient") {
+        setActiveDraftModeState("patient");
       }
       return;
     }
@@ -93,7 +99,7 @@ export function useProtocolSelection({
       const nextFocusedId = nextManifest?.id ?? null;
       setFocusedProtocolIdState(nextFocusedId);
     }
-  }, [focusedProtocolId, snapshot.selection.selectedStudies]);
+  }, [focusedProtocolId, snapshot.selection.selectedStudies, activeDraftMode]);
 
   const toggleProtocol = (manifest: ProtocolManifest) => {
     const label = manifest.selectionLabel;
@@ -139,6 +145,7 @@ export function useProtocolSelection({
 
     if (nextSelectedStudies.length === 0) {
       setFocusedProtocolIdState(null);
+      setActiveDraftModeState("patient");
       return;
     }
 
@@ -153,6 +160,8 @@ export function useProtocolSelection({
     setFocusedProtocolId: setFocusedProtocolIdState,
     activeSectionId,
     setActiveSectionId: setActiveSectionIdState,
+    activeDraftMode,
+    setActiveDraftMode: setActiveDraftModeState,
     selectedProtocolManifests,
     activeProtocolManifest,
     toggleProtocol,

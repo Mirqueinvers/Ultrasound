@@ -1,7 +1,6 @@
-import { Pressable, Text, View } from "react-native";
+﻿import { Pressable, Text, View } from "react-native";
 
 import { SectionPanel } from "../components/SectionPanel";
-import { StatusPill } from "../components/StatusPill";
 import type { ProtocolManifest } from "../shared/protocols";
 import type { AppStyles } from "../styles/appStyles";
 
@@ -43,18 +42,10 @@ export function LibraryScreen({
               ]}
             >
               <View style={styles.protocolCardHeader}>
-                <Text style={styles.protocolTitle}>{manifest.selectionLabel}</Text>
-                <StatusPill styles={styles} tone={selected ? "success" : "neutral"}>
-                  {manifest.sections.length} разделов
-                </StatusPill>
-              </View>
-
-              <Text style={styles.protocolDescription}>{manifest.description}</Text>
-              <View style={styles.cardFooterRow}>
-                <Text style={styles.cardFooterText}>{manifest.title}</Text>
-                <Text style={styles.cardFooterHint}>
-                  {selected ? "В черновике" : "Нажмите, чтобы добавить"}
-                </Text>
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Text style={styles.protocolTitle}>{manifest.selectionLabel}</Text>
+                  <Text style={styles.protocolDescription}>{manifest.title}</Text>
+                </View>
               </View>
             </Pressable>
           );

@@ -204,7 +204,16 @@ export function useMobileSnapshot({
     });
   };
 
-  const { focusedProtocolId, setFocusedProtocolId, activeSectionId, setActiveSectionId, activeProtocolManifest, toggleProtocol } =
+  const {
+    focusedProtocolId,
+    setFocusedProtocolId,
+    activeSectionId,
+    setActiveSectionId,
+    activeDraftMode,
+    setActiveDraftMode,
+    activeProtocolManifest,
+    toggleProtocol,
+  } =
     useProtocolSelection({
       snapshot,
       studiesData,
@@ -230,6 +239,7 @@ export function useMobileSnapshot({
     closeDraftSession();
     setActiveTab("connect");
     setSaveState("idle");
+    setActiveDraftMode("patient");
   };
 
   const {
@@ -281,6 +291,8 @@ export function useMobileSnapshot({
     setFocusedProtocolId,
     activeSectionId,
     setActiveSectionId,
+    activeDraftMode,
+    setActiveDraftMode,
     reviewIssues,
     canSaveDraft,
     studiesData,

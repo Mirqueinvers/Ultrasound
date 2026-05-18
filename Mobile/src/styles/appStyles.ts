@@ -75,13 +75,13 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   protocolNav: {
-    paddingHorizontal: 18,
-    paddingTop: 2,
-    paddingBottom: 10,
-    gap: 10,
+    paddingHorizontal: 14,
+    paddingTop: 0,
+    paddingBottom: 6,
+    gap: 6,
   },
   protocolNavGroup: {
-    gap: 8,
+    gap: 4,
   },
   protocolNavGroupTitle: {
     color: "#7dd3fc",
@@ -90,14 +90,15 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "800",
   },
-  protocolNavChipWrap: {
+  protocolNavChipRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
+    gap: 6,
+    paddingHorizontal: 2,
+    paddingVertical: 2,
   },
   protocolNavChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    paddingHorizontal: 11,
+    paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: "rgba(148, 163, 184, 0.16)",
@@ -113,16 +114,12 @@ export const styles = StyleSheet.create({
   },
   protocolNavChipText: {
     color: "#cbd5e1",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
   },
   protocolNavChipTextActive: {
     color: "#f8fafc",
     fontWeight: "800",
-  },
-  protocolNavEmptyText: {
-    color: "#94a3b8",
-    paddingHorizontal: 2,
   },
   content: {
     paddingHorizontal: 18,
@@ -310,20 +307,6 @@ export const styles = StyleSheet.create({
     color: "#cbd5e1",
     lineHeight: 20,
   },
-  cardFooterRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  cardFooterText: {
-    color: "#7dd3fc",
-    fontWeight: "700",
-    flex: 1,
-  },
-  cardFooterHint: {
-    color: "#94a3b8",
-    fontSize: 12,
-  },
   formGrid: {
     gap: 12,
   },
@@ -377,24 +360,12 @@ export const styles = StyleSheet.create({
   activeProtocolBlock: {
     gap: 12,
   },
-  activeProtocolHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    alignItems: "flex-start",
-  },
   blockLabel: {
     color: "#7dd3fc",
     textTransform: "uppercase",
     letterSpacing: 1,
     fontSize: 11,
     fontWeight: "800",
-  },
-  blockTitle: {
-    color: "#f8fafc",
-    fontSize: 18,
-    fontWeight: "800",
-    marginTop: 4,
   },
   sectionCard: {
     backgroundColor: "rgba(15, 23, 42, 0.78)",

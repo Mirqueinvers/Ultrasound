@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
@@ -37,14 +37,14 @@ function ProtocolFieldRowComponent({
 
       {showInlineOptions ? (
         <View style={rowStyles.optionWrap}>
-          {options.map((option) => {
+          {options.map((option, index) => {
             const active =
               Boolean(value) &&
               (isNormalizedMatch(option.value, value) || isNormalizedMatch(option.label, value));
 
             return (
               <Pressable
-                key={option.value}
+                key={`${option.label}-${index}`}
                 disabled={readonly || !onSelectOption}
                 onPress={() => onSelectOption?.(option.value)}
                 style={({ pressed }) => [

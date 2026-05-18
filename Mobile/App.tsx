@@ -1,5 +1,5 @@
 ﻿import { StatusBar } from "expo-status-bar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SafeAreaView, ScrollView, Text, View } from "react-native";
 
 import { type TabKey } from "./src/components/TabBar";
@@ -24,6 +24,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
   const [, setSessionId] = useState<string | null>(null);
+  const contentScrollRef = useRef<ScrollView>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
 
   const {
@@ -59,6 +60,8 @@ export default function App() {
     setFocusedProtocolId,
     activeSectionId,
     setActiveSectionId,
+    activeDraftMode,
+    setActiveDraftMode,
     reviewIssues,
     canSaveDraft,
     studiesData,
@@ -85,6 +88,10 @@ export default function App() {
 
   const protocolUpdateHandlers = useProtocolUpdateHandlers(updateStudyByProtocolId);
 
+  useEffect(() => {
+    contentScrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [activeTab, activeSectionId, activeProtocolManifest?.id, activeDraftMode]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
@@ -93,16 +100,20 @@ export default function App() {
         <View style={styles.blobB} />
       </View>
 
-      <AppHeader styles={styles} />
+      {activeTab === "connect" && (
+        <>
+          <AppHeader styles={styles} />
 
-      {(connectionState === "checking" || connectionState === "connecting") && (
-        <View style={styles.connectionNotice}>
-          <Text style={styles.connectionNoticeText}>
-            {connectionState === "checking"
-              ? "Проверка рабочего места..."
-              : "Подключение к рабочему месту..."}
-          </Text>
-        </View>
+          {(connectionState === "checking" || connectionState === "connecting") && (
+            <View style={styles.connectionNotice}>
+              <Text style={styles.connectionNoticeText}>
+                {connectionState === "checking"
+                  ? "Проверка рабочего места..."
+                  : "Подключение к рабочему месту..."}
+              </Text>
+            </View>
+          )}
+        </>
       )}
 
       <ProtocolNav
@@ -110,11 +121,14 @@ export default function App() {
         selectedStudies={snapshot.selection.selectedStudies}
         activeProtocolManifest={activeProtocolManifest}
         activeSectionId={activeSectionId}
+        activeDraftMode={activeDraftMode}
+        setActiveDraftMode={setActiveDraftMode}
         onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
         onSelectSection={setActiveSectionId}
       />
 
       <ScrollView
+        ref={contentScrollRef}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
@@ -156,9 +170,9 @@ export default function App() {
             studiesData={studiesData}
             activeProtocolManifest={activeProtocolManifest}
             activeSectionId={activeSectionId}
+            activeDraftMode={activeDraftMode}
             obpActions={obpActions}
             protocolUpdateHandlers={protocolUpdateHandlers}
-            onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
             onUpdateHeaderField={updateHeaderField}
             onUpdateGeneralNote={updateGeneralNote}
             onUpdateSectionNote={updateSectionNote}
@@ -194,3 +208,4 @@ export default function App() {
     </SafeAreaView>
   );
 }
+

@@ -90,16 +90,6 @@ export function ProtocolDraftRenderer({
 
   return (
     <View style={styles.activeProtocolBlock}>
-      <View style={styles.activeProtocolHeader}>
-        <View>
-          <Text style={styles.blockLabel}>Активный протокол</Text>
-          <Text style={styles.blockTitle}>{activeProtocolManifest.selectionLabel}</Text>
-        </View>
-        <StatusPill styles={styles} tone="accent">
-          {activeProtocolManifest.sections.length} разделов
-        </StatusPill>
-      </View>
-
       {protocolRenderer ? (
         protocolRenderer(rendererContext)
       ) : activeSection ? (

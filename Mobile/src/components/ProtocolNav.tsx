@@ -1,5 +1,5 @@
 ﻿import { memo } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { getProtocolManifestByLabel } from "../shared/protocols";
 import type { ProtocolManifest } from "../shared/protocols";
@@ -10,6 +10,8 @@ type ProtocolNavProps = {
   selectedStudies: string[];
   activeProtocolManifest: ProtocolManifest | null;
   activeSectionId: string | null;
+  activeDraftMode: "patient" | "protocol";
+  setActiveDraftMode: (mode: "patient" | "protocol") => void;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onSelectSection: (sectionId: string) => void;
 };
@@ -19,6 +21,8 @@ function ProtocolNavComponent({
   selectedStudies,
   activeProtocolManifest,
   activeSectionId,
+  activeDraftMode,
+  setActiveDraftMode,
   onSelectProtocol,
   onSelectSection,
 }: ProtocolNavProps) {
@@ -26,26 +30,45 @@ function ProtocolNavComponent({
     .map((label) => getProtocolManifestByLabel(label))
     .filter((manifest): manifest is ProtocolManifest => Boolean(manifest));
 
-  if (selectedManifests.length === 0) {
-    return (
-      <View style={styles.protocolNav}>
-        <Text style={styles.protocolNavEmptyText}>Протоколы не выбраны</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.protocolNav}>
       <View style={styles.protocolNavGroup}>
         <Text style={styles.protocolNavGroupTitle}>Протоколы</Text>
-        <View style={styles.protocolNavChipWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          alwaysBounceHorizontal={false}
+          contentContainerStyle={styles.protocolNavChipRow}
+        >
+          <Pressable
+            onPress={() => setActiveDraftMode("patient")}
+            style={({ pressed }) => [
+              styles.protocolNavChip,
+              activeDraftMode === "patient" && styles.protocolNavChipActive,
+              pressed && styles.protocolNavChipPressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.protocolNavChipText,
+                activeDraftMode === "patient" && styles.protocolNavChipTextActive,
+              ]}
+            >
+              Пациент
+            </Text>
+          </Pressable>
+
           {selectedManifests.map((manifest) => {
-            const active = activeProtocolManifest?.id === manifest.id;
+            const active = activeDraftMode === "protocol" && activeProtocolManifest?.id === manifest.id;
 
             return (
               <Pressable
                 key={manifest.id}
-                onPress={() => onSelectProtocol(manifest)}
+                onPress={() => {
+                  setActiveDraftMode("protocol");
+                  onSelectProtocol(manifest);
+                }}
                 style={({ pressed }) => [
                   styles.protocolNavChip,
                   active && styles.protocolNavChipActive,
@@ -58,13 +81,19 @@ function ProtocolNavComponent({
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
 
-      {activeProtocolManifest ? (
+      {activeDraftMode === "protocol" && activeProtocolManifest ? (
         <View style={styles.protocolNavGroup}>
           <Text style={styles.protocolNavGroupTitle}>Разделы</Text>
-          <View style={styles.protocolNavChipWrap}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            bounces={false}
+            alwaysBounceHorizontal={false}
+            contentContainerStyle={styles.protocolNavChipRow}
+          >
             {activeProtocolManifest.sections.map((section) => (
               <Pressable
                 key={section.id}
@@ -85,7 +114,7 @@ function ProtocolNavComponent({
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         </View>
       ) : null}
     </View>
