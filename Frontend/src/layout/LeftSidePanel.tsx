@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Search, X, ChevronDown, ChevronRight, FlaskConical, FileText } from "lucide-react";
 
 import { PROTOCOL_SELECTIONS } from "@/protocols";
 
@@ -57,7 +58,6 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       onToggleStudy(study);
       return;
     }
-
     onStudySelect(study);
   };
 
@@ -66,7 +66,6 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
       onDirectoryItemSelect(item);
       return;
     }
-
     handleStudyClick(item);
   };
 
@@ -78,229 +77,193 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
           selectedDirectoryItem.startsWith("Нормы ОБП:")
         );
       }
-
       return selectedDirectoryItem === study;
     }
-
     if (isMultiSelectMode) {
       return selectedStudies.includes(study);
     }
-
     return selectedStudy === study;
   };
 
   const filteredStudies = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return studiesList;
-    }
-
+    if (!searchQuery.trim()) return studiesList;
     const query = searchQuery.toLowerCase();
     return studiesList.filter((study) => study.toLowerCase().includes(query));
   }, [searchQuery]);
 
   const filteredDirectoryItems = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return directoryItems;
-    }
-
+    if (!searchQuery.trim()) return directoryItems;
     const query = searchQuery.toLowerCase();
-
     return directoryItems.filter((item) => {
-      if (item.toLowerCase().includes(query)) {
-        return true;
-      }
-
+      if (item.toLowerCase().includes(query)) return true;
       if (item === "Нормы ОБП") {
         return obpNormsSubItems.some((subItem) =>
-          obpNormsLabels[subItem].toLowerCase().includes(query),
+          obpNormsLabels[subItem].toLowerCase().includes(query)
         );
       }
-
       return false;
     });
   }, [searchQuery]);
 
   const filteredObpNormsSubItems = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return obpNormsSubItems;
-    }
-
+    if (!searchQuery.trim()) return obpNormsSubItems;
     const query = searchQuery.toLowerCase();
     return obpNormsSubItems.filter((subItem) =>
-      obpNormsLabels[subItem].toLowerCase().includes(query),
+      obpNormsLabels[subItem].toLowerCase().includes(query)
     );
   }, [searchQuery]);
 
-  const clearSearch = () => {
-    setSearchQuery("");
-  };
+  const clearSearch = () => setSearchQuery("");
+
+  const isUziSection = activeSection === "uzi-protocols";
+  const isDirectorySection = activeSection === "directory";
+  const showSearch = isUziSection || isDirectorySection;
 
   return (
-    <aside className="w-[15%] min-h-[calc(100vh-4rem)] bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden">
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
-        {activeSection === "uzi-protocols" ? (
-          <div>
-            <h3 className="text-lg font-bold text-slate-800 m-0">УЗИ исследования</h3>
-            <p className="text-xs text-slate-500 m-0 mt-1">Выберите тип протокола</p>
-          </div>
-        ) : activeSection === "directory" ? (
-          <div>
-            <h3 className="text-lg font-bold text-slate-800 m-0">Справочник</h3>
-            <p className="text-xs text-slate-500 m-0 mt-1">Выберите раздел</p>
-          </div>
-        ) : (
-          <h3 className="text-lg font-bold text-slate-800 m-0">Левая панель</h3>
-        )}
-
-        {(activeSection === "uzi-protocols" || activeSection === "directory") && (
-          <div className="mt-3 relative">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder={
-                  activeSection === "uzi-protocols"
-                    ? "Поиск исследований..."
-                    : "Поиск в справочнике..."
-                }
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                className="w-full px-3 py-2 pl-9 pr-8 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-white/80 backdrop-blur-sm"
-              />
-              <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
-                <svg
-                  className="w-4 h-4 text-slate-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-
-            {searchQuery && (
-              <div className="mt-1 text-xs text-slate-500">
-                {activeSection === "uzi-protocols"
-                  ? `Найдено: ${filteredStudies.length} из ${studiesList.length}`
-                  : `Найдено: ${filteredDirectoryItems.length} из ${directoryItems.length}`}
-              </div>
-            )}
-          </div>
-        )}
+    <aside className="w-[15%] min-h-[calc(100vh-7rem)] rounded-xl overflow-hidden flex flex-col">
+      {/* Header секции */}
+      <div className="px-4 py-3.5 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          {isUziSection && <FlaskConical size={16} className="text-medical-500" />}
+          <h3 className="text-sm font-semibold text-slate-800 m-0">
+            {isUziSection && "Исследования"}
+            {isDirectorySection && "Справочник"}
+            {!isUziSection && !isDirectorySection && "Панель"}
+          </h3>
+        </div>
       </div>
 
-      {activeSection === "uzi-protocols" && (
-        <nav className="p-3">
-          <div className="flex flex-col gap-1.5">
+      {/* Поиск */}
+      {showSearch && (
+        <div className="px-4 pt-3 pb-2">
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+            <input
+              type="text"
+              placeholder={
+                isUziSection ? "Поиск исследований..." : "Поиск в справочнике..."
+              }
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-8 py-2 text-xs border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400
+                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
+                transition-all duration-200"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <div className="mt-1 text-[11px] text-slate-400">
+              {isUziSection
+                ? `Найдено: ${filteredStudies.length} из ${studiesList.length}`
+                : `Найдено: ${filteredDirectoryItems.length} из ${directoryItems.length}`}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Список исследований */}
+      <nav className="flex-1 overflow-y-auto px-3 py-2">
+        {isUziSection && (
+          <div className="flex flex-col gap-0.5">
             {filteredStudies.length > 0 ? (
-              filteredStudies.map((study, index) => {
+              filteredStudies.map((study) => {
                 const selected = isStudySelected(study);
 
                 return (
                   <button
-                    key={index}
+                    key={study}
                     type="button"
                     onClick={() => handleStudyClick(study)}
                     className={`
-                      group relative flex items-center justify-between px-3.5 py-3 rounded-xl
-                      text-left transition-all duration-200 text-sm font-medium
-                      ${selected
-                        ? "bg-sky-50 text-sky-700 shadow-md shadow-sky-100/50 scale-[1.02]"
-                        : "text-slate-700 hover:bg-slate-50 hover:scale-[1.01]"}
+                      group relative flex items-center gap-2.5 px-3 py-2.5 rounded-[8px]
+                      text-left transition-all duration-200 text-sm font-sans w-full
+                      ${
+                        selected
+                          ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }
                     `}
                   >
-                    {selected && (
-                      <div
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[95%] rounded-l-full"
-                        style={{
-                          background:
-                            "linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))",
-                        }}
-                      />
-                    )}
+                    <FileText
+                      size={15}
+                      className={`shrink-0 transition-colors duration-200 ${
+                        selected
+                          ? "text-[#0e7490]"
+                          : "text-slate-400 group-hover:text-slate-500"
+                      }`}
+                    />
 
-                    <span className="flex-1 leading-tight">{study}</span>
+                    <span className="flex-1 leading-tight text-left">{study}</span>
 
-                    {isMultiSelectMode && selectedStudies.includes(study) && (
+                    {/* Чекбокс для мультивыбора */}
+                    {isMultiSelectMode && (
                       <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
-                        style={{ backgroundColor: "rgb(14 165 233)" }}
+                        className={`
+                          w-4 h-4 rounded border-2 flex items-center justify-center transition-all shrink-0
+                          ${
+                            selectedStudies.includes(study)
+                              ? "bg-medical-500 border-medical-500"
+                              : "border-slate-300"
+                          }
+                        `}
                       >
-                        ✓
+                        {selectedStudies.includes(study) && (
+                          <svg
+                            className="w-2.5 h-2.5 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
                       </div>
-                    )}
-
-                    {!selected && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-slate-100/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     )}
                   </button>
                 );
               })
             ) : (
-              <div className="text-center py-8">
-                <div className="text-slate-400 mb-2">
-                  <svg
-                    className="w-12 h-12 mx-auto"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm text-slate-500">Ничего не найдено</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <Search size={32} className="text-slate-300 mb-2" />
+                <p className="text-sm text-slate-400 font-medium">
+                  Ничего не найдено
+                </p>
+                <p className="text-xs text-slate-300 mt-1">
                   Попробуйте изменить запрос
                 </p>
               </div>
             )}
           </div>
-        </nav>
-      )}
+        )}
 
-      {activeSection === "directory" && (
-        <nav className="p-3">
-          <div className="flex flex-col gap-1.5">
+        {/* Справочник */}
+        {isDirectorySection && (
+          <div className="flex flex-col gap-0.5">
             {filteredDirectoryItems.length > 0 ? (
-              filteredDirectoryItems.map((item, index) => {
+              filteredDirectoryItems.map((item) => {
                 const selected = isStudySelected(item);
                 const isObpNormsItem = item === "Нормы ОБП";
                 const showObpSubItems =
                   isObpNormsItem && (isObpNormsExpanded || !!searchQuery.trim());
 
                 return (
-                  <div key={index}>
+                  <div key={item}>
                     <button
                       type="button"
                       onClick={() => {
@@ -310,38 +273,39 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                         handleItemClick(item);
                       }}
                       className={`
-                        group relative flex items-center justify-between px-3.5 py-3 rounded-xl
-                        text-left transition-all duration-200 text-sm font-medium w-full
-                        ${selected
-                          ? "bg-sky-50 text-sky-700 shadow-md shadow-sky-100/50 scale-[1.02]"
-                          : "text-slate-700 hover:bg-slate-50 hover:scale-[1.01]"}
+                        group relative flex items-center gap-2.5 px-3 py-2.5 rounded-[8px]
+                        text-left transition-all duration-200 text-sm font-sans w-full
+                        ${
+                          selected
+                            ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
+                            : "text-slate-600 hover:bg-slate-50"
+                        }
                       `}
                     >
-                      {selected && (
-                        <div
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[95%] rounded-l-full"
-                          style={{
-                            background:
-                              "linear-gradient(to bottom, rgb(56 189 248), rgb(2 132 199))",
-                          }}
-                        />
-                      )}
+                      <FileText
+                        size={15}
+                        className={`shrink-0 transition-colors duration-200 ${
+                          selected
+                            ? "text-[#0e7490]"
+                            : "text-slate-400 group-hover:text-slate-500"
+                        }`}
+                      />
 
-                      <span className="flex-1 leading-tight">{item}</span>
+                      <span className="flex-1 leading-tight text-left">{item}</span>
 
                       {isObpNormsItem && (
-                        <span className="text-slate-500 ml-2">
-                          {showObpSubItems ? "v" : ">"}
+                        <span className="text-slate-400 shrink-0">
+                          {showObpSubItems ? (
+                            <ChevronDown size={14} />
+                          ) : (
+                            <ChevronRight size={14} />
+                          )}
                         </span>
-                      )}
-
-                      {!selected && (
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-slate-100/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       )}
                     </button>
 
                     {showObpSubItems && filteredObpNormsSubItems.length > 0 && (
-                      <div className="mt-1 ml-3 space-y-1">
+                      <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-medical-100 pl-2">
                         {filteredObpNormsSubItems.map((subItem) => {
                           const subItemSelected = selectedDirectoryItem === subItem;
 
@@ -351,13 +315,23 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                               type="button"
                               onClick={() => handleItemClick(subItem)}
                               className={`
-                                group relative w-full flex items-center px-3 py-2 rounded-lg
-                                text-left text-sm transition-all duration-200
-                                ${subItemSelected
-                                  ? "bg-sky-50 text-sky-700 shadow-sm"
-                                  : "text-slate-600 hover:bg-slate-50"}
+                                group relative w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px]
+                                text-left text-sm font-sans transition-all duration-200
+                                ${
+                                  subItemSelected
+                                    ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
+                                    : "text-slate-600 hover:bg-slate-50"
+                                }
                               `}
                             >
+                              <FileText
+                                size={14}
+                                className={`shrink-0 transition-colors duration-200 ${
+                                  subItemSelected
+                                    ? "text-[#0e7490]"
+                                    : "text-slate-400 group-hover:text-slate-500"
+                                }`}
+                              />
                               <span className="leading-tight">
                                 {obpNormsLabels[subItem]}
                               </span>
@@ -370,34 +344,21 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                 );
               })
             ) : (
-              <div className="text-center py-8">
-                <div className="text-slate-400 mb-2">
-                  <svg
-                    className="w-12 h-12 mx-auto"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm text-slate-500">Ничего не найдено</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <Search size={32} className="text-slate-300 mb-2" />
+                <p className="text-sm text-slate-400 font-medium">
+                  Ничего не найдено
+                </p>
+                <p className="text-xs text-slate-300 mt-1">
                   Попробуйте изменить запрос
                 </p>
               </div>
             )}
           </div>
-        </nav>
-      )}
+        )}
+      </nav>
     </aside>
   );
 };
 
 export default LeftSidePanel;
-

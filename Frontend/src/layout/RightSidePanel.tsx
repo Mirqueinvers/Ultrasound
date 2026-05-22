@@ -16,7 +16,7 @@ const RightSidePanel: React.FC = () => {
   const { panelData, addText } = useRightPanel();
 
   return (
-    <aside className="w-[15%] bg-white border border-slate-300 px-4 py-4 shadow-lg rounded-lg sticky top-[56px] z-10 max-h-[calc(100vh-56px)] overflow-y-auto">
+    <aside className="w-[15%] px-4 py-4 rounded-lg sticky top-[56px] z-10 max-h-[calc(100vh-56px)] overflow-y-auto">
       <div className="content">
         {panelData.mode === "none" ? (
           <>

@@ -51,7 +51,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             onDirectoryItemSelect={onDirectoryItemSelect}
           />
 
-          <div className="w-[70%] bg-white border border-slate-300 px-6 py-6 shadow-lg rounded-lg">
+          <div className="w-[70%] px-6 py-6 rounded-lg">
             {children}
           </div>
 

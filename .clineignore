@@ -1,0 +1,45 @@
+# Зависимости
+node_modules/
+jspm_packages/
+web_modules/
+
+# Папки сборки и компиляции
+dist/
+build/
+out/
+.next/
+.nuxt/
+target/
+bin/
+obj/
+
+# Логи и временные файлы
+*.log
+logs/
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Окружение и секреты (чтобы ИИ случайно не прочитал ваши пароли)
+.env
+.env.*
+!.env.example
+secrets.*
+*.pem
+*.key
+
+# Папки IDE и метаданные (кроме настроек самого расширения)
+.git/
+.svn/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Кэш инструментов тестирования и линтеров
+.eslintcache
+.stylelintcache
+.turbo/
+.cache/
+coverage/
+htmlcov/

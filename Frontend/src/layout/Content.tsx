@@ -199,7 +199,7 @@ const Content: React.FC<ContentProps> = ({
           {selectedStudies.map((study, index) => (
             <div
               key={index}
-              className="rounded-lg p-4 bg-white shadow-sm"
+              className="rounded-lg p-4"
             >
               {renderDesktopResearch({
                 study,

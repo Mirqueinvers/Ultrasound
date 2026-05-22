@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import './UserMenu.css';
+import { User, LogOut, ChevronDown } from 'lucide-react';
 
 interface UserMenuProps {
   onNavigateToProfile: () => void;
@@ -18,18 +18,18 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, title, message, onC
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 animate-fade-in">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl animate-slide-up">
         <h3 className="mb-2 text-base font-semibold text-slate-900">
           {title}
         </h3>
-        <p className="mb-4 text-sm text-slate-700">{message}</p>
+        <p className="mb-4 text-sm text-slate-600">{message}</p>
 
         <div className="mt-2 flex justify-end gap-2">
           <button 
             type="button"
             onClick={onClose}
-            className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-all"
           >
             Отмена
           </button>
@@ -39,9 +39,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, title, message, onC
               onConfirm();
               onClose();
             }}
-            className="rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition-all"
           >
-            Да
+            Да, выйти
           </button>
         </div>
       </div>
@@ -72,6 +72,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile }) => {
   }, [isOpen]);
 
   const handleLogout = () => {
+    setIsOpen(false);
     setShowLogoutConfirm(true);
   };
 
@@ -102,92 +103,80 @@ const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile }) => {
 
   return (
     <>
-      <div className="user-menu" ref={menuRef}>
+      <div className="relative" ref={menuRef}>
         <button
-          className="user-menu__trigger"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all duration-200 group"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="User menu"
         >
-          <div className="user-menu__avatar">
+          <div className="w-7 h-7 rounded-full bg-medical-600 flex items-center justify-center text-xs font-semibold text-white shadow-sm">
             {getInitials(user.name)}
           </div>
-          <span className="user-menu__name">{user.name}</span>
-          <svg 
-            className={`user-menu__icon ${isOpen ? 'user-menu__icon--open' : ''}`}
-            width="16" 
-            height="16" 
-            viewBox="0 0 16 16" 
-            fill="none"
-          >
-            <path 
-              d="M4 6L8 10L12 6" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
+          <span className="text-sm font-medium text-slate-700 max-w-[120px] truncate">
+            {user.name}
+          </span>
+          <ChevronDown
+            size={14}
+            className={`text-slate-400 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {isOpen && (
-          <div className="user-menu__dropdown">
-            <div className="user-menu__header">
-              <div className="user-menu__avatar user-menu__avatar--large">
-                {getInitials(user.name)}
-              </div>
-              <div className="user-menu__info">
-                <div className="user-menu__info-name">{user.name}</div>
-                <div className="user-menu__info-email">{user.email}</div>
-                {user.role && (
-                  <div className="user-menu__info-role">
-                    {user.role === 'admin' && '👑 Администратор'}
-                    {user.role === 'doctor' && '👨‍⚕️ Врач'}
-                    {user.role === 'user' && '👤 Пользователь'}
+          <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-slide-down z-50">
+            {/* Header */}
+            <div className="p-4 bg-gradient-to-br from-medical-50 to-slate-50 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-medical-600 flex items-center justify-center text-lg font-bold text-white shadow-sm shrink-0">
+                  {getInitials(user.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-slate-900 truncate">
+                    {user.name}
                   </div>
-                )}
+                  <div className="text-xs text-slate-500 truncate mt-0.5">
+                    {user.email}
+                  </div>
+                  {user.role && (
+                    <div className="text-[11px] font-medium text-medical-600 mt-1">
+                      {user.role === 'admin' && 'Администратор'}
+                      {user.role === 'doctor' && 'Врач УЗИ'}
+                      {user.role === 'user' && 'Пользователь'}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="user-menu__divider" />
+            {/* Menu items */}
+            <div className="p-1.5">
+              <button 
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-all"
+                onClick={handleProfileClick}
+              >
+                <User size={16} className="text-slate-400" />
+                <span>Профиль</span>
+              </button>
 
-            <button 
-              className="user-menu__item"
-              onClick={handleProfileClick}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path 
-                  d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" 
-                  fill="currentColor"
-                />
-              </svg>
-              Профиль
-            </button>
+              <div className="h-px bg-slate-100 my-1" />
 
-            <div className="user-menu__divider" />
-
-            <button 
-              className="user-menu__item user-menu__item--logout"
-              onClick={handleLogout}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path 
-                  d="M6 14H3C2.73478 14 2.48043 13.8946 2.29289 13.7071C2.10536 13.5196 2 13.2652 2 13V3C2 2.73478 2.10536 2.48043 2.29289 2.29289C2.48043 2.10536 2.73478 2 3 2H6M11 11L14 8L11 5M14 8H6" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Выйти
-            </button>
+              <button 
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-all"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                <span>Выйти</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
 
       <ConfirmDialog
         open={showLogoutConfirm}
-        title="Вы уверены, что хотите выйти?"
-        message="Вы будете перенаправлены на страницу входа."
+        title="Выход из системы"
+        message="Вы уверены, что хотите выйти? Все несохранённые данные будут потеряны."
         onConfirm={handleConfirmLogout}
         onClose={handleCloseDialog}
       />

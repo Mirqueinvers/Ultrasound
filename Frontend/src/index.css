@@ -2,11 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* С„РѕРЅ СЃС‚СЂР°РЅРёС†С‹ + РѕС‚СЃС‚СѓРї РїРѕРґ С€Р°РїРєСѓ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 body {
   margin: 0;
-  padding-top: 80px; /* РІС‹СЃРѕС‚Р° С€Р°РїРєРё */
-  background-color: #f9fafb; /* tailwind gray-50 */
+  padding-top: 80px;
+  background-color: #f4f7fa;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 /* СЃРІРѕСЏ С€Р°РїРєР° РѕРєРЅР° */
 .app-titlebar {

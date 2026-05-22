@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, BookOpen, Search, BarChart3 } from "lucide-react";
+import { FileText, BookOpen, Search, BarChart3, BookMarked } from "lucide-react";
 import UserMenu from "@/components/common/UserMenu";
 
 interface HeaderProps {
@@ -37,28 +37,15 @@ const Header: React.FC<HeaderProps> = ({
     {
       id: "directory",
       label: "Справочник",
-      icon: BookOpen,
+      icon: BookMarked,
     },
   ];
 
   return (
-    <header className="relative z-50 bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-white shadow-xl border-b border-slate-700/50 rounded-2xl backdrop-blur-sm">
-      <div className="px-8 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3 mr-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/30">
-            <span className="text-white font-bold text-xl">U</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold tracking-tight">
-              Ultrasound
-            </span>
-            <span className="text-xs text-slate-400">
-              Протоколирование УЗИ
-            </span>
-          </div>
-        </div>
-
-        <nav className="flex gap-2 flex-1">
+    <header className="fixed top-10 left-0 right-0 z-50 bg-white shadow-sm border-b border-slate-200">
+      <div className="px-6 py-3 flex items-center max-w-[1920px] mx-auto">
+        {/* Навигация по центру */}
+        <nav className="flex gap-1 flex-1 justify-center">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -68,32 +55,34 @@ const Header: React.FC<HeaderProps> = ({
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
                 className={`
-                  relative group flex items-center gap-2 px-4 py-2.5 rounded-lg 
-                  font-medium text-sm transition-all duration-200 
+                  relative group flex items-center gap-2 px-4 py-2 rounded-lg 
+                  font-medium text-sm transition-all duration-200
                   ${
                     isActive
-                      ? "bg-sky-500/20 text-sky-300 shadow-lg shadow-sky-500/20"
-                      : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+                      ? "bg-medical-50 text-medical-700"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                   }
                 `}
               >
                 <Icon
                   size={18}
-                  className={`transition-transform duration-200 ${
-                    isActive ? "scale-110" : "group-hover:scale-110"
+                  className={`transition-all duration-200 ${
+                    isActive ? "text-medical-500" : "text-slate-400 group-hover:text-slate-500"
                   }`}
                 />
                 <span>{item.label}</span>
 
+                {/* Активный индикатор */}
                 {isActive && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent rounded-full animate-pulse" />
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-medical-500 rounded-full" />
                 )}
               </button>
             );
           })}
         </nav>
 
-        <div className="relative z-[100]">
+        {/* User Menu */}
+        <div className="relative z-[100] ml-4">
           <UserMenu onNavigateToProfile={onNavigateToProfile} />
         </div>
       </div>
