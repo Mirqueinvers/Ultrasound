@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 import PrintableProtocol, { type PrintableProtocolHandle } from "@/components/print/PrintableProtocol";
 
 interface PrintModalProps {
@@ -6,6 +6,7 @@ interface PrintModalProps {
   onClose: () => void;
   autoPrintToken?: string | null;
   initialEditMode?: boolean;
+  researchId?: number | null;
 }
 
 const buildPrintableHtml = (root: HTMLElement, title: string) => {
@@ -58,6 +59,7 @@ const PrintModal: React.FC<PrintModalProps> = ({
   onClose,
   autoPrintToken,
   initialEditMode,
+  researchId,
 }) => {
   const protocolRef = React.useRef<PrintableProtocolHandle | null>(null);
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
@@ -280,7 +282,7 @@ const PrintModal: React.FC<PrintModalProps> = ({
         </div>
 
         <div className="overflow-auto bg-slate-100 p-4">
-          <PrintableProtocol ref={protocolRef} editMode={isEditing} onSave={() => setIsEditing(false)} onReady={() => setIsPrintableReady(true)} />
+          <PrintableProtocol ref={protocolRef} editMode={isEditing} onSave={() => setIsEditing(false)} onReady={() => setIsPrintableReady(true)} researchId={researchId} />
         </div>
       </div>
     </div>

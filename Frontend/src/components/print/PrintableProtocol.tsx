@@ -123,6 +123,7 @@ interface PrintableProtocolProps {
   editMode?: boolean;
   onSave?: () => void;
   onReady?: () => void;
+  researchId?: number | null;
 }
 
 const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintableProtocolProps>((props, ref) => {
@@ -526,7 +527,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     setIsEditMode(false);
   }, [appliedOverrides, buildDraftOverrides]);
 
-  const handleSaveOverrides = React.useCallback(() => {
+  const handleSaveOverrides = React.useCallback(async () => {
     // Сначала читаем актуальный HTML из contentEditable блока
     const editRoot = editContentRef.current;
     const editHtml = editRoot?.innerHTML ?? "";
@@ -568,10 +569,22 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       }
     });
 
+    // Если есть researchId, сохраняем в БД
+    if (props.researchId) {
+      try {
+        await window.protocolAPI.savePrintOverrides({
+          researchId: props.researchId,
+          overrides: nextOverrides,
+        });
+      } catch {
+        // Если не удалось сохранить в БД, продолжаем с локальным сохранением
+      }
+    }
+
     setAppliedOverrides(nextOverrides);
     setIsEditMode(false);
     props.onSave?.();
-  }, [draftOverrides, studyDefinitions, props.onSave]);
+  }, [draftOverrides, studyDefinitions, props.onSave, props.researchId]);
 
   const handleResetOverrides = React.useCallback(() => {
     setAppliedOverrides({});

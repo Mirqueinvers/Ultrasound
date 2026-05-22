@@ -62,6 +62,7 @@ const Content: React.FC<ContentProps> = ({
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
   const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
+  const [currentResearchId, setCurrentResearchId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     const selectedStudyKeys = new Set(selectedStudies);
@@ -98,7 +99,8 @@ const Content: React.FC<ContentProps> = ({
     researchDate,
     selectedStudies,
     studiesData,
-    onSaved: () => {
+    onSaved: (researchId: number) => {
+      setCurrentResearchId(researchId);
       if (mobileSaveRequestAt) {
         void window.mobileHostAPI?.publishSync({
           type: "sync:command",
@@ -207,6 +209,7 @@ const Content: React.FC<ContentProps> = ({
           setPrintAutoToken(null);
         }}
         autoPrintToken={printAutoToken}
+        researchId={currentResearchId}
       />
     </div>
   );
