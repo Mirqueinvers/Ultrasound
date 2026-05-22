@@ -478,7 +478,7 @@ const PrintableSavedProtocol = React.forwardRef<
 
       acc.push({
         id: definition.id,
-        element: <EditablePrintHtmlBlock value={editedValue} />,
+        element: <div dangerouslySetInnerHTML={{ __html: editedValue }} />,
       });
       return acc;
     }, []);
@@ -578,18 +578,13 @@ const PrintableSavedProtocol = React.forwardRef<
 
     const editRoot = editContentRef.current;
     if (editRoot) {
-      const editHtml = editRoot.innerHTML;
-      if (editHtml) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(editHtml, "text/html");
-        const pageBlocks = doc.querySelectorAll("[data-block-id]");
-        pageBlocks.forEach((el) => {
-          const blockId = el.getAttribute("data-block-id");
-          if (blockId) {
-            nextOverrides[blockId] = normalizeEditableHtml(el.innerHTML);
-          }
-        });
-      }
+      const blockElements = editRoot.querySelectorAll<HTMLElement>("[data-block-id]");
+      blockElements.forEach((el) => {
+        const blockId = el.getAttribute("data-block-id");
+        if (blockId) {
+          nextOverrides[blockId] = normalizeEditableHtml(el.innerHTML);
+        }
+      });
     }
 
     setIsSavingOverrides(true);
