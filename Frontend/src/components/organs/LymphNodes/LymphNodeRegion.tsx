@@ -61,7 +61,7 @@ export const LymphNodeRegion: React.FC<LymphNodeRegionProps> = ({
   };
 
   return (
-    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+    <ResearchSectionCard title={title} >
       <Fieldset title="">
         <ButtonSelect
           label="Определение"

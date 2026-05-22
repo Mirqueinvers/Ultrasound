@@ -1,4 +1,4 @@
-ï»¿// src/components/organs/Pleural/PleuralCommon.tsx
+// src/components/organs/Pleural/PleuralCommon.tsx
 import React from "react";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState } from "@hooks";
@@ -31,11 +31,10 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div ref={sectionRefs?.["ÐŸÐ»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ:Ð¿Ñ€Ð°Ð²Ð°Ñ"]}>
+      <div ref={sectionRefs?.["Ïëåâðàëüíàÿ ïîëîñòü:ïðàâàÿ"]}>
         <ResearchSectionCard
-          title="ÐŸÑ€Ð°Ð²Ð°Ñ Ð¿Ð»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ"
-          headerClassName="bg-emerald-500"
-        >
+          title="Ïðàâàÿ ïëåâðàëüíàÿ ïîëîñòü"
+          >
           <PleuralSide
             side="right"
             value={form.rightSide}
@@ -44,11 +43,10 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["ÐŸÐ»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ:Ð»ÐµÐ²Ð°Ñ"]}>
+      <div ref={sectionRefs?.["Ïëåâðàëüíàÿ ïîëîñòü:ëåâàÿ"]}>
         <ResearchSectionCard
-          title="Ð›ÐµÐ²Ð°Ñ Ð¿Ð»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ"
-          headerClassName="bg-emerald-500"
-        >
+          title="Ëåâàÿ ïëåâðàëüíàÿ ïîëîñòü"
+          >
           <PleuralSide
             side="left"
             value={form.leftSide}

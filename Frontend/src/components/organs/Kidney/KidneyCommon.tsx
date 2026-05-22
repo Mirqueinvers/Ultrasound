@@ -144,7 +144,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   const isNephrectomy = form.position === "нефрэктомия";
 
   return (
-    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+    <ResearchSectionCard title={title} >
       <div className="flex flex-col gap-6">
 <Fieldset title="Положение">
   <div className="flex flex-col gap-3">

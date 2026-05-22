@@ -63,7 +63,7 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
   }, [form.length, form.width, form.apDimension, isPresent]);
 
   return (
-    <ResearchSectionCard title="Простата" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Простата" >
       <div className="flex flex-col gap-6">
         {/* Информация об исследовании — всегда */}
         <Fieldset title="Информация об исследовании">

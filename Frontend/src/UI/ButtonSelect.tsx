@@ -52,12 +52,12 @@ export const ButtonSelect: React.FC<ButtonSelectProps> = ({
               disabled={disabled}
               className={[
                 "inline-flex items-center justify-center px-3.5 py-1.5 text-sm font-medium",
-                "rounded-full border transition-all duration-200",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-1",
+                "rounded-md border transition-all duration-200",
+                "outline-none focus:outline-none focus-visible:outline-none",
                 disabled && "opacity-50 cursor-not-allowed",
                 isActive
-                  ? "bg-sky-500 text-white border-sky-500 shadow-sm shadow-sky-300"
-                  : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:border-slate-300",
+                  ? "bg-[#e0f2f7] text-[#0e7490]"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200",
               ].filter(Boolean).join(" ")}
             >
               {option.label}

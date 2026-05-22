@@ -129,7 +129,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   };
 
   return (
-    <ResearchSectionCard title="Матка" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Матка" >
       <div className="flex flex-col gap-6">
         <Fieldset title="Положение">
           <ButtonSelect

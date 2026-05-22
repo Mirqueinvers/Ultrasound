@@ -55,8 +55,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:бедренная правая"]}>
         <ResearchSectionCard
           title="Глубокие вены правой нижней конечности"
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="femoral"
@@ -71,8 +70,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:подколенная правая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="popliteal"
@@ -87,8 +85,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:большеберцовая правая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="posteriorTibial"
@@ -104,8 +101,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:бедренная левая"]}>
         <ResearchSectionCard
           title="Глубокие вены левой нижней конечности"
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="femoral"
@@ -120,8 +116,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:подколенная левая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="popliteal"
@@ -136,8 +131,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:большеберцовая левая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-blue-500"
-        >
+          >
           <div className="space-y-6">
             <DeepVein
               vein="posteriorTibial"
@@ -153,8 +147,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:БПВ правая"]}>
         <ResearchSectionCard
           title="Поверхностные вены правой нижней конечности"
-          headerClassName="bg-green-500"
-        >
+          >
           <div className="space-y-6">
             <SuperficialVein
               vein="greatSaphenous"
@@ -169,8 +162,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:МПВ правая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-green-500"
-        >
+          >
           <div className="space-y-6">
             <SuperficialVein
               vein="smallSaphenous"
@@ -186,8 +178,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:БПВ левая"]}>
         <ResearchSectionCard
           title="Поверхностные вены левой нижней конечности"
-          headerClassName="bg-green-500"
-        >
+          >
           <div className="space-y-6">
             <SuperficialVein
               vein="greatSaphenous"
@@ -202,8 +193,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       <div ref={sectionRefs?.["Вены НК:МПВ левая"]}>
         <ResearchSectionCard
           title=""
-          headerClassName="bg-green-500"
-        >
+          >
           <div className="space-y-6">
             <SuperficialVein
               vein="smallSaphenous"
@@ -218,8 +208,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       {/* Общие находки */}
       <ResearchSectionCard
         title="Общие находки по исследованию вен нижних конечностей"
-        headerClassName="bg-purple-500"
-      >
+        >
         <Fieldset title="">
           <div className="space-y-4">
             <div className="mt-6">

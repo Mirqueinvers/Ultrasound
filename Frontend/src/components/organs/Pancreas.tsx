@@ -35,7 +35,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   const wirsungDuctFocus = useFieldFocus("pancreas", "wirsungDuct");
 
   return (
-    <ResearchSectionCard title="Поджелудочная железа" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Поджелудочная железа" >
       <div className="flex flex-col gap-6">
         {/* Размеры */}
         <Fieldset title="Размеры">

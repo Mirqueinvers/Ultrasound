@@ -84,7 +84,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   };
 
   return (
-    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+    <ResearchSectionCard title={title} >
       <div className="flex flex-col gap-6">
         {/* Положение (визуализация) */}
         <Fieldset title="Положение">

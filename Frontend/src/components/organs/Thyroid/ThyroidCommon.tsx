@@ -112,8 +112,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
       <div ref={sectionRefs?.["Щитовидная железа:правая доля"]}>
         <ResearchSectionCard
           title={RIGHT_LOBE_TITLE}
-          headerClassName="bg-sky-500"
-        >
+          >
           <ThyroidLobe
             side="right"
             value={form.rightLobe}
@@ -125,8 +124,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
       <div ref={sectionRefs?.["Щитовидная железа:левая доля"]}>
         <ResearchSectionCard
           title={LEFT_LOBE_TITLE}
-          headerClassName="bg-sky-500"
-        >
+          >
           <ThyroidLobe
             side="left"
             value={form.leftLobe}
@@ -135,7 +133,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <ResearchSectionCard title={ISTHMUS_TITLE} headerClassName="bg-sky-500">
+      <ResearchSectionCard title={ISTHMUS_TITLE} >
         <Fieldset title="">
           <div className="max-w-[400px]">
             <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -154,8 +152,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
 
       <ResearchSectionCard
         title={COMMON_TITLE}
-        headerClassName="bg-sky-500"
-      >
+        >
         <Fieldset title="">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">

@@ -107,8 +107,7 @@ const TestisSide: React.FC<{
     <div ref={sectionRefs?.[sectionKey]}>
       <ResearchSectionCard
         title={title}
-        headerClassName="bg-sky-500"
-      >
+        >
         <div className="flex flex-col gap-6">
           {/* Размеры */}
           <Fieldset title="Размеры">

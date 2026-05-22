@@ -1,7 +1,7 @@
 // Frontend/src/components/common/formClasses.ts
 
 export const inputClasses =
-  "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+  "mt-1 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-[#e0f2f7] focus:outline-none focus:ring-1 focus:ring-[#e0f2f7]";
 
 export const labelClasses =
   "block text-xs font-medium text-gray-700 w-1/3";

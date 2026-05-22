@@ -1,5 +1,6 @@
 // src/components/common/Conclusion.tsx
 import React, { useState, useEffect } from "react";
+import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 
 export interface ConclusionData {
   conclusion: string;
@@ -54,14 +55,8 @@ export const Conclusion: React.FC<ConclusionProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
-      <div className="bg-sky-700 px-6 py-3">
-        <h3 className="m-0 text-white text-lg font-semibold">
-          Заключение и рекомендации
-        </h3>
-      </div>
-
-      <div className="px-6 py-5 space-y-5">
+    <ResearchSectionCard title="Заключение и рекомендации">
+      <div className="space-y-5">
         <div>
           <label className="block text-xxs font-semibold text-slate-600 mb-2">
             Заключение
@@ -88,7 +83,7 @@ export const Conclusion: React.FC<ConclusionProps> = ({
           />
         </div>
       </div>
-    </div>
+    </ResearchSectionCard>
   );
 };
 

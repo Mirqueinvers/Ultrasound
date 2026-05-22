@@ -69,7 +69,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
   const isCholecystectomy = form.position === "холецистэктомия";
 
   return (
-    <ResearchSectionCard title="Желчный пузырь" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Желчный пузырь" >
       <div className="flex flex-col gap-6">
         {/* Положение */}
         <Fieldset title="Положение">

@@ -48,8 +48,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:ОСА правая"]}>
         <ResearchSectionCard
           title="Правая общая сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="commonCarotidRight"
             value={form.commonCarotidRight}
@@ -58,7 +57,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <ResearchSectionCard title="Каротидный синус: правая" headerClassName="bg-sky-500">
+      <ResearchSectionCard title="Каротидный синус: правая" >
         <Artery
           artery="commonCarotidRight"
           mode="sinus"
@@ -70,8 +69,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:ВСА правая"]}>
         <ResearchSectionCard
           title="Правая внутренняя сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="internalCarotidRight"
             value={form.internalCarotidRight}
@@ -84,8 +82,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:НСА правая"]}>
         <ResearchSectionCard
           title="Правая наружная сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="externalCarotidRight"
             value={form.externalCarotidRight}
@@ -97,8 +94,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:позвоночная правая"]}>
         <ResearchSectionCard
           title="Правая позвоночная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="vertebralRight"
             value={form.vertebralRight}
@@ -108,7 +104,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       </div>
 
       <div ref={sectionRefs?.["БЦА:подключичная правая"]}>
-        <ResearchSectionCard title="Правая подключичная артерия" headerClassName="bg-sky-500">
+        <ResearchSectionCard title="Правая подключичная артерия" >
           <Artery
             artery="subclavianRight"
             value={form.subclavianRight}
@@ -117,7 +113,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <ResearchSectionCard title="Брахиоцефальный ствол: справа" headerClassName="bg-sky-500">
+      <ResearchSectionCard title="Брахиоцефальный ствол: справа" >
         <Artery
           artery="brachiocephalicTrunkRight"
           mode="sinus"
@@ -130,8 +126,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:ОСА левая"]}>
         <ResearchSectionCard
           title="Левая общая сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="commonCarotidLeft"
             value={form.commonCarotidLeft}
@@ -140,7 +135,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <ResearchSectionCard title="Каротидный синус: левая" headerClassName="bg-sky-500">
+      <ResearchSectionCard title="Каротидный синус: левая" >
         <Artery
           artery="commonCarotidLeft"
           mode="sinus"
@@ -152,8 +147,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:ВСА левая"]}>
         <ResearchSectionCard
           title="Левая внутренняя сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="internalCarotidLeft"
             value={form.internalCarotidLeft}
@@ -166,8 +160,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:НСА левая"]}>
         <ResearchSectionCard
           title="Левая наружная сонная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="externalCarotidLeft"
             value={form.externalCarotidLeft}
@@ -179,8 +172,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       <div ref={sectionRefs?.["БЦА:позвоночная левая"]}>
         <ResearchSectionCard
           title="Левая позвоночная артерия"
-          headerClassName="bg-sky-500"
-        >
+          >
           <Artery
             artery="vertebralLeft"
             value={form.vertebralLeft}
@@ -190,7 +182,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
       </div>
 
       <div ref={sectionRefs?.["БЦА:подключичная левая"]}>
-        <ResearchSectionCard title="Левая подключичная артерия" headerClassName="bg-sky-500">
+        <ResearchSectionCard title="Левая подключичная артерия" >
           <Artery
             artery="subclavianLeft"
             value={form.subclavianLeft}
@@ -199,7 +191,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <ResearchSectionCard title="Брахиоцефальный ствол: слева" headerClassName="bg-sky-500">
+      <ResearchSectionCard title="Брахиоцефальный ствол: слева" >
         <Artery
           artery="brachiocephalicTrunkLeft"
           mode="sinus"
@@ -211,8 +203,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
 
       <ResearchSectionCard
         title="Общие находки по исследованию БЦА"
-        headerClassName="bg-sky-500"
-      >
+        >
         <Fieldset title="">
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">

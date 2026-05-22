@@ -43,8 +43,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Правая околоушная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="parotidRight"
             showDepth={true}
@@ -60,8 +59,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Левая околоушная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="parotidLeft"
             showDepth={true}
@@ -77,8 +75,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Правая подчелюстная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="submandibularRight"
             showDepth={true}
@@ -94,8 +91,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Левая подчелюстная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="submandibularLeft"
             showDepth={true}
@@ -111,8 +107,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Правая подъязычная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="sublingualRight"
             showDepth={false}
@@ -128,8 +123,7 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       >
         <ResearchSectionCard
           title="Левая подъязычная слюнная железа"
-          headerClassName="bg-cyan-500"
-        >
+          >
           <SalivaryGland
             gland="sublingualLeft"
             showDepth={false}

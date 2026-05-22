@@ -205,36 +205,6 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                     />
 
                     <span className="flex-1 leading-tight text-left">{study}</span>
-
-                    {/* Чекбокс для мультивыбора */}
-                    {isMultiSelectMode && (
-                      <div
-                        className={`
-                          w-4 h-4 rounded border-2 flex items-center justify-center transition-all shrink-0
-                          ${
-                            selectedStudies.includes(study)
-                              ? "bg-medical-500 border-medical-500"
-                              : "border-slate-300"
-                          }
-                        `}
-                      >
-                        {selectedStudies.includes(study) && (
-                          <svg
-                            className="w-2.5 h-2.5 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={3}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    )}
                   </button>
                 );
               })

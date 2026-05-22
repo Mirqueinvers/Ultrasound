@@ -31,7 +31,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
   const isSplenectomy = form.position === "спленэктомия";
 
   return (
-    <ResearchSectionCard title="Селезенка" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Селезенка" >
       <div className="flex flex-col gap-6">
         {/* Положение */}
         <Fieldset title="Положение">

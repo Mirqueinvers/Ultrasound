@@ -156,7 +156,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
         <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-lg px-6 py-4">
+      <div className="bg-white border border-slate-200 rounded-2xl px-6 py-4">
         <SelectWithTextarea
           label="Свободная жидкость в брюшной полости"
           selectValue={form.freeFluid ?? ""}

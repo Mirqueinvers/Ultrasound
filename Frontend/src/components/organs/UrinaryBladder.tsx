@@ -97,7 +97,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   const emptyRange = { min: 0, max: 999999, unit: "мм" };
 
   return (
-    <ResearchSectionCard title="Мочевой пузырь" headerClassName="bg-sky-500">
+    <ResearchSectionCard title="Мочевой пузырь" >
       <div className="flex flex-col gap-6">
         <Fieldset title="Размеры">
           <SizeRow

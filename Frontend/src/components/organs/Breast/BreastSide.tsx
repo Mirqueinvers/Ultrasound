@@ -1,4 +1,4 @@
-п»їimport React, { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -31,7 +31,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   }, [value, setForm]);
 
   const title =
-    side === "left" ? "Р›РµРІР°СЏ РјРѕР»РѕС‡РЅР°СЏ Р¶РµР»РµР·Р°" : "РџСЂР°РІР°СЏ РјРѕР»РѕС‡РЅР°СЏ Р¶РµР»РµР·Р°";
+    side === "left" ? "Левая молочная железа" : "Правая молочная железа";
 
   const nodesManager = useListManager<BreastNode>(
     form.nodesList,
@@ -61,7 +61,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   const updateSelect = (field: keyof BreastSideProtocol, nextValue: string) => {
     const draft: BreastSideProtocol = { ...form, [field]: nextValue };
 
-    if (field === "volumeFormations" && nextValue === "РЅРµ РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ") {
+    if (field === "volumeFormations" && nextValue === "не определяются") {
       draft.nodesList = [];
     }
 
@@ -70,22 +70,22 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   };
 
   return (
-    <ResearchSectionCard title={title} headerClassName="bg-sky-500">
+    <ResearchSectionCard title={title} >
       <div className="flex flex-col gap-6">
-        <Fieldset title="РћР±С‰РёРµ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё">
+        <Fieldset title="Общие характеристики">
           <ButtonSelect
-            label="РљРѕР¶Р°"
+            label="Кожа"
             value={form.skin}
             onChange={(val) => updateSelect("skin", val)}
             options={[
-              { value: "РЅРµ РёР·РјРµРЅРµРЅР°", label: "РЅРµ РёР·РјРµРЅРµРЅР°" },
-              { value: "РёР·РјРµРЅРµРЅР°", label: "РёР·РјРµРЅРµРЅР°" },
+              { value: "не изменена", label: "не изменена" },
+              { value: "изменена", label: "изменена" },
             ]}
           />
 
-          {form.skin === "РёР·РјРµРЅРµРЅР°" && (
+          {form.skin === "изменена" && (
             <label className={labelClasses + " w-full"}>
-              РћРїРёСЃР°РЅРёРµ РёР·РјРµРЅРµРЅРёР№ РєРѕР¶Рё
+              Описание изменений кожи
               <textarea
                 rows={2}
                 className={inputClasses + " resize-y"}
@@ -96,18 +96,18 @@ export const BreastSide: React.FC<BreastSideProps> = ({
           )}
 
           <ButtonSelect
-            label="РЎРѕСЃРєРё Рё Р°СЂРµРѕР»С‹"
+            label="Соски и ареолы"
             value={form.nipples}
             onChange={(val) => updateSelect("nipples", val)}
             options={[
-              { value: "РЅРµ РёР·РјРµРЅРµРЅС‹", label: "РЅРµ РёР·РјРµРЅРµРЅС‹" },
-              { value: "РёР·РјРµРЅРµРЅС‹", label: "РёР·РјРµРЅРµРЅС‹" },
+              { value: "не изменены", label: "не изменены" },
+              { value: "изменены", label: "изменены" },
             ]}
           />
 
-          {form.nipples === "РёР·РјРµРЅРµРЅС‹" && (
+          {form.nipples === "изменены" && (
             <label className={labelClasses + " w-full"}>
-              РћРїРёСЃР°РЅРёРµ РёР·РјРµРЅРµРЅРёР№ СЃРѕСЃРєРѕРІ Рё Р°СЂРµРѕР»
+              Описание изменений сосков и ареол
               <textarea
                 rows={2}
                 className={inputClasses + " resize-y"}
@@ -118,39 +118,39 @@ export const BreastSide: React.FC<BreastSideProps> = ({
           )}
 
           <ButtonSelect
-            label="РњР»РµС‡РЅС‹Рµ РїСЂРѕС‚РѕРєРё"
+            label="Млечные протоки"
             value={form.milkDucts}
             onChange={(val) => updateField("milkDucts", val)}
             options={[
-              { value: "РЅРµ СЂР°СЃС€РёСЂРµРЅС‹", label: "РЅРµ СЂР°СЃС€РёСЂРµРЅС‹" },
-              { value: "СЂР°СЃС€РёСЂРµРЅС‹", label: "СЂР°СЃС€РёСЂРµРЅС‹" },
+              { value: "не расширены", label: "не расширены" },
+              { value: "расширены", label: "расширены" },
             ]}
           />
         </Fieldset>
 
-        <Fieldset title="РћР±СЉРµРјРЅС‹Рµ РѕР±СЂР°Р·РѕРІР°РЅРёСЏ">
+        <Fieldset title="Объемные образования">
           <ButtonSelect
             label=""
             value={form.volumeFormations}
             onChange={(val) => updateSelect("volumeFormations", val)}
             options={[
-              { value: "РЅРµ РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ", label: "РЅРµ РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ" },
-              { value: "РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ", label: "РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ" },
+              { value: "не определяются", label: "не определяются" },
+              { value: "определяются", label: "определяются" },
             ]}
           />
 
-          {form.volumeFormations === "РѕРїСЂРµРґРµР»СЏСЋС‚СЃСЏ" && (
+          {form.volumeFormations === "определяются" && (
             <div className="space-y-3">
               {form.nodesList.length === 0 && (
                 <div className="w-full text-center py-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-                  <p className="text-slate-500 text-sm mb-4">РЈР·Р»С‹ РЅРµ РґРѕР±Р°РІР»РµРЅС‹</p>
+                  <p className="text-slate-500 text-sm mb-4">Узлы не добавлены</p>
                   <button
                     type="button"
                     onClick={addNode}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                   >
                     <Plus size={18} />
-                    Р”РѕР±Р°РІРёС‚СЊ СѓР·РµР»
+                    Добавить узел
                   </button>
                 </div>
               )}
@@ -179,7 +179,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
           )}
         </Fieldset>
 
-        <Fieldset title="Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ">
+        <Fieldset title="Дополнительно">
           <textarea
             rows={3}
             className={inputClasses + " resize-y"}
