@@ -1,4 +1,5 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, MutableRefObject } from "react";
+import type { SectionKey } from "@/protocols";
 
 import Header from "@layout/Header";
 import LeftSidePanel from "@layout/LeftSidePanel";
@@ -15,6 +16,9 @@ type MainLayoutProps = PropsWithChildren<{
   onNavigateToProfile: () => void;
   selectedDirectoryItem: string;
   onDirectoryItemSelect: (value: string) => void;
+  sectionRefs: MutableRefObject<
+    Record<SectionKey, React.RefObject<HTMLDivElement | null>>
+  >;
 }>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -29,6 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   onNavigateToProfile,
   selectedDirectoryItem = "",
   onDirectoryItemSelect,
+  sectionRefs,
 }) => {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -55,7 +60,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             {children}
           </div>
 
-          <RightSidePanel />
+          <RightSidePanel selectedStudies={selectedStudies} sectionRefs={sectionRefs} />
         </div>
       </div>
     </div>

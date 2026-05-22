@@ -9,7 +9,7 @@ import MainLayout from "@layout/MainLayout";
 import ProfilePage from "@/components/profile/ProfilePage";
 import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
-import { useDesktopAppSelection } from "@hooks";
+import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 
 export function AppTitlebar() {
   const handleMinimize = () => {
@@ -74,6 +74,7 @@ const AppShell: React.FC = () => {
     handleNavigateToProfile,
     handleDirectoryItemSelect,
   } = useDesktopAppSelection();
+  const sectionRefs = useSectionRefs();
 
   const mainLayout = (children: ReactNode) => (
     <MainLayout
@@ -87,6 +88,7 @@ const AppShell: React.FC = () => {
       onNavigateToProfile={handleNavigateToProfile}
       selectedDirectoryItem={selectedDirectoryItem}
       onDirectoryItemSelect={handleDirectoryItemSelect}
+      sectionRefs={sectionRefs}
     >
       {children}
     </MainLayout>
@@ -136,6 +138,7 @@ const AppShell: React.FC = () => {
               mobileClearRequestAt={mobileClearRequestAt}
               onClearResearch={handleClearResearch}
               selectedDirectoryItem={selectedDirectoryItem}
+              sectionRefs={sectionRefs}
             />
           )}
         </RightPanelProvider>

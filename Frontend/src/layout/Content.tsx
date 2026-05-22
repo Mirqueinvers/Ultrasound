@@ -1,16 +1,12 @@
 ﻿import React from "react";
 
 import ResearchHeader from "@components/common/ResearchHeader";
-import OrgNavigation, {
-  type SectionKey,
-} from "@components/common/OrgNavigation";
 import { useResearch } from "@contexts";
 import { useAuth } from "@contexts/AuthContext";
 import { Directory } from "@components/directory";
 
 import PrintModal from "@components/print/PrintModal";
 import {
-  useSectionRefs,
   useAvailableSectionKeys,
   useSaveResearch,
   useMobileDraftCommands,
@@ -23,6 +19,8 @@ import {
 import { SearchSection } from "@/components/search/SearchSection";
 import { renderDesktopResearch } from "../researches/desktopResearchRenderers";
 
+import type { SectionKey } from "@/protocols";
+
 interface ContentProps {
   activeSection: string;
   selectedStudies: string[];
@@ -32,6 +30,9 @@ interface ContentProps {
   mobileClearRequestAt: string | null;
   onClearResearch: () => void;
   selectedDirectoryItem: string;
+  sectionRefs: React.MutableRefObject<
+    Record<SectionKey, React.RefObject<HTMLDivElement | null>>
+  >;
 }
 
 const Content: React.FC<ContentProps> = ({
@@ -43,6 +44,7 @@ const Content: React.FC<ContentProps> = ({
   mobileClearRequestAt,
   onClearResearch,
   selectedDirectoryItem,
+  sectionRefs,
 }) => {
   const { user } = useAuth();
   const {
@@ -60,9 +62,6 @@ const Content: React.FC<ContentProps> = ({
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
   const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
-
-  const sectionRefs = useSectionRefs();
-  const availableSectionKeys = useAvailableSectionKeys(selectedStudies);
 
   React.useEffect(() => {
     const selectedStudyKeys = new Set(selectedStudies);
@@ -138,26 +137,6 @@ const Content: React.FC<ContentProps> = ({
     onClearRequest: clearResearchDraft,
   });
 
-  const scrollToSection = (key: SectionKey) => {
-    const ref = sectionRefs.current[key];
-    const element =
-      ref?.current ??
-      (document.querySelector(
-        `[data-section-key="${key}"]`
-      ) as HTMLElement | null);
-    if (!element) return;
-    const offset = 300;
-
-    const rect = element.getBoundingClientRect();
-    const absoluteTop = rect.top + window.pageYOffset;
-    const targetY = absoluteTop - offset;
-
-    window.scrollTo({
-      top: targetY,
-      behavior: "smooth",
-    });
-  };
-
   if (activeSection === "search") {
     return <SearchSection />;
   }
@@ -179,11 +158,6 @@ const Content: React.FC<ContentProps> = ({
 
   return (
     <div className="content relative">
-      <OrgNavigation
-        availableSectionKeys={availableSectionKeys}
-        scrollToSection={scrollToSection}
-      />
-
       <div className="mt-6">
         <ResearchHeader
           paymentType={paymentType}
@@ -199,7 +173,7 @@ const Content: React.FC<ContentProps> = ({
           {selectedStudies.map((study, index) => (
             <div
               key={index}
-              className="rounded-lg p-4"
+              className="rounded-lg"
             >
               {renderDesktopResearch({
                 study,
