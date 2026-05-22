@@ -114,14 +114,34 @@ const bodyOverrideKey = (id: StudyDefinition["id"]) => `block:${id}`;
 const conclusionOverrideKey = (key: string) => `conclusion:${key}`;
 const recommendationOverrideKey = (key: string) => `recommendation:${key}`;
 
-const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
+export interface PrintableProtocolHandle {
+  saveOverrides: () => void;
+  getPrintRoot: () => HTMLElement | null;
+}
+
+interface PrintableProtocolProps {
+  editMode?: boolean;
+  onSave?: () => void;
+  onReady?: () => void;
+}
+
+const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintableProtocolProps>((props, ref) => {
+  const { editMode } = props;
   const { studiesData } = useResearch();
   const { user } = useAuth();
 
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const [appliedOverrides, setAppliedOverrides] = React.useState<PrintOverrideMap>({});
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
-  const [isEditMode, setIsEditMode] = React.useState(false);
+  const [isEditMode, setIsEditMode] = React.useState(editMode ?? false);
+
+  React.useEffect(() => {
+    if (editMode && !isEditMode) {
+      handleStartEditing();
+    } else if (editMode === false && isEditMode) {
+      setIsEditMode(false);
+    }
+  }, [editMode]);
 
   const obpData = studiesData["ОБП"];
   const kidneysData = studiesData["Почки"];
@@ -444,6 +464,8 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
     ];
   }, [appliedConclusionSections, conclusion, doctorName, previewOverrides, recommendations, studyDefinitions]);
 
+  const printRootRef = React.useRef<HTMLDivElement | null>(null);
+  const editContentRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
   const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
@@ -484,6 +506,12 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
     setPages(newPages);
   }, [displayBlocks]);
 
+  React.useEffect(() => {
+    if (pages) {
+      props.onReady?.();
+    }
+  }, [pages]);
+
   const handleDraftChange = React.useCallback((key: string, value: string) => {
     setDraftOverrides((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -499,23 +527,51 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
   }, [appliedOverrides, buildDraftOverrides]);
 
   const handleSaveOverrides = React.useCallback(() => {
+    // Сначала читаем актуальный HTML из contentEditable блока
+    const editRoot = editContentRef.current;
+    const editHtml = editRoot?.innerHTML ?? "";
+
+    // Парсим HTML, чтобы извлечь блоки по их id
     const nextOverrides: PrintOverrideMap = {};
 
+    if (editHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(editHtml, "text/html");
+      const pageBlocks = doc.querySelectorAll("[data-block-id]");
+      pageBlocks.forEach((el) => {
+        const blockId = el.getAttribute("data-block-id");
+        if (blockId) {
+          nextOverrides[blockId] = normalizeEditableHtml(el.innerHTML);
+        }
+      });
+    }
+
+    // Для блоков, которые не удалось распарсить, используем draftOverrides
     studyDefinitions.forEach((definition) => {
-      nextOverrides[bodyOverrideKey(definition.id)] = normalizeEditableHtml(
-        draftOverrides[bodyOverrideKey(definition.id)],
-      );
-      nextOverrides[conclusionOverrideKey(definition.key)] = normalizeEditableText(
-        draftOverrides[conclusionOverrideKey(definition.key)],
-      );
-      nextOverrides[recommendationOverrideKey(definition.key)] = normalizeEditableText(
-        draftOverrides[recommendationOverrideKey(definition.key)],
-      );
+      const bodyKey = bodyOverrideKey(definition.id);
+      if (!nextOverrides[bodyKey]) {
+        nextOverrides[bodyKey] = normalizeEditableHtml(
+          draftOverrides[bodyKey],
+        );
+      }
+      const conKey = conclusionOverrideKey(definition.key);
+      if (!nextOverrides[conKey]) {
+        nextOverrides[conKey] = normalizeEditableText(
+          draftOverrides[conKey],
+        );
+      }
+      const recKey = recommendationOverrideKey(definition.key);
+      if (!nextOverrides[recKey]) {
+        nextOverrides[recKey] = normalizeEditableText(
+          draftOverrides[recKey],
+        );
+      }
     });
 
     setAppliedOverrides(nextOverrides);
     setIsEditMode(false);
-  }, [draftOverrides, studyDefinitions]);
+    props.onSave?.();
+  }, [draftOverrides, studyDefinitions, props.onSave]);
 
   const handleResetOverrides = React.useCallback(() => {
     setAppliedOverrides({});
@@ -523,9 +579,14 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
     setIsEditMode(false);
   }, [buildDraftOverrides]);
 
+  React.useImperativeHandle(ref, () => ({
+    saveOverrides: handleSaveOverrides,
+    getPrintRoot: () => printRootRef.current,
+  }));
+
   if (!pages) {
     return (
-      <div ref={ref} id="print-root">
+      <div ref={printRootRef} id="print-root">
         <div
           ref={sourceContainerRef}
           data-print-source
@@ -617,132 +678,36 @@ const PrintableProtocol = React.forwardRef<HTMLDivElement>((_props, ref) => {
 
   return (
     <div className="space-y-4">
-      {sourceNodes}
-      <div
-        data-print-editor
-        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900">Редактирование печатной версии</h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Можно поправить уже собранный текст по каждому исследованию, не меняя исходную форму
-              протоколирования.
-            </p>
-          </div>
-
-          {!isEditMode ? (
-            <button
-              type="button"
-              onClick={handleStartEditing}
-              disabled={studyDefinitions.length === 0}
-              className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span className="i-ph-pencil-simple-line-duotone text-base" />
-              <span>Редактировать текст</span>
-            </button>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={handleResetOverrides}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
-              >
-                <span className="i-ph-arrow-counter-clockwise-duotone text-base" />
-                <span>Сбросить правки</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelEditing}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
-              >
-                <span className="i-ph-x-circle-duotone text-base" />
-                <span>Отмена</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveOverrides}
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-500"
-              >
-                <span className="i-ph-floppy-disk-back-duotone text-base" />
-                <span>Сохранить правки</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {isEditMode && (
-          <div className="mt-4 space-y-4 border-t border-slate-200 pt-4">
-            {studyDefinitions.map((definition) => {
-              const bodyKey = bodyOverrideKey(definition.id);
-              const conclusionKey = conclusionOverrideKey(definition.key);
-              const recommendationKey = recommendationOverrideKey(definition.key);
-
-              return (
-                <section key={definition.id} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-                  <h4 className="text-sm font-semibold text-slate-900">{definition.label}</h4>
-
-                  <label className="mt-3 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Текст исследования
-                  </label>
-                  <EditablePrintHtmlBlock
-                    editable
-                    value={draftOverrides[bodyKey] ?? ""}
-                    onChange={(nextHtml) => handleDraftChange(bodyKey, nextHtml)}
-                    minHeight="220px"
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 shadow-sm outline-none transition focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-100"
-                  />
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Заключение
-                      </label>
-                      <textarea
-                        value={draftOverrides[conclusionKey] ?? ""}
-                        onChange={(event) => handleDraftChange(conclusionKey, event.target.value)}
-                        className="mt-2 min-h-[120px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Рекомендации
-                      </label>
-                      <textarea
-                        value={draftOverrides[recommendationKey] ?? ""}
-                        onChange={(event) =>
-                          handleDraftChange(recommendationKey, event.target.value)
-                        }
-                        className="mt-2 min-h-[120px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                      />
-                    </div>
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
       {measureNodes}
-      <div ref={ref} id="print-root">
-        <div>
-          {pages.map((pageBlocks, pageIndex) => (
-            <div key={pageIndex} className="print-page">
-              <div className="print-page-inner">
-                {pageBlocks.filter(Boolean).map((block) => (
-                  <div
-                    key={block.id}
-                    className="no-break"
-                    style={{ marginTop: block.id === "header" ? 0 : "10mm" }}
-                  >
-                    {block.element}
-                  </div>
-                ))}
-              </div>
+      <div
+        ref={(node) => {
+          printRootRef.current = node;
+          if (isEditMode) {
+            (editContentRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          }
+        }}
+        id="print-root"
+        contentEditable={isEditMode}
+        suppressContentEditableWarning
+        className={`w-full outline-none text-sm leading-6 text-slate-900 bg-slate-100 rounded-xl p-4 ${isEditMode ? "" : ""}`}
+        style={{ width: "210mm", minHeight: "297mm" }}
+      >
+        {pages.map((pageBlocks, pageIndex) => (
+          <div key={pageIndex} className="print-page">
+            <div className="print-page-inner">
+              {pageBlocks.filter(Boolean).map((block) => (
+                <div
+                  key={block.id}
+                  data-block-id={`block:${block.id}`}
+                  className="no-break"
+                  style={{ marginTop: block.id === "header" ? 0 : "10mm" }}
+                >
+                  {block.element}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import PrintableSavedProtocol from "@/components/print/PrintableSavedProtocol";
+import PrintableSavedProtocol, { type PrintableSavedProtocolHandle } from "@/components/print/PrintableSavedProtocol";
 
 interface PrintSavedModalProps {
   isOpen: boolean;
@@ -57,13 +57,15 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
   onClose,
   researchId,
 }) => {
-  const contentRef = React.useRef<HTMLDivElement | null>(null);
-  const [isExporting, setIsExporting] = React.useState(false);
+  const protocolRef = React.useRef<PrintableSavedProtocolHandle | null>(null);
   const [printers, setPrinters] = React.useState<Array<{ name: string; isDefault: boolean }>>([]);
   const [selectedPrinter, setSelectedPrinter] = React.useState<string>("");
   const [loadingPrinters, setLoadingPrinters] = React.useState(false);
   const [printerError, setPrinterError] = React.useState<string | null>(null);
   const [isPrintableReady, setIsPrintableReady] = React.useState(false);
+  const [printerDropdownOpen, setPrinterDropdownOpen] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const printerDropdownRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -116,36 +118,11 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
   React.useEffect(() => {
     if (!isOpen) {
       setIsPrintableReady(false);
-      return;
     }
-
-    let cancelled = false;
-    setIsPrintableReady(false);
-
-    const checkReady = () => {
-      if (cancelled) {
-        return;
-      }
-
-      const root = contentRef.current;
-      const ready = Boolean(root?.querySelector(".print-page"));
-      if (ready) {
-        setIsPrintableReady(true);
-        return;
-      }
-
-      requestAnimationFrame(checkReady);
-    };
-
-    requestAnimationFrame(checkReady);
-
-    return () => {
-      cancelled = true;
-    };
   }, [isOpen]);
 
   const handlePrint = React.useCallback(async () => {
-    const root = contentRef.current;
+    const root = protocolRef.current?.getPrintRoot();
     if (!root || !isPrintableReady) {
       return;
     }
@@ -162,36 +139,6 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
     }
   }, [isPrintableReady, selectedPrinter]);
 
-  const handleExport = React.useCallback(async () => {
-    if (!contentRef.current || researchId == null) {
-      return;
-    }
-
-    const exportRoot = contentRef.current.cloneNode(true) as HTMLElement;
-    exportRoot.querySelectorAll("[data-print-editor]").forEach((element) => element.remove());
-    exportRoot.querySelectorAll("[data-print-source]").forEach((element) => element.remove());
-    exportRoot.querySelectorAll("[data-print-measure]").forEach((element) => element.remove());
-
-    const html = buildPrintableHtml(exportRoot, "УЗИ-протокол");
-
-    setIsExporting(true);
-
-    try {
-      const result = await window.fileAPI.saveHtml({
-        content: html,
-        defaultPath: `uzi-protocol-${researchId}.html`,
-      });
-
-      if (!result.success && !result.canceled) {
-        window.alert(result.message || "Не удалось сохранить файл.");
-      }
-    } catch {
-      window.alert("Не удалось сохранить файл.");
-    } finally {
-      setIsExporting(false);
-    }
-  }, [researchId]);
-
   if (!isOpen || researchId == null) return null;
 
   return (
@@ -200,61 +147,98 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
       aria-modal="true"
       role="dialog"
     >
-      <div className="flex max-h-full w-[230mm] flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
-          <div className="min-w-[260px] flex-1">
-            <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Принтер
-            </label>
-            <select
-              value={selectedPrinter}
-              onChange={(event) => setSelectedPrinter(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+      <div className="bg-slate-100 rounded-xl w-[230mm] max-h-full flex flex-col overflow-hidden">
+        <div className="flex items-center gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
+          <div className="flex-1 relative" ref={printerDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setPrinterDropdownOpen(!printerDropdownOpen)}
+              className="w-full flex items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#e0f2f7] focus:ring-1 focus:ring-[#e0f2f7]"
             >
-              {printers.length === 0 ? (
-                <option value="">
-                  {loadingPrinters ? "Загружаю принтеры..." : "Принтеры не найдены"}
-                </option>
-              ) : (
-                printers.map((printer) => (
-                  <option key={printer.name} value={printer.name}>
-                    {printer.name}
-                    {printer.isDefault ? " (по умолчанию)" : ""}
-                  </option>
-                ))
-              )}
-            </select>
+              <span className={selectedPrinter ? "text-slate-800" : "text-slate-400"}>
+                {selectedPrinter || (loadingPrinters ? "Загружаю принтеры..." : "Выберите принтер")}
+              </span>
+              <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {printerDropdownOpen && (
+              <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-md border border-slate-200 bg-white shadow-lg overflow-hidden">
+                {printers.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-slate-400">
+                    {loadingPrinters ? "Загружаю принтеры..." : "Принтеры не найдены"}
+                  </div>
+                ) : (
+                  printers.map((printer) => {
+                    const isActive = selectedPrinter === printer.name;
+                    return (
+                      <button
+                        key={printer.name}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPrinter(printer.name);
+                          setPrinterDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                          isActive
+                            ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        {printer.name}
+                        {printer.isDefault ? (
+                          <span className="ml-2 text-xs text-slate-400">(по умолчанию)</span>
+                        ) : null}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
             {printerError ? (
               <p className="mt-1 text-xs text-rose-500">{printerError}</p>
             ) : null}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => void handleExport()}
-              disabled={isExporting}
-              className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm ring-1 ring-sky-500/70 transition-all hover:-translate-y-[1px] hover:bg-sky-500 hover:shadow-md active:translate-y-0 active:shadow-sm disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+              onClick={() => {
+                if (isEditing) {
+                  protocolRef.current?.saveOverrides();
+                } else {
+                  setIsEditing(true);
+                }
+              }}
+              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                isEditing
+                  ? "bg-[#e0f2f7] text-[#0e7490]"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
             >
-              <span className="i-ph-export-duotone text-base" />
-              <span>{isExporting ? "Сохраняю..." : "Экспорт HTML"}</span>
+              <span className="i-ph-pencil-simple-line-duotone text-base" />
+              <span>{isEditing ? "Сохранить правки" : "Редактировать протокол"}</span>
             </button>
 
-            <button
-              onClick={() => void handlePrint()}
-              disabled={
-                loadingPrinters ||
-                !isPrintableReady ||
-                (!selectedPrinter && printers.length > 0)
-              }
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm ring-1 ring-emerald-500/70 transition-all hover:-translate-y-[1px] hover:bg-emerald-500 hover:shadow-md active:translate-y-0 active:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span className="i-ph-printer-duotone text-base" />
-              <span>{isPrintableReady ? "Печать" : "Подготовка..."}</span>
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => void handlePrint()}
+                disabled={
+                  loadingPrinters ||
+                  !isPrintableReady ||
+                  (!selectedPrinter && printers.length > 0)
+                }
+                className="inline-flex items-center gap-2 rounded-md bg-[#e0f2f7] px-4 py-2 text-sm font-medium text-[#0e7490] transition-all hover:bg-[#c8e6f0] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="i-ph-printer-duotone text-base" />
+                <span>{isPrintableReady ? "Печать" : "Подготовка..."}</span>
+              </button>
+            )}
 
             <button
               onClick={onClose}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-[1px] hover:bg-slate-100 hover:shadow-md active:translate-y-0 active:shadow-sm"
+              className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-slate-200"
             >
               <span className="i-ph-x-circle-duotone text-base" />
               <span>Закрыть</span>
@@ -263,7 +247,13 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
         </div>
 
         <div className="overflow-auto bg-slate-100 p-4">
-          <PrintableSavedProtocol ref={contentRef} researchId={researchId} />
+          <PrintableSavedProtocol
+            ref={protocolRef}
+            researchId={researchId}
+            editMode={isEditing}
+            onSave={() => setIsEditing(false)}
+            onReady={() => setIsPrintableReady(true)}
+          />
         </div>
       </div>
     </div>

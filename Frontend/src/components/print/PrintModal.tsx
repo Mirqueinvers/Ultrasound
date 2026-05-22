@@ -1,10 +1,11 @@
 import React from "react";
-import PrintableProtocol from "@/components/print/PrintableProtocol";
+import PrintableProtocol, { type PrintableProtocolHandle } from "@/components/print/PrintableProtocol";
 
 interface PrintModalProps {
   isOpen: boolean;
   onClose: () => void;
   autoPrintToken?: string | null;
+  initialEditMode?: boolean;
 }
 
 const buildPrintableHtml = (root: HTMLElement, title: string) => {
@@ -56,14 +57,17 @@ const PrintModal: React.FC<PrintModalProps> = ({
   isOpen,
   onClose,
   autoPrintToken,
+  initialEditMode,
 }) => {
-  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const protocolRef = React.useRef<PrintableProtocolHandle | null>(null);
+  const printRootRef = React.useRef<HTMLDivElement | null>(null);
   const [printers, setPrinters] = React.useState<Array<{ name: string; isDefault: boolean }>>([]);
   const [selectedPrinter, setSelectedPrinter] = React.useState<string>("");
   const [loadingPrinters, setLoadingPrinters] = React.useState(false);
   const [printerError, setPrinterError] = React.useState<string | null>(null);
   const [isPrintableReady, setIsPrintableReady] = React.useState(false);
   const [printerDropdownOpen, setPrinterDropdownOpen] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(initialEditMode ?? false);
   const handledAutoPrintTokenRef = React.useRef<string | null>(null);
   const printerDropdownRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -118,36 +122,11 @@ const PrintModal: React.FC<PrintModalProps> = ({
   React.useEffect(() => {
     if (!isOpen) {
       setIsPrintableReady(false);
-      return;
     }
-
-    let cancelled = false;
-    setIsPrintableReady(false);
-
-    const checkReady = () => {
-      if (cancelled) {
-        return;
-      }
-
-      const root = contentRef.current;
-      const ready = Boolean(root?.querySelector(".print-page"));
-      if (ready) {
-        setIsPrintableReady(true);
-        return;
-      }
-
-      requestAnimationFrame(checkReady);
-    };
-
-    requestAnimationFrame(checkReady);
-
-    return () => {
-      cancelled = true;
-    };
   }, [isOpen]);
 
   const handlePrint = React.useCallback(async () => {
-    const root = contentRef.current;
+    const root = protocolRef.current?.getPrintRoot();
     if (!root || !isPrintableReady) {
       return;
     }
@@ -201,7 +180,7 @@ const PrintModal: React.FC<PrintModalProps> = ({
       aria-modal="true"
       role="dialog"
     >
-      <div className="bg-white rounded-xl w-[230mm] max-h-full flex flex-col overflow-hidden">
+      <div className="bg-slate-100 rounded-xl w-[230mm] max-h-full flex flex-col overflow-hidden">
         <div className="flex items-center gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
           <div className="flex-1 relative" ref={printerDropdownRef}>
             <button
@@ -258,17 +237,37 @@ const PrintModal: React.FC<PrintModalProps> = ({
 
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => void handlePrint()}
-              disabled={
-                loadingPrinters ||
-                !isPrintableReady ||
-                (!selectedPrinter && printers.length > 0)
-              }
-              className="inline-flex items-center gap-2 rounded-md bg-[#e0f2f7] px-4 py-2 text-sm font-medium text-[#0e7490] transition-all hover:bg-[#c8e6f0] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => {
+                if (isEditing) {
+                  protocolRef.current?.saveOverrides();
+                } else {
+                  setIsEditing(true);
+                }
+              }}
+              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                isEditing
+                  ? "bg-[#e0f2f7] text-[#0e7490]"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
             >
-              <span className="i-ph-printer-duotone text-base" />
-              <span>{isPrintableReady ? "Печать" : "Подготовка..."}</span>
+              <span className="i-ph-pencil-simple-line-duotone text-base" />
+              <span>{isEditing ? "Сохранить правки" : "Редактировать протокол"}</span>
             </button>
+
+            {!isEditing && (
+              <button
+                onClick={() => void handlePrint()}
+                disabled={
+                  loadingPrinters ||
+                  !isPrintableReady ||
+                  (!selectedPrinter && printers.length > 0)
+                }
+                className="inline-flex items-center gap-2 rounded-md bg-[#e0f2f7] px-4 py-2 text-sm font-medium text-[#0e7490] transition-all hover:bg-[#c8e6f0] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="i-ph-printer-duotone text-base" />
+                <span>{isPrintableReady ? "Печать" : "Подготовка..."}</span>
+              </button>
+            )}
 
             <button
               onClick={onClose}
@@ -280,8 +279,8 @@ const PrintModal: React.FC<PrintModalProps> = ({
           </div>
         </div>
 
-        <div className="overflow-auto p-4 bg-slate-100">
-          <PrintableProtocol ref={contentRef} />
+        <div className="overflow-auto bg-slate-100 p-4">
+          <PrintableProtocol ref={protocolRef} editMode={isEditing} onSave={() => setIsEditing(false)} onReady={() => setIsPrintableReady(true)} />
         </div>
       </div>
     </div>
