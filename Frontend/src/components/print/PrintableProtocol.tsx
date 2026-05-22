@@ -424,7 +424,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       if (hasOverride && hasVisibleHtmlContent(editedValue)) {
         acc.push({
           id: definition.id,
-          element: <EditablePrintHtmlBlock value={editedValue ?? ""} />,
+          element: <div dangerouslySetInnerHTML={{ __html: editedValue ?? "" }} />,
         });
         return acc;
       }
