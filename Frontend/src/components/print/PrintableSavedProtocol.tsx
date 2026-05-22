@@ -483,12 +483,17 @@ const PrintableSavedProtocol = React.forwardRef<
       return acc;
     }, []);
 
-    return [
-      { id: "header", element: <ResearchPrintHeader /> },
-      ...studyBlocks,
-      {
-        id: "conclusion",
-        element: (
+    // Проверяем, есть ли сохранённый оверрайд для блока заключения
+    const conclusionOverrideKey = "block:conclusion";
+    const hasConclusionOverride = Object.prototype.hasOwnProperty.call(
+      persistedOverrides,
+      conclusionOverrideKey,
+    );
+    const conclusionOverrideValue = persistedOverrides[conclusionOverrideKey] ?? "";
+
+    const conclusionElement = hasConclusionOverride && hasVisibleHtmlContent(conclusionOverrideValue)
+      ? <div dangerouslySetInnerHTML={{ __html: conclusionOverrideValue }} />
+      : (
           <div className="print-conclusion">
             <ConclusionPrint
               value={{
@@ -509,7 +514,14 @@ const PrintableSavedProtocol = React.forwardRef<
               </div>
             )}
           </div>
-        ),
+        );
+
+    return [
+      { id: "header", element: <ResearchPrintHeader /> },
+      ...studyBlocks,
+      {
+        id: "conclusion",
+        element: conclusionElement,
       },
     ];
   }, [appliedConclusionSections, conclusion, doctorName, persistedOverrides, recommendations, studyDefinitions]);
@@ -559,6 +571,20 @@ const PrintableSavedProtocol = React.forwardRef<
     }
   }, [externalEditMode]);
 
+  // При входе в режим редактирования убираем contenteditable="false" с внутренних элементов,
+  // чтобы корневой contentEditable мог наследоваться на все дочерние блоки
+  React.useEffect(() => {
+    const root = printRootRef.current;
+    if (!root) return;
+
+    if (isEditMode) {
+      const nonEditableElements = root.querySelectorAll<HTMLElement>("[contenteditable=\"false\"]");
+      nonEditableElements.forEach((el) => {
+        el.removeAttribute("contenteditable");
+      });
+    }
+  }, [isEditMode]);
+
   const handleDraftChange = React.useCallback((key: string, value: string) => {
     setDraftOverrides((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -576,6 +602,7 @@ const PrintableSavedProtocol = React.forwardRef<
   const handleSaveOverrides = React.useCallback(async () => {
     const nextOverrides: PrintOverrideMap = {};
 
+    // Сначала читаем актуальный HTML из contentEditable блока
     const editRoot = editContentRef.current;
     if (editRoot) {
       const blockElements = editRoot.querySelectorAll<HTMLElement>("[data-block-id]");
@@ -586,6 +613,28 @@ const PrintableSavedProtocol = React.forwardRef<
         }
       });
     }
+
+    // Для блоков, которые не удалось прочитать из DOM, используем draftOverrides
+    studyDefinitions.forEach((definition) => {
+      const bodyKey = bodyOverrideKey(definition.id);
+      if (!nextOverrides[bodyKey]) {
+        nextOverrides[bodyKey] = normalizeEditableHtml(
+          draftOverrides[bodyKey],
+        );
+      }
+      const conKey = conclusionOverrideKey(definition.key);
+      if (!nextOverrides[conKey]) {
+        nextOverrides[conKey] = normalizeEditableText(
+          draftOverrides[conKey],
+        );
+      }
+      const recKey = recommendationOverrideKey(definition.key);
+      if (!nextOverrides[recKey]) {
+        nextOverrides[recKey] = normalizeEditableText(
+          draftOverrides[recKey],
+        );
+      }
+    });
 
     setIsSavingOverrides(true);
     try {
@@ -607,7 +656,7 @@ const PrintableSavedProtocol = React.forwardRef<
     } finally {
       setIsSavingOverrides(false);
     }
-  }, [researchId]);
+  }, [draftOverrides, researchId, studyDefinitions]);
 
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
 

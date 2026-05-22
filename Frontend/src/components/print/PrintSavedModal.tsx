@@ -204,9 +204,9 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
 
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (isEditing) {
-                  protocolRef.current?.saveOverrides();
+                  await protocolRef.current?.saveOverrides();
                 } else {
                   setIsEditing(true);
                 }
