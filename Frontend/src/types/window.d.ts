@@ -93,6 +93,14 @@ export interface ResearchAPI {
   }) => Promise<any>;
 }
 
+export interface DatabaseAPI {
+  getStatistics: (startDate?: string, endDate?: string) => Promise<{
+    success: boolean;
+    data?: any;
+    message?: string;
+  }>;
+}
+
 declare global {
   interface Window {
     authAPI: AuthAPI;
@@ -100,6 +108,7 @@ declare global {
     mobileHostAPI: MobileHostAPI;
     patientAPI: PatientAPI;
     researchAPI: ResearchAPI;
+    databaseAPI: DatabaseAPI;
   }
 }
 

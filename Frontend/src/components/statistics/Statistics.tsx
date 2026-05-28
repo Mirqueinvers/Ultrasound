@@ -80,6 +80,11 @@ const Statistics: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      if (!window.databaseAPI) {
+        setError("API статистики недоступно. Возможно, приложение запущено не в Electron.");
+        return;
+      }
+
       const result = await window.databaseAPI.getStatistics(
         startDate || undefined,
         endDate || undefined
