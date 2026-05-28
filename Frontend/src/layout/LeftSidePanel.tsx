@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Search, X, ChevronDown, ChevronRight, FlaskConical, FileText } from "lucide-react";
+import { Search, X, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 import { PROTOCOL_SELECTIONS } from "@/protocols";
 
@@ -120,22 +120,10 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   const showSearch = isUziSection || isDirectorySection;
 
   return (
-    <aside className="w-[15%] min-h-[calc(100vh-7rem)] rounded-xl overflow-hidden flex flex-col">
-      {/* Header секции */}
-      <div className="px-4 py-3.5 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          {isUziSection && <FlaskConical size={16} className="text-medical-500" />}
-          <h3 className="text-sm font-semibold text-slate-800 m-0">
-            {isUziSection && "Исследования"}
-            {isDirectorySection && "Справочник"}
-            {!isUziSection && !isDirectorySection && "Панель"}
-          </h3>
-        </div>
-      </div>
-
+    <aside className="w-[15%] rounded-xl sticky top-[104px] max-h-[calc(100vh-104px)] overflow-y-auto flex flex-col">
       {/* Поиск */}
       {showSearch && (
-        <div className="px-4 pt-3 pb-2">
+        <div className="px-4 pt-12 pb-2">
           <div className="relative">
             <Search
               size={14}

@@ -50,16 +50,9 @@ const RightSidePanel: React.FC<RightSidePanelProps> = ({ selectedStudies = [], s
   return (
     <aside className="w-[15%] rounded-lg sticky top-[104px] max-h-[calc(100vh-104px)] overflow-y-auto flex flex-col bg-slate-50">
       {/* Верхняя часть — подсказки (фиксированная высота, прокрутка) */}
-      <div className="h-[50vh] overflow-y-auto px-4 py-4">
+      <div className="h-[50vh] overflow-y-auto px-4 pt-12 pb-4">
         <div className="content">
-          {panelData.mode === "none" ? (
-            <>
-              <h3 className="mt-0 text-slate-800 text-sm">Правая панель</h3>
-              <p className="text-slate-500 text-xs mt-2">
-                Выберите поле для просмотра подсказок
-              </p>
-            </>
-          ) : (
+          {panelData.mode !== "none" && (
             <>
               <h3 className="mt-0 text-slate-800 text-sm">{panelData.title}</h3>
               <div className="mt-4">
