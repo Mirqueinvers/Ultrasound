@@ -1,7 +1,16 @@
-// src/renderer/components/Statistics.tsx
-
 import React, { useState, useEffect } from "react";
-import { BarChart3, Users, FileText, Calendar, DollarSign, Filter } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  FileText,
+  Calendar,
+  DollarSign,
+  Filter,
+  RefreshCw,
+  Activity,
+  TrendingUp,
+  Stethoscope,
+} from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -52,7 +61,6 @@ const Statistics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Функция для форматирования даты в локальном времени (без UTC смещения)
   const formatLocalDate = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -142,22 +150,32 @@ const Statistics: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Загрузка статистики...</div>
+      <div className="flex items-center justify-center h-64 animate-fade-in">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-medical-400 border-t-transparent rounded-full animate-spin" />
+          <div className="text-sm text-slate-500 font-sans">Загрузка статистики...</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="text-red-700">{error}</div>
-        <button
-          onClick={loadStatistics}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Повторить
-        </button>
+      <div className="animate-fade-in">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse-soft" />
+            <div className="text-red-700 font-medium">Ошибка</div>
+          </div>
+          <div className="text-red-600 text-sm mb-4">{error}</div>
+          <button
+            onClick={loadStatistics}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all duration-200 font-sans"
+          >
+            <RefreshCw size={14} />
+            Повторить
+          </button>
+        </div>
       </div>
     );
   }
@@ -173,13 +191,13 @@ const Statistics: React.FC = () => {
   }> = ({ title, value, icon: Icon, color, size = "normal" }) => {
     const cardClasses =
       size === "small"
-        ? "bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
-        : "bg-white rounded-lg border border-gray-200 p-6 shadow-sm";
+        ? "bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all duration-200"
+        : "bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all duration-200";
 
     const valueClasses =
       size === "small"
-        ? "text-xl font-bold text-gray-900 mt-1"
-        : "text-3xl font-bold text-gray-900 mt-2";
+        ? "text-xl font-bold text-slate-900 mt-1 font-sans"
+        : "text-3xl font-bold text-slate-900 mt-2 font-sans";
 
     const iconClasses =
       size === "small" ? "w-4 h-4 text-white" : "w-6 h-6 text-white";
@@ -188,10 +206,10 @@ const Statistics: React.FC = () => {
       <div className={cardClasses}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-gray-600">{title}</p>
+            <p className="text-xs font-medium text-slate-500 font-sans">{title}</p>
             <p className={valueClasses}>{value}</p>
           </div>
-          <div className={`p-2 rounded-full ${color}`}>
+          <div className={`p-2.5 rounded-xl ${color}`}>
             <Icon className={iconClasses} />
           </div>
         </div>
@@ -203,110 +221,150 @@ const Statistics: React.FC = () => {
     labels: stats?.doctorsStats.map((doc) => doc.doctorName) || [],
     datasets: [
       {
-        label: "Количество исследований",
+        label: "Исследования",
         data: stats?.doctorsStats.map((doc) => doc.researchCount) || [],
-        backgroundColor: "rgba(59, 130, 246, 0.5)",
-        borderColor: "rgba(59, 130, 246, 1)",
+        backgroundColor: "rgba(26, 130, 194, 0.6)",
+        borderColor: "rgba(26, 130, 194, 1)",
         borderWidth: 1,
+        borderRadius: 4,
       },
       {
-        label: "Количество пациентов",
+        label: "Пациенты",
         data: stats?.doctorsStats.map((doc) => doc.patientCount) || [],
-        backgroundColor: "rgba(16, 185, 129, 0.5)",
-        borderColor: "rgba(16, 185, 129, 1)",
+        backgroundColor: "rgba(0, 168, 107, 0.6)",
+        borderColor: "rgba(0, 168, 107, 1)",
         borderWidth: 1,
+        borderRadius: 4,
       },
     ],
   };
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Статистика по врачам",
+        labels: {
+          font: {
+            family: "Inter, system-ui, sans-serif",
+            size: 12,
+          },
+          padding: 16,
+        },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          font: {
+            family: "Inter, system-ui, sans-serif",
+            size: 11,
+          },
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.06)",
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            family: "Inter, system-ui, sans-serif",
+            size: 11,
+          },
+        },
+        grid: {
+          display: false,
+        },
       },
     },
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in font-sans">
+      {/* Заголовок */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Статистика</h1>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-medical-50 rounded-xl">
+            <Activity className="w-5 h-5 text-medical-600" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900">Статистика</h1>
+            <p className="text-sm text-slate-500">Общая статистика работы отделения</p>
+          </div>
+        </div>
         <button
           onClick={loadStatistics}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-medical-500 text-white text-sm rounded-lg hover:bg-medical-600 transition-all duration-200 font-sans shadow-sm hover:shadow"
         >
+          <RefreshCw size={14} />
           Обновить
         </button>
       </div>
 
       {/* Фильтр по периоду */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <div className="flex items-center gap-4 mb-4">
-          <Filter className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Период</h3>
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div className="flex items-center gap-3 mb-4">
+          <Filter className="w-4 h-4 text-slate-400" />
+          <h3 className="text-sm font-semibold text-slate-700">Период</h3>
         </div>
-        <div className="flex flex-wrap gap-4 items-end">
+        <div className="flex flex-wrap gap-3 items-end">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-slate-500 mb-1.5 font-sans">
               Дата начала
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400
+                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
+                transition-all duration-200 font-sans"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-slate-500 mb-1.5 font-sans">
               Дата окончания
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400
+                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
+                transition-all duration-200 font-sans"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={handlePeriodChange}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-medical-500 text-white text-sm rounded-lg hover:bg-medical-600 transition-all duration-200 font-sans shadow-sm hover:shadow"
             >
               Применить
             </button>
             <button
               onClick={setCurrentMonth}
-              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-2 bg-slate-100 text-slate-600 text-sm rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all duration-200 font-sans"
             >
               Текущий месяц
             </button>
             <button
               onClick={setLastMonth}
-              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-2 bg-slate-100 text-slate-600 text-sm rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all duration-200 font-sans"
             >
               Прошлый месяц
             </button>
             <button
               onClick={setCurrentYear}
-              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-2 bg-slate-100 text-slate-600 text-sm rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all duration-200 font-sans"
             >
               Текущий год
             </button>
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+          <div className="text-xs text-slate-400 font-sans">
             {startDate && endDate
               ? `Период: с ${formatLocalDate(new Date(startDate))} по ${formatLocalDate(new Date(endDate))}`
               : "Вся статистика"}
@@ -314,7 +372,7 @@ const Statistics: React.FC = () => {
           {(startDate || endDate) && (
             <button
               onClick={clearFilter}
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
+              className="text-xs text-medical-600 hover:text-medical-800 underline transition-colors font-sans"
             >
               Очистить фильтр
             </button>
@@ -322,119 +380,156 @@ const Statistics: React.FC = () => {
         </div>
       </div>
 
-      {/* Маленькие плашки сверху */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Общие показатели */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard
-          title="Пациентов за период"
-          value={stats.patientsInPeriod}
+          title="Всего пациентов"
+          value={stats.totalPatients}
           icon={Users}
-          color="bg-blue-500"
+          color="bg-medical-500"
           size="small"
         />
         <StatCard
-          title="Исследований за период"
-          value={stats.researchesInPeriod}
+          title="Всего исследований"
+          value={stats.totalResearches}
           icon={FileText}
-          color="bg-green-500"
+          color="bg-clinical-500"
           size="small"
         />
         <StatCard
-          title="Протоколов за период"
-          value={stats.studiesInPeriod}
+          title="Всего протоколов"
+          value={stats.totalStudies}
           icon={BarChart3}
-          color="bg-purple-500"
+          color="bg-violet-500"
+          size="small"
+        />
+        <StatCard
+          title="За выбранный период"
+          value={stats.researchesInPeriod}
+          icon={TrendingUp}
+          color="bg-amber-500"
           size="small"
         />
       </div>
 
       {/* График по врачам */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+          <Stethoscope className="w-4 h-4 text-medical-500" />
           Статистика по врачам
         </h3>
         {stats && stats.doctorsStats.length > 0 ? (
-          <div className="h-80">
+          <div className="h-72">
             <Bar data={doctorsChartData} options={chartOptions} />
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            Нет данных по врачам за выбранный период
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <BarChart3 size={32} className="text-slate-300 mb-2" />
+            <p className="text-sm text-slate-400 font-medium">
+              Нет данных по врачам за выбранный период
+            </p>
           </div>
         )}
       </div>
 
       {/* Статистика по оплате и типы исследований */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-medical-500" />
             Статистика по оплате
           </h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-              <span className="text-blue-700 font-medium">ОМС</span>
-              <span className="text-2xl font-bold text-blue-900">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 bg-medical-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-medical-500" />
+                <span className="text-sm font-medium text-medical-700 font-sans">ОМС</span>
+              </div>
+              <span className="text-xl font-bold text-medical-900 font-sans">
                 {stats.paymentStats.oms}
               </span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-              <span className="text-green-700 font-medium">Платные</span>
-              <span className="text-2xl font-bold text-green-900">
+            <div className="flex items-center justify-between p-4 bg-clinical-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-clinical-500" />
+                <span className="text-sm font-medium text-clinical-700 font-sans">Платные</span>
+              </div>
+              <span className="text-xl font-bold text-clinical-900 font-sans">
                 {stats.paymentStats.paid}
               </span>
             </div>
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-xs text-slate-400 text-center pt-2 border-t border-slate-100 font-sans">
               Всего: {stats.paymentStats.oms + stats.paymentStats.paid} исследований
             </div>
           </div>
         </div>
 
         {/* Типы исследований */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-medical-500" />
             Типы исследований
           </h3>
-          <div className="space-y-3">
-            {Object.entries(stats.studiesByType).map(([type, count]) => (
-              <div key={type} className="flex items-center justify-between">
-                <span className="text-gray-700 capitalize">
-                  {type.replace(/([A-Z])/g, " $1").trim()}
-                </span>
-                <span className="font-semibold text-gray-900">{count}</span>
+          <div className="space-y-2">
+            {Object.entries(stats.studiesByType).length > 0 ? (
+              Object.entries(stats.studiesByType).map(([type, count]) => (
+                <div
+                  key={type}
+                  className="flex items-center justify-between px-3 py-2.5 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <span className="text-sm text-slate-600 font-sans capitalize">
+                    {type.replace(/([A-Z])/g, " $1").trim()}
+                  </span>
+                  <span className="text-sm font-semibold text-slate-900 font-sans">{count}</span>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <FileText size={28} className="text-slate-300 mb-2" />
+                <p className="text-sm text-slate-400 font-medium">
+                  Нет данных по типам исследований
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
 
       {/* Последняя активность */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-medical-500" />
           Последняя активность
         </h3>
-        <div className="space-y-3">
-          {stats.recentActivity.slice(0, 10).map((activity, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div>
-                <div className="font-medium text-gray-900">
-                  {activity.patientName}
+        <div className="space-y-2">
+          {stats.recentActivity.length > 0 ? (
+            stats.recentActivity.slice(0, 10).map((activity, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-medical-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-medical-400 shrink-0" />
+                  <div>
+                    <div className="text-sm font-medium text-slate-800 font-sans">
+                      {activity.patientName}
+                    </div>
+                    <div className="text-xs text-slate-400 font-sans">
+                      {activity.studyType}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600">
-                  {activity.studyType} •{" "}
+                <div className="text-xs text-slate-400 font-sans shrink-0">
                   {formatLocalDate(new Date(activity.date))}
                 </div>
               </div>
-            </div>
-          ))}
-          {stats.recentActivity.length === 0 && (
-            <div className="text-gray-500 text-center py-4">
-              Нет данных о последней активности
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Calendar size={28} className="text-slate-300 mb-2" />
+              <p className="text-sm text-slate-400 font-medium">
+                Нет данных о последней активности
+              </p>
             </div>
           )}
         </div>
