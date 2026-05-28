@@ -11,21 +11,24 @@ import {
   TrendingUp,
   Stethoscope,
 } from "lucide-react";
-import { Bar } from "react-chartjs-2";
+import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
+import DatePickerField from "@/components/common/DatePickerField";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -61,23 +64,34 @@ const Statistics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const formatLocalDate = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
+  /** Конвертирует "дд.мм.гггг" в "гггг-мм-дд" для отправки в API */
+  const ruToIso = (ru: string): string | undefined => {
+    if (!ru) return undefined;
+    const match = ru.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (!match) return undefined;
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  };
+
+  /** Форматирует Date в "дд.мм.гггг" для DatePickerField */
+  const formatRuDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
   };
 
   const [startDate, setStartDate] = useState(() => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    return formatLocalDate(firstDay);
+    return formatRuDate(firstDay);
   });
   const [endDate, setEndDate] = useState(() => {
     const now = new Date();
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return formatLocalDate(lastDay);
+    return formatRuDate(lastDay);
   });
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [doctorList, setDoctorList] = useState<string[]>([]);
 
   useEffect(() => {
     loadStatistics();
@@ -94,12 +108,17 @@ const Statistics: React.FC = () => {
       }
 
       const result = await window.databaseAPI.getStatistics(
-        startDate || undefined,
-        endDate || undefined
+        ruToIso(startDate),
+        ruToIso(endDate)
       );
 
       if (result && result.success && result.data) {
         setStats(result.data);
+        // Заполняем список врачей из полученных данных
+        const doctors = result.data.doctorsStats.map(
+          (doc: { doctorName: string }) => doc.doctorName
+        );
+        setDoctorList(doctors);
       } else {
         setError(result?.message || "Ошибка при загрузке статистики");
       }
@@ -119,8 +138,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    setStartDate(formatLocalDate(firstDay));
-    setEndDate(formatLocalDate(lastDay));
+    setStartDate(formatRuDate(firstDay));
+    setEndDate(formatRuDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -128,8 +147,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-    setStartDate(formatLocalDate(firstDay));
-    setEndDate(formatLocalDate(lastDay));
+    setStartDate(formatRuDate(firstDay));
+    setEndDate(formatRuDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -137,8 +156,8 @@ const Statistics: React.FC = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), 0, 1);
     const lastDay = new Date(now.getFullYear(), 11, 31);
-    setStartDate(formatLocalDate(firstDay));
-    setEndDate(formatLocalDate(lastDay));
+    setStartDate(formatRuDate(firstDay));
+    setEndDate(formatRuDate(lastDay));
     setTimeout(loadStatistics, 100);
   };
 
@@ -181,6 +200,25 @@ const Statistics: React.FC = () => {
   }
 
   if (!stats) return null;
+
+  /** Расчёт баллов по типам исследований */
+  const calculateScores = (studiesByType: { [key: string]: number }): number => {
+    const SCORE_MAP: Record<string, number> = {
+      ОБП: 6,
+      омт: 4,
+      ОМТ: 4,
+      бца: 4.5,
+      БЦА: 4.5,
+      увнк: 4.5,
+      УВНК: 4.5,
+    };
+    let total = 0;
+    for (const [type, count] of Object.entries(studiesByType)) {
+      const score = SCORE_MAP[type] ?? 2;
+      total += score * count;
+    }
+    return total;
+  };
 
   const StatCard: React.FC<{
     title: string;
@@ -281,51 +319,107 @@ const Statistics: React.FC = () => {
     },
   };
 
+  const DOUGHNUT_COLORS = [
+    "rgba(26, 130, 194, 0.85)",
+    "rgba(0, 168, 107, 0.85)",
+    "rgba(245, 158, 11, 0.85)",
+    "rgba(139, 92, 246, 0.85)",
+    "rgba(239, 68, 68, 0.85)",
+    "rgba(236, 72, 153, 0.85)",
+    "rgba(14, 116, 144, 0.85)",
+    "rgba(101, 163, 13, 0.85)",
+  ];
+
+  const doctorsDoughnutData = {
+    labels: stats?.doctorsStats.map((doc) => doc.doctorName) || [],
+    datasets: [
+      {
+        data: stats?.doctorsStats.map((doc) => doc.researchCount) || [],
+        backgroundColor: DOUGHNUT_COLORS.slice(0, stats?.doctorsStats.length || 0),
+        borderColor: "#ffffff",
+        borderWidth: 2,
+        hoverOffset: 8,
+      },
+    ],
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "55%",
+    plugins: {
+      legend: {
+        position: "right" as const,
+        labels: {
+          font: {
+            family: "Inter, system-ui, sans-serif",
+            size: 11,
+          },
+          padding: 12,
+          usePointStyle: true,
+          pointStyle: "circle",
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context: { label: string; parsed: number; dataset: { data: number[] } }) {
+            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const pct = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : "0";
+            return `${context.label}: ${context.parsed} (${pct}%)`;
+          },
+        },
+      },
+    },
+  };
+
   return (
     <div className="space-y-6 animate-fade-in font-sans">
-      {/* Заголовок */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Статистика</h1>
-        <button
-          onClick={loadStatistics}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-medical-500 text-white text-sm rounded-lg hover:bg-medical-600 transition-all duration-200 font-sans shadow-sm hover:shadow"
-        >
-          <RefreshCw size={14} />
-          Обновить
-        </button>
-      </div>
+      {/* Заголовок — скрыт, кнопка обновления убрана */}
 
-      {/* Фильтр по периоду */}
+      {/* Фильтр по параметрам */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <Filter className="w-4 h-4 text-slate-400" />
-          <h3 className="text-sm font-semibold text-slate-700">Период</h3>
+          <h3 className="text-sm font-semibold text-slate-700">Параметры</h3>
         </div>
         <div className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5 font-sans">
+              Врач
+            </label>
+            <select
+              value={selectedDoctor}
+              onChange={(e) => setSelectedDoctor(e.target.value)}
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700
+                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
+                transition-all duration-200 font-sans min-w-[180px]"
+            >
+              <option value="">Все врачи</option>
+              {doctorList.map((doctor) => (
+                <option key={doctor} value={doctor}>
+                  {doctor}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1.5 font-sans">
               Дата начала
             </label>
-            <input
-              type="date"
+            <DatePickerField
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400
-                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
-                transition-all duration-200 font-sans"
+              onChange={setStartDate}
+              placeholder="дд.мм.гггг"
             />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5 font-sans">
               Дата окончания
             </label>
-            <input
-              type="date"
+            <DatePickerField
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400
-                focus:outline-none focus:ring-2 focus:ring-medical-200 focus:border-medical-400 focus:bg-white
-                transition-all duration-200 font-sans"
+              onChange={setEndDate}
+              placeholder="дд.мм.гггг"
             />
           </div>
           <div className="flex gap-2">
@@ -358,7 +452,7 @@ const Statistics: React.FC = () => {
         <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
           <div className="text-xs text-slate-400 font-sans">
             {startDate && endDate
-              ? `Период: с ${formatLocalDate(new Date(startDate))} по ${formatLocalDate(new Date(endDate))}`
+              ? `Период: с ${startDate} по ${endDate}`
               : "Вся статистика"}
           </div>
           {(startDate || endDate) && (
@@ -373,7 +467,7 @@ const Statistics: React.FC = () => {
       </div>
 
       {/* Общие показатели */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           title="Всего пациентов"
           value={stats.totalPatients}
@@ -389,15 +483,8 @@ const Statistics: React.FC = () => {
           size="small"
         />
         <StatCard
-          title="Всего протоколов"
-          value={stats.totalStudies}
-          icon={BarChart3}
-          color="bg-violet-500"
-          size="small"
-        />
-        <StatCard
-          title="За выбранный период"
-          value={stats.researchesInPeriod}
+          title="Баллы"
+          value={calculateScores(stats.studiesByType)}
           icon={TrendingUp}
           color="bg-amber-500"
           size="small"
@@ -411,8 +498,13 @@ const Statistics: React.FC = () => {
           Статистика по врачам
         </h3>
         {stats && stats.doctorsStats.length > 0 ? (
-          <div className="h-72">
-            <Bar data={doctorsChartData} options={chartOptions} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-72">
+              <Bar data={doctorsChartData} options={chartOptions} />
+            </div>
+            <div className="h-72 flex items-center justify-center">
+              <Doughnut data={doctorsDoughnutData} options={doughnutOptions} />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -464,7 +556,9 @@ const Statistics: React.FC = () => {
           </h3>
           <div className="space-y-2">
             {Object.entries(stats.studiesByType).length > 0 ? (
-              Object.entries(stats.studiesByType).map(([type, count]) => (
+              Object.entries(stats.studiesByType)
+                .sort(([, a], [, b]) => b - a)
+                .map(([type, count]) => (
                 <div
                   key={type}
                   className="flex items-center justify-between px-3 py-2.5 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
@@ -512,7 +606,7 @@ const Statistics: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-slate-400 font-sans shrink-0">
-                  {formatLocalDate(new Date(activity.date))}
+                  {activity.date}
                 </div>
               </div>
             ))
