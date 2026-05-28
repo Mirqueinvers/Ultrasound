@@ -148,9 +148,12 @@ export const PatientCard: React.FC<PatientCardProps> = ({
           <button
             type="button"
             onClick={onEditPatient}
-            className="self-start whitespace-nowrap text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
+            className="self-start rounded-full p-1.5 text-slate-400 transition-all hover:bg-sky-50 hover:text-sky-500 active:bg-sky-100"
+            title="Редактировать пациента"
           >
-            Редактировать
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
           </button>
         )}
       </div>
