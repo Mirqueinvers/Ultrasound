@@ -165,6 +165,10 @@ const PrintableSavedProtocol = React.forwardRef<
         setPersistedOverrides(protocol.printOverrides || {});
       }
 
+      // Даём React время обработать батч setStudyData перед снятием флага загрузки,
+      // чтобы studyDefinitions корректно отфильтровались по studyData
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
       if (!cancelled) {
         setLoading(false);
       }
