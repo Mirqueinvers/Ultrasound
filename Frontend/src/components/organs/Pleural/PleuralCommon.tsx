@@ -31,9 +31,9 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div ref={sectionRefs?.["Ïëåâðàëüíàÿ ïîëîñòü:ïðàâàÿ"]}>
+      <div ref={(sectionRefs as any)?.["ÐŸÐ»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ:Ð¿Ñ€Ð°Ð²Ð°Ñ"]}>
         <ResearchSectionCard
-          title="Ïðàâàÿ ïëåâðàëüíàÿ ïîëîñòü"
+          title="ÐŸÑ€Ð°Ð²Ð°Ñ Ð¿Ð»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ"
           >
           <PleuralSide
             side="right"
@@ -43,9 +43,9 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Ïëåâðàëüíàÿ ïîëîñòü:ëåâàÿ"]}>
+      <div ref={(sectionRefs as any)?.["ÐŸÐ»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ:Ð»ÐµÐ²Ð°Ñ"]}>
         <ResearchSectionCard
-          title="Ëåâàÿ ïëåâðàëüíàÿ ïîëîñòü"
+          title="Ð›ÐµÐ²Ð°Ñ Ð¿Ð»ÐµÐ²Ñ€Ð°Ð»ÑŒÐ½Ð°Ñ Ð¿Ð¾Ð»Ð¾ÑÑ‚ÑŒ"
           >
           <PleuralSide
             side="left"

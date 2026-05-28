@@ -74,8 +74,8 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   formatPatientName,
   formatDateRu,
   showResearchDate = false,
-  isExpanded,
-  onToggle,
+  isExpanded: _isExpanded,
+  onToggle: _onToggle,
 }) => {
   const totalResearches = researches.length;
   const omsCount = researches.filter((r) => r.payment_type === "oms").length;

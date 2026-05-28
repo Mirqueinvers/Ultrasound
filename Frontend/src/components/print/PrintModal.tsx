@@ -62,7 +62,6 @@ const PrintModal: React.FC<PrintModalProps> = ({
   researchId,
 }) => {
   const protocolRef = React.useRef<PrintableProtocolHandle | null>(null);
-  const printRootRef = React.useRef<HTMLDivElement | null>(null);
   const [printers, setPrinters] = React.useState<Array<{ name: string; isDefault: boolean }>>([]);
   const [selectedPrinter, setSelectedPrinter] = React.useState<string>("");
   const [loadingPrinters, setLoadingPrinters] = React.useState(false);
