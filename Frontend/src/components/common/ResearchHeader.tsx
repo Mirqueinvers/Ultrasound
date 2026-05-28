@@ -27,22 +27,6 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  const formatDate = (value: string): string => {
-    const numbersOnly = value.replace(/\D/g, "");
-    if (numbersOnly.length === 8) {
-      const day = numbersOnly.substring(0, 2);
-      const month = numbersOnly.substring(2, 4);
-      const year = numbersOnly.substring(4, 8);
-      return `${day}.${month}.${year}`;
-    }
-    return value;
-  };
-
-  const updateFullName = (last: string, first: string, middle: string) => {
-    const parts = [last, first, middle].filter((part) => part.trim() !== "");
-    setPatientFullName(parts.join(" "));
-  };
-
   const handleLastNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const capitalized = capitalizeFirstLetter(e.target.value);
     const parts = patientFullName.split(" ");
@@ -64,11 +48,6 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
     const last = parts[0] || "";
     const first = parts[1] || "";
     setPatientFullName([last, first, capitalized].join(" "));
-  };
-
-  const handleDateOfBirthBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const formatted = formatDate(e.target.value);
-    setPatientDateOfBirth(formatted);
   };
 
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

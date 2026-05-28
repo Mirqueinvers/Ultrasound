@@ -18,7 +18,6 @@ import SoftTissuePrint from "@/components/print/researches/SoftTissuePrint";
 import LymphNodesResearchPrint from "@/components/print/researches/LymphNodesPrint";
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
 import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
-import EditablePrintHtmlBlock from "@/components/print/EditablePrintHtmlBlock";
 import type {
   ObpProtocol,
   KidneyStudyProtocol,
@@ -140,8 +139,6 @@ const PrintableSavedProtocol = React.forwardRef<
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const [isEditMode, setIsEditMode] = React.useState(false);
-  const [isSavingOverrides, setIsSavingOverrides] = React.useState(false);
-  const [isResettingOverrides, setIsResettingOverrides] = React.useState(false);
   const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
@@ -212,21 +209,21 @@ const PrintableSavedProtocol = React.forwardRef<
     };
   }, [researchId, setOrganization, setPatientDateOfBirth, setPatientFullName, setResearchDate]);
 
-  const obpData = studiesData["\u041e\u0411\u041f"];
-  const kidneysData = studiesData["\u041f\u043e\u0447\u043a\u0438"];
-  const bladderStudyData = studiesData["\u041c\u043e\u0447\u0435\u0432\u043e\u0439 \u043f\u0443\u0437\u044b\u0440\u044c"];
-  const omtFemaleData = studiesData["\u041e\u041c\u0422 (\u0416)"];
-  const omtMaleData = studiesData["\u041e\u041c\u0422 (\u041c)"];
-  const thyroidData = studiesData["\u0429\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430\u044f \u0436\u0435\u043b\u0435\u0437\u0430"];
-  const breastData = studiesData["\u041c\u043e\u043b\u043e\u0447\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b"];
-  const scrotumData = studiesData["\u041e\u0440\u0433\u0430\u043d\u044b \u043c\u043e\u0448\u043e\u043d\u043a\u0438"];
-  const childDispensaryData = studiesData["\u0414\u0435\u0442\u0441\u043a\u0430\u044f \u0434\u0438\u0441\u043f\u0430\u043d\u0441\u0435\u0440\u0438\u0437\u0430\u0446\u0438\u044f"];
-  const softTissueData = studiesData["\u041c\u044f\u0433\u043a\u0438\u0445 \u0442\u043a\u0430\u043d\u0435\u0439"];
-  const salivaryData = studiesData["\u0421\u043b\u044e\u043d\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b"];
-  const brachioCephalicArteriesData = studiesData["\u0411\u0426\u0410"];
+  const obpData = studiesData["ОБП"];
+  const kidneysData = studiesData["Почки"];
+  const bladderStudyData = studiesData["Мочевой пузырь"];
+  const omtFemaleData = studiesData["ОМТ (Ж)"];
+  const omtMaleData = studiesData["ОМТ (М)"];
+  const thyroidData = studiesData["Щитовидная железа"];
+  const breastData = studiesData["Молочные железы"];
+  const scrotumData = studiesData["Органы мошонки"];
+  const childDispensaryData = studiesData["Детская диспансеризация"];
+  const softTissueData = studiesData["Мягких тканей"];
+  const salivaryData = studiesData["Слюнные железы"];
+  const brachioCephalicArteriesData = studiesData["БЦА"];
   const lymphNodesData =
-    studiesData["\u041b\u0438\u043c\u0444\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u0443\u0437\u043b\u044b"] ||
-    studiesData["\u041b\u0438\u043c\u0444\u043e\u0443\u0437\u043b\u044b"] ||
+    studiesData["Лимфатические узлы"] ||
+    studiesData["Лимфоузлы"] ||
     studiesData["lymphNodes"];
 
   const obpProtocol = obpData as ObpProtocol | undefined;
@@ -249,7 +246,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "obp",
         key: "obp",
-        label: "\u041e\u0411\u041f",
+        label: "ОБП",
         studyData: obpProtocol,
         conclusion: obpProtocol?.conclusion || "",
         recommendations: obpProtocol?.recommendations || "",
@@ -258,7 +255,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "kidneys",
         key: "kidneys",
-        label: "\u041f\u043e\u0447\u043a\u0438",
+        label: "Почки",
         studyData: kidneysProtocol,
         conclusion: kidneysProtocol?.conclusion || "",
         recommendations: kidneysProtocol?.recommendations || "",
@@ -267,7 +264,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "bladder",
         key: "bladder",
-        label: "\u041c\u043e\u0447\u0435\u0432\u043e\u0439 \u043f\u0443\u0437\u044b\u0440\u044c",
+        label: "Мочевой пузырь",
         studyData: bladderStudyProtocol,
         conclusion: bladderStudyProtocol?.conclusion || "",
         recommendations: bladderStudyProtocol?.recommendations || "",
@@ -276,7 +273,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "omtFemale",
         key: "omt-female",
-        label: "\u041e\u041c\u0422 (\u0416)",
+        label: "ОМТ (Ж)",
         studyData: omtFemaleProtocol,
         conclusion: omtFemaleProtocol?.conclusion || "",
         recommendations: omtFemaleProtocol?.recommendations || "",
@@ -285,7 +282,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "omtMale",
         key: "omt-male",
-        label: "\u041e\u041c\u0422 (\u041c)",
+        label: "ОМТ (М)",
         studyData: omtMaleProtocol,
         conclusion: omtMaleProtocol?.conclusion || "",
         recommendations: omtMaleProtocol?.recommendations || "",
@@ -294,7 +291,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "thyroid",
         key: "thyroid",
-        label: "\u0429\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430\u044f \u0436\u0435\u043b\u0435\u0437\u0430",
+        label: "Щитовидная железа",
         studyData: thyroidProtocol,
         conclusion: thyroidProtocol?.conclusion || "",
         recommendations: thyroidProtocol?.recommendations || "",
@@ -303,7 +300,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "breast",
         key: "breast",
-        label: "\u041c\u043e\u043b\u043e\u0447\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b",
+        label: "Молочные железы",
         studyData: breastProtocol,
         conclusion: breastProtocol?.conclusion || "",
         recommendations: breastProtocol?.recommendations || "",
@@ -312,7 +309,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "scrotum",
         key: "scrotum",
-        label: "\u041e\u0440\u0433\u0430\u043d\u044b \u043c\u043e\u0448\u043e\u043d\u043a\u0438",
+        label: "Органы мошонки",
         studyData: scrotumProtocol,
         conclusion: scrotumProtocol?.conclusion || "",
         recommendations: scrotumProtocol?.recommendations || "",
@@ -321,7 +318,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "salivaryGlands",
         key: "salivary-glands",
-        label: "\u0421\u043b\u044e\u043d\u043d\u044b\u0435 \u0436\u0435\u043b\u0435\u0437\u044b",
+        label: "Слюнные железы",
         studyData: salivaryProtocol,
         conclusion: salivaryProtocol?.conclusion || "",
         recommendations: salivaryProtocol?.recommendations || "",
@@ -330,7 +327,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "brachioCephalicArteries",
         key: "brachio-cephalic-arteries",
-        label: "\u0411\u0426\u0410",
+        label: "БЦА",
         studyData: brachioCephalicArteriesProtocol,
         conclusion: brachioCephalicArteriesProtocol?.conclusion || "",
         recommendations: brachioCephalicArteriesProtocol?.recommendations || "",
@@ -339,7 +336,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "lymphNodes",
         key: "lymph-nodes",
-        label: "\u041b\u0438\u043c\u0444\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u0443\u0437\u043b\u044b",
+        label: "Лимфатические узлы",
         studyData: lymphNodesProtocol,
         conclusion: lymphNodesProtocol?.conclusion || "",
         recommendations: lymphNodesProtocol?.recommendations || "",
@@ -348,7 +345,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "childDispensary",
         key: "child-dispensary",
-        label: "\u0414\u0435\u0442\u0441\u043a\u0430\u044f \u0434\u0438\u0441\u043f\u0430\u043d\u0441\u0435\u0440\u0438\u0437\u0430\u0446\u0438\u044f",
+        label: "Детская диспансеризация",
         studyData: childDispensaryProtocol,
         conclusion: childDispensaryProtocol?.conclusion || "",
         recommendations: childDispensaryProtocol?.recommendations || "",
@@ -357,7 +354,7 @@ const PrintableSavedProtocol = React.forwardRef<
       {
         id: "softTissue",
         key: "soft-tissue",
-        label: "\u041c\u044f\u0433\u043a\u0438\u0435 \u0442\u043a\u0430\u043d\u0438",
+        label: "Мягкие ткани",
         studyData: softTissueProtocol,
         conclusion: softTissueProtocol?.conclusion || "",
         recommendations: softTissueProtocol?.recommendations || "",
@@ -585,18 +582,9 @@ const PrintableSavedProtocol = React.forwardRef<
     }
   }, [isEditMode]);
 
-  const handleDraftChange = React.useCallback((key: string, value: string) => {
-    setDraftOverrides((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
   const handleStartEditing = React.useCallback(() => {
     setDraftOverrides(buildDraftOverrides(persistedOverrides));
     setIsEditMode(true);
-  }, [buildDraftOverrides, persistedOverrides]);
-
-  const handleCancelEditing = React.useCallback(() => {
-    setDraftOverrides(buildDraftOverrides(persistedOverrides));
-    setIsEditMode(false);
   }, [buildDraftOverrides, persistedOverrides]);
 
   const handleSaveOverrides = React.useCallback(async () => {
@@ -636,7 +624,6 @@ const PrintableSavedProtocol = React.forwardRef<
       }
     });
 
-    setIsSavingOverrides(true);
     try {
       const result = await window.protocolAPI.savePrintOverrides({
         researchId,
@@ -644,7 +631,7 @@ const PrintableSavedProtocol = React.forwardRef<
       });
 
       if (!result.success) {
-        window.alert(result.message || "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043f\u0440\u0430\u0432\u043a\u0438 \u043f\u0435\u0447\u0430\u0442\u043d\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438.");
+        window.alert(result.message || "Не удалось сохранить правки печатной версии.");
         return;
       }
 
@@ -652,9 +639,7 @@ const PrintableSavedProtocol = React.forwardRef<
       setIsEditMode(false);
       onSave?.();
     } catch {
-      window.alert("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043f\u0440\u0430\u0432\u043a\u0438 \u043f\u0435\u0447\u0430\u0442\u043d\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438.");
-    } finally {
-      setIsSavingOverrides(false);
+      window.alert("Не удалось сохранить правки печатной версии.");
     }
   }, [draftOverrides, researchId, studyDefinitions]);
 
@@ -664,29 +649,6 @@ const PrintableSavedProtocol = React.forwardRef<
     saveOverrides: handleSaveOverrides,
     getPrintRoot: () => printRootRef.current,
   }), [handleSaveOverrides]);
-
-  const handleResetOverrides = React.useCallback(async () => {
-    setIsResettingOverrides(true);
-    try {
-      const result = await window.protocolAPI.savePrintOverrides({
-        researchId,
-        overrides: {},
-      });
-
-      if (!result.success) {
-        window.alert(result.message || "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u043f\u0440\u0430\u0432\u043a\u0438 \u043f\u0435\u0447\u0430\u0442\u043d\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438.");
-        return;
-      }
-
-      setPersistedOverrides({});
-      setDraftOverrides(buildDraftOverrides({}));
-      setIsEditMode(false);
-    } catch {
-      window.alert("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u043f\u0440\u0430\u0432\u043a\u0438 \u043f\u0435\u0447\u0430\u0442\u043d\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438.");
-    } finally {
-      setIsResettingOverrides(false);
-    }
-  }, [buildDraftOverrides, researchId]);
 
   if (loading && !pages) {
     return (

@@ -18,7 +18,6 @@ import PleuralResearchPrint from "@/components/print/researches/PleuralPrint";
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
 import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
 import LowerExtremityVeinsResearchPrint from "@/components/print/researches/LowerExtremityVeinsPrint";
-import EditablePrintHtmlBlock from "@/components/print/EditablePrintHtmlBlock";
 import type {
   ObpProtocol,
   KidneyStudyProtocol,
@@ -513,18 +512,9 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     }
   }, [pages]);
 
-  const handleDraftChange = React.useCallback((key: string, value: string) => {
-    setDraftOverrides((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
   const handleStartEditing = React.useCallback(() => {
     setDraftOverrides(buildDraftOverrides(appliedOverrides));
     setIsEditMode(true);
-  }, [appliedOverrides, buildDraftOverrides]);
-
-  const handleCancelEditing = React.useCallback(() => {
-    setDraftOverrides(buildDraftOverrides(appliedOverrides));
-    setIsEditMode(false);
   }, [appliedOverrides, buildDraftOverrides]);
 
   const handleSaveOverrides = React.useCallback(async () => {
@@ -586,12 +576,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     props.onSave?.();
   }, [draftOverrides, studyDefinitions, props.onSave, props.researchId]);
 
-  const handleResetOverrides = React.useCallback(() => {
-    setAppliedOverrides({});
-    setDraftOverrides(buildDraftOverrides({}));
-    setIsEditMode(false);
-  }, [buildDraftOverrides]);
-
   React.useImperativeHandle(ref, () => ({
     saveOverrides: handleSaveOverrides,
     getPrintRoot: () => printRootRef.current,
@@ -639,28 +623,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       </div>
     );
   }
-
-  const sourceNodes = (
-    <div
-      ref={sourceContainerRef}
-      data-print-source
-      hidden
-      aria-hidden="true"
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "210mm",
-        pointerEvents: "none",
-      }}
-    >
-      {studyDefinitions.map((definition) => (
-        <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
-          {definition.element}
-        </div>
-      ))}
-    </div>
-  );
 
   const measureNodes = (
     <div

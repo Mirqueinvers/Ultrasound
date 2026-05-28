@@ -7,7 +7,6 @@ import { Directory } from "@components/directory";
 
 import PrintModal from "@components/print/PrintModal";
 import {
-  useAvailableSectionKeys,
   useSaveResearch,
   useMobileDraftCommands,
   useClearResearchDraft,
