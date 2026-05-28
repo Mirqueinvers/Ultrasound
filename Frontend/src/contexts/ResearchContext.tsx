@@ -35,7 +35,10 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const getCurrentDate = useCallback(() => {
     const now = new Date();
     const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-    return localDate.toISOString().slice(0, 10);
+    const y = localDate.getFullYear();
+    const m = String(localDate.getMonth() + 1).padStart(2, "0");
+    const d = String(localDate.getDate()).padStart(2, "0");
+    return `${d}.${m}.${y}`;
   }, []);
 
   const [patientFullName, setPatientFullNameState] = useState("");

@@ -1,5 +1,6 @@
 import React from "react";
 import { useResearch } from "@contexts";
+import DatePickerField from "./DatePickerField";
 
 export interface ResearchHeaderProps {
   paymentType: "oms" | "paid";
@@ -94,7 +95,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
   };
 
   return (
-    <div className="mb-6 rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <div className="mb-6 rounded-xl border border-slate-200 bg-white">
       {/* Шапка с иконкой и заголовком */}
       <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100">
         <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center">
@@ -143,32 +144,16 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
           {/* Правая колонка — даты + оплата */}
           <div className="space-y-3">
             <Field label="Дата рождения">
-              <input
-                type="text"
+              <DatePickerField
                 value={patientDateOfBirth}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  const numbersOnly = raw.replace(/\D/g, "");
-                  if (numbersOnly.length === 8) {
-                    const day = numbersOnly.substring(0, 2);
-                    const month = numbersOnly.substring(2, 4);
-                    const year = numbersOnly.substring(4, 8);
-                    setPatientDateOfBirth(`${day}.${month}.${year}`);
-                  } else {
-                    setPatientDateOfBirth(raw);
-                  }
-                }}
-                onBlur={handleDateOfBirthBlur}
+                onChange={setPatientDateOfBirth}
                 placeholder="дд.мм.гггг"
-                className="max-w-[200px] px-3 py-2 border-0 border-b-2 border-slate-200 bg-transparent text-sm text-slate-800 transition-all outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-sky-400 focus:bg-sky-50/30 rounded-t-md"
               />
             </Field>
             <Field label="Дата исследования">
-              <input
-                type="date"
+              <DatePickerField
                 value={researchDate}
-                onChange={(e) => setResearchDate(e.target.value)}
-                className="max-w-[200px] px-3 py-2 border-0 border-b-2 border-slate-200 bg-transparent text-sm text-slate-800 transition-all outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-sky-400 focus:bg-sky-50/30 rounded-t-md"
+                onChange={setResearchDate}
               />
             </Field>
             <Field label="Тип оплаты">
