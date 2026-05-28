@@ -203,12 +203,14 @@ export class StatisticsRepository {
         ORDER BY month DESC
         LIMIT 12
       `)
-      .all() as { month: string; count: number }[];
+      .all() as { month: string | null; count: number }[];
 
-    return rows.map(row => ({
-      month: this.formatMonth(row.month),
-      count: row.count,
-    }));
+    return rows
+      .filter(row => row.month !== null)
+      .map(row => ({
+        month: this.formatMonth(row.month!),
+        count: row.count,
+      }));
   }
 
   private getRecentActivity(startDate?: string, endDate?: string): {
