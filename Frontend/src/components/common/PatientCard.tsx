@@ -55,8 +55,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 export interface PatientCardProps {
   patient: Patient;
   researches: Research[];
-  isExpanded: boolean;
-  onToggle: () => void;
   onOpenProtocol: (researchId: number) => void;
   onEditPatient?: () => void;
   onDeleteResearch?: (researchId: number) => void;
@@ -67,8 +65,6 @@ export interface PatientCardProps {
 export const PatientCard: React.FC<PatientCardProps> = ({
   patient,
   researches,
-  isExpanded,
-  onToggle,
   onOpenProtocol,
   onEditPatient,
   onDeleteResearch,
@@ -101,12 +97,8 @@ export const PatientCard: React.FC<PatientCardProps> = ({
 
   return (
     <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-shadow hover:shadow-md">
-      {/* Кликабельная шапка карточки */}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 px-4 py-3"
-      >
+      {/* Шапка карточки */}
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-3">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold uppercase text-sky-700">
             {patient.last_name?.[0]}
@@ -152,40 +144,18 @@ export const PatientCard: React.FC<PatientCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-center">
-          <svg
-            className={`h-3 w-3 transform text-slate-500 transition-transform ${
-              isExpanded ? "rotate-180" : ""
-            }`}
-            viewBox="0 0 16 16"
-            aria-hidden="true"
-          >
-            <path
-              d="M4 6l4 4 4-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </button>
-
-      {/* Кнопка редактирования — снаружи, не внутри <button> */}
-      {onEditPatient && (
-        <div className="px-4 pb-2 pt-1">
+        {onEditPatient && (
           <button
             type="button"
             onClick={onEditPatient}
-            className="text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
+            className="self-start whitespace-nowrap text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
           >
-            Редактировать пациента
+            Редактировать
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {isExpanded && researches.length > 0 && (
+      {researches.length > 0 && (
         <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-3 text-sm">
           <ul className="space-y-2">
             {researches.map((r) => (

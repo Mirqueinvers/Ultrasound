@@ -81,7 +81,6 @@ const Journal: React.FC = () => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [expandedPatientIds, setExpandedPatientIds] = useState<number[]>([]);
   const [printResearchId, setPrintResearchId] = useState<number | null>(null);
   const [isPrintSavedOpen, setIsPrintSavedOpen] = useState(false);
 
@@ -127,14 +126,6 @@ const Journal: React.FC = () => {
     } catch (error) {
       console.error("Ошибка удаления исследования", error);
     }
-  };
-
-  const toggleExpanded = (patientId: number) => {
-    setExpandedPatientIds((prevIds) =>
-      prevIds.includes(patientId)
-        ? prevIds.filter((id) => id !== patientId)
-        : [...prevIds, patientId],
-    );
   };
 
   const openProtocol = (researchId: number) => {
@@ -438,25 +429,19 @@ const Journal: React.FC = () => {
 
         {!loading && entries.length > 0 ? (
           <ul className="space-y-3">
-            {entries.map(({ patient, researches }) => {
-              const isExpanded = expandedPatientIds.includes(patient.id);
-
-              return (
-                <li key={patient.id}>
-                  <PatientCard
-                    patient={patient}
-                    researches={researches as Research[]}
-                    isExpanded={isExpanded}
-                    onToggle={() => toggleExpanded(patient.id)}
-                    onOpenProtocol={openProtocol}
-                    onEditPatient={() => openEditPatient(patient)}
-                    onDeleteResearch={handleDeleteResearch}
-                    formatPatientName={formatPatientName}
-                    formatDateRu={formatDateRu}
-                  />
-                </li>
-              );
-            })}
+            {entries.map(({ patient, researches }) => (
+              <li key={patient.id}>
+                <PatientCard
+                  patient={patient}
+                  researches={researches as Research[]}
+                  onOpenProtocol={openProtocol}
+                  onEditPatient={() => openEditPatient(patient)}
+                  onDeleteResearch={handleDeleteResearch}
+                  formatPatientName={formatPatientName}
+                  formatDateRu={formatDateRu}
+                />
+              </li>
+            ))}
           </ul>
         ) : null}
       </div>
