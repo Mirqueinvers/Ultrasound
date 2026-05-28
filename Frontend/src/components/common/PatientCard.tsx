@@ -60,6 +60,9 @@ export interface PatientCardProps {
   onDeleteResearch?: (researchId: number) => void;
   formatPatientName: (p: Patient) => string;
   formatDateRu: (value: string) => string;
+  showResearchDate?: boolean;
+  isExpanded?: boolean;
+  onToggle?: () => void;
 }
 
 export const PatientCard: React.FC<PatientCardProps> = ({
@@ -70,6 +73,9 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   onDeleteResearch,
   formatPatientName,
   formatDateRu,
+  showResearchDate = false,
+  isExpanded,
+  onToggle,
 }) => {
   const totalResearches = researches.length;
   const omsCount = researches.filter((r) => r.payment_type === "oms").length;
@@ -164,7 +170,8 @@ export const PatientCard: React.FC<PatientCardProps> = ({
             {researches.map((r) => (
               <li
                 key={r.id}
-                className="flex flex-col gap-2 rounded-lg bg-white px-3 py-2.5 text-xs text-slate-700 shadow-sm ring-1 ring-slate-200/70 md:flex-row md:items-center md:justify-between"
+                onClick={() => onOpenProtocol(r.id)}
+                className="group relative flex cursor-pointer flex-col gap-2 rounded-lg bg-white px-3 py-2.5 pr-8 text-xs text-slate-700 shadow-sm ring-1 ring-slate-200/70 transition-colors hover:bg-sky-50 md:flex-row md:items-center md:justify-between"
               >
                 <div className="flex flex-col gap-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -181,9 +188,16 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                       <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                         Исследования:
                       </span>
-                      <span className="text-[11px] text-slate-700">
-                        {r.study_types.join(", ")}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {r.study_types.map((studyType) => (
+                          <span
+                            key={studyType}
+                            className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700"
+                          >
+                            {studyType}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -192,42 +206,31 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                       Заметки: {r.notes}
                     </div>
                   )}
-
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => onOpenProtocol(r.id)}
-                      className="mt-1 self-start text-[11px] font-medium text-sky-600 hover:text-sky-700 hover:underline"
-                    >
-                      Посмотреть протокол исследования
-                    </button>
-                    {onDeleteResearch && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteResearchClick(r.id)}
-                        className="mt-1 self-start text-[11px] font-medium text-red-600 hover:text-red-700 hover:underline"
-                      >
-                        Удалить исследование
-                      </button>
-                    )}
-                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
-                  <span
-                    className={`rounded-full border px-2 py-0.5 font-medium ${
-                      r.payment_type === "oms"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-sky-200 bg-sky-50 text-sky-700"
-                    }`}
-                  >
-                    {r.payment_type === "oms" ? "ОМС" : "Платно"}
-                  </span>
-                  <span className="h-3 w-px bg-slate-200" />
-                  <span className="font-medium text-slate-700">
-                    {formatDateRu(r.research_date)}
-                  </span>
+                  {showResearchDate && (
+                    <span className="font-medium text-slate-700">
+                      {formatDateRu(r.research_date)}
+                    </span>
+                  )}
                 </div>
+
+                {onDeleteResearch && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteResearchClick(r.id);
+                    }}
+                    className="absolute right-1.5 top-1.5 rounded-full p-1 text-slate-300 transition-all hover:bg-red-50 hover:text-red-500"
+                    title="Удалить исследование"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
               </li>
             ))}
           </ul>

@@ -2,6 +2,22 @@ import React from "react";
 import { useResearch } from "@contexts";
 import DatePickerField from "./DatePickerField";
 
+/** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
+const isoToRu = (iso: string): string => {
+  if (!iso) return "";
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return iso;
+  return `${match[3]}.${match[2]}.${match[1]}`;
+};
+
+/** Конвертирует "дд.мм.гггг" в "гггг-мм-дд" */
+const ruToIso = (ru: string): string => {
+  if (!ru) return "";
+  const match = ru.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return ru;
+  return `${match[3]}-${match[2]}-${match[1]}`;
+};
+
 export interface ResearchHeaderProps {
   paymentType: "oms" | "paid";
   setPaymentType: (type: "oms" | "paid") => void;
@@ -131,8 +147,9 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
             </Field>
             <Field label="Дата исследования">
               <DatePickerField
-                value={researchDate}
-                onChange={setResearchDate}
+                value={isoToRu(researchDate)}
+                onChange={(val) => setResearchDate(ruToIso(val))}
+                placeholder="дд.мм.гггг"
               />
             </Field>
             <Field label="Тип оплаты">

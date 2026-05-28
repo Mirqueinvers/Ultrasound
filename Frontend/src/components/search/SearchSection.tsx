@@ -130,6 +130,7 @@ export function SearchSection() {
                     onOpenProtocol={openProtocol}
                     formatPatientName={formatPatientName}
                     formatDateRu={formatDateRu}
+                    showResearchDate
                   />
                 </li>
               );
