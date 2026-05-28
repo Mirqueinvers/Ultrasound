@@ -249,17 +249,23 @@ export class StatisticsRepository {
         study_type: string;
       }[];
 
-    return rows.map(row => {
-      // Обеспечиваем корректную обработку даты в локальном времени
-      const date = new Date(row.date);
-      const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      
-      return {
-        date: localDate.toISOString().split('T')[0],
-        patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
-        studyType: this.formatStudyType(row.study_type),
-      };
-    });
+    return rows
+      .filter(row => {
+        // Фильтруем строки с невалидными датами
+        const date = new Date(row.date);
+        return !isNaN(date.getTime());
+      })
+      .map(row => {
+        // Обеспечиваем корректную обработку даты в локальном времени
+        const date = new Date(row.date);
+        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        
+        return {
+          date: localDate.toISOString().split('T')[0],
+          patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
+          studyType: this.formatStudyType(row.study_type),
+        };
+      });
   }
 
   private getDoctorsStats(startDate?: string, endDate?: string): {
