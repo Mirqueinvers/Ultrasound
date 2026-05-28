@@ -38,7 +38,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     const y = localDate.getFullYear();
     const m = String(localDate.getMonth() + 1).padStart(2, "0");
     const d = String(localDate.getDate()).padStart(2, "0");
-    return `${d}.${m}.${y}`;
+    return `${y}-${m}-${d}`;
   }, []);
 
   const [patientFullName, setPatientFullNameState] = useState("");
