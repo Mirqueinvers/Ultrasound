@@ -3,6 +3,7 @@ import { PatientCard } from "@/components/common/PatientCard";
 import { EditPatientModal } from "@/components/journal/EditPatientModal";
 import { JournalExportRenderer } from "@/components/journal/JournalExportRenderer";
 import PrintSavedModal from "@/components/print/PrintSavedModal";
+import DatePickerField from "@/components/common/DatePickerField";
 import type { JournalEntry, Patient, Research } from "@/types";
 
 const formatPatientName = (patient: Patient) =>
@@ -42,6 +43,22 @@ const formatDateRu = (value: string) => {
     month: "2-digit",
     year: "numeric",
   });
+};
+
+/** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
+const isoToRu = (iso: string): string => {
+  if (!iso) return "";
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return iso;
+  return `${match[3]}.${match[2]}.${match[1]}`;
+};
+
+/** Конвертирует "дд.мм.гггг" в "гггг-мм-дд" */
+const ruToIso = (ru: string): string => {
+  if (!ru) return "";
+  const match = ru.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return ru;
+  return `${match[3]}-${match[2]}-${match[1]}`;
 };
 
 type ExportMode = "date" | "period";
@@ -337,11 +354,10 @@ const Journal: React.FC = () => {
         <div className="flex flex-1 items-center justify-center">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <span>Дата</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-0"
+            <DatePickerField
+              value={isoToRu(date)}
+              onChange={(val) => setDate(ruToIso(val))}
+              placeholder="дд.мм.гггг"
             />
           </label>
         </div>
@@ -373,11 +389,10 @@ const Journal: React.FC = () => {
                 <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   С
                 </span>
-                <input
-                  type="date"
-                  value={exportStartDate}
-                  onChange={(event) => setExportStartDate(event.target.value)}
-                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                <DatePickerField
+                  value={isoToRu(exportStartDate)}
+                  onChange={(val) => setExportStartDate(ruToIso(val))}
+                  placeholder="дд.мм.гггг"
                 />
               </label>
 
@@ -385,11 +400,10 @@ const Journal: React.FC = () => {
                 <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   По
                 </span>
-                <input
-                  type="date"
-                  value={exportEndDate}
-                  onChange={(event) => setExportEndDate(event.target.value)}
-                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                <DatePickerField
+                  value={isoToRu(exportEndDate)}
+                  onChange={(val) => setExportEndDate(ruToIso(val))}
+                  placeholder="дд.мм.гггг"
                 />
               </label>
             </>
