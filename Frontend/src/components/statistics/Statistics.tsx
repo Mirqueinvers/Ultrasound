@@ -7,7 +7,6 @@ import {
   DollarSign,
   Filter,
   RefreshCw,
-  Activity,
   TrendingUp,
   Stethoscope,
 } from "lucide-react";
@@ -606,7 +605,7 @@ const Statistics: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-slate-400 font-sans shrink-0">
-                  {activity.date}
+                  {activity.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3.$2.$1")}
                 </div>
               </div>
             ))

@@ -251,21 +251,14 @@ export class StatisticsRepository {
 
     return rows
       .filter(row => {
-        // Фильтруем строки с невалидными датами
-        const date = new Date(row.date);
-        return !isNaN(date.getTime());
+        // Фильтруем строки с невалидными датами (проверяем, что строка соответствует формату ГГГГ-ММ-ДД)
+        return /^\d{4}-\d{2}-\d{2}$/.test(row.date);
       })
-      .map(row => {
-        // Обеспечиваем корректную обработку даты в локальном времени
-        const date = new Date(row.date);
-        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
-        return {
-          date: localDate.toISOString().split('T')[0],
-          patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
-          studyType: this.formatStudyType(row.study_type),
-        };
-      });
+      .map(row => ({
+        date: row.date,
+        patientName: `${row.last_name} ${row.first_name} ${row.middle_name || ""}`.trim(),
+        studyType: this.formatStudyType(row.study_type),
+      }));
   }
 
   private getDoctorsStats(startDate?: string, endDate?: string): {
