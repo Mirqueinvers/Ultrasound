@@ -1,17 +1,17 @@
 // /components/print/researches/ObpPrint.tsx
 import React from "react";
 
-import { useResearch } from "@contexts";
 import type { ObpProtocol } from "@types";
 import HepatPrint from "@/components/print/organs/HepatPrint";
 import GallbladderPrint from "@/components/print/organs/GallbladderPrint";
 import PancreasPrint from "@/components/print/organs/PancreasPrint";
 import SpleenPrint from "@/components/print/organs/SpleenPrint";
 
-export const ObpPrint: React.FC = () => {
-  const { studiesData } = useResearch();
+interface ObpPrintProps {
+  obpData?: ObpProtocol;
+}
 
-  const obpData = studiesData["ОБП"] as ObpProtocol | undefined;
+export const ObpPrint: React.FC<ObpPrintProps> = ({ obpData }) => {
   const liverData = obpData?.liver;
   const gallbladderData = obpData?.gallbladder;
   const pancreasData = obpData?.pancreas;

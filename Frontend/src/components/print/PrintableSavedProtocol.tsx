@@ -186,12 +186,6 @@ const PrintableSavedProtocol = React.forwardRef<
     };
   }, [researchId, setStudyData]);
 
-
-
-
-
-
-
   React.useEffect(() => {
     let cancelled = false;
 
@@ -230,6 +224,7 @@ const PrintableSavedProtocol = React.forwardRef<
     ? localStudiesData
     : studiesData;
 
+
   const obpData = effectiveStudiesData["ОБП"];
   const kidneysData = effectiveStudiesData["Почки"];
   const bladderStudyData = effectiveStudiesData["Мочевой пузырь"];
@@ -266,6 +261,9 @@ const PrintableSavedProtocol = React.forwardRef<
   const studyDefinitions = React.useMemo(
     () => {
       const defs = ([
+
+
+
         {
           id: "obp",
           key: "obp",
@@ -273,7 +271,8 @@ const PrintableSavedProtocol = React.forwardRef<
           studyData: obpProtocol,
           conclusion: obpProtocol?.conclusion || "",
           recommendations: obpProtocol?.recommendations || "",
-          element: <ObpPrint />,
+          element: <ObpPrint obpData={obpProtocol} />,
+
         },
         {
           id: "kidneys",
@@ -385,6 +384,7 @@ const PrintableSavedProtocol = React.forwardRef<
         },
       ] as StudyBlockDefinition[]).filter((definition) => Boolean(definition.studyData));
       return defs;
+
 
     },
     [
@@ -583,6 +583,7 @@ const PrintableSavedProtocol = React.forwardRef<
 
     setPages(newPages);
   }, [displayBlocks]);
+
 
   React.useEffect(() => {
     if (pages && !loading) {
