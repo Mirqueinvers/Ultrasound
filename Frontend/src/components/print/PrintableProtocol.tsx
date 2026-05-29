@@ -186,7 +186,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           studyData: obpProtocol,
           conclusion: obpProtocol?.conclusion || "",
           recommendations: obpProtocol?.recommendations || "",
-          element: <ObpPrint />,
+          element: <ObpPrint obpData={obpProtocol} />,
         },
         {
           id: "kidneys",
