@@ -33,6 +33,8 @@ import type {
   BrachioCephalicArteriesStudyProtocol,
   LymphNodesStudyProtocol,
 } from "@types";
+import type { DesktopStudiesDataMap } from "@/researches/types";
+
 
 type StudyBlockId =
   | "obp"
@@ -139,6 +141,7 @@ const PrintableSavedProtocol = React.forwardRef<
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const [isEditMode, setIsEditMode] = React.useState(false);
+  const [localStudiesData, setLocalStudiesData] = React.useState<DesktopStudiesDataMap>({});
   const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
@@ -153,21 +156,23 @@ const PrintableSavedProtocol = React.forwardRef<
       setPersistedOverrides({});
       setDraftOverrides({});
       setIsEditMode(false);
+      setLocalStudiesData({});
       clearStudiesData();
 
       const protocol = await window.protocolAPI.getByResearchId(researchId);
       if (cancelled) return;
 
       if (protocol) {
+        // Сначала сохраняем данные локально — это гарантирует,
+        // что studyDefinitions получит актуальные данные в том же рендере
+        setLocalStudiesData(protocol.studies);
+
+        // Также пишем в глобальный контекст (для синхронизации с мобильным приложением)
         Object.entries(protocol.studies).forEach(([studyType, data]) => {
           setStudyData(studyType, data);
         });
         setPersistedOverrides(protocol.printOverrides || {});
       }
-
-      // Даём React время обработать батч setStudyData перед снятием флага загрузки,
-      // чтобы studyDefinitions корректно отфильтровались по studyData
-      await new Promise((resolve) => setTimeout(resolve, 0));
 
       if (!cancelled) {
         setLoading(false);
@@ -180,6 +185,7 @@ const PrintableSavedProtocol = React.forwardRef<
       cancelled = true;
     };
   }, [clearStudiesData, researchId, setStudyData]);
+
 
   React.useEffect(() => {
     let cancelled = false;
@@ -213,22 +219,29 @@ const PrintableSavedProtocol = React.forwardRef<
     };
   }, [researchId, setOrganization, setPatientDateOfBirth, setPatientFullName, setResearchDate]);
 
-  const obpData = studiesData["ОБП"];
-  const kidneysData = studiesData["Почки"];
-  const bladderStudyData = studiesData["Мочевой пузырь"];
-  const omtFemaleData = studiesData["ОМТ (Ж)"];
-  const omtMaleData = studiesData["ОМТ (М)"];
-  const thyroidData = studiesData["Щитовидная железа"];
-  const breastData = studiesData["Молочные железы"];
-  const scrotumData = studiesData["Органы мошонки"];
-  const childDispensaryData = studiesData["Детская диспансеризация"];
-  const softTissueData = studiesData["Мягких тканей"];
-  const salivaryData = studiesData["Слюнные железы"];
-  const brachioCephalicArteriesData = studiesData["БЦА"];
+  // Используем локальные данные (устанавливаются синхронно через setState)
+  // как основной источник, а studiesData из контекста — как fallback
+  const effectiveStudiesData = Object.keys(localStudiesData).length > 0
+    ? localStudiesData
+    : studiesData;
+
+  const obpData = effectiveStudiesData["ОБП"];
+  const kidneysData = effectiveStudiesData["Почки"];
+  const bladderStudyData = effectiveStudiesData["Мочевой пузырь"];
+  const omtFemaleData = effectiveStudiesData["ОМТ (Ж)"];
+  const omtMaleData = effectiveStudiesData["ОМТ (М)"];
+  const thyroidData = effectiveStudiesData["Щитовидная железа"];
+  const breastData = effectiveStudiesData["Молочные железы"];
+  const scrotumData = effectiveStudiesData["Органы мошонки"];
+  const childDispensaryData = effectiveStudiesData["Детская диспансеризация"];
+  const softTissueData = effectiveStudiesData["Мягких тканей"];
+  const salivaryData = effectiveStudiesData["Слюнные железы"];
+  const brachioCephalicArteriesData = effectiveStudiesData["БЦА"];
   const lymphNodesData =
-    studiesData["Лимфатические узлы"] ||
-    studiesData["Лимфоузлы"] ||
-    studiesData["lymphNodes"];
+    effectiveStudiesData["Лимфатические узлы"] ||
+    effectiveStudiesData["Лимфоузлы"] ||
+    effectiveStudiesData["lymphNodes"];
+
 
   const obpProtocol = obpData as ObpProtocol | undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
@@ -379,7 +392,9 @@ const PrintableSavedProtocol = React.forwardRef<
       scrotumData,
       softTissueData,
       thyroidData,
+      localStudiesData,
     ],
+
   );
 
   const appliedConclusionSections = React.useMemo<StudyEditorSection[]>(

@@ -119,6 +119,18 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   const isDirectorySection = activeSection === "directory";
   const showSearch = isUziSection || isDirectorySection;
 
+  const menuItemBase = (selected: boolean) =>
+    `relative flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-left transition-all duration-200 text-sm font-sans w-full ${
+      selected
+        ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
+        : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+    }`;
+
+  const iconClass = (selected: boolean) =>
+    `shrink-0 transition-colors duration-200 ${
+      selected ? "text-[#0e7490]" : "text-slate-400"
+    }`;
+
   return (
     <aside className="w-[15%] rounded-xl sticky top-[104px] max-h-[calc(100vh-104px)] overflow-y-auto flex flex-col">
       {/* Поиск */}
@@ -173,25 +185,9 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                     key={study}
                     type="button"
                     onClick={() => handleStudyClick(study)}
-                    className={`
-                      group relative flex items-center gap-2.5 px-3 py-2.5 rounded-[8px]
-                      text-left transition-all duration-200 text-sm font-sans w-full
-                      ${
-                        selected
-                          ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }
-                    `}
+                    className={menuItemBase(selected)}
                   >
-                    <FileText
-                      size={15}
-                      className={`shrink-0 transition-colors duration-200 ${
-                        selected
-                          ? "text-[#0e7490]"
-                          : "text-slate-400 group-hover:text-slate-500"
-                      }`}
-                    />
-
+                    <FileText size={15} className={iconClass(selected)} />
                     <span className="flex-1 leading-tight text-left">{study}</span>
                   </button>
                 );
@@ -230,25 +226,9 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                         }
                         handleItemClick(item);
                       }}
-                      className={`
-                        group relative flex items-center gap-2.5 px-3 py-2.5 rounded-[8px]
-                        text-left transition-all duration-200 text-sm font-sans w-full
-                        ${
-                          selected
-                            ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
-                            : "text-slate-600 hover:bg-slate-50"
-                        }
-                      `}
+                      className={menuItemBase(selected)}
                     >
-                      <FileText
-                        size={15}
-                        className={`shrink-0 transition-colors duration-200 ${
-                          selected
-                            ? "text-[#0e7490]"
-                            : "text-slate-400 group-hover:text-slate-500"
-                        }`}
-                      />
-
+                      <FileText size={15} className={iconClass(selected)} />
                       <span className="flex-1 leading-tight text-left">{item}</span>
 
                       {isObpNormsItem && (
@@ -272,24 +252,9 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
                               key={subItem}
                               type="button"
                               onClick={() => handleItemClick(subItem)}
-                              className={`
-                                group relative w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px]
-                                text-left text-sm font-sans transition-all duration-200
-                                ${
-                                  subItemSelected
-                                    ? "bg-[#e0f2f7] text-[#0e7490] font-medium"
-                                    : "text-slate-600 hover:bg-slate-50"
-                                }
-                              `}
+                              className={menuItemBase(subItemSelected)}
                             >
-                              <FileText
-                                size={14}
-                                className={`shrink-0 transition-colors duration-200 ${
-                                  subItemSelected
-                                    ? "text-[#0e7490]"
-                                    : "text-slate-400 group-hover:text-slate-500"
-                                }`}
-                              />
+                              <FileText size={14} className={iconClass(subItemSelected)} />
                               <span className="leading-tight">
                                 {obpNormsLabels[subItem]}
                               </span>
