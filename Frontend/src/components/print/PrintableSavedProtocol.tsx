@@ -654,70 +654,16 @@ const PrintableSavedProtocol = React.forwardRef<
     getPrintRoot: () => printRootRef.current,
   }), [handleSaveOverrides]);
 
-  if (loading && !pages) {
-    return (
-      <div>
-        <div ref={printRootRef} id="print-root" className="p-4 text-sm text-slate-500">
-          Загрузка сохранённого протокола исследования...
-        </div>
-      </div>
-    );
-  }
-
-  if (!pages) {
-    return (
-      <div>
-        <div
-          ref={sourceContainerRef}
-          data-print-source
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "210mm",
-            zIndex: -2,
-            pointerEvents: "none",
-          }}
-        >
-          {studyDefinitions.map((definition) => (
-            <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
-              {definition.element}
-            </div>
-          ))}
-        </div>
-
-        <div ref={printRootRef} id="print-root">
-          <div
-            ref={measureContainerRef}
-            data-print-measure
-            style={{
-              visibility: "hidden",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "210mm",
-              zIndex: -1,
-              pointerEvents: "none",
-            }}
-          >
-            {displayBlocks.map((block) => (
-              <div key={block.id}>{block.element}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // Измерительный контейнер — всегда рендерится, но вынесен за пределы видимого потока
+  // (position: fixed + top: -9999px), чтобы не влиять на layout модального окна
   const measureNodes = (
     <div
       ref={measureContainerRef}
       data-print-measure
       style={{
         visibility: "hidden",
-        position: "absolute",
-        top: 0,
+        position: "fixed",
+        top: -9999,
         left: 0,
         width: "210mm",
         zIndex: -1,
@@ -729,6 +675,28 @@ const PrintableSavedProtocol = React.forwardRef<
       ))}
     </div>
   );
+
+  if (loading && !pages) {
+    return (
+      <div>
+        {measureNodes}
+        <div ref={printRootRef} id="print-root" className="p-4 text-sm text-slate-500">
+          Загрузка сохранённого протокола исследования...
+        </div>
+      </div>
+    );
+  }
+
+  if (!pages) {
+    return (
+      <div>
+        {measureNodes}
+        <div ref={printRootRef} id="print-root" className="p-4 text-sm text-slate-500">
+          Загрузка сохранённого протокола исследования...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
