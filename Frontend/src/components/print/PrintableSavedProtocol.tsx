@@ -127,12 +127,12 @@ const PrintableSavedProtocol = React.forwardRef<
   const {
     studiesData,
     setStudyData,
-    clearStudiesData,
     setPatientFullName,
     setPatientDateOfBirth,
     setResearchDate,
     setOrganization,
   } = useResearch();
+
 
   const [loading, setLoading] = React.useState(true);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
@@ -157,17 +157,15 @@ const PrintableSavedProtocol = React.forwardRef<
       setDraftOverrides({});
       setIsEditMode(false);
       setLocalStudiesData({});
-      clearStudiesData();
 
       const protocol = await window.protocolAPI.getByResearchId(researchId);
       if (cancelled) return;
 
       if (protocol) {
-        // Сначала сохраняем данные локально — это гарантирует,
-        // что studyDefinitions получит актуальные данные в том же рендере
+        // Локальные данные — для studyDefinitions (синхронно, без гонки состояний)
         setLocalStudiesData(protocol.studies);
 
-        // Также пишем в глобальный контекст (для синхронизации с мобильным приложением)
+        // Данные в контекст — для дочерних компонентов (ResearchPrintHeader, ObpPrint и т.д.)
         Object.entries(protocol.studies).forEach(([studyType, data]) => {
           setStudyData(studyType, data);
         });
@@ -184,7 +182,8 @@ const PrintableSavedProtocol = React.forwardRef<
     return () => {
       cancelled = true;
     };
-  }, [clearStudiesData, researchId, setStudyData]);
+  }, [researchId, setStudyData]);
+
 
 
   React.useEffect(() => {
