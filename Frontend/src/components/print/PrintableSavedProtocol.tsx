@@ -134,6 +134,8 @@ const PrintableSavedProtocol = React.forwardRef<
   } = useResearch();
 
 
+
+
   const [loading, setLoading] = React.useState(true);
   const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
   const [protocolDoctorName, setProtocolDoctorName] = React.useState<string>("");
@@ -155,11 +157,11 @@ const PrintableSavedProtocol = React.forwardRef<
       setSourceBlockHtml({});
       setPersistedOverrides({});
       setDraftOverrides({});
-      setIsEditMode(false);
-      setLocalStudiesData({});
 
       const protocol = await window.protocolAPI.getByResearchId(researchId);
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
 
       if (protocol) {
         // Локальные данные — для studyDefinitions (синхронно, без гонки состояний)
@@ -183,6 +185,10 @@ const PrintableSavedProtocol = React.forwardRef<
       cancelled = true;
     };
   }, [researchId, setStudyData]);
+
+
+
+
 
 
 
@@ -258,125 +264,129 @@ const PrintableSavedProtocol = React.forwardRef<
   const lymphNodesProtocol = lymphNodesData as LymphNodesStudyProtocol | undefined;
 
   const studyDefinitions = React.useMemo(
-    () => ([
-      {
-        id: "obp",
-        key: "obp",
-        label: "ОБП",
-        studyData: obpProtocol,
-        conclusion: obpProtocol?.conclusion || "",
-        recommendations: obpProtocol?.recommendations || "",
-        element: <ObpPrint />,
-      },
-      {
-        id: "kidneys",
-        key: "kidneys",
-        label: "Почки",
-        studyData: kidneysProtocol,
-        conclusion: kidneysProtocol?.conclusion || "",
-        recommendations: kidneysProtocol?.recommendations || "",
-        element: <KidneysPrint />,
-      },
-      {
-        id: "bladder",
-        key: "bladder",
-        label: "Мочевой пузырь",
-        studyData: bladderStudyProtocol,
-        conclusion: bladderStudyProtocol?.conclusion || "",
-        recommendations: bladderStudyProtocol?.recommendations || "",
-        element: <UrinaryBladderStudyPrint />,
-      },
-      {
-        id: "omtFemale",
-        key: "omt-female",
-        label: "ОМТ (Ж)",
-        studyData: omtFemaleProtocol,
-        conclusion: omtFemaleProtocol?.conclusion || "",
-        recommendations: omtFemaleProtocol?.recommendations || "",
-        element: <OmtFemalePrint />,
-      },
-      {
-        id: "omtMale",
-        key: "omt-male",
-        label: "ОМТ (М)",
-        studyData: omtMaleProtocol,
-        conclusion: omtMaleProtocol?.conclusion || "",
-        recommendations: omtMaleProtocol?.recommendations || "",
-        element: <OmtMalePrint />,
-      },
-      {
-        id: "thyroid",
-        key: "thyroid",
-        label: "Щитовидная железа",
-        studyData: thyroidProtocol,
-        conclusion: thyroidProtocol?.conclusion || "",
-        recommendations: thyroidProtocol?.recommendations || "",
-        element: <ThyroidResearchPrint />,
-      },
-      {
-        id: "breast",
-        key: "breast",
-        label: "Молочные железы",
-        studyData: breastProtocol,
-        conclusion: breastProtocol?.conclusion || "",
-        recommendations: breastProtocol?.recommendations || "",
-        element: <BreastResearchPrint />,
-      },
-      {
-        id: "scrotum",
-        key: "scrotum",
-        label: "Органы мошонки",
-        studyData: scrotumProtocol,
-        conclusion: scrotumProtocol?.conclusion || "",
-        recommendations: scrotumProtocol?.recommendations || "",
-        element: <ScrotumResearchPrint />,
-      },
-      {
-        id: "salivaryGlands",
-        key: "salivary-glands",
-        label: "Слюнные железы",
-        studyData: salivaryProtocol,
-        conclusion: salivaryProtocol?.conclusion || "",
-        recommendations: salivaryProtocol?.recommendations || "",
-        element: <SalivaryGlandsResearchPrint />,
-      },
-      {
-        id: "brachioCephalicArteries",
-        key: "brachio-cephalic-arteries",
-        label: "БЦА",
-        studyData: brachioCephalicArteriesProtocol,
-        conclusion: brachioCephalicArteriesProtocol?.conclusion || "",
-        recommendations: brachioCephalicArteriesProtocol?.recommendations || "",
-        element: <BrachioCephalicArteriesResearchPrint />,
-      },
-      {
-        id: "lymphNodes",
-        key: "lymph-nodes",
-        label: "Лимфатические узлы",
-        studyData: lymphNodesProtocol,
-        conclusion: lymphNodesProtocol?.conclusion || "",
-        recommendations: lymphNodesProtocol?.recommendations || "",
-        element: <LymphNodesResearchPrint />,
-      },
-      {
-        id: "childDispensary",
-        key: "child-dispensary",
-        label: "Детская диспансеризация",
-        studyData: childDispensaryProtocol,
-        conclusion: childDispensaryProtocol?.conclusion || "",
-        recommendations: childDispensaryProtocol?.recommendations || "",
-        element: <ChildDispensaryPrint />,
-      },
-      {
-        id: "softTissue",
-        key: "soft-tissue",
-        label: "Мягкие ткани",
-        studyData: softTissueProtocol,
-        conclusion: softTissueProtocol?.conclusion || "",
-        recommendations: softTissueProtocol?.recommendations || "",
-        element: <SoftTissuePrint />,
-      },
-    ] as StudyBlockDefinition[]).filter((definition) => Boolean(definition.studyData)),
+    () => {
+      const defs = ([
+        {
+          id: "obp",
+          key: "obp",
+          label: "ОБП",
+          studyData: obpProtocol,
+          conclusion: obpProtocol?.conclusion || "",
+          recommendations: obpProtocol?.recommendations || "",
+          element: <ObpPrint />,
+        },
+        {
+          id: "kidneys",
+          key: "kidneys",
+          label: "Почки",
+          studyData: kidneysProtocol,
+          conclusion: kidneysProtocol?.conclusion || "",
+          recommendations: kidneysProtocol?.recommendations || "",
+          element: <KidneysPrint />,
+        },
+        {
+          id: "bladder",
+          key: "bladder",
+          label: "Мочевой пузырь",
+          studyData: bladderStudyProtocol,
+          conclusion: bladderStudyProtocol?.conclusion || "",
+          recommendations: bladderStudyProtocol?.recommendations || "",
+          element: <UrinaryBladderStudyPrint />,
+        },
+        {
+          id: "omtFemale",
+          key: "omt-female",
+          label: "ОМТ (Ж)",
+          studyData: omtFemaleProtocol,
+          conclusion: omtFemaleProtocol?.conclusion || "",
+          recommendations: omtFemaleProtocol?.recommendations || "",
+          element: <OmtFemalePrint />,
+        },
+        {
+          id: "omtMale",
+          key: "omt-male",
+          label: "ОМТ (М)",
+          studyData: omtMaleProtocol,
+          conclusion: omtMaleProtocol?.conclusion || "",
+          recommendations: omtMaleProtocol?.recommendations || "",
+          element: <OmtMalePrint />,
+        },
+        {
+          id: "thyroid",
+          key: "thyroid",
+          label: "Щитовидная железа",
+          studyData: thyroidProtocol,
+          conclusion: thyroidProtocol?.conclusion || "",
+          recommendations: thyroidProtocol?.recommendations || "",
+          element: <ThyroidResearchPrint />,
+        },
+        {
+          id: "breast",
+          key: "breast",
+          label: "Молочные железы",
+          studyData: breastProtocol,
+          conclusion: breastProtocol?.conclusion || "",
+          recommendations: breastProtocol?.recommendations || "",
+          element: <BreastResearchPrint />,
+        },
+        {
+          id: "scrotum",
+          key: "scrotum",
+          label: "Органы мошонки",
+          studyData: scrotumProtocol,
+          conclusion: scrotumProtocol?.conclusion || "",
+          recommendations: scrotumProtocol?.recommendations || "",
+          element: <ScrotumResearchPrint />,
+        },
+        {
+          id: "salivaryGlands",
+          key: "salivary-glands",
+          label: "Слюнные железы",
+          studyData: salivaryProtocol,
+          conclusion: salivaryProtocol?.conclusion || "",
+          recommendations: salivaryProtocol?.recommendations || "",
+          element: <SalivaryGlandsResearchPrint />,
+        },
+        {
+          id: "brachioCephalicArteries",
+          key: "brachio-cephalic-arteries",
+          label: "БЦА",
+          studyData: brachioCephalicArteriesProtocol,
+          conclusion: brachioCephalicArteriesProtocol?.conclusion || "",
+          recommendations: brachioCephalicArteriesProtocol?.recommendations || "",
+          element: <BrachioCephalicArteriesResearchPrint />,
+        },
+        {
+          id: "lymphNodes",
+          key: "lymph-nodes",
+          label: "Лимфатические узлы",
+          studyData: lymphNodesProtocol,
+          conclusion: lymphNodesProtocol?.conclusion || "",
+          recommendations: lymphNodesProtocol?.recommendations || "",
+          element: <LymphNodesResearchPrint />,
+        },
+        {
+          id: "childDispensary",
+          key: "child-dispensary",
+          label: "Детская диспансеризация",
+          studyData: childDispensaryProtocol,
+          conclusion: childDispensaryProtocol?.conclusion || "",
+          recommendations: childDispensaryProtocol?.recommendations || "",
+          element: <ChildDispensaryPrint />,
+        },
+        {
+          id: "softTissue",
+          key: "soft-tissue",
+          label: "Мягкие ткани",
+          studyData: softTissueProtocol,
+          conclusion: softTissueProtocol?.conclusion || "",
+          recommendations: softTissueProtocol?.recommendations || "",
+          element: <SoftTissuePrint />,
+        },
+      ] as StudyBlockDefinition[]).filter((definition) => Boolean(definition.studyData));
+      return defs;
+
+    },
     [
       bladderStudyData,
       brachioCephalicArteriesData,
@@ -392,9 +402,11 @@ const PrintableSavedProtocol = React.forwardRef<
       softTissueData,
       thyroidData,
       localStudiesData,
+      studiesData,
     ],
 
   );
+
 
   const appliedConclusionSections = React.useMemo<StudyEditorSection[]>(
     () =>

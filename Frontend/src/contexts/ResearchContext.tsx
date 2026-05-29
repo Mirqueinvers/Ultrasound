@@ -47,6 +47,9 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [organization, setOrganizationState] = useState("");
   const [studiesData, setStudiesDataState] = useState<DesktopStudiesDataMap>({});
 
+
+
+
   const publishSyncMessage = useCallback((message: MobileSyncWireMessage) => {
     void window.mobileHostAPI?.publishSync(message);
   }, []);
@@ -66,6 +69,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       [studyType]: data,
     }));
 
+
     publishSyncMessage({
       type: "sync:update",
       fragment: "studiesData",
@@ -78,6 +82,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       updatedAt: createSyncTimestamp(),
     });
   }, [publishSyncMessage]);
+
 
   const setPatientFullName = useCallback((value: string) => {
     setPatientFullNameState(value);

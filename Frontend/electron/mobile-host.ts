@@ -216,6 +216,7 @@ class MobileHostService {
 
   publishSyncMessage(message: MobileSyncWireMessage): void {
     if (message.type === "sync:update") {
+
       this.applyUpdate(message);
     } else if (message.type === "sync:snapshot") {
       this.syncState = message.state;
@@ -234,6 +235,7 @@ class MobileHostService {
     void this.persistState();
     this.broadcastSyncMessage(message);
   }
+
 
   setProfile(profile: { organization?: string | null }): MobileHostStatus {
     const nextOrganization = profile.organization?.trim() ?? "";
@@ -467,6 +469,7 @@ class MobileHostService {
   private broadcastSyncMessage(message: MobileSyncWireMessage): void {
     const payload = JSON.stringify(message);
 
+
     for (const client of this.clients) {
       if (client.readyState !== WebSocket.OPEN) {
         continue;
@@ -477,6 +480,7 @@ class MobileHostService {
 
     this.rendererWindow?.webContents.send(RENDERER_CHANNEL, message);
   }
+
 
   private notifyRendererSelectionFocus(): void {
     if (!this.rendererWindow) {
