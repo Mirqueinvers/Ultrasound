@@ -59,59 +59,77 @@ const formatNodeDescription = (node: LymphNodeProtocol): string => {
   return parts.length > 0 ? `${parts.join(", ")}.` : "";
 };
 
+const renderSideBlock = (side: "Справа" | "Слева", nodes: LymphNodeProtocol[]): React.ReactNode | null => {
+  if (nodes.length === 0) return null;
+
+  if (nodes.length === 1) {
+    const desc = formatNodeDescription(nodes[0]);
+    return <>{side} определяется 1 лимфоузел: {desc}</>;
+  }
+
+  return (
+    <>
+      {side} определяются {nodes.length} {pluralize(nodes.length, "лимфоузел", "лимфоузла", "лимфоузлов")}:
+      {nodes.map((node, index) => (
+        <React.Fragment key={index}>
+          <br />
+          Узел №{index + 1}: {formatNodeDescription(node)}
+        </React.Fragment>
+      ))}
+    </>
+  );
+};
+
 const renderRegionBlock = (
   regionKey: string,
   region?: LymphNodeRegionProtocol,
-): string | null => {
+): React.ReactNode | null => {
   if (!region) return null;
 
   const regionName = REGION_NAMES[regionKey] || regionKey;
 
   if (region.detected === "not_detected") {
-    return `${regionName}: лимфатические узлы не определяются.`;
+    return (
+      <>
+        <strong>{regionName}</strong>
+        {`: лимфатические узлы не определяются.`}
+      </>
+    );
   }
 
   if (!region.nodes || region.nodes.length === 0) {
-    return `${regionName}: лимфатические узлы определяются.`;
+    return (
+      <>
+        <strong>{regionName}</strong>
+        {`: лимфатические узлы определяются.`}
+      </>
+    );
   }
 
   const leftNodes = region.nodes.filter((node) => node.side === "left");
   const rightNodes = region.nodes.filter((node) => node.side === "right");
-  const sideDescriptions: string[] = [];
+  const sideBlocks: React.ReactNode[] = [];
 
   if (rightNodes.length > 0) {
-    const nodeDescriptions = rightNodes
-      .map((node, index) => `узел ${index + 1}: ${formatNodeDescription(node)}`)
-      .filter((text) => text.trim().length > 0)
-      .join(" ");
-
-    sideDescriptions.push(
-      `справа ${rightNodes.length} ${pluralize(
-        rightNodes.length,
-        "узел",
-        "узла",
-        "узлов",
-      )}: ${nodeDescriptions}`,
-    );
+    sideBlocks.push(renderSideBlock("Справа", rightNodes));
   }
 
   if (leftNodes.length > 0) {
-    const nodeDescriptions = leftNodes
-      .map((node, index) => `узел ${index + 1}: ${formatNodeDescription(node)}`)
-      .filter((text) => text.trim().length > 0)
-      .join(" ");
-
-    sideDescriptions.push(
-      `слева ${leftNodes.length} ${pluralize(
-        leftNodes.length,
-        "узел",
-        "узла",
-        "узлов",
-      )}: ${nodeDescriptions}`,
-    );
+    sideBlocks.push(renderSideBlock("Слева", leftNodes));
   }
 
-  return `${regionName}: ${sideDescriptions.join(" ")}`;
+  return (
+    <>
+      <strong>{regionName}</strong>
+      {`: `}
+      {sideBlocks.map((block, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <br />}
+          {block}
+        </React.Fragment>
+      ))}
+    </>
+  );
 };
 
 export const LymphNodesPrint: React.FC<LymphNodesPrintProps> = ({ value }) => {
@@ -126,12 +144,11 @@ export const LymphNodesPrint: React.FC<LymphNodesPrintProps> = ({ value }) => {
     { key: "inguinal", data: inguinal },
   ];
 
-  const text = regions
+  const blocks = regions
     .map((region) => renderRegionBlock(region.key, region.data))
-    .filter((line): line is string => Boolean(line && line.trim().length > 0))
-    .join("\n");
+    .filter(Boolean);
 
-  if (!text.trim()) return null;
+  if (blocks.length === 0) return null;
 
   return (
     <div
@@ -141,7 +158,11 @@ export const LymphNodesPrint: React.FC<LymphNodesPrintProps> = ({ value }) => {
         fontFamily: '"Times New Roman", Times, serif',
       }}
     >
-      <p style={{ margin: 0, whiteSpace: "pre-line" }}>{text}</p>
+      {blocks.map((block, index) => (
+        <p key={index} style={{ margin: "4px 0" }}>
+          {block}
+        </p>
+      ))}
     </div>
   );
 };

@@ -8,8 +8,8 @@ export const LymphNodesResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
   const lymphNodesData =
-    (studiesData["Р›РёРјС„Р°С‚РёС‡РµСЃРєРёРµ СѓР·Р»С‹"] as LymphNodesStudyProtocol | undefined) ||
-    (studiesData["Р›РёРјС„РѕСѓР·Р»С‹"] as LymphNodesStudyProtocol | undefined) ||
+    (studiesData["Лимфоузлы"] as LymphNodesStudyProtocol | undefined) ||
+    (studiesData["Лимфатические узлы"] as LymphNodesStudyProtocol | undefined) ||
     (studiesData["lymphNodes"] as LymphNodesStudyProtocol | undefined);
 
   const lymphNodesProtocol = lymphNodesData?.lymphNodes as LymphNodesProtocol | undefined;
@@ -21,7 +21,7 @@ export const LymphNodesResearchPrint: React.FC = () => {
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        РЈР»СЊС‚СЂР°Р·РІСѓРєРѕРІРѕРµ РёСЃСЃР»РµРґРѕРІР°РЅРёРµ РїРµСЂРёС„РµСЂРёС‡РµСЃРєРёС… Р»РёРјС„Р°С‚РёС‡РµСЃРєРёС… СѓР·Р»РѕРІ
+        Ультразвуковое исследование периферических лимфатических узлов
       </p>
 
       <LymphNodesPrint value={lymphNodesProtocol} />

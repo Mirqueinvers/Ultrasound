@@ -157,7 +157,10 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   const scrotumData = studiesData["Органы мошонки"];
   const childDispensaryData = studiesData["Детская диспансеризация"];
   const softTissueData = studiesData["Мягких тканей"];
-  const lymphNodesData = studiesData["Лимфатические узлы"];
+  const lymphNodesData =
+    studiesData["Лимфоузлы"] ||
+    studiesData["Лимфатические узлы"] ||
+    studiesData["lymphNodes"];
 
   const obpProtocol = obpData as ObpProtocol | undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;

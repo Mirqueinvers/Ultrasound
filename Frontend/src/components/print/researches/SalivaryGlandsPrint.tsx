@@ -7,7 +7,7 @@ import type { SalivaryGlandsProtocol, SalivaryGlandsStudyProtocol } from "@types
 export const SalivaryGlandsResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const salivaryData = studiesData["РЎР»СЋРЅРЅС‹Рµ Р¶РµР»РµР·С‹"];
+  const salivaryData = studiesData["Слюнные железы"];
   const salivaryStudy = salivaryData as SalivaryGlandsStudyProtocol | undefined;
   const salivaryProtocol = salivaryStudy?.salivaryGlands as SalivaryGlandsProtocol | undefined;
 
@@ -18,7 +18,7 @@ export const SalivaryGlandsResearchPrint: React.FC = () => {
   return (
     <>
       <p className="mt-4 mb-2 text-center text-base font-semibold">
-        РЈР»СЊС‚СЂР°Р·РІСѓРєРѕРІРѕРµ РёСЃСЃР»РµРґРѕРІР°РЅРёРµ СЃР»СЋРЅРЅС‹С… Р¶РµР»РµР·
+        Ультразвуковое исследование слюнных желез
       </p>
 
       <SalivaryGlandsPrintComponent value={salivaryProtocol} />
