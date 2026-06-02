@@ -103,12 +103,6 @@ const hasVisibleHtmlContent = (value?: string) => {
   return (template.content.textContent ?? "").trim().length > 0;
 };
 
-const joinVisibleSections = (sections: StudyConclusionSection[], field: "conclusion" | "recommendations") =>
-  sections
-    .map((section) => normalizeEditableText(section[field]))
-    .filter(Boolean)
-    .join("\n");
-
 const bodyOverrideKey = (id: StudyDefinition["id"]) => `block:${id}`;
 const conclusionOverrideKey = (key: string) => `conclusion:${key}`;
 const recommendationOverrideKey = (key: string) => `recommendation:${key}`;
@@ -354,16 +348,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     [appliedOverrides, studyDefinitions],
   );
 
-  const conclusion = React.useMemo(
-    () => joinVisibleSections(appliedConclusionSections, "conclusion"),
-    [appliedConclusionSections],
-  );
-
-  const recommendations = React.useMemo(
-    () => joinVisibleSections(appliedConclusionSections, "recommendations"),
-    [appliedConclusionSections],
-  );
-
   const doctorName = user?.name || "";
   const previewOverrides = isEditMode ? draftOverrides : appliedOverrides;
 
@@ -418,54 +402,54 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     setDraftOverrides(buildDraftOverrides(appliedOverrides));
   }, [appliedOverrides, buildDraftOverrides, sourceBlockHtml]);
 
-  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
-    const bodyBlocks = studyDefinitions.reduce<ResearchBlock[]>((acc, definition) => {
+  const studyPages = React.useMemo<ResearchBlock[][]>(() => {
+    return studyDefinitions.map((definition) => {
       const overrideKey = bodyOverrideKey(definition.id);
       const editedValue = previewOverrides[overrideKey];
       const hasOverride = Object.prototype.hasOwnProperty.call(previewOverrides, overrideKey);
 
-      if (hasOverride && hasVisibleHtmlContent(editedValue)) {
-        acc.push({
-          id: definition.id,
-          element: <div dangerouslySetInnerHTML={{ __html: editedValue ?? "" }} />,
-        });
-        return acc;
-      }
+      const bodyElement = hasOverride && hasVisibleHtmlContent(editedValue)
+        ? <div dangerouslySetInnerHTML={{ __html: editedValue ?? "" }} />
+        : definition.element;
 
-      acc.push({ id: definition.id, element: definition.element });
-      return acc;
-    }, []);
+      const section = appliedConclusionSections.find((s) => s.key === definition.key);
+      const studyConclusion = section?.conclusion || "";
+      const studyRecommendations = section?.recommendations || "";
 
-    return [
-      { id: "header", element: <ResearchPrintHeader /> },
-      ...bodyBlocks,
-      {
-        id: "conclusion",
-        element: (
-          <div className="print-conclusion">
-            <ConclusionPrint
-              value={{
-                conclusion,
-                recommendations,
-                sections: appliedConclusionSections,
-              }}
-            />
-            {doctorName && (
-              <div
-                style={{
-                  marginTop: "10mm",
-                  textAlign: "right",
-                  fontSize: "14px",
+      return [
+        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: definition.id, element: bodyElement },
+        {
+          id: "conclusion" as BlockId,
+          element: (
+            <div className="print-conclusion">
+              <ConclusionPrint
+                value={{
+                  conclusion: studyConclusion,
+                  recommendations: studyRecommendations,
+                  sections: section ? [section] : [],
                 }}
-              >
-                Исследование проводил врач {doctorName}
-              </div>
-            )}
-          </div>
-        ),
-      },
-    ];
-  }, [appliedConclusionSections, conclusion, doctorName, previewOverrides, recommendations, studyDefinitions]);
+              />
+              {doctorName && (
+                <div
+                  style={{
+                    marginTop: "10mm",
+                    textAlign: "right",
+                    fontSize: "14px",
+                  }}
+                >
+                  Исследование проводил врач {doctorName}
+                </div>
+              )}
+            </div>
+          ),
+        },
+      ];
+    });
+  }, [appliedConclusionSections, doctorName, previewOverrides, studyDefinitions]);
+  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
+    return studyPages.flat();
+  }, [studyPages]);
 
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);

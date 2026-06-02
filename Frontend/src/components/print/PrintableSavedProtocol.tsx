@@ -101,15 +101,6 @@ const hasVisibleHtmlContent = (value?: string) => {
   return (template.content.textContent ?? "").trim().length > 0;
 };
 
-const joinVisibleSections = (
-  sections: ConclusionPrintSection[],
-  field: "conclusion" | "recommendations",
-) =>
-  sections
-    .map((section) => normalizeEditableText(section[field]))
-    .filter(Boolean)
-    .join("\n");
-
 const bodyOverrideKey = (id: StudyBlockId) => `block:${id}`;
 const conclusionOverrideKey = (key: string) => `conclusion:${key}`;
 const recommendationOverrideKey = (key: string) => `recommendation:${key}`;
@@ -426,16 +417,6 @@ const PrintableSavedProtocol = React.forwardRef<
     [persistedOverrides, studyDefinitions],
   );
 
-  const conclusion = React.useMemo(
-    () => joinVisibleSections(appliedConclusionSections, "conclusion"),
-    [appliedConclusionSections],
-  );
-
-  const recommendations = React.useMemo(
-    () => joinVisibleSections(appliedConclusionSections, "recommendations"),
-    [appliedConclusionSections],
-  );
-
   const doctorName = protocolDoctorName || user?.name || "";
 
   const buildDraftOverrides = React.useCallback(
@@ -485,73 +466,62 @@ const PrintableSavedProtocol = React.forwardRef<
     setDraftOverrides(buildDraftOverrides(persistedOverrides));
   }, [buildDraftOverrides, loading, persistedOverrides]);
 
-  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
-    const studyBlocks = studyDefinitions.reduce<ResearchBlock[]>((acc, definition) => {
+  const studyPages = React.useMemo<ResearchBlock[][]>(() => {
+    return studyDefinitions.map((definition) => {
       const overrideKey = bodyOverrideKey(definition.id);
-      const hasOverride = Object.prototype.hasOwnProperty.call(
-        persistedOverrides,
-        overrideKey,
-      );
+      const hasOverride = Object.prototype.hasOwnProperty.call(persistedOverrides, overrideKey);
 
-      if (!hasOverride) {
-        acc.push({ id: definition.id, element: definition.element });
-        return acc;
+      let bodyElement: React.ReactNode;
+      if (hasOverride) {
+        const editedValue = persistedOverrides[overrideKey] ?? "";
+        if (hasVisibleHtmlContent(editedValue)) {
+          bodyElement = <div dangerouslySetInnerHTML={{ __html: editedValue }} />;
+        } else {
+          bodyElement = definition.element;
+        }
+      } else {
+        bodyElement = definition.element;
       }
 
-      const editedValue = persistedOverrides[overrideKey] ?? "";
-      if (!hasVisibleHtmlContent(editedValue)) {
-        return acc;
-      }
+      const section = appliedConclusionSections.find((s) => s.key === definition.key);
+      const studyConclusion = section?.conclusion || "";
+      const studyRecommendations = section?.recommendations || "";
 
-      acc.push({
-        id: definition.id,
-        element: <div dangerouslySetInnerHTML={{ __html: editedValue }} />,
-      });
-      return acc;
-    }, []);
-
-    // Проверяем, есть ли сохранённый оверрайд для блока заключения
-    const conclusionOverrideKey = "block:conclusion";
-    const hasConclusionOverride = Object.prototype.hasOwnProperty.call(
-      persistedOverrides,
-      conclusionOverrideKey,
-    );
-    const conclusionOverrideValue = persistedOverrides[conclusionOverrideKey] ?? "";
-
-    const conclusionElement = hasConclusionOverride && hasVisibleHtmlContent(conclusionOverrideValue)
-      ? <div dangerouslySetInnerHTML={{ __html: conclusionOverrideValue }} />
-      : (
-          <div className="print-conclusion">
-            <ConclusionPrint
-              value={{
-                conclusion,
-                recommendations,
-                sections: appliedConclusionSections,
-              }}
-            />
-            {doctorName && (
-              <div
-                style={{
-                  marginTop: "10mm",
-                  textAlign: "right",
-                  fontSize: "14px",
+      return [
+        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: definition.id, element: bodyElement },
+        {
+          id: "conclusion" as BlockId,
+          element: (
+            <div className="print-conclusion">
+              <ConclusionPrint
+                value={{
+                  conclusion: studyConclusion,
+                  recommendations: studyRecommendations,
+                  sections: section ? [section] : [],
                 }}
-              >
-                Исследование проводил врач {doctorName}
-              </div>
-            )}
-          </div>
-        );
+              />
+              {doctorName && (
+                <div
+                  style={{
+                    marginTop: "10mm",
+                    textAlign: "right",
+                    fontSize: "14px",
+                  }}
+                >
+                  Исследование проводил врач {doctorName}
+                </div>
+              )}
+            </div>
+          ),
+        },
+      ];
+    });
+  }, [appliedConclusionSections, doctorName, persistedOverrides, studyDefinitions]);
 
-    return [
-      { id: "header", element: <ResearchPrintHeader /> },
-      ...studyBlocks,
-      {
-        id: "conclusion",
-        element: conclusionElement,
-      },
-    ];
-  }, [appliedConclusionSections, conclusion, doctorName, persistedOverrides, recommendations, studyDefinitions]);
+  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
+    return studyPages.flat();
+  }, [studyPages]);
 
   React.useLayoutEffect(() => {
     if (!measureContainerRef.current) return;
