@@ -105,7 +105,11 @@ const Journal: React.FC = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const totalResearches = useMemo(
-    () => entries.reduce((count, entry) => count + entry.researches.length, 0),
+    () => entries.reduce(
+      (count, entry) => count + entry.researches.reduce(
+        (sum, r) => sum + ((r as any).study_types?.length ?? 0), 0
+      ), 0
+    ),
     [entries],
   );
 
