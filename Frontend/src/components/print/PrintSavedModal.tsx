@@ -44,6 +44,46 @@ body {
 .export-shell {
   padding: 0;
 }
+
+/* Убираем принудительную высоту — контент сам определяет количество страниц */
+#print-root {
+  font-size: 12pt !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  width: 210mm !important;
+  min-height: auto !important;
+}
+
+/* Сброс для вложенных Tailwind-классов */
+#print-root .text-sm {
+  font-size: 12pt !important;
+}
+
+#print-root .text-base {
+  font-size: 12pt !important;
+}
+
+#print-root .text-xs {
+  font-size: 10pt !important;
+}
+
+#print-root .text-lg {
+  font-size: 14pt !important;
+}
+
+#print-root .text-xl {
+  font-size: 16pt !important;
+}
+
+#print-root .leading-6 {
+  line-height: 1.4 !important;
+}
+
+#print-root .leading-5 {
+  line-height: 1.3 !important;
+}
     </style>
   </head>
   <body>
