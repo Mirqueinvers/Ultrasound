@@ -94,7 +94,17 @@ const Statistics: React.FC = () => {
 
   useEffect(() => {
     loadStatistics();
+    loadDoctorList();
   }, []);
+
+  const loadDoctorList = async () => {
+    try {
+      const doctors = await window.journalAPI.getDoctorNames();
+      setDoctorList(doctors);
+    } catch {
+      // ignore
+    }
+  };
 
   const loadStatistics = async () => {
     try {
@@ -108,16 +118,12 @@ const Statistics: React.FC = () => {
 
       const result = await window.databaseAPI.getStatistics(
         ruToIso(startDate),
-        ruToIso(endDate)
+        ruToIso(endDate),
+        selectedDoctor || undefined
       );
 
       if (result && result.success && result.data) {
         setStats(result.data);
-        // Заполняем список врачей из полученных данных
-        const doctors = result.data.doctorsStats.map(
-          (doc: { doctorName: string }) => doc.doctorName
-        );
-        setDoctorList(doctors);
       } else {
         setError(result?.message || "Ошибка при загрузке статистики");
       }
@@ -468,15 +474,15 @@ const Statistics: React.FC = () => {
       {/* Общие показатели */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
-          title="Всего пациентов"
-          value={stats.totalPatients}
+          title={startDate && endDate ? "Пациентов за период" : "Всего пациентов"}
+          value={startDate && endDate ? stats.patientsInPeriod : stats.totalPatients}
           icon={Users}
           color="bg-medical-500"
           size="small"
         />
         <StatCard
-          title="Всего исследований"
-          value={stats.totalResearches}
+          title={startDate && endDate ? "Исследований за период" : "Всего исследований"}
+          value={startDate && endDate ? stats.studiesInPeriod : stats.totalResearches}
           icon={FileText}
           color="bg-clinical-500"
           size="small"

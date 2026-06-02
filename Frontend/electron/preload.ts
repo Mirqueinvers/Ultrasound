@@ -258,7 +258,7 @@ export interface PatientSearchAPI {
 // ========== DATABASE API ==========
 
 export interface DatabaseAPI {
-  getStatistics: (startDate?: string, endDate?: string) => Promise<{
+  getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => Promise<{
     success: boolean;
     message?: string;
     data?: {
@@ -418,8 +418,8 @@ const patientSearchAPI: PatientSearchAPI = {
 };
 
 const databaseAPI: DatabaseAPI = {
-  getStatistics: (startDate?: string, endDate?: string) => 
-    ipcRenderer.invoke("database:getStatistics", startDate, endDate),
+  getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => 
+    ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
 };
 
 // ========== Экспорт в window ==========

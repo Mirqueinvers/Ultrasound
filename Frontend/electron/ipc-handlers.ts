@@ -276,6 +276,9 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
       }: { content: string; defaultPath?: string }
     ) => {
       try {
+        if (!mainWindow) {
+          return { success: false, message: "Окно не инициализировано" };
+        }
         const result = await dialog.showSaveDialog(mainWindow, {
           title: "Сохранить протокол исследования",
           defaultPath: defaultPath || "uzi-protocol.html",
@@ -416,9 +419,9 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
 
   // ==================== STATISTICS HANDLERS ====================
 
-  ipcMain.handle("database:getStatistics", async (_, startDate?: string, endDate?: string) => {
+  ipcMain.handle("database:getStatistics", async (_, startDate?: string, endDate?: string, doctorName?: string) => {
     try {
-      const data = db.statistics.getStatistics(startDate, endDate);
+      const data = db.statistics.getStatistics(startDate, endDate, doctorName);
       return { success: true, data };
     } catch (error) {
       console.error("Statistics error:", error);

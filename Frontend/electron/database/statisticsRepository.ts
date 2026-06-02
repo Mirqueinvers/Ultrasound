@@ -28,23 +28,20 @@ export interface StatisticsData {
 export class StatisticsRepository {
   constructor(private db: Database.Database) {}
 
-  getStatistics(startDate?: string, endDate?: string): StatisticsData {
+  getStatistics(startDate?: string, endDate?: string, doctorName?: string): StatisticsData {
     try {
       const totalPatients = this.getTotalPatients();
       const totalResearches = this.getTotalResearches();
       const totalStudies = this.getTotalStudies();
       
-      // Если период не задан, показываем все данные
-      const hasPeriod = startDate && endDate;
-      
-      const researchesInPeriod = this.getResearchesInPeriod(startDate, endDate);
-      const patientsInPeriod = this.getPatientsInPeriod(startDate, endDate);
-      const studiesInPeriod = this.getStudiesInPeriod(startDate, endDate);
-      const paymentStats = this.getPaymentStats(startDate, endDate);
-      const studiesByType = this.getStudiesByType(startDate, endDate);
+      const researchesInPeriod = this.getResearchesInPeriod(startDate, endDate, doctorName);
+      const patientsInPeriod = this.getPatientsInPeriod(startDate, endDate, doctorName);
+      const studiesInPeriod = this.getStudiesInPeriod(startDate, endDate, doctorName);
+      const paymentStats = this.getPaymentStats(startDate, endDate, doctorName);
+      const studiesByType = this.getStudiesByType(startDate, endDate, doctorName);
       const monthlyResearches = this.getMonthlyResearches();
-      const recentActivity = this.getRecentActivity(startDate, endDate);
-      const doctorsStats = this.getDoctorsStats(startDate, endDate);
+      const recentActivity = this.getRecentActivity(startDate, endDate, doctorName);
+      const doctorsStats = this.getDoctorsStats(startDate, endDate, doctorName);
 
       return {
         totalPatients,
@@ -97,66 +94,117 @@ export class StatisticsRepository {
     return row.count;
   }
 
-  private getResearchesInPeriod(startDate?: string, endDate?: string): number {
-    if (!startDate || !endDate) {
-      return 0;
-    }
-    
-    const row = this.db
-      .prepare("SELECT COUNT(*) as count FROM researches WHERE research_date BETWEEN ? AND ?")
-      .get(startDate, endDate) as { count: number };
-    return row.count;
-  }
+  /** Добавляет фильтр по врачу и датам к запросу, возвращает { clause, params } */
+  private buildWhereClause(startDate?: string, endDate?: string, doctorName?: string): { clause: string; params: any[] } {
+    const conditions: string[] = [];
+    const params: any[] = [];
 
-  private getPatientsInPeriod(startDate?: string, endDate?: string): number {
-    if (!startDate || !endDate) {
-      return 0;
-    }
-    
-    const row = this.db
-      .prepare("SELECT COUNT(DISTINCT patient_id) as count FROM researches WHERE research_date BETWEEN ? AND ?")
-      .get(startDate, endDate) as { count: number };
-    return row.count;
-  }
-
-  private getStudiesInPeriod(startDate?: string, endDate?: string): number {
-    if (!startDate || !endDate) {
-      return 0;
-    }
-    
-    const row = this.db
-      .prepare(`
-        SELECT COUNT(*) as count 
-        FROM research_studies rs
-        JOIN researches r ON rs.research_id = r.id
-        WHERE r.research_date BETWEEN ? AND ?
-      `)
-      .get(startDate, endDate) as { count: number };
-    return row.count;
-  }
-
-  private getPaymentStats(startDate?: string, endDate?: string): { oms: number; paid: number } {
-    let query = "SELECT COUNT(*) as count FROM researches WHERE payment_type = ?";
-    const params: any[] = ['oms'];
-    
     if (startDate && endDate) {
-      query += " AND research_date BETWEEN ? AND ?";
+      conditions.push("r.research_date BETWEEN ? AND ?");
       params.push(startDate, endDate);
     }
-    
-    const omsRow = this.db
-      .prepare(query)
-      .get(...params) as { count: number };
-    
-    // Для платных исследований
-    const paidParams = ['paid'];
-    if (startDate && endDate) {
-      paidParams.push(startDate, endDate);
+
+    if (doctorName) {
+      conditions.push("r.doctor_name = ?");
+      params.push(doctorName);
+    }
+
+    return {
+      clause: conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "",
+      params,
+    };
+  }
+
+  private getResearchesInPeriod(startDate?: string, endDate?: string, doctorName?: string): number {
+    if (!startDate || !endDate) {
+      return 0;
     }
     
-    const paidRow = this.db
+    let query = "SELECT COUNT(*) as count FROM researches r WHERE r.research_date BETWEEN ? AND ?";
+    const params: any[] = [startDate, endDate];
+
+    if (doctorName) {
+      query += " AND r.doctor_name = ?";
+      params.push(doctorName);
+    }
+
+    const row = this.db
       .prepare(query)
-      .get(...paidParams) as { count: number };
+      .get(...params) as { count: number };
+    return row.count;
+  }
+
+  private getPatientsInPeriod(startDate?: string, endDate?: string, doctorName?: string): number {
+    if (!startDate || !endDate) {
+      return 0;
+    }
+    
+    let query = "SELECT COUNT(DISTINCT r.patient_id) as count FROM researches r WHERE r.research_date BETWEEN ? AND ?";
+    const params: any[] = [startDate, endDate];
+
+    if (doctorName) {
+      query += " AND r.doctor_name = ?";
+      params.push(doctorName);
+    }
+
+    const row = this.db
+      .prepare(query)
+      .get(...params) as { count: number };
+    return row.count;
+  }
+
+  private getStudiesInPeriod(startDate?: string, endDate?: string, doctorName?: string): number {
+    if (!startDate || !endDate) {
+      return 0;
+    }
+    
+    let query = `
+      SELECT COUNT(*) as count 
+      FROM research_studies rs
+      JOIN researches r ON rs.research_id = r.id
+      WHERE r.research_date BETWEEN ? AND ?
+    `;
+    const params: any[] = [startDate, endDate];
+
+    if (doctorName) {
+      query += " AND r.doctor_name = ?";
+      params.push(doctorName);
+    }
+
+    const row = this.db
+      .prepare(query)
+      .get(...params) as { count: number };
+    return row.count;
+  }
+
+  private getPaymentStats(startDate?: string, endDate?: string, doctorName?: string): { oms: number; paid: number } {
+    const buildQuery = (paymentType: string): { query: string; params: any[] } => {
+      let query = "SELECT COUNT(*) as count FROM researches r WHERE r.payment_type = ?";
+      const params: any[] = [paymentType];
+
+      if (startDate && endDate) {
+        query += " AND r.research_date BETWEEN ? AND ?";
+        params.push(startDate, endDate);
+      }
+
+      if (doctorName) {
+        query += " AND r.doctor_name = ?";
+        params.push(doctorName);
+      }
+
+      return { query, params };
+    };
+
+    const oms = buildQuery('oms');
+    const paid = buildQuery('paid');
+
+    const omsRow = this.db
+      .prepare(oms.query)
+      .get(...oms.params) as { count: number };
+
+    const paidRow = this.db
+      .prepare(paid.query)
+      .get(...paid.params) as { count: number };
 
     return {
       oms: omsRow?.count || 0,
@@ -164,20 +212,15 @@ export class StatisticsRepository {
     };
   }
 
-  private getStudiesByType(startDate?: string, endDate?: string): { [key: string]: number } {
+  private getStudiesByType(startDate?: string, endDate?: string, doctorName?: string): { [key: string]: number } {
     let query = `
       SELECT rs.study_type, COUNT(*) as count 
       FROM research_studies rs
       JOIN researches r ON rs.research_id = r.id
     `;
     
-    const params: any[] = [];
-    
-    if (startDate && endDate) {
-      query += ` WHERE r.research_date BETWEEN ? AND ?`;
-      params.push(startDate, endDate);
-    }
-    
+    const { clause, params } = this.buildWhereClause(startDate, endDate, doctorName);
+    query += clause;
     query += ` GROUP BY rs.study_type`;
 
     const rows = this.db
@@ -213,7 +256,7 @@ export class StatisticsRepository {
       }));
   }
 
-  private getRecentActivity(startDate?: string, endDate?: string): {
+  private getRecentActivity(startDate?: string, endDate?: string, doctorName?: string): {
     date: string;
     patientName: string;
     studyType: string;
@@ -230,13 +273,8 @@ export class StatisticsRepository {
       JOIN research_studies rs ON r.id = rs.research_id
     `;
     
-    const params: any[] = [];
-    
-    if (startDate && endDate) {
-      query += ` WHERE r.research_date BETWEEN ? AND ?`;
-      params.push(startDate, endDate);
-    }
-    
+    const { clause, params } = this.buildWhereClause(startDate, endDate, doctorName);
+    query += clause;
     query += ` ORDER BY r.research_date DESC, rs.created_at DESC LIMIT 20`;
 
     const rows = this.db
@@ -251,7 +289,6 @@ export class StatisticsRepository {
 
     return rows
       .filter(row => {
-        // Фильтруем строки с невалидными датами (проверяем, что строка соответствует формату ГГГГ-ММ-ДД)
         return /^\d{4}-\d{2}-\d{2}$/.test(row.date);
       })
       .map(row => ({
@@ -261,7 +298,7 @@ export class StatisticsRepository {
       }));
   }
 
-  private getDoctorsStats(startDate?: string, endDate?: string): {
+  private getDoctorsStats(startDate?: string, endDate?: string, doctorName?: string): {
     doctorName: string;
     patientCount: number;
     researchCount: number;
@@ -274,13 +311,8 @@ export class StatisticsRepository {
       FROM researches r
     `;
     
-    const params: any[] = [];
-    
-    if (startDate && endDate) {
-      query += ` WHERE r.research_date BETWEEN ? AND ?`;
-      params.push(startDate, endDate);
-    }
-    
+    const { clause, params } = this.buildWhereClause(startDate, endDate, doctorName);
+    query += clause;
     query += `
       GROUP BY r.doctor_name
       ORDER BY research_count DESC
@@ -303,16 +335,14 @@ export class StatisticsRepository {
 
   private formatMonth(monthStr: string): string {
     const [year, month] = monthStr.split('-');
-    // Создаем дату в локальной временной зоне
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
     return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' });
   }
 
   private formatStudyType(studyType: string): string {
-    // Преобразуем study_type в читаемый вид
     return studyType
-      .replace(/([A-Z])/g, ' $1') // добавляем пробел перед заглавными буквами
-      .replace(/^./, str => str.toUpperCase()) // первую букву делаем заглавной
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
       .trim();
   }
 }
