@@ -403,7 +403,109 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   }, [appliedOverrides, buildDraftOverrides, sourceBlockHtml]);
 
   const studyPages = React.useMemo<ResearchBlock[][]>(() => {
-    return studyDefinitions.map((definition) => {
+    const obpDef = studyDefinitions.find((d) => d.id === "obp");
+    const kidneysDef = studyDefinitions.find((d) => d.id === "kidneys");
+    const otherDefs = studyDefinitions.filter((d) => d.id !== "obp" && d.id !== "kidneys");
+
+    const pages: ResearchBlock[][] = [];
+
+    // Если есть и ОБП, и Почки — объединяем в одну страницу
+    if (obpDef && kidneysDef) {
+      const obpOverrideKey = bodyOverrideKey(obpDef.id);
+      const obpEditedValue = previewOverrides[obpOverrideKey];
+      const obpHasOverride = Object.prototype.hasOwnProperty.call(previewOverrides, obpOverrideKey);
+      const obpBody = obpHasOverride && hasVisibleHtmlContent(obpEditedValue)
+        ? <div dangerouslySetInnerHTML={{ __html: obpEditedValue ?? "" }} />
+        : obpDef.element;
+
+      const kidneysOverrideKey = bodyOverrideKey(kidneysDef.id);
+      const kidneysEditedValue = previewOverrides[kidneysOverrideKey];
+      const kidneysHasOverride = Object.prototype.hasOwnProperty.call(previewOverrides, kidneysOverrideKey);
+      const kidneysBody = kidneysHasOverride && hasVisibleHtmlContent(kidneysEditedValue)
+        ? <div dangerouslySetInnerHTML={{ __html: kidneysEditedValue ?? "" }} />
+        : kidneysDef.element;
+
+      const obpSection = appliedConclusionSections.find((s) => s.key === obpDef.key);
+      const kidneysSection = appliedConclusionSections.find((s) => s.key === kidneysDef.key);
+      const combinedSections = [obpSection, kidneysSection].filter(Boolean) as StudyConclusionSection[];
+
+      pages.push([
+        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: "obp" as BlockId, element: obpBody },
+        { id: "kidneys" as BlockId, element: kidneysBody },
+        {
+          id: "conclusion" as BlockId,
+          element: (
+            <div className="print-conclusion">
+              <ConclusionPrint
+                value={{
+                  conclusion: combinedSections.map((s) => s.conclusion).filter(Boolean).join("\n"),
+                  recommendations: combinedSections.map((s) => s.recommendations).filter(Boolean).join("\n"),
+                  sections: combinedSections,
+                }}
+              />
+              {doctorName && (
+                <div
+                  style={{
+                    marginTop: "10mm",
+                    textAlign: "right",
+                    fontSize: "14px",
+                  }}
+                >
+                  Исследование проводил врач {doctorName}
+                </div>
+              )}
+            </div>
+          ),
+        },
+      ]);
+    } else {
+      // Если есть только одно из них — отдельная страница
+      [obpDef, kidneysDef].filter(Boolean).forEach((def) => {
+        const overrideKey = bodyOverrideKey(def!.id);
+        const editedValue = previewOverrides[overrideKey];
+        const hasOverride = Object.prototype.hasOwnProperty.call(previewOverrides, overrideKey);
+
+        const bodyElement = hasOverride && hasVisibleHtmlContent(editedValue)
+          ? <div dangerouslySetInnerHTML={{ __html: editedValue ?? "" }} />
+          : def!.element;
+
+        const section = appliedConclusionSections.find((s) => s.key === def!.key);
+
+        pages.push([
+          { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+          { id: def!.id, element: bodyElement },
+          {
+            id: "conclusion" as BlockId,
+            element: (
+              <div className="print-conclusion">
+                <ConclusionPrint
+                  value={{
+                    conclusion: section?.conclusion || "",
+                    recommendations: section?.recommendations || "",
+                    sections: section ? [section] : [],
+                  }}
+                />
+                {doctorName && (
+                  <div
+                    style={{
+                      marginTop: "10mm",
+                      textAlign: "right",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Исследование проводил врач {doctorName}
+                  </div>
+                )}
+              </div>
+            ),
+          },
+        ]);
+      });
+    }
+
+    // Остальные исследования — каждое на отдельной странице
+    otherDefs.forEach((definition) => {
       const overrideKey = bodyOverrideKey(definition.id);
       const editedValue = previewOverrides[overrideKey];
       const hasOverride = Object.prototype.hasOwnProperty.call(previewOverrides, overrideKey);
@@ -413,10 +515,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
         : definition.element;
 
       const section = appliedConclusionSections.find((s) => s.key === definition.key);
-      const studyConclusion = section?.conclusion || "";
-      const studyRecommendations = section?.recommendations || "";
 
-      return [
+      pages.push([
         { id: "header" as BlockId, element: <ResearchPrintHeader /> },
         { id: definition.id, element: bodyElement },
         {
@@ -425,8 +525,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
             <div className="print-conclusion">
               <ConclusionPrint
                 value={{
-                  conclusion: studyConclusion,
-                  recommendations: studyRecommendations,
+                  conclusion: section?.conclusion || "",
+                  recommendations: section?.recommendations || "",
                   sections: section ? [section] : [],
                 }}
               />
@@ -444,8 +544,10 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
             </div>
           ),
         },
-      ];
+      ]);
     });
+
+    return pages;
   }, [appliedConclusionSections, doctorName, previewOverrides, studyDefinitions]);
 
   const printRootRef = React.useRef<HTMLDivElement | null>(null);

@@ -128,14 +128,12 @@ const PrintableSavedProtocol = React.forwardRef<
 
 
   const [loading, setLoading] = React.useState(true);
-  const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
   const [protocolDoctorName, setProtocolDoctorName] = React.useState<string>("");
   const [persistedOverrides, setPersistedOverrides] = React.useState<PrintOverrideMap>({});
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [localStudiesData, setLocalStudiesData] = React.useState<DesktopStudiesDataMap>({});
-  const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -144,7 +142,6 @@ const PrintableSavedProtocol = React.forwardRef<
 
     const load = async () => {
       setLoading(true);
-      setPages(null);
       setSourceBlockHtml({});
       setPersistedOverrides({});
       setDraftOverrides({});
@@ -467,99 +464,91 @@ const PrintableSavedProtocol = React.forwardRef<
   }, [buildDraftOverrides, loading, persistedOverrides]);
 
   const studyPages = React.useMemo<ResearchBlock[][]>(() => {
-    return studyDefinitions.map((definition) => {
+    const obpDef = studyDefinitions.find((d) => d.id === "obp");
+    const kidneysDef = studyDefinitions.find((d) => d.id === "kidneys");
+    const otherDefs = studyDefinitions.filter((d) => d.id !== "obp" && d.id !== "kidneys");
+
+    const pages: ResearchBlock[][] = [];
+
+    const buildBodyElement = (definition: StudyBlockDefinition) => {
       const overrideKey = bodyOverrideKey(definition.id);
       const hasOverride = Object.prototype.hasOwnProperty.call(persistedOverrides, overrideKey);
-
-      let bodyElement: React.ReactNode;
       if (hasOverride) {
         const editedValue = persistedOverrides[overrideKey] ?? "";
         if (hasVisibleHtmlContent(editedValue)) {
-          bodyElement = <div dangerouslySetInnerHTML={{ __html: editedValue }} />;
-        } else {
-          bodyElement = definition.element;
+          return <div dangerouslySetInnerHTML={{ __html: editedValue }} />;
         }
-      } else {
-        bodyElement = definition.element;
       }
+      return definition.element;
+    };
 
-      const section = appliedConclusionSections.find((s) => s.key === definition.key);
-      const studyConclusion = section?.conclusion || "";
-      const studyRecommendations = section?.recommendations || "";
-
-      return [
-        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
-        { id: definition.id, element: bodyElement },
-        {
-          id: "conclusion" as BlockId,
-          element: (
-            <div className="print-conclusion">
-              <ConclusionPrint
-                value={{
-                  conclusion: studyConclusion,
-                  recommendations: studyRecommendations,
-                  sections: section ? [section] : [],
-                }}
-              />
-              {doctorName && (
-                <div
-                  style={{
-                    marginTop: "10mm",
-                    textAlign: "right",
-                    fontSize: "14px",
-                  }}
-                >
-                  Исследование проводил врач {doctorName}
-                </div>
-              )}
+    const buildConclusionElement = (sections: StudyEditorSection[]) => {
+      return (
+        <div className="print-conclusion">
+          <ConclusionPrint
+            value={{
+              conclusion: sections.map((s) => s.conclusion).filter(Boolean).join("\n"),
+              recommendations: sections.map((s) => s.recommendations).filter(Boolean).join("\n"),
+              sections,
+            }}
+          />
+          {doctorName && (
+            <div
+              style={{
+                marginTop: "10mm",
+                textAlign: "right",
+                fontSize: "14px",
+              }}
+            >
+              Исследование проводил врач {doctorName}
             </div>
-          ),
-        },
-      ];
+          )}
+        </div>
+      );
+    };
+
+    // Если есть и ОБП, и Почки — объединяем в одну страницу
+    if (obpDef && kidneysDef) {
+      const obpSection = appliedConclusionSections.find((s) => s.key === obpDef.key);
+      const kidneysSection = appliedConclusionSections.find((s) => s.key === kidneysDef.key);
+      const combinedSections = [obpSection, kidneysSection].filter(Boolean) as StudyEditorSection[];
+
+      pages.push([
+        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: "obp" as BlockId, element: buildBodyElement(obpDef) },
+        { id: "kidneys" as BlockId, element: buildBodyElement(kidneysDef) },
+        { id: "conclusion" as BlockId, element: buildConclusionElement(combinedSections) },
+      ]);
+    } else {
+      // Если есть только одно из них — отдельная страница
+      [obpDef, kidneysDef].filter(Boolean).forEach((def) => {
+        const section = appliedConclusionSections.find((s) => s.key === def!.key);
+        pages.push([
+          { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+          { id: def!.id, element: buildBodyElement(def!) },
+          { id: "conclusion" as BlockId, element: buildConclusionElement(section ? [section] : []) },
+        ]);
+      });
+    }
+
+    // Остальные исследования — каждое на отдельной странице
+    otherDefs.forEach((definition) => {
+      const section = appliedConclusionSections.find((s) => s.key === definition.key);
+      pages.push([
+        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: definition.id, element: buildBodyElement(definition) },
+        { id: "conclusion" as BlockId, element: buildConclusionElement(section ? [section] : []) },
+      ]);
     });
+
+    return pages;
   }, [appliedConclusionSections, doctorName, persistedOverrides, studyDefinitions]);
 
-  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
-    return studyPages.flat();
-  }, [studyPages]);
-
-  React.useLayoutEffect(() => {
-    if (!measureContainerRef.current) return;
-
-    const children = Array.from(measureContainerRef.current.children) as HTMLElement[];
-    const heightLimit = 1120;
-
-    const newPages: ResearchBlock[][] = [];
-    let currentPage: ResearchBlock[] = [];
-    let currentHeight = 0;
-
-    children.forEach((child, index) => {
-      const block = displayBlocks[index];
-      const blockHeight = child.offsetHeight;
-
-      if (currentHeight + blockHeight > heightLimit && currentPage.length > 0) {
-        newPages.push(currentPage);
-        currentPage = [block];
-        currentHeight = blockHeight;
-      } else {
-        currentPage.push(block);
-        currentHeight += blockHeight;
-      }
-    });
-
-    if (currentPage.length > 0) {
-      newPages.push(currentPage);
-    }
-
-    setPages(newPages);
-  }, [displayBlocks]);
-
-
   React.useEffect(() => {
-    if (pages && !loading) {
+    if (!loading && studyPages.length > 0) {
       onReady?.(researchId);
     }
-  }, [loading, onReady, pages, researchId]);
+  }, [loading, onReady, researchId, studyPages]);
 
   React.useEffect(() => {
     if (externalEditMode === true && !isEditMode) {
@@ -651,43 +640,9 @@ const PrintableSavedProtocol = React.forwardRef<
     getPrintRoot: () => printRootRef.current,
   }), [handleSaveOverrides]);
 
-  // Измерительный контейнер — всегда рендерится, но вынесен за пределы видимого потока
-  // (position: fixed + top: -9999px), чтобы не влиять на layout модального окна
-  const measureNodes = (
-    <div
-      ref={measureContainerRef}
-      data-print-measure
-      style={{
-        visibility: "hidden",
-        position: "fixed",
-        top: -9999,
-        left: 0,
-        width: "210mm",
-        zIndex: -1,
-        pointerEvents: "none",
-      }}
-    >
-      {displayBlocks.map((block) => (
-        <div key={block.id}>{block.element}</div>
-      ))}
-    </div>
-  );
-
-  if (loading && !pages) {
+  if (loading) {
     return (
       <div>
-        {measureNodes}
-        <div ref={printRootRef} id="print-root" className="p-4 text-sm text-slate-500">
-          Загрузка сохранённого протокола исследования...
-        </div>
-      </div>
-    );
-  }
-
-  if (!pages) {
-    return (
-      <div>
-        {measureNodes}
         <div ref={printRootRef} id="print-root" className="p-4 text-sm text-slate-500">
           Загрузка сохранённого протокола исследования...
         </div>
@@ -696,8 +651,7 @@ const PrintableSavedProtocol = React.forwardRef<
   }
 
   return (
-    <div className="space-y-4">
-      {measureNodes}
+    <div>
       <div
         ref={(node) => {
           printRootRef.current = node;
@@ -709,10 +663,17 @@ const PrintableSavedProtocol = React.forwardRef<
         contentEditable={isEditMode}
         suppressContentEditableWarning
         className={`w-full outline-none text-sm leading-6 text-slate-900 bg-slate-100 rounded-xl p-4 ${isEditMode ? "" : ""}`}
-        style={{ width: "210mm", minHeight: "297mm" }}
+        style={{ width: "210mm" }}
       >
-        {pages.map((pageBlocks, pageIndex) => (
-          <div key={pageIndex} className="print-page">
+        {studyPages.map((pageBlocks, pageIndex) => (
+          <div
+            key={pageIndex}
+            className="print-page"
+            style={{
+              pageBreakAfter: "always",
+              breakAfter: "page",
+            }}
+          >
             <div className="print-page-inner">
               {pageBlocks.filter(Boolean).map((block) => (
                 <div
