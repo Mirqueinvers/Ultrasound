@@ -284,6 +284,10 @@ export interface DatabaseAPI {
         patientCount: number;
         researchCount: number;
       }[];
+      paidStudiesDetail: {
+        studyType: string;
+        count: number;
+      }[];
     };
   }>;
 }

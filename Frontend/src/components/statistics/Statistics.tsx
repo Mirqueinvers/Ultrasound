@@ -56,6 +56,10 @@ interface StatisticsData {
     patientCount: number;
     researchCount: number;
   }[];
+  paidStudiesDetail: {
+    studyType: string;
+    count: number;
+  }[];
 }
 
 const Statistics: React.FC = () => {
@@ -91,6 +95,7 @@ const Statistics: React.FC = () => {
   });
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [doctorList, setDoctorList] = useState<string[]>([]);
+  const [paidExpanded, setPaidExpanded] = useState(false);
 
   useEffect(() => {
     loadStatistics();
@@ -529,24 +534,49 @@ const Statistics: React.FC = () => {
             Статистика по оплате
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 bg-medical-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-medical-500" />
-                <span className="text-sm font-medium text-medical-700 font-sans">ОМС</span>
-              </div>
-              <span className="text-xl font-bold text-medical-900 font-sans">
-                {stats.paymentStats.oms}
-              </span>
-            </div>
             <div className="flex items-center justify-between p-4 bg-clinical-50 rounded-xl">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-clinical-500" />
-                <span className="text-sm font-medium text-clinical-700 font-sans">Платные</span>
+                <span className="text-sm font-medium text-clinical-700 font-sans">ОМС</span>
               </div>
               <span className="text-xl font-bold text-clinical-900 font-sans">
-                {stats.paymentStats.paid}
+                {stats.paymentStats.oms}
               </span>
             </div>
+            <div
+              className="flex items-center justify-between p-4 bg-medical-50 rounded-xl cursor-pointer hover:bg-medical-100 transition-colors"
+              onClick={() => setPaidExpanded(!paidExpanded)}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-medical-500" />
+                <span className="text-sm font-medium text-medical-700 font-sans">Платные</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-medical-900 font-sans">
+                  {stats.paymentStats.paid}
+                </span>
+                <svg
+                  className={`w-4 h-4 text-medical-500 transition-transform duration-200 ${paidExpanded ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            {paidExpanded && stats.paidStudiesDetail.length > 0 && (
+              <div className="mt-2 space-y-1.5">
+                {stats.paidStudiesDetail.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between px-3 py-2.5 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span className="text-sm text-slate-600 font-sans capitalize">
+                      {item.studyType.replace(/([A-Z])/g, " $1").trim()}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-900 font-sans">{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="text-xs text-slate-400 text-center pt-2 border-t border-slate-100 font-sans">
               Всего: {stats.paymentStats.oms + stats.paymentStats.paid} исследований
             </div>

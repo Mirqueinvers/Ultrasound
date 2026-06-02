@@ -23,6 +23,10 @@ export interface StatisticsData {
     patientCount: number;
     researchCount: number;
   }[];
+  paidStudiesDetail: {
+    studyType: string;
+    count: number;
+  }[];
 }
 
 export class StatisticsRepository {
@@ -42,6 +46,7 @@ export class StatisticsRepository {
       const monthlyResearches = this.getMonthlyResearches();
       const recentActivity = this.getRecentActivity(startDate, endDate, doctorName);
       const doctorsStats = this.getDoctorsStats(startDate, endDate, doctorName);
+      const paidStudiesDetail = this.getPaidStudiesDetail(startDate, endDate, doctorName);
 
       return {
         totalPatients,
@@ -55,6 +60,7 @@ export class StatisticsRepository {
         monthlyResearches,
         recentActivity,
         doctorsStats,
+        paidStudiesDetail,
       };
     } catch (error) {
       console.error("Error getting statistics:", error);
@@ -179,7 +185,12 @@ export class StatisticsRepository {
 
   private getPaymentStats(startDate?: string, endDate?: string, doctorName?: string): { oms: number; paid: number } {
     const buildQuery = (paymentType: string): { query: string; params: any[] } => {
-      let query = "SELECT COUNT(*) as count FROM researches r WHERE r.payment_type = ?";
+      let query = `
+        SELECT COUNT(*) as count 
+        FROM research_studies rs
+        JOIN researches r ON rs.research_id = r.id
+        WHERE r.payment_type = ?
+      `;
       const params: any[] = [paymentType];
 
       if (startDate && endDate) {
@@ -220,7 +231,11 @@ export class StatisticsRepository {
     `;
     
     const { clause, params } = this.buildWhereClause(startDate, endDate, doctorName);
-    query += clause;
+    const paymentFilter = "r.payment_type = 'oms'";
+    const whereClause = clause
+      ? ` WHERE ${paymentFilter} AND ${clause.replace(/^ WHERE /, "")}`
+      : ` WHERE ${paymentFilter}`;
+    query += whereClause;
     query += ` GROUP BY rs.study_type`;
 
     const rows = this.db
@@ -307,8 +322,9 @@ export class StatisticsRepository {
       SELECT 
         r.doctor_name,
         COUNT(DISTINCT r.patient_id) as patient_count,
-        COUNT(r.id) as research_count
+        COUNT(rs.id) as research_count
       FROM researches r
+      LEFT JOIN research_studies rs ON r.id = rs.research_id
     `;
     
     const { clause, params } = this.buildWhereClause(startDate, endDate, doctorName);
@@ -330,6 +346,43 @@ export class StatisticsRepository {
       doctorName: row.doctor_name || "Не указан",
       patientCount: row.patient_count,
       researchCount: row.research_count,
+    }));
+  }
+
+  private getPaidStudiesDetail(startDate?: string, endDate?: string, doctorName?: string): {
+    studyType: string;
+    count: number;
+  }[] {
+    let query = `
+      SELECT rs.study_type, COUNT(*) as count
+      FROM research_studies rs
+      JOIN researches r ON rs.research_id = r.id
+      WHERE r.payment_type = 'paid'
+    `;
+    const params: any[] = [];
+
+    if (startDate && endDate) {
+      query += " AND r.research_date BETWEEN ? AND ?";
+      params.push(startDate, endDate);
+    }
+
+    if (doctorName) {
+      query += " AND r.doctor_name = ?";
+      params.push(doctorName);
+    }
+
+    query += " GROUP BY rs.study_type ORDER BY count DESC";
+
+    const rows = this.db
+      .prepare(query)
+      .all(...params) as {
+        study_type: string;
+        count: number;
+      }[];
+
+    return rows.map(row => ({
+      studyType: this.formatStudyType(row.study_type),
+      count: row.count,
     }));
   }
 
