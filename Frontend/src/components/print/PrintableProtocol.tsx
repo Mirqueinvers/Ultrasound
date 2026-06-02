@@ -447,57 +447,16 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       ];
     });
   }, [appliedConclusionSections, doctorName, previewOverrides, studyDefinitions]);
-  const displayBlocks = React.useMemo<ResearchBlock[]>(() => {
-    return studyPages.flat();
-  }, [studyPages]);
 
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const measureContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const [pages, setPages] = React.useState<ResearchBlock[][] | null>(null);
-
-  React.useLayoutEffect(() => {
-    if (!measureContainerRef.current) {
-      return;
-    }
-
-    const children = Array.from(measureContainerRef.current.children) as HTMLElement[];
-    const heightLimit = 1120;
-
-    const newPages: ResearchBlock[][] = [];
-    let currentPage: ResearchBlock[] = [];
-    let currentHeight = 0;
-
-    children.forEach((child, index) => {
-      const block = displayBlocks[index];
-      if (!block) {
-        return;
-      }
-      const blockHeight = child.offsetHeight;
-
-      if (currentHeight + blockHeight > heightLimit && currentPage.length > 0) {
-        newPages.push(currentPage);
-        currentPage = [block];
-        currentHeight = blockHeight;
-      } else {
-        currentPage.push(block);
-        currentHeight += blockHeight;
-      }
-    });
-
-    if (currentPage.length > 0) {
-      newPages.push(currentPage);
-    }
-
-    setPages(newPages);
-  }, [displayBlocks]);
 
   React.useEffect(() => {
-    if (pages) {
+    if (studyPages.length > 0) {
       props.onReady?.();
     }
-  }, [pages]);
+  }, [studyPages]);
 
   const handleStartEditing = React.useCallback(() => {
     setDraftOverrides(buildDraftOverrides(appliedOverrides));
@@ -568,79 +527,27 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     getPrintRoot: () => printRootRef.current,
   }));
 
-  if (!pages) {
-    return (
-      <div ref={printRootRef} id="print-root">
-        <div
-          ref={sourceContainerRef}
-          data-print-source
-          hidden
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "210mm",
-            pointerEvents: "none",
-          }}
-        >
-          {studyDefinitions.map((definition) => (
-            <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
-              {definition.element}
-            </div>
-          ))}
-        </div>
-        <div
-          ref={measureContainerRef}
-          data-print-measure
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "210mm",
-            zIndex: -1,
-            pointerEvents: "none",
-          }}
-        >
-          {displayBlocks.map((block) => (
-            <div key={block.id}>{block.element}</div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  const measureNodes = (
-    <div
-      ref={measureContainerRef}
-      data-print-measure
-      style={{
-        visibility: "hidden",
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "210mm",
-        zIndex: -1,
-        pointerEvents: "none",
-      }}
-    >
-      <div hidden aria-hidden="true">
+  return (
+    <div>
+      <div
+        ref={sourceContainerRef}
+        data-print-source
+        hidden
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "210mm",
+          pointerEvents: "none",
+        }}
+      >
         {studyDefinitions.map((definition) => (
           <div key={definition.id} data-source-block-id={bodyOverrideKey(definition.id)}>
             {definition.element}
           </div>
         ))}
       </div>
-      {displayBlocks.map((block) => (
-        <div key={block.id}>{block.element}</div>
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="space-y-4">
-      {measureNodes}
       <div
         ref={(node) => {
           printRootRef.current = node;
@@ -652,10 +559,17 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
         contentEditable={isEditMode}
         suppressContentEditableWarning
         className={`w-full outline-none text-sm leading-6 text-slate-900 bg-slate-100 rounded-xl p-4 ${isEditMode ? "" : ""}`}
-        style={{ width: "210mm", minHeight: "297mm" }}
+        style={{ width: "210mm" }}
       >
-        {pages.map((pageBlocks, pageIndex) => (
-          <div key={pageIndex} className="print-page">
+        {studyPages.map((pageBlocks, pageIndex) => (
+          <div
+            key={pageIndex}
+            className="print-page"
+            style={{
+              pageBreakAfter: "always",
+              breakAfter: "page",
+            }}
+          >
             <div className="print-page-inner">
               {pageBlocks.filter(Boolean).map((block) => (
                 <div
