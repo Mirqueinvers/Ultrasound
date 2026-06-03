@@ -28,13 +28,24 @@ const formatDateRu = (str?: string | null): string => {
   });
 };
 
-export const ResearchPrintHeader: React.FC = () => {
-  const {
-    patientFullName,
-    patientDateOfBirth,
-    researchDate,
-    organization,
-  } = useResearch();
+interface ResearchPrintHeaderProps {
+  patientFullName?: string;
+  patientDateOfBirth?: string;
+  researchDate?: string;
+  organization?: string;
+}
+
+export const ResearchPrintHeader: React.FC<ResearchPrintHeaderProps> = ({
+  patientFullName: propPatientFullName,
+  patientDateOfBirth: propPatientDateOfBirth,
+  researchDate: propResearchDate,
+  organization: propOrganization,
+}) => {
+  const ctx = useResearch();
+  const patientFullName = propPatientFullName ?? ctx.patientFullName;
+  const patientDateOfBirth = propPatientDateOfBirth ?? ctx.patientDateOfBirth;
+  const researchDate = propResearchDate ?? ctx.researchDate;
+  const organization = propOrganization ?? ctx.organization;
 
   const formattedResearchDate = formatDateRu(researchDate);
   const formattedDob = formatDateRu(patientDateOfBirth);

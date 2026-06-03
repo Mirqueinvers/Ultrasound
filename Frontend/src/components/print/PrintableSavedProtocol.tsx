@@ -134,6 +134,10 @@ const PrintableSavedProtocol = React.forwardRef<
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [localStudiesData, setLocalStudiesData] = React.useState<DesktopStudiesDataMap>({});
+  const [localPatientFullName, setLocalPatientFullName] = React.useState("");
+  const [localPatientDateOfBirth, setLocalPatientDateOfBirth] = React.useState("");
+  const [localResearchDate, setLocalResearchDate] = React.useState("");
+  const [localOrganization, setLocalOrganization] = React.useState("");
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -197,6 +201,17 @@ const PrintableSavedProtocol = React.forwardRef<
       );
       setProtocolDoctorName(research.doctor_name || "");
       setOrganization(research.organization || "");
+
+      // Сохраняем локально, чтобы при экспорте нескольких протоколов
+      // каждый PrintableSavedProtocol имел свои данные шапки
+      setLocalPatientFullName(fullName);
+      setLocalPatientDateOfBirth(patient.date_of_birth);
+      setLocalResearchDate(
+        typeof research.research_date === "string"
+          ? research.research_date.slice(0, 10)
+          : "",
+      );
+      setLocalOrganization(research.organization || "");
     };
 
     void loadMeta();
@@ -514,7 +529,7 @@ const PrintableSavedProtocol = React.forwardRef<
       const combinedSections = [obpSection, kidneysSection].filter(Boolean) as StudyEditorSection[];
 
       pages.push([
-        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: "header" as BlockId, element: <ResearchPrintHeader patientFullName={localPatientFullName} patientDateOfBirth={localPatientDateOfBirth} researchDate={localResearchDate} organization={localOrganization} /> },
         { id: "obp" as BlockId, element: buildBodyElement(obpDef) },
         { id: "kidneys" as BlockId, element: buildBodyElement(kidneysDef) },
         { id: "conclusion" as BlockId, element: buildConclusionElement(combinedSections) },
@@ -524,7 +539,7 @@ const PrintableSavedProtocol = React.forwardRef<
       [obpDef, kidneysDef].filter(Boolean).forEach((def) => {
         const section = appliedConclusionSections.find((s) => s.key === def!.key);
         pages.push([
-          { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+          { id: "header" as BlockId, element: <ResearchPrintHeader patientFullName={localPatientFullName} patientDateOfBirth={localPatientDateOfBirth} researchDate={localResearchDate} organization={localOrganization} /> },
           { id: def!.id, element: buildBodyElement(def!) },
           { id: "conclusion" as BlockId, element: buildConclusionElement(section ? [section] : []) },
         ]);
@@ -535,14 +550,14 @@ const PrintableSavedProtocol = React.forwardRef<
     otherDefs.forEach((definition) => {
       const section = appliedConclusionSections.find((s) => s.key === definition.key);
       pages.push([
-        { id: "header" as BlockId, element: <ResearchPrintHeader /> },
+        { id: "header" as BlockId, element: <ResearchPrintHeader patientFullName={localPatientFullName} patientDateOfBirth={localPatientDateOfBirth} researchDate={localResearchDate} organization={localOrganization} /> },
         { id: definition.id, element: buildBodyElement(definition) },
         { id: "conclusion" as BlockId, element: buildConclusionElement(section ? [section] : []) },
       ]);
     });
 
     return pages;
-  }, [appliedConclusionSections, doctorName, persistedOverrides, studyDefinitions]);
+  }, [appliedConclusionSections, doctorName, localPatientFullName, localPatientDateOfBirth, localResearchDate, localOrganization, persistedOverrides, studyDefinitions]);
 
   React.useEffect(() => {
     if (!loading && studyPages.length > 0) {
