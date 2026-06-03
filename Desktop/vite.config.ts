@@ -14,7 +14,13 @@ export default defineConfig({
     port: Number(process.env.VITE_PORT ?? 5174),
     watch: {
       usePolling: true, // важно для Docker
+      // 👇 ДОБАВЬТЕ ЭТУ СТРОКУ, ЧТОБЫ VITE НЕ ПЕРЕЗАПУСКАЛСЯ ПРИ СОХРАНЕНИИ ФАЙЛОВ
+      ignored: [
+        '**/node_modules/**', 
+        '**/dist/**', 
+        '**/*.json', // если протоколы сохраняются в формате JSON
+        '**/storage/**', // или укажите имя вашей папки с сохранениями
+      ],
     },
   },
 });
-

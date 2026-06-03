@@ -3,7 +3,7 @@ const path = require("path");
 
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, "..");
-const frontendRoot = path.resolve(workspaceRoot, "Frontend");
+const frontendRoot = path.resolve(workspaceRoot, "Desktop");
 
 const config = getDefaultConfig(projectRoot);
 

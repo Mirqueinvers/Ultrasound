@@ -1,1 +1,1 @@
-export * from "../../../Frontend/src/sync/mobileSync";
+export * from "../../../Desktop/src/sync/mobileSync";

@@ -48,7 +48,6 @@ export const useDesktopAppSelection = () => {
 
       if (syncMessage.type === "sync:snapshot") {
         const { selection } = syncMessage.state;
-        setActiveSection(selection.activeSection);
         setSelectedStudy(selection.selectedStudy);
         setSelectedStudies([...selection.selectedStudies]);
         setIsMultiSelectMode(
