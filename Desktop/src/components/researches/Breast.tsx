@@ -24,7 +24,7 @@ interface BreastWithSectionsProps extends BreastStudyProps {
   >;
 }
 
-export const Breast: React.FC<BreastWithSectionsProps> = ({
+const Breast: React.FC<BreastWithSectionsProps> = ({
   value,
   onChange,
   sectionRefs,
