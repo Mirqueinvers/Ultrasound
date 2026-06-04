@@ -8,7 +8,7 @@ import type {
   BreastStudyProps,
   BreastProtocol,
 } from "@types";
-import { defaultBreastStudyState } from "@types";
+import { defaultBreastStudyState, defaultBreastState } from "@types";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BreastSectionKey = Extract<
@@ -38,6 +38,17 @@ export const Breast: React.FC<BreastWithSectionsProps> = ({
   }, [value]);
 
   const { setStudyData } = useResearch();
+
+  // При первом монтировании сохраняем дефолтные данные в контекст,
+  // чтобы протокол отображался на печати даже без изменений
+  useEffect(() => {
+    if (!value) {
+      setStudyData("Молочные железы", {
+        ...defaultBreastStudyState,
+        breast: defaultBreastState,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: BreastStudyProtocol) => {
