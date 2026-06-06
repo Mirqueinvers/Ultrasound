@@ -83,8 +83,14 @@ const RegistryPanel: React.FC = () => {
   }, [fetchAppointments]);
 
   const handleSaveSettings = () => {
-    setRegistryAddress(settingsInput);
-    setAddress(settingsInput);
+    // Очищаем ввод: убираем префикс "IP:", лишние пробелы
+    const cleaned = settingsInput
+      .replace(/^IP\s*:\s*/i, "")
+      .replace(/^http:\/\//i, "")
+      .replace(/\/+$/, "")
+      .trim();
+    setRegistryAddress(cleaned);
+    setAddress(cleaned);
     setShowSettings(false);
   };
 
