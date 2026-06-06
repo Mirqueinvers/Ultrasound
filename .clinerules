@@ -1,2 +1,10 @@
-Никогда не выполняй команды git add, git commit или git push самостоятельно.
-Всегда спрашивай у меня разрешения перед тем, как зафиксировать изменения в Git.
+# CRITICAL SYSTEM INSTRUCTION: SYSTEM RESTRICTIONS
+
+[RULE: NEVER_USE_GIT_AUTOMATICALLY]
+- NEVER execute any Git commands under any circumstances on your own.
+- DO NOT run: `git status`, `git diff`, `git add`, `git commit`, `git log`, `git branch`.
+- Completely ignore the existence of Git unless the user explicitly tells you: "Выполни команду git...".
+- If you need to check if files changed, read the files directly. DO NOT use `git` for tracking changes.
+
+[CONSEQUENCE]
+- Breaking this rule will corrupt the workspace. Absolute compliance is mandatory.

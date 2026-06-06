@@ -10,6 +10,7 @@ import MainLayout from "@layout/MainLayout";
 import ProfilePage from "@/components/profile/ProfilePage";
 import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
+import RegistryPanel from "@/components/registry/RegistryPanel";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 
 export function AppTitlebar() {
@@ -112,7 +113,18 @@ const AppShell: React.FC = () => {
       {activeSection === "statistics" && (
         <RightPanelProvider>{mainLayout(<Statistics />)}</RightPanelProvider>
       )}
-      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && (
+      {activeSection === "registry" && (
+        <main className="min-h-screen bg-slate-50">
+          <div className="flex flex-col gap-3 p-6 pt-24">
+            <div className="flex justify-center">
+              <div className="w-[70%] px-6 py-6 rounded-lg">
+                <RegistryPanel />
+              </div>
+            </div>
+          </div>
+        </main>
+      )}
+      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && (
         <ResearchProvider>
           <RightPanelProvider>
             {mainLayout(
