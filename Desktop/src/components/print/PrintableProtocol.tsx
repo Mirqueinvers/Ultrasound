@@ -660,8 +660,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
         id="print-root"
         contentEditable={isEditMode}
         suppressContentEditableWarning
-        className={`w-full outline-none text-sm leading-6 text-slate-900 bg-slate-100 rounded-xl p-4 ${isEditMode ? "" : ""}`}
-        style={{ width: "210mm" }}
+        className="w-full outline-none"
+        style={{ width: "210mm", fontSize: "12pt", lineHeight: 1.4 }}
       >
         {studyPages.map((pageBlocks, pageIndex) => (
           <div
