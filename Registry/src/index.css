@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --color-medical-50: #f0f7fc;
+  --color-medical-100: #d9ecf7;
+  --color-medical-200: #b3d9ef;
+  --color-medical-300: #7cbee3;
+  --color-medical-400: #3e9ed4;
+  --color-medical-500: #1a82c2;
+  --color-medical-600: #0a5c8a;
+  --color-medical-700: #0a4a70;
+  --color-medical-800: #0c3d5d;
+  --color-medical-900: #0e344f;
+  --color-medical-950: #092234;
+}

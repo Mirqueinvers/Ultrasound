@@ -5,9 +5,9 @@ const http = require("http");
 
 let mainWindow;
 let viteProcess;
+let viteUrl = null;
 
 async function startApiServer() {
-  // Запускаем API-сервер в том же процессе
   try {
     const { startApiServer: runApi } = require("./dist-api/api");
     await runApi();
@@ -17,62 +17,55 @@ async function startApiServer() {
   }
 }
 
-function waitForVite(url, retries = 30) {
-  return new Promise((resolve, reject) => {
-    const attempt = () => {
-      http
-        .get(url, (res) => {
-          if (res.statusCode === 200) {
-            resolve();
-          } else if (retries > 0) {
-            setTimeout(() => {
-              retries--;
-              attempt();
-            }, 500);
-          } else {
-            reject(new Error("Vite dev server did not start in time"));
-          }
-        })
-        .on("error", () => {
-          if (retries > 0) {
-            setTimeout(() => {
-              retries--;
-              attempt();
-            }, 500);
-          } else {
-            reject(new Error("Vite dev server did not start in time"));
-          }
-        });
-    };
-    attempt();
-  });
-}
-
 function startViteDevServer() {
   return new Promise((resolve, reject) => {
-    viteProcess = spawn(
-      path.join(__dirname, "node_modules", ".bin", "vite.cmd"),
-      [],
-      {
-        cwd: __dirname,
-        stdio: "pipe",
-        shell: true,
-      }
-    );
+    const viteCmd = path.join(__dirname, "node_modules", ".bin", "vite.cmd");
+    viteProcess = spawn(viteCmd, ["--port", "5175"], {
+      cwd: __dirname,
+      stdio: "pipe",
+      shell: true,
+    });
+
+    let resolved = false;
 
     viteProcess.stdout?.on("data", (data) => {
-      console.log(`[Vite] ${data.toString().trim()}`);
+      const msg = data.toString();
+      console.log(`[Vite] ${msg.trim()}`);
+      // Парсим URL: "Local:   http://localhost:5175/"
+      const match = msg.match(/Local:\s+(https?:\/\/[^\s]+)/i);
+      if (match && !resolved) {
+        viteUrl = match[1].replace(/\/$/, "");
+        resolved = true;
+        resolve();
+      }
     });
 
     viteProcess.stderr?.on("data", (data) => {
       console.error(`[Vite] ${data.toString().trim()}`);
     });
 
-    viteProcess.on("error", reject);
+    viteProcess.on("error", (err) => {
+      if (!resolved) {
+        resolved = true;
+        reject(err);
+      }
+    });
 
-    waitForVite("http://localhost:5173")
-      .then(resolve)
-      .catch(reject);
+    viteProcess.on("exit", (code) => {
+      if (!resolved) {
+        resolved = true;
+        reject(new Error(`Vite exited with code ${code}`));
+      }
+    });
+
+    // Fallback: если не спарсили URL за 10 секунд, пробуем localhost:5175
+    setTimeout(() => {
+      if (!resolved) {
+        viteUrl = "http://localhost:5175";
+        resolved = true;
+        resolve();
+      }
+    }, 10000);
   });
 }
 
@@ -86,20 +79,20 @@ async function createWindow() {
     },
   });
 
-  const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+  const isDev = !app.isPackaged;
 
   if (isDev) {
     try {
       await startViteDevServer();
+      console.log(`[Electron] Loading Vite dev server at ${viteUrl}`);
+      await mainWindow.loadURL(viteUrl);
     } catch (err) {
-      console.error("Failed to start Vite dev server:", err.message);
-      mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
-      return;
+      console.error("[Electron] Failed to start Vite, loading dist:", err.message);
+      await mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
     }
-    mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
+    await mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
   }
 }
 
