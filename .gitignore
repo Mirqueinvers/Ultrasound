@@ -16,6 +16,10 @@ dist-ssr
 release
 *.local
 
+# Registry
+Registry/registry.db
+Registry/test-*.json
+
 # Служебное IDE / ОС
 .vscode/*
 !.vscode/extensions.json

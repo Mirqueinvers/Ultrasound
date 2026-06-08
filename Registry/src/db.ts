@@ -58,12 +58,19 @@ function initSchema() {
       patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
       appointment_date TEXT NOT NULL,
       studies TEXT NOT NULL DEFAULT '[]',
+      department TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
   db.run(`
     CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
   `);
+  // Добавляем колонку department, если её нет (для существующих БД)
+  try {
+    db.run(`ALTER TABLE appointments ADD COLUMN department TEXT DEFAULT ''`);
+  } catch {
+    // Колонка уже существует
+  }
 }
 
 export interface Patient {
@@ -72,6 +79,7 @@ export interface Patient {
   first_name: string;
   middle_name: string;
   date_of_birth: string;
+  department?: string;
 }
 
 export interface Appointment {
@@ -79,6 +87,7 @@ export interface Appointment {
   patient_id: number;
   appointment_date: string;
   studies: string[];
+  department?: string;
   created_at: string;
   patient?: Patient;
 }
@@ -106,6 +115,7 @@ export function getAppointmentsByDate(date: string): Appointment[] {
     patient_id: row.patient_id,
     appointment_date: row.appointment_date,
     studies: JSON.parse(row.studies || "[]"),
+    department: row.department || "",
     created_at: row.created_at,
     patient: {
       id: row.p_id,
@@ -150,9 +160,11 @@ export function createAppointment(
     patientId = (db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number);
   }
 
+  const department = patientData.department || "";
+
   db.run(
-    `INSERT INTO appointments (patient_id, appointment_date, studies) VALUES (?, ?, ?)`,
-    [patientId, appointmentDate, JSON.stringify(studies)]
+    `INSERT INTO appointments (patient_id, appointment_date, studies, department) VALUES (?, ?, ?, ?)`,
+    [patientId, appointmentDate, JSON.stringify(studies), department]
   );
 
   const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number;
@@ -164,6 +176,7 @@ export function createAppointment(
     patient_id: patientId,
     appointment_date: appointmentDate,
     studies,
+    department,
     created_at: new Date().toISOString(),
     patient: {
       id: patientId,

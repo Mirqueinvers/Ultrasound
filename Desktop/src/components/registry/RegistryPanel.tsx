@@ -14,6 +14,7 @@ interface Appointment {
   patient_id: number;
   appointment_date: string;
   studies: string[];
+  department?: string;
   created_at: string;
   patient?: Patient;
 }
@@ -198,6 +199,11 @@ const RegistryPanel: React.FC = () => {
                         {study}
                       </span>
                     ))}
+                    {appt.department && (
+                      <span className="text-xs bg-sky-50 text-sky-600 px-2.5 py-1 rounded-full border border-sky-200 ml-auto">
+                        🏥 {appt.department}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

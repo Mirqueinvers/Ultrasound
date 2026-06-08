@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Calendar, Plus, Pencil, Trash2, X, Check, Search } from "lucide-react";
+import { Calendar, Plus, Pencil, Trash2, X, Check, Search, Settings } from "lucide-react";
 import DatePickerField from "./components/DatePickerField";
 
 const STUDIES_LIST = [
@@ -79,6 +79,16 @@ const labelClass = "block text-sm font-medium text-slate-600 mb-1";
 const btnClass =
   "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
+const DEPARTMENT_KEY = "registry_department";
+
+function getDepartment(): string {
+  return localStorage.getItem(DEPARTMENT_KEY) || "Регистратура";
+}
+
+function setDepartment(name: string) {
+  localStorage.setItem(DEPARTMENT_KEY, name);
+}
+
 export default function App() {
   const today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
@@ -95,6 +105,8 @@ export default function App() {
   const [middleName, setMiddleName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [selectedStudies, setSelectedStudies] = useState<string[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [departmentInput, setDepartmentInput] = useState(getDepartment());
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -160,6 +172,7 @@ export default function App() {
             dateOfBirth,
             appointmentDate: toApiDate(date),
             studies: selectedStudies,
+            department: getDepartment(),
           }),
         });
       }
@@ -206,13 +219,23 @@ export default function App() {
               placeholder="дд.мм.гггг"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={openAddModal}
               className={`${btnClass} bg-medical-500 text-white hover:bg-medical-600 flex items-center gap-2`}
             >
               <Plus size={16} />
               Добавить запись
+            </button>
+            <button
+              onClick={() => {
+                setDepartmentInput(getDepartment());
+                setShowSettings(true);
+              }}
+              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
+              title="Настройки"
+            >
+              <Settings size={18} />
             </button>
           </div>
         </div>
@@ -429,6 +452,58 @@ export default function App() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка настроек */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-800">Настройки</h3>
+              <button
+                type="button"
+                onClick={() => setShowSettings(false)}
+                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              Название отделения
+            </label>
+            <input
+              type="text"
+              value={departmentInput}
+              onChange={(e) => setDepartmentInput(e.target.value)}
+              placeholder="Регистратура поликлиники"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 mb-4"
+            />
+            <p className="text-xs text-slate-400 mb-4">
+              Это название будет отображаться на десктопе рядом с записями из этого отделения.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSettings(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDepartment(departmentInput);
+                  setShowSettings(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200"
+              >
+                Сохранить
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -40,7 +40,7 @@ export async function startApiServer() {
 
   // Создать запись
   app.post("/api/appointments", (req, res) => {
-    const { lastName, firstName, middleName, dateOfBirth, appointmentDate, studies } = req.body;
+    const { lastName, firstName, middleName, dateOfBirth, appointmentDate, studies, department } = req.body;
 
     if (!lastName || !firstName || !dateOfBirth || !appointmentDate || !studies) {
       res.status(400).json({ error: "Missing required fields" });
@@ -48,7 +48,7 @@ export async function startApiServer() {
     }
 
     const appointment = createAppointment(
-      { last_name: lastName, first_name: firstName, middle_name: middleName || "", date_of_birth: dateOfBirth },
+      { last_name: lastName, first_name: firstName, middle_name: middleName || "", date_of_birth: dateOfBirth, department: department || "" },
       appointmentDate,
       studies
     );
