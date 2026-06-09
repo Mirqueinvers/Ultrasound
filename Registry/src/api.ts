@@ -5,6 +5,10 @@ import {
   createAppointment,
   updateAppointment,
   deleteAppointment,
+  getDoctors,
+  createDoctor,
+  updateDoctor,
+  deleteDoctor,
 } from "./db";
 
 const PORT = 3456;
@@ -85,6 +89,47 @@ export async function startApiServer() {
       return;
     }
 
+    res.json({ success: true });
+  });
+
+  // Doctors CRUD
+  app.get("/api/doctors", (_req, res) => {
+    const doctors = getDoctors();
+    res.json(doctors);
+  });
+
+  app.post("/api/doctors", (req, res) => {
+    const { name, maxPatientsPerDay, workDays } = req.body;
+    if (!name) {
+      res.status(400).json({ error: "name is required" });
+      return;
+    }
+    const doctor = createDoctor(name, maxPatientsPerDay || 15, workDays || [1,2,3,4,5]);
+    res.status(201).json(doctor);
+  });
+
+  app.put("/api/doctors/:id", (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    const { name, maxPatientsPerDay, workDays } = req.body;
+    if (!name) {
+      res.status(400).json({ error: "name is required" });
+      return;
+    }
+    const doctor = updateDoctor(id, name, maxPatientsPerDay || 15, workDays || [1,2,3,4,5]);
+    if (!doctor) {
+      res.status(404).json({ error: "Doctor not found" });
+      return;
+    }
+    res.json(doctor);
+  });
+
+  app.delete("/api/doctors/:id", (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    const deleted = deleteDoctor(id);
+    if (!deleted) {
+      res.status(404).json({ error: "Doctor not found" });
+      return;
+    }
     res.json({ success: true });
   });
 

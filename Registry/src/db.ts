@@ -71,6 +71,22 @@ function initSchema() {
   } catch {
     // Колонка уже существует
   }
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS doctors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      max_patients_per_day INTEGER NOT NULL DEFAULT 15,
+      work_days TEXT NOT NULL DEFAULT '[1,2,3,4,5]'
+    );
+  `);
+}
+
+export interface Doctor {
+  id: number;
+  name: string;
+  max_patients_per_day: number;
+  work_days: string; // JSON array of numbers [1,2,3,...]
 }
 
 export interface Patient {
@@ -231,6 +247,53 @@ export function deleteAppointment(id: number): boolean {
   if (!db) return false;
 
   const result = db.run(`DELETE FROM appointments WHERE id = ?`, [id]);
+  saveDb();
+  return result.changes > 0;
+}
+
+// Doctors CRUD
+export function getDoctors(): Doctor[] {
+  if (!db) return [];
+  const stmt = db.prepare(`SELECT * FROM doctors ORDER BY name ASC`);
+  const rows: any[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    max_patients_per_day: row.max_patients_per_day,
+    work_days: row.work_days,
+  }));
+}
+
+export function createDoctor(name: string, maxPatientsPerDay: number, workDays: number[]): Doctor {
+  if (!db) throw new Error("Database not initialized");
+  const workDaysJson = JSON.stringify(workDays);
+  db.run(
+    `INSERT INTO doctors (name, max_patients_per_day, work_days) VALUES (?, ?, ?)`,
+    [name, maxPatientsPerDay, workDaysJson]
+  );
+  const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number;
+  saveDb();
+  return { id: newId, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
+}
+
+export function updateDoctor(id: number, name: string, maxPatientsPerDay: number, workDays: number[]): Doctor | null {
+  if (!db) return null;
+  const workDaysJson = JSON.stringify(workDays);
+  db.run(
+    `UPDATE doctors SET name = ?, max_patients_per_day = ?, work_days = ? WHERE id = ?`,
+    [name, maxPatientsPerDay, workDaysJson, id]
+  );
+  saveDb();
+  return { id, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
+}
+
+export function deleteDoctor(id: number): boolean {
+  if (!db) return false;
+  const result = db.run(`DELETE FROM doctors WHERE id = ?`, [id]);
   saveDb();
   return result.changes > 0;
 }

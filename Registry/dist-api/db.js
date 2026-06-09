@@ -8,6 +8,10 @@ exports.getAppointmentsByDate = getAppointmentsByDate;
 exports.createAppointment = createAppointment;
 exports.updateAppointment = updateAppointment;
 exports.deleteAppointment = deleteAppointment;
+exports.getDoctors = getDoctors;
+exports.createDoctor = createDoctor;
+exports.updateDoctor = updateDoctor;
+exports.deleteDoctor = deleteDoctor;
 const sql_js_1 = __importDefault(require("sql.js"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -78,6 +82,14 @@ function initSchema() {
     catch {
         // Колонка уже существует
     }
+    db.run(`
+    CREATE TABLE IF NOT EXISTS doctors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      max_patients_per_day INTEGER NOT NULL DEFAULT 15,
+      work_days TEXT NOT NULL DEFAULT '[1,2,3,4,5]'
+    );
+  `);
 }
 function getAppointmentsByDate(date) {
     if (!db)
@@ -191,6 +203,47 @@ function deleteAppointment(id) {
     if (!db)
         return false;
     const result = db.run(`DELETE FROM appointments WHERE id = ?`, [id]);
+    saveDb();
+    return result.changes > 0;
+}
+// Doctors CRUD
+function getDoctors() {
+    if (!db)
+        return [];
+    const stmt = db.prepare(`SELECT * FROM doctors ORDER BY name ASC`);
+    const rows = [];
+    while (stmt.step()) {
+        rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+    return rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        max_patients_per_day: row.max_patients_per_day,
+        work_days: row.work_days,
+    }));
+}
+function createDoctor(name, maxPatientsPerDay, workDays) {
+    if (!db)
+        throw new Error("Database not initialized");
+    const workDaysJson = JSON.stringify(workDays);
+    db.run(`INSERT INTO doctors (name, max_patients_per_day, work_days) VALUES (?, ?, ?)`, [name, maxPatientsPerDay, workDaysJson]);
+    const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0];
+    saveDb();
+    return { id: newId, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
+}
+function updateDoctor(id, name, maxPatientsPerDay, workDays) {
+    if (!db)
+        return null;
+    const workDaysJson = JSON.stringify(workDays);
+    db.run(`UPDATE doctors SET name = ?, max_patients_per_day = ?, work_days = ? WHERE id = ?`, [name, maxPatientsPerDay, workDaysJson, id]);
+    saveDb();
+    return { id, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
+}
+function deleteDoctor(id) {
+    if (!db)
+        return false;
+    const result = db.run(`DELETE FROM doctors WHERE id = ?`, [id]);
     saveDb();
     return result.changes > 0;
 }

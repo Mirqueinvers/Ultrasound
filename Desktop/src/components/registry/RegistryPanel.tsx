@@ -19,14 +19,21 @@ interface Appointment {
   patient?: Patient;
 }
 
-const REGISTRY_ADDRESS_KEY = "registry_address";
+const REGISTRY_ADDRESSES_KEY = "registry_addresses";
 
-function getRegistryAddress(): string {
-  return localStorage.getItem(REGISTRY_ADDRESS_KEY) || "localhost:3456";
+function getRegistryAddresses(): string[] {
+  try {
+    const stored = localStorage.getItem(REGISTRY_ADDRESSES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return ["localhost:3456"];
 }
 
-function setRegistryAddress(address: string) {
-  localStorage.setItem(REGISTRY_ADDRESS_KEY, address);
+function setRegistryAddresses(addresses: string[]) {
+  localStorage.setItem(REGISTRY_ADDRESSES_KEY, JSON.stringify(addresses));
 }
 
 function formatDate(dateStr: string): string {
@@ -57,41 +64,64 @@ const RegistryPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [address, setAddress] = useState(getRegistryAddress());
-  const [settingsInput, setSettingsInput] = useState(address);
+  const [addresses, setAddresses] = useState<string[]>(getRegistryAddresses);
+  const [newAddressInput, setNewAddressInput] = useState("");
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    try {
-      const res = await fetch(`http://${address}/api/appointments?date=${date}`);
-      if (!res.ok) {
-        throw new Error(`Ошибка сервера: ${res.status}`);
+    const allAppointments: Appointment[] = [];
+    let lastError: string | null = null;
+
+    for (const addr of addresses) {
+      try {
+        const res = await fetch(`http://${addr}/api/appointments?date=${date}`);
+        if (!res.ok) {
+          lastError = `Ошибка сервера ${addr}: ${res.status}`;
+          continue;
+        }
+        const data = await res.json();
+        // data может быть массивом или объектом {value: [...], Count: ...}
+        const items = Array.isArray(data) ? data : (data.value || []);
+        allAppointments.push(...items);
+      } catch (err: any) {
+        lastError = `Не удалось подключиться к ${addr}`;
       }
-      const data = await res.json();
-      setAppointments(data);
-    } catch (err: any) {
-      setError(err.message || "Не удалось подключиться к регистратуре");
-      setAppointments([]);
-    } finally {
-      setLoading(false);
     }
-  }, [date, address]);
+
+    if (allAppointments.length === 0 && lastError) {
+      setError(lastError);
+    }
+
+    setAppointments(allAppointments);
+    setLoading(false);
+  }, [date, addresses]);
 
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  const handleSaveSettings = () => {
-    // Очищаем ввод: убираем префикс "IP:", лишние пробелы
-    const cleaned = settingsInput
+  const handleAddAddress = () => {
+    const cleaned = newAddressInput
       .replace(/^IP\s*:\s*/i, "")
       .replace(/^http:\/\//i, "")
       .replace(/\/+$/, "")
       .trim();
-    setRegistryAddress(cleaned);
-    setAddress(cleaned);
+    if (!cleaned) return;
+    if (addresses.includes(cleaned)) return;
+    const updated = [...addresses, cleaned];
+    setAddresses(updated);
+    setNewAddressInput("");
+  };
+
+  const handleRemoveAddress = (addr: string) => {
+    const updated = addresses.filter((a) => a !== addr);
+    setAddresses(updated.length > 0 ? updated : ["localhost:3456"]);
+  };
+
+  const handleSaveSettings = () => {
+    setRegistryAddresses(addresses);
     setShowSettings(false);
   };
 
@@ -118,10 +148,7 @@ const RegistryPanel: React.FC = () => {
             <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
           </button>
           <button
-            onClick={() => {
-              setSettingsInput(address);
-              setShowSettings(true);
-            }}
+            onClick={() => setShowSettings(true)}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
             title="Настройки подключения"
           >
@@ -219,16 +246,51 @@ const RegistryPanel: React.FC = () => {
             <h3 className="text-lg font-semibold text-slate-800 mb-4">
               Настройки подключения
             </h3>
-            <label className="block text-sm font-medium text-slate-600 mb-1">
-              Адрес регистратуры (IP:порт)
+
+            <label className="block text-sm font-medium text-slate-600 mb-2">
+              Подключенные регистратуры:
             </label>
-            <input
-              type="text"
-              value={settingsInput}
-              onChange={(e) => setSettingsInput(e.target.value)}
-              placeholder="192.168.1.100:3456"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200 mb-4"
-            />
+
+            {/* Список адресов */}
+            <div className="space-y-2 mb-4">
+              {addresses.map((addr) => (
+                <div
+                  key={addr}
+                  className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+                >
+                  <span className="text-sm text-slate-700 font-mono">{addr}</span>
+                  <button
+                    onClick={() => handleRemoveAddress(addr)}
+                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md p-1 transition-all duration-200"
+                    title="Удалить"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Добавление нового адреса */}
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="text"
+                value={newAddressInput}
+                onChange={(e) => setNewAddressInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
+                placeholder="192.168.1.100:3456"
+                className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
+              />
+              <button
+                onClick={handleAddAddress}
+                className="px-3 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200 shrink-0"
+              >
+                Добавить
+              </button>
+            </div>
+
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowSettings(false)}

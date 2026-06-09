@@ -67,6 +67,43 @@ async function startApiServer() {
         }
         res.json({ success: true });
     });
+    // Doctors CRUD
+    app.get("/api/doctors", (_req, res) => {
+        const doctors = (0, db_1.getDoctors)();
+        res.json(doctors);
+    });
+    app.post("/api/doctors", (req, res) => {
+        const { name, maxPatientsPerDay, workDays } = req.body;
+        if (!name) {
+            res.status(400).json({ error: "name is required" });
+            return;
+        }
+        const doctor = (0, db_1.createDoctor)(name, maxPatientsPerDay || 15, workDays || [1, 2, 3, 4, 5]);
+        res.status(201).json(doctor);
+    });
+    app.put("/api/doctors/:id", (req, res) => {
+        const id = parseInt(req.params.id, 10);
+        const { name, maxPatientsPerDay, workDays } = req.body;
+        if (!name) {
+            res.status(400).json({ error: "name is required" });
+            return;
+        }
+        const doctor = (0, db_1.updateDoctor)(id, name, maxPatientsPerDay || 15, workDays || [1, 2, 3, 4, 5]);
+        if (!doctor) {
+            res.status(404).json({ error: "Doctor not found" });
+            return;
+        }
+        res.json(doctor);
+    });
+    app.delete("/api/doctors/:id", (req, res) => {
+        const id = parseInt(req.params.id, 10);
+        const deleted = (0, db_1.deleteDoctor)(id);
+        if (!deleted) {
+            res.status(404).json({ error: "Doctor not found" });
+            return;
+        }
+        res.json({ success: true });
+    });
     app.listen(PORT, "0.0.0.0", () => {
         console.log(`Registry API server running on http://0.0.0.0:${PORT}`);
     });
