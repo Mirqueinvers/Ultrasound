@@ -1,4 +1,5 @@
-import Database from "better-sqlite3";
+import initSqlJs, { Database as SqlJsDatabase } from "sql.js";
+import fs from "fs";
 import path from "path";
 
 function getDbPath(): string {
@@ -15,16 +16,32 @@ function getDbPath(): string {
 
 const DB_PATH = getDbPath();
 
-let db: Database.Database;
+let db: SqlJsDatabase | null = null;
 
-export function initDb(): void {
-  db = new Database(DB_PATH);
-  db.pragma("journal_mode = WAL");
-  db.pragma("foreign_keys = ON");
+function saveDb() {
+  if (!db) return;
+  const data = db.export();
+  const buffer = Buffer.from(data);
+  fs.writeFileSync(DB_PATH, buffer);
+}
+
+export async function initDb(): Promise<void> {
+  const SQL = await initSqlJs();
+
+  if (fs.existsSync(DB_PATH)) {
+    const fileBuffer = fs.readFileSync(DB_PATH);
+    db = new SQL.Database(fileBuffer);
+  } else {
+    db = new SQL.Database();
+  }
+
+  db.run("PRAGMA foreign_keys = ON");
   initSchema();
+  saveDb();
 }
 
 function initSchema() {
+  if (!db) return;
   db.exec(`
     CREATE TABLE IF NOT EXISTS patients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,20 +104,8 @@ export interface Appointment {
   patient?: Patient;
 }
 
-export function getAppointmentsByDate(date: string): Appointment[] {
-  const rows = db
-    .prepare(
-      `
-      SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
-      FROM appointments a
-      JOIN patients p ON p.id = a.patient_id
-      WHERE a.appointment_date = ?
-      ORDER BY a.created_at ASC
-    `
-    )
-    .all(date) as any[];
-
-  return rows.map((row) => ({
+function getAppointmentFromRow(row: any): Appointment {
+  return {
     id: row.id,
     patient_id: row.patient_id,
     appointment_date: row.appointment_date,
@@ -114,7 +119,28 @@ export function getAppointmentsByDate(date: string): Appointment[] {
       middle_name: row.middle_name || "",
       date_of_birth: row.date_of_birth,
     },
-  }));
+  };
+}
+
+export function getAppointmentsByDate(date: string): Appointment[] {
+  if (!db) return [];
+
+  const stmt = db.prepare(`
+    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM appointments a
+    JOIN patients p ON p.id = a.patient_id
+    WHERE a.appointment_date = ?
+    ORDER BY a.created_at ASC
+  `);
+  stmt.bind([date]);
+
+  const rows: any[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+
+  return rows.map(getAppointmentFromRow);
 }
 
 export function createAppointment(
@@ -122,46 +148,44 @@ export function createAppointment(
   appointmentDate: string,
   studies: string[]
 ): Appointment {
+  if (!db) throw new Error("Database not initialized");
+
   // Ищем существующего пациента
-  const existingPatient = db
-    .prepare(
-      `SELECT id FROM patients WHERE last_name = ? AND first_name = ? AND date_of_birth = ?`
-    )
-    .get(patientData.last_name, patientData.first_name, patientData.date_of_birth) as
-    | { id: number }
-    | undefined;
+  const findStmt = db.prepare(
+    `SELECT id FROM patients WHERE last_name = ? AND first_name = ? AND date_of_birth = ?`
+  );
+  findStmt.bind([patientData.last_name, patientData.first_name, patientData.date_of_birth]);
 
-  let patientId: number;
+  let patientId: number | null = null;
+  if (findStmt.step()) {
+    const row = findStmt.getAsObject() as { id: number };
+    patientId = row.id;
+  }
+  findStmt.free();
 
-  if (existingPatient) {
-    patientId = existingPatient.id;
-    db.prepare(`UPDATE patients SET middle_name = ? WHERE id = ?`).run(
+  if (patientId) {
+    db.run(`UPDATE patients SET middle_name = ? WHERE id = ?`, [
       patientData.middle_name,
-      patientId
-    );
+      patientId,
+    ]);
   } else {
-    const result = db
-      .prepare(
-        `INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)`
-      )
-      .run(
-        patientData.last_name,
-        patientData.first_name,
-        patientData.middle_name,
-        patientData.date_of_birth
-      );
-    patientId = result.lastInsertRowid as number;
+    db.run(
+      `INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)`,
+      [patientData.last_name, patientData.first_name, patientData.middle_name, patientData.date_of_birth]
+    );
+    patientId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number;
   }
 
   const department = patientData.department || "";
 
-  const result = db
-    .prepare(
-      `INSERT INTO appointments (patient_id, appointment_date, studies, department) VALUES (?, ?, ?, ?)`
-    )
-    .run(patientId, appointmentDate, JSON.stringify(studies), department);
+  db.run(
+    `INSERT INTO appointments (patient_id, appointment_date, studies, department) VALUES (?, ?, ?, ?)`,
+    [patientId, appointmentDate, JSON.stringify(studies), department]
+  );
 
-  const newId = result.lastInsertRowid as number;
+  const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number;
+
+  saveDb();
 
   return {
     id: newId,
@@ -182,19 +206,26 @@ export function updateAppointment(
   studies: string[],
   patientData?: { last_name?: string; first_name?: string; middle_name?: string; date_of_birth?: string }
 ): Appointment | null {
+  if (!db) return null;
+
   // Обновляем исследования
-  db.prepare(`UPDATE appointments SET studies = ? WHERE id = ?`).run(
+  db.run(`UPDATE appointments SET studies = ? WHERE id = ?`, [
     JSON.stringify(studies),
-    id
-  );
+    id,
+  ]);
 
   // Если переданы данные пациента, обновляем и пациента
   if (patientData) {
-    const row = db
-      .prepare(`SELECT patient_id FROM appointments WHERE id = ?`)
-      .get(id) as { patient_id: number } | undefined;
+    const stmt = db.prepare(`SELECT patient_id FROM appointments WHERE id = ?`);
+    stmt.bind([id]);
+    let patientId: number | null = null;
+    if (stmt.step()) {
+      const row = stmt.getAsObject() as { patient_id: number };
+      patientId = row.patient_id;
+    }
+    stmt.free();
 
-    if (row) {
+    if (patientId) {
       const updates: string[] = [];
       const params: any[] = [];
 
@@ -216,51 +247,51 @@ export function updateAppointment(
       }
 
       if (updates.length > 0) {
-        params.push(row.patient_id);
-        db.prepare(`UPDATE patients SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+        params.push(patientId);
+        db.run(`UPDATE patients SET ${updates.join(", ")} WHERE id = ?`, params);
       }
     }
   }
 
+  saveDb();
+
   // Возвращаем обновлённую запись
-  const updated = db
-    .prepare(
-      `
-      SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
-      FROM appointments a
-      JOIN patients p ON p.id = a.patient_id
-      WHERE a.id = ?
-    `
-    )
-    .get(id) as any | undefined;
+  const selectStmt = db.prepare(`
+    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM appointments a
+    JOIN patients p ON p.id = a.patient_id
+    WHERE a.id = ?
+  `);
+  selectStmt.bind([id]);
 
-  if (!updated) return null;
+  let row: any = null;
+  if (selectStmt.step()) {
+    row = selectStmt.getAsObject();
+  }
+  selectStmt.free();
 
-  return {
-    id: updated.id,
-    patient_id: updated.patient_id,
-    appointment_date: updated.appointment_date,
-    studies: JSON.parse(updated.studies || "[]"),
-    department: updated.department || "",
-    created_at: updated.created_at,
-    patient: {
-      id: updated.p_id,
-      last_name: updated.last_name,
-      first_name: updated.first_name,
-      middle_name: updated.middle_name || "",
-      date_of_birth: updated.date_of_birth,
-    },
-  };
+  if (!row) return null;
+
+  return getAppointmentFromRow(row);
 }
 
 export function deleteAppointment(id: number): boolean {
-  const result = db.prepare(`DELETE FROM appointments WHERE id = ?`).run(id);
+  if (!db) return false;
+  const result = db.run(`DELETE FROM appointments WHERE id = ?`, [id]);
+  saveDb();
   return result.changes > 0;
 }
 
 // Doctors CRUD
 export function getDoctors(): Doctor[] {
-  return db.prepare(`SELECT * FROM doctors ORDER BY name ASC`).all() as Doctor[];
+  if (!db) return [];
+  const stmt = db.prepare(`SELECT * FROM doctors ORDER BY name ASC`);
+  const rows: any[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+  return rows;
 }
 
 export function createDoctor(
@@ -268,19 +299,15 @@ export function createDoctor(
   maxPatientsPerDay: number,
   workDays: number[]
 ): Doctor {
+  if (!db) throw new Error("Database not initialized");
   const workDaysJson = JSON.stringify(workDays);
-  const result = db
-    .prepare(
-      `INSERT INTO doctors (name, max_patients_per_day, work_days) VALUES (?, ?, ?)`
-    )
-    .run(name, maxPatientsPerDay, workDaysJson);
-  const newId = result.lastInsertRowid as number;
-  return {
-    id: newId,
-    name,
-    max_patients_per_day: maxPatientsPerDay,
-    work_days: workDaysJson,
-  };
+  db.run(
+    `INSERT INTO doctors (name, max_patients_per_day, work_days) VALUES (?, ?, ?)`,
+    [name, maxPatientsPerDay, workDaysJson]
+  );
+  const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] as number;
+  saveDb();
+  return { id: newId, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
 }
 
 export function updateDoctor(
@@ -289,19 +316,19 @@ export function updateDoctor(
   maxPatientsPerDay: number,
   workDays: number[]
 ): Doctor | null {
+  if (!db) return null;
   const workDaysJson = JSON.stringify(workDays);
-  db.prepare(
-    `UPDATE doctors SET name = ?, max_patients_per_day = ?, work_days = ? WHERE id = ?`
-  ).run(name, maxPatientsPerDay, workDaysJson, id);
-  return {
-    id,
-    name,
-    max_patients_per_day: maxPatientsPerDay,
-    work_days: workDaysJson,
-  };
+  db.run(
+    `UPDATE doctors SET name = ?, max_patients_per_day = ?, work_days = ? WHERE id = ?`,
+    [name, maxPatientsPerDay, workDaysJson, id]
+  );
+  saveDb();
+  return { id, name, max_patients_per_day: maxPatientsPerDay, work_days: workDaysJson };
 }
 
 export function deleteDoctor(id: number): boolean {
-  const result = db.prepare(`DELETE FROM doctors WHERE id = ?`).run(id);
+  if (!db) return false;
+  const result = db.run(`DELETE FROM doctors WHERE id = ?`, [id]);
+  saveDb();
   return result.changes > 0;
 }

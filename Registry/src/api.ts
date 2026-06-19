@@ -5,8 +5,8 @@ import { apiConfig } from "./api/config";
 import appointmentsRouter from "./api/routes/appointments";
 import doctorsRouter from "./api/routes/doctors";
 
-export function startApiServer() {
-  initDb();
+export async function startApiServer() {
+  await initDb();
 
   const app = express();
   app.use(express.json());
