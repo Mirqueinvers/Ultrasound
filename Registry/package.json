@@ -5,12 +5,11 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
-    "dev:electron": "vite --mode electron",
     "build": "vite build",
     "build:api": "tsc --project tsconfig.api.json",
     "build:all": "npm run build:api && npm run build",
-    "start": "npm run build:api && npm run build && electron .",
-    "start:dev": "npm run build:api && electron .",
+    "start": "npm run build:all && electron .",
+    "start:dev": "npm run build:api && vite build && electron .",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
