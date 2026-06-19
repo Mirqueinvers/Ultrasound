@@ -13,6 +13,6 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["src/db.ts", "src/api.ts"],
+  "include": ["src/db.ts", "src/api.ts", "src/api/**/*.ts"],
   "exclude": ["node_modules"]
 }

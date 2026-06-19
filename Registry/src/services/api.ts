@@ -1,6 +1,7 @@
 import type { Appointment, Doctor, PatientFormData, DoctorFormData } from "../types";
+import { config } from "./config";
 
-const API_BASE = "http://localhost:3456/api";
+const API_BASE = config.apiUrl;
 
 async function request<T>(
   path: string,
