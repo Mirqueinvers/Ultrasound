@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Loader2 } from "lucide-react";
 import { getTodayString } from "./utils/date";
 import { getDepartment, setDepartment } from "./utils/patient";
 import { useAppointments } from "./hooks/useAppointments";
 import { useDoctors } from "./hooks/useDoctors";
+import { useToast } from "./hooks/useToast";
 import type { Appointment } from "./types";
 import Header from "./components/Header";
 import DoctorPanel from "./components/DoctorPanel";
@@ -11,19 +12,27 @@ import CalendarView from "./components/CalendarView";
 import AppointmentList from "./components/AppointmentList";
 import AppointmentModal from "./components/AppointmentModal";
 import SettingsModal from "./components/SettingsModal";
+import ToastContainer from "./components/Toast";
+import ConfirmDialog from "./components/ConfirmDialog";
 
 export default function App() {
   const [date, setDate] = useState(getTodayString());
-  const { appointments, createAppointment, updateAppointment, removeAppointment } =
-    useAppointments(date);
+  const {
+    appointments,
+    loading: loadingAppointments,
+    createAppointment,
+    updateAppointment,
+    removeAppointment,
+  } = useAppointments(date);
   const {
     doctors,
+    loading: loadingDoctors,
     createDoctor,
     updateDoctor,
     removeDoctor,
     getDoctorsForDate,
-    fetchDoctors,
   } = useDoctors();
+  const { toasts, addToast, removeToast } = useToast();
 
   // Модалка записи
   const [showModal, setShowModal] = useState(false);
@@ -51,8 +60,12 @@ export default function App() {
   const [doctorMaxPatients, setDoctorMaxPatients] = useState("15");
   const [doctorWorkDays, setDoctorWorkDays] = useState<number[]>([1, 2, 3, 4, 5]);
 
-  // Удаление записи
-  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  // Confirm диалог
+  const [confirm, setConfirm] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   // Открытие / закрытие модалки записи
   const openAddModal = useCallback(() => {
@@ -76,31 +89,72 @@ export default function App() {
   }, []);
 
   const handleSaveAppointment = useCallback(async () => {
-    const data = { lastName, firstName, middleName, dateOfBirth, studies: selectedStudies };
-    let success = false;
+    const data = {
+      lastName,
+      firstName,
+      middleName,
+      dateOfBirth,
+      studies: selectedStudies,
+    };
 
     if (editingAppointment) {
-      success = await updateAppointment(editingAppointment.id, data);
+      const success = await updateAppointment(editingAppointment.id, data);
+      if (success) {
+        addToast("success", "Запись обновлена");
+        setShowModal(false);
+      } else {
+        addToast("error", "Не удалось обновить запись");
+      }
     } else {
-      success = await createAppointment(data);
+      const success = await createAppointment(data);
+      if (success) {
+        addToast("success", "Пациент добавлен");
+        setShowModal(false);
+      } else {
+        addToast("error", "Не удалось добавить пациента");
+      }
     }
-
-    if (success) {
-      setShowModal(false);
-    }
-  }, [lastName, firstName, middleName, dateOfBirth, selectedStudies, editingAppointment, createAppointment, updateAppointment]);
+  }, [
+    lastName,
+    firstName,
+    middleName,
+    dateOfBirth,
+    selectedStudies,
+    editingAppointment,
+    createAppointment,
+    updateAppointment,
+    addToast,
+  ]);
 
   const handleDeleteAppointment = useCallback(async () => {
     if (!editingAppointment) return;
     const success = await removeAppointment(editingAppointment.id);
     if (success) {
+      addToast("success", "Запись удалена");
       setShowModal(false);
+    } else {
+      addToast("error", "Не удалось удалить запись");
     }
-  }, [editingAppointment, removeAppointment]);
+  }, [editingAppointment, removeAppointment, addToast]);
 
-  const handleDeleteFromCard = useCallback(async (id: number) => {
-    await removeAppointment(id);
-  }, [removeAppointment]);
+  const handleDeleteFromCard = useCallback(
+    (id: number) => {
+      setConfirm({
+        title: "Удалить запись",
+        message: "Вы уверены, что хотите удалить эту запись?",
+        onConfirm: async () => {
+          const success = await removeAppointment(id);
+          if (success) {
+            addToast("success", "Запись удалена");
+          } else {
+            addToast("error", "Не удалось удалить запись");
+          }
+          setConfirm(null);
+        },
+      });
+    },
+    [removeAppointment, addToast]
+  );
 
   const toggleStudy = useCallback((study: string) => {
     setSelectedStudies((prev) =>
@@ -136,23 +190,48 @@ export default function App() {
         maxPatientsPerDay: maxPatients,
         workDays: doctorWorkDays,
       });
+      if (success) addToast("success", "Врач обновлён");
+      else addToast("error", "Не удалось обновить врача");
     } else {
       success = await createDoctor({
         name: doctorName.trim(),
         maxPatientsPerDay: maxPatients,
         workDays: doctorWorkDays,
       });
+      if (success) addToast("success", "Врач добавлен");
+      else addToast("error", "Не удалось добавить врача");
     }
 
-    if (success) {
-      setShowDoctorForm(false);
-    }
-  }, [doctorName, doctorMaxPatients, doctorWorkDays, editingDoctor, createDoctor, updateDoctor]);
+    if (success) setShowDoctorForm(false);
+  }, [
+    doctorName,
+    doctorMaxPatients,
+    doctorWorkDays,
+    editingDoctor,
+    createDoctor,
+    updateDoctor,
+    addToast,
+  ]);
 
-  const handleDeleteDoctor = useCallback(async (id: string) => {
-    await removeDoctor(id);
-    if (selectedDoctorId === id) setSelectedDoctorId(null);
-  }, [removeDoctor, selectedDoctorId]);
+  const handleDeleteDoctor = useCallback(
+    (id: string) => {
+      setConfirm({
+        title: "Удалить врача",
+        message: "Вы уверены, что хотите удалить этого врача?",
+        onConfirm: async () => {
+          const success = await removeDoctor(id);
+          if (success) {
+            addToast("success", "Врач удалён");
+            if (selectedDoctorId === id) setSelectedDoctorId(null);
+          } else {
+            addToast("error", "Не удалось удалить врача");
+          }
+          setConfirm(null);
+        },
+      });
+    },
+    [removeDoctor, selectedDoctorId, addToast]
+  );
 
   const toggleWorkDay = useCallback((day: number) => {
     setDoctorWorkDays((prev) =>
@@ -186,6 +265,8 @@ export default function App() {
     ? doctors.find((d) => d.id === selectedDoctorId)
     : null;
 
+  const isLoading = loadingAppointments || loadingDoctors;
+
   return (
     <div
       style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}
@@ -206,7 +287,12 @@ export default function App() {
         />
 
         <main className="flex-1 overflow-y-auto p-6">
-          {selectedDoctor ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-full text-slate-400">
+              <Loader2 size={32} className="animate-spin mb-2" />
+              <p className="text-sm">Загрузка...</p>
+            </div>
+          ) : selectedDoctor ? (
             <CalendarView
               doctor={selectedDoctor}
               appointments={appointments}
@@ -254,7 +340,23 @@ export default function App() {
           onToggleStudy={toggleStudy}
           onClose={() => setShowModal(false)}
           onSave={handleSaveAppointment}
-          onDelete={handleDeleteAppointment}
+          onDelete={() => {
+            setShowModal(false);
+            if (editingAppointment) {
+              setConfirm({
+                title: "Удалить запись",
+                message: "Вы уверены, что хотите удалить эту запись?",
+                onConfirm: async () => {
+                  const success = await removeAppointment(
+                    editingAppointment.id
+                  );
+                  if (success) addToast("success", "Запись удалена");
+                  else addToast("error", "Не удалось удалить запись");
+                  setConfirm(null);
+                },
+              });
+            }
+          }}
         />
       )}
 
@@ -274,6 +376,7 @@ export default function App() {
           onSaveDepartment={() => {
             setDepartment(departmentInput);
             setShowSettings(false);
+            addToast("success", "Отделение сохранено");
           }}
           onClose={() => setShowSettings(false)}
           onAddDoctor={openAddDoctorForm}
@@ -286,6 +389,19 @@ export default function App() {
           onCancelDoctorForm={() => setShowDoctorForm(false)}
         />
       )}
+
+      {/* Confirm диалог */}
+      {confirm && (
+        <ConfirmDialog
+          title={confirm.title}
+          message={confirm.message}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      {/* Toast уведомления */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 }

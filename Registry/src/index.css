@@ -13,3 +13,14 @@
   --color-medical-900: #0e344f;
   --color-medical-950: #092234;
 }
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
