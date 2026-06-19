@@ -13,8 +13,8 @@ import {
 
 const PORT = 3456;
 
-export async function startApiServer() {
-  await initDb();
+export function startApiServer() {
+  initDb();
 
   const app = express();
   app.use(express.json());
@@ -60,17 +60,25 @@ export async function startApiServer() {
     res.status(201).json(appointment);
   });
 
-  // Обновить запись (только исследования)
+  // Обновить запись (исследования + данные пациента)
   app.put("/api/appointments/:id", (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const { studies } = req.body;
+    const { studies, lastName, firstName, middleName, dateOfBirth } = req.body;
 
     if (!studies) {
       res.status(400).json({ error: "studies field is required" });
       return;
     }
 
-    const appointment = updateAppointment(id, studies);
+    const patientData: Record<string, string> = {};
+    if (lastName !== undefined) patientData.last_name = lastName;
+    if (firstName !== undefined) patientData.first_name = firstName;
+    if (middleName !== undefined) patientData.middle_name = middleName;
+    if (dateOfBirth !== undefined) patientData.date_of_birth = dateOfBirth;
+
+    const hasPatientData = Object.keys(patientData).length > 0;
+
+    const appointment = updateAppointment(id, studies, hasPatientData ? patientData : undefined);
     if (!appointment) {
       res.status(404).json({ error: "Appointment not found" });
       return;
