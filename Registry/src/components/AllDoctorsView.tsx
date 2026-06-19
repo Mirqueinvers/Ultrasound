@@ -1,10 +1,10 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { DAY_NAMES, MONTH_NAMES } from "../constants";
-import { getDaysInMonth, getFirstDayOfMonth, toApiDate, getTodayString } from "../utils/date";
+import { getDaysInMonth, getFirstDayOfMonth, toApiDate } from "../utils/date";
 import type { Doctor, Appointment } from "../types";
 
-interface CalendarViewProps {
-  doctor: Doctor;
+interface AllDoctorsViewProps {
+  doctors: Doctor[];
   appointments: Appointment[];
   calendarMonth: number;
   calendarYear: number;
@@ -13,33 +13,46 @@ interface CalendarViewProps {
   onSelectDate: (dateStr: string) => void;
 }
 
-export default function CalendarView({
-  doctor,
+export default function AllDoctorsView({
+  doctors,
   appointments,
   calendarMonth,
   calendarYear,
   onPrevMonth,
   onNextMonth,
   onSelectDate,
-}: CalendarViewProps) {
+}: AllDoctorsViewProps) {
   const daysInMonth = getDaysInMonth(calendarMonth, calendarYear);
   const firstDay = getFirstDayOfMonth(calendarMonth, calendarYear);
   const today = new Date();
 
-  const getAppointmentsCountForDate = (dateStr: string): number => {
-    return appointments.filter((a) => {
-      const apiDate = toApiDate(dateStr);
-      return a.appointment_date === apiDate;
-    }).length;
+  const getDayOfWeek = (day: number) => {
+    const dateObj = new Date(calendarYear, calendarMonth, day);
+    return dateObj.getDay() === 0 ? 7 : dateObj.getDay();
+  };
+
+  const getDoctorStats = (day: number) => {
+    const dayOfWeek = getDayOfWeek(day);
+    const workingDoctors = doctors.filter((d) => d.workDays.includes(dayOfWeek));
+    const maxPatients = workingDoctors.reduce((sum, d) => sum + d.maxPatientsPerDay, 0);
+    const dateStr = `${String(day).padStart(2, "0")}.${String(
+      calendarMonth + 1
+    ).padStart(2, "0")}.${calendarYear}`;
+    const apiDate = toApiDate(dateStr);
+    const count = appointments.filter((a) => a.appointment_date === apiDate).length;
+    return { maxPatients, count, isWorkDay: workingDoctors.length > 0 };
   };
 
   return (
     <div className="flex flex-col h-full">
-      {/* Заголовок календаря */}
+      {/* Заголовок */}
       <div className="flex items-center justify-between mb-4 shrink-0">
-        <h2 className="text-lg font-semibold text-slate-800">
-          {doctor.name}
-        </h2>
+        <div className="flex items-center gap-2">
+          <Users size={20} className="text-medical-500" />
+          <h2 className="text-lg font-semibold text-slate-800">
+            Все врачи — сводка
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onPrevMonth}
@@ -59,7 +72,7 @@ export default function CalendarView({
         </div>
       </div>
 
-      {/* Календарь */}
+      {/* Единый календарь */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 flex-1 flex flex-col min-h-0">
         {/* Дни недели */}
         <div className="grid grid-cols-7 gap-1 mb-1 shrink-0">
@@ -73,7 +86,7 @@ export default function CalendarView({
           ))}
         </div>
 
-        {/* Ячейки дней — занимают всю оставшуюся высоту */}
+        {/* Ячейки дней */}
         <div className="grid grid-cols-7 gap-1 flex-1 auto-rows-fr">
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`empty-${i}`} />
@@ -81,14 +94,11 @@ export default function CalendarView({
 
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const day = i + 1;
-            const dateObj = new Date(calendarYear, calendarMonth, day);
-            const dayOfWeek = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
-            const isWorkDay = doctor.workDays.includes(dayOfWeek);
+            const stats = getDoctorStats(day);
+            const isFull = stats.isWorkDay && stats.count >= stats.maxPatients;
             const dateStr = `${String(day).padStart(2, "0")}.${String(
               calendarMonth + 1
             ).padStart(2, "0")}.${calendarYear}`;
-            const count = getAppointmentsCountForDate(dateStr);
-            const isFull = count >= doctor.maxPatientsPerDay;
             const isToday =
               day === today.getDate() &&
               calendarMonth === today.getMonth() &&
@@ -103,7 +113,7 @@ export default function CalendarView({
                     ? "border-medical-400 ring-2 ring-medical-100"
                     : "border-transparent"
                 } ${
-                  !isWorkDay
+                  !stats.isWorkDay
                     ? "bg-slate-50 text-slate-300"
                     : isFull
                       ? "bg-slate-100 text-slate-400 hover:bg-slate-200"
@@ -112,11 +122,11 @@ export default function CalendarView({
               >
                 <span className="text-sm font-medium leading-none">{day}</span>
                 <span className="text-[10px] leading-none mt-0.5">
-                  {!isWorkDay
+                  {!stats.isWorkDay
                     ? "—"
                     : isFull
                       ? "занято"
-                      : `${doctor.maxPatientsPerDay - count} мест`}
+                      : `${stats.maxPatients - stats.count} мест`}
                 </span>
               </button>
             );

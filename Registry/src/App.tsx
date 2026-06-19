@@ -9,6 +9,7 @@ import type { Appointment } from "./types";
 import Header from "./components/Header";
 import DoctorPanel from "./components/DoctorPanel";
 import CalendarView from "./components/CalendarView";
+import AllDoctorsView from "./components/AllDoctorsView";
 import AppointmentList from "./components/AppointmentList";
 import AppointmentModal from "./components/AppointmentModal";
 import SettingsModal from "./components/SettingsModal";
@@ -42,6 +43,7 @@ export default function App() {
   const [middleName, setMiddleName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [selectedStudies, setSelectedStudies] = useState<string[]>([]);
+  const [modalDoctorId, setModalDoctorId] = useState("");
 
   // Модалка настроек
   const [showSettings, setShowSettings] = useState(false);
@@ -75,6 +77,7 @@ export default function App() {
     setMiddleName("");
     setDateOfBirth("");
     setSelectedStudies([]);
+    setModalDoctorId("");
     setShowModal(true);
   }, []);
 
@@ -95,6 +98,7 @@ export default function App() {
       middleName,
       dateOfBirth,
       studies: selectedStudies,
+      doctorId: modalDoctorId || undefined,
     };
 
     if (editingAppointment) {
@@ -120,6 +124,7 @@ export default function App() {
     middleName,
     dateOfBirth,
     selectedStudies,
+    modalDoctorId,
     editingAppointment,
     createAppointment,
     updateAppointment,
@@ -261,7 +266,7 @@ export default function App() {
   const todayDoctors = getDoctorsForDate(date);
 
   // Выбранный врач
-  const selectedDoctor = selectedDoctorId
+  const selectedDoctor = selectedDoctorId && selectedDoctorId !== "all"
     ? doctors.find((d) => d.id === selectedDoctorId)
     : null;
 
@@ -286,12 +291,22 @@ export default function App() {
           onSelectDoctor={setSelectedDoctorId}
         />
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 min-h-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400">
               <Loader2 size={32} className="animate-spin mb-2" />
               <p className="text-sm">Загрузка...</p>
             </div>
+          ) : selectedDoctorId === "all" ? (
+            <AllDoctorsView
+              doctors={doctors}
+              appointments={appointments}
+              calendarMonth={calendarMonth}
+              calendarYear={calendarYear}
+              onPrevMonth={prevMonth}
+              onNextMonth={nextMonth}
+              onSelectDate={setDate}
+            />
           ) : selectedDoctor ? (
             <CalendarView
               doctor={selectedDoctor}
@@ -332,12 +347,15 @@ export default function App() {
           dateOfBirth={dateOfBirth}
           selectedStudies={selectedStudies}
           todayDoctors={todayDoctors}
+          allDoctors={doctors}
           appointmentsCount={appointments.length}
+          selectedDoctorId={modalDoctorId}
           onLastNameChange={setLastName}
           onFirstNameChange={setFirstName}
           onMiddleNameChange={setMiddleName}
           onDateOfBirthChange={setDateOfBirth}
           onToggleStudy={toggleStudy}
+          onDoctorIdChange={setModalDoctorId}
           onClose={() => setShowModal(false)}
           onSave={handleSaveAppointment}
           onDelete={() => {

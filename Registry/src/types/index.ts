@@ -29,6 +29,7 @@ export interface PatientFormData {
   middleName: string;
   dateOfBirth: string;
   studies: string[];
+  doctorId?: string;
 }
 
 export interface DoctorFormData {

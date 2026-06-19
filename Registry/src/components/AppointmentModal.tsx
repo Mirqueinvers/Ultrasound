@@ -12,12 +12,15 @@ interface AppointmentModalProps {
   dateOfBirth: string;
   selectedStudies: string[];
   todayDoctors: Doctor[];
+  allDoctors: Doctor[];
   appointmentsCount: number;
+  selectedDoctorId: string;
   onLastNameChange: (val: string) => void;
   onFirstNameChange: (val: string) => void;
   onMiddleNameChange: (val: string) => void;
   onDateOfBirthChange: (val: string) => void;
   onToggleStudy: (study: string) => void;
+  onDoctorIdChange: (val: string) => void;
   onClose: () => void;
   onSave: () => void;
   onDelete: () => void;
@@ -31,12 +34,15 @@ export default function AppointmentModal({
   dateOfBirth,
   selectedStudies,
   todayDoctors,
+  allDoctors,
   appointmentsCount,
+  selectedDoctorId,
   onLastNameChange,
   onFirstNameChange,
   onMiddleNameChange,
   onDateOfBirthChange,
   onToggleStudy,
+  onDoctorIdChange,
   onClose,
   onSave,
   onDelete,
@@ -125,29 +131,24 @@ export default function AppointmentModal({
             />
           </div>
 
-          {/* Информация о врачах */}
-          {!editingAppointment && todayDoctors.length > 0 && (
-            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-sky-700 mb-1">Сегодня принимают:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {todayDoctors.map((doc) => {
-                  const isFull = appointmentsCount >= doc.maxPatientsPerDay;
-                  return (
-                    <span
-                      key={doc.id}
-                      className={`text-xs px-2 py-0.5 rounded-full border ${
-                        isFull
-                          ? "bg-amber-50 text-amber-600 border-amber-200"
-                          : "bg-emerald-50 text-emerald-600 border-emerald-200"
-                      }`}
-                    >
-                      {doc.name} {isFull ? "(занято)" : `(${doc.maxPatientsPerDay - appointmentsCount} мест)`}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {/* Выбор врача */}
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              Врач
+            </label>
+            <select
+              value={selectedDoctorId}
+              onChange={(e) => onDoctorIdChange(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200 bg-white"
+            >
+              <option value="">Выберите врача</option>
+              {allDoctors.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  {doc.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Исследования */}
           <div>

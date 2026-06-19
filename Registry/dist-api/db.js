@@ -29,7 +29,6 @@ function getDbPath() {
 }
 const DB_PATH = getDbPath();
 let db = null;
-let SQL = null;
 function saveDb() {
     if (!db)
         return;
@@ -38,7 +37,7 @@ function saveDb() {
     fs_1.default.writeFileSync(DB_PATH, buffer);
 }
 async function initDb() {
-    SQL = await (0, sql_js_1.default)();
+    const SQL = await (0, sql_js_1.default)();
     if (fs_1.default.existsSync(DB_PATH)) {
         const fileBuffer = fs_1.default.readFileSync(DB_PATH);
         db = new SQL.Database(fileBuffer);
@@ -53,7 +52,7 @@ async function initDb() {
 function initSchema() {
     if (!db)
         return;
-    db.run(`
+    db.exec(`
     CREATE TABLE IF NOT EXISTS patients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       last_name TEXT NOT NULL,
@@ -61,8 +60,7 @@ function initSchema() {
       middle_name TEXT DEFAULT '',
       date_of_birth TEXT NOT NULL
     );
-  `);
-    db.run(`
+
     CREATE TABLE IF NOT EXISTS appointments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
@@ -71,18 +69,9 @@ function initSchema() {
       department TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now'))
     );
-  `);
-    db.run(`
+
     CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
-  `);
-    // Добавляем колонку department, если её нет (для существующих БД)
-    try {
-        db.run(`ALTER TABLE appointments ADD COLUMN department TEXT DEFAULT ''`);
-    }
-    catch {
-        // Колонка уже существует
-    }
-    db.run(`
+
     CREATE TABLE IF NOT EXISTS doctors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -90,6 +79,30 @@ function initSchema() {
       work_days TEXT NOT NULL DEFAULT '[1,2,3,4,5]'
     );
   `);
+    // Добавляем колонку department, если её нет (для существующих БД)
+    try {
+        db.exec(`ALTER TABLE appointments ADD COLUMN department TEXT DEFAULT ''`);
+    }
+    catch {
+        // Колонка уже существует
+    }
+}
+function getAppointmentFromRow(row) {
+    return {
+        id: row.id,
+        patient_id: row.patient_id,
+        appointment_date: row.appointment_date,
+        studies: JSON.parse(row.studies || "[]"),
+        department: row.department || "",
+        created_at: row.created_at,
+        patient: {
+            id: row.p_id,
+            last_name: row.last_name,
+            first_name: row.first_name,
+            middle_name: row.middle_name || "",
+            date_of_birth: row.date_of_birth,
+        },
+    };
 }
 function getAppointmentsByDate(date) {
     if (!db)
@@ -107,21 +120,7 @@ function getAppointmentsByDate(date) {
         rows.push(stmt.getAsObject());
     }
     stmt.free();
-    return rows.map((row) => ({
-        id: row.id,
-        patient_id: row.patient_id,
-        appointment_date: row.appointment_date,
-        studies: JSON.parse(row.studies || "[]"),
-        department: row.department || "",
-        created_at: row.created_at,
-        patient: {
-            id: row.p_id,
-            last_name: row.last_name,
-            first_name: row.first_name,
-            middle_name: row.middle_name || "",
-            date_of_birth: row.date_of_birth,
-        },
-    }));
+    return rows.map(getAppointmentFromRow);
 }
 function createAppointment(patientData, appointmentDate, studies) {
     if (!db)
@@ -162,42 +161,66 @@ function createAppointment(patientData, appointmentDate, studies) {
         },
     };
 }
-function updateAppointment(id, studies) {
+function updateAppointment(id, studies, patientData) {
     if (!db)
         return null;
+    // Обновляем исследования
     db.run(`UPDATE appointments SET studies = ? WHERE id = ?`, [
         JSON.stringify(studies),
         id,
     ]);
-    const stmt = db.prepare(`
+    // Если переданы данные пациента, обновляем и пациента
+    if (patientData) {
+        const stmt = db.prepare(`SELECT patient_id FROM appointments WHERE id = ?`);
+        stmt.bind([id]);
+        let patientId = null;
+        if (stmt.step()) {
+            const row = stmt.getAsObject();
+            patientId = row.patient_id;
+        }
+        stmt.free();
+        if (patientId) {
+            const updates = [];
+            const params = [];
+            if (patientData.last_name !== undefined) {
+                updates.push("last_name = ?");
+                params.push(patientData.last_name);
+            }
+            if (patientData.first_name !== undefined) {
+                updates.push("first_name = ?");
+                params.push(patientData.first_name);
+            }
+            if (patientData.middle_name !== undefined) {
+                updates.push("middle_name = ?");
+                params.push(patientData.middle_name);
+            }
+            if (patientData.date_of_birth !== undefined) {
+                updates.push("date_of_birth = ?");
+                params.push(patientData.date_of_birth);
+            }
+            if (updates.length > 0) {
+                params.push(patientId);
+                db.run(`UPDATE patients SET ${updates.join(", ")} WHERE id = ?`, params);
+            }
+        }
+    }
+    saveDb();
+    // Возвращаем обновлённую запись
+    const selectStmt = db.prepare(`
     SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
     FROM appointments a
     JOIN patients p ON p.id = a.patient_id
     WHERE a.id = ?
   `);
-    stmt.bind([id]);
+    selectStmt.bind([id]);
     let row = null;
-    if (stmt.step()) {
-        row = stmt.getAsObject();
+    if (selectStmt.step()) {
+        row = selectStmt.getAsObject();
     }
-    stmt.free();
+    selectStmt.free();
     if (!row)
         return null;
-    saveDb();
-    return {
-        id: row.id,
-        patient_id: row.patient_id,
-        appointment_date: row.appointment_date,
-        studies: JSON.parse(row.studies || "[]"),
-        created_at: row.created_at,
-        patient: {
-            id: row.p_id,
-            last_name: row.last_name,
-            first_name: row.first_name,
-            middle_name: row.middle_name || "",
-            date_of_birth: row.date_of_birth,
-        },
-    };
+    return getAppointmentFromRow(row);
 }
 function deleteAppointment(id) {
     if (!db)
@@ -216,12 +239,7 @@ function getDoctors() {
         rows.push(stmt.getAsObject());
     }
     stmt.free();
-    return rows.map((row) => ({
-        id: row.id,
-        name: row.name,
-        max_patients_per_day: row.max_patients_per_day,
-        work_days: row.work_days,
-    }));
+    return rows;
 }
 function createDoctor(name, maxPatientsPerDay, workDays) {
     if (!db)

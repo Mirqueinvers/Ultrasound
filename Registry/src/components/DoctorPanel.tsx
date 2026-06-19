@@ -18,31 +18,46 @@ export default function DoctorPanel({
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
           Врачи
         </h3>
-        {doctors.length === 0 ? (
-          <p className="text-xs text-slate-400">Врачи не добавлены</p>
-        ) : (
-          <div className="space-y-1">
-            {doctors.map((doctor) => (
-              <button
-                key={doctor.id}
-                onClick={() => onSelectDoctor(doctor.id)}
-                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
-                  selectedDoctorId === doctor.id
-                    ? "bg-medical-50 text-medical-700 font-medium border border-medical-200"
-                    : "text-slate-600 hover:bg-slate-50 border border-transparent"
-                }`}
-              >
-                <div className="font-medium truncate">{doctor.name}</div>
-                <div className="text-xs text-slate-400 mt-0.5">
-                  до {doctor.maxPatientsPerDay} пациентов
-                </div>
-                <div className="text-xs text-slate-400">
-                  {doctor.workDays.map((d) => DAY_NAMES[d - 1]).join(", ")}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="space-y-1">
+          <button
+            onClick={() => onSelectDoctor("all")}
+            className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 border ${
+              selectedDoctorId === "all"
+                ? "bg-medical-50 text-medical-700 font-medium border-medical-200"
+                : "text-slate-600 hover:bg-slate-50 border-transparent"
+            }`}
+          >
+            <div className="font-medium truncate">👥 Все врачи</div>
+            <div className="text-xs text-slate-400 mt-0.5">
+              Сводная информация по всем врачам
+            </div>
+          </button>
+          {doctors.length === 0 ? (
+            <p className="text-xs text-slate-400">Врачи не добавлены</p>
+          ) : (
+            <div className="space-y-1 pt-2">
+              {doctors.map((doctor) => (
+                <button
+                  key={doctor.id}
+                  onClick={() => onSelectDoctor(doctor.id)}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 border ${
+                    selectedDoctorId === doctor.id
+                      ? "bg-medical-50 text-medical-700 font-medium border-medical-200"
+                      : "text-slate-600 hover:bg-slate-50 border-transparent"
+                  }`}
+                >
+                  <div className="font-medium truncate">{doctor.name}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    до {doctor.maxPatientsPerDay} пациентов
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {doctor.workDays.map((d) => DAY_NAMES[d - 1]).join(", ")}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );
