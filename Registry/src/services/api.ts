@@ -3,9 +3,12 @@ import { config } from "./config";
 
 const API_BASE = config.apiUrl;
 
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+
 async function request<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit,
+  allowNotFound = false
 ): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
@@ -14,6 +17,11 @@ async function request<T>(
       ...options?.headers,
     },
   });
+
+  if (res.status === 404 && allowNotFound) {
+    // Для DELETE 404 означает что запись уже не существует — это успех
+    return { success: true } as T;
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
@@ -48,9 +56,11 @@ export function updateAppointment(
 }
 
 export function deleteAppointment(id: number): Promise<{ success: boolean }> {
-  return request<{ success: boolean }>(`/appointments/${id}`, {
-    method: "DELETE",
-  });
+  return request<{ success: boolean }>(
+    `/appointments/${id}`,
+    { method: "DELETE" },
+    true // allow 404
+  );
 }
 
 // Doctors
@@ -76,7 +86,9 @@ export function updateDoctor(
 }
 
 export function deleteDoctor(id: string): Promise<{ success: boolean }> {
-  return request<{ success: boolean }>(`/doctors/${id}`, {
-    method: "DELETE",
-  });
+  return request<{ success: boolean }>(
+    `/doctors/${id}`,
+    { method: "DELETE" },
+    true // allow 404
+  );
 }
