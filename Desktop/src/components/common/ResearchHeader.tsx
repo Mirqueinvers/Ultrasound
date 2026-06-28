@@ -3,7 +3,7 @@ import { RefreshCw } from "lucide-react";
 import { useResearch } from "@contexts";
 import DatePickerField from "./DatePickerField";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
-import { makeObpStudyData, makeKidneyStudyData, makeOmtFemaleStudyData, makeBladderStudyData, makeUrinaryBladderPartial } from "@/hooks/useMedisonImport";
+import { makeObpStudyData, makeKidneyStudyData, makeOmtFemaleStudyData, makeBladderStudyData, makeUrinaryBladderPartial, makeThyroidStudyData } from "@/hooks/useMedisonImport";
 
 /** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
 const isoToRu = (iso: string): string => {
@@ -98,6 +98,13 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
           mergeStudyData("Почки", bladderPartial);
           mergeStudyData("ОМТ (Ж)", bladderPartial);
           mergeStudyData("ОМТ (М)", bladderPartial);
+        }
+      }
+
+      if (parsed.thyroid) {
+        const thyroidData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
+        if (Object.keys(thyroidData).length > 0) {
+          mergeStudyData("Щитовидная железа", thyroidData);
         }
       }
 

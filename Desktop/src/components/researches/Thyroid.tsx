@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Thyroid.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -34,12 +34,115 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     value ?? defaultThyroidStudyState
   );
 
+  // ref для отслеживания предыдущего value
+  const prevValueRef = useRef(value);
+
   useEffect(() => {
-    setForm(value ?? defaultThyroidStudyState);
+    if (value === prevValueRef.current) return;
+    prevValueRef.current = value;
+
+    if (!value) {
+      setForm(defaultThyroidStudyState);
+      return;
+    }
+
+    // Глубокое слияние: мержим только те поля, что пришли, не затирая уже заполненные
+    setForm((prev) => deepMergeThyroid(prev, value));
   }, [value]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
+
+  /** Глубокое рекурсивное слияние для ThyroidStudyProtocol */
+  function deepMergeThyroid(target: ThyroidStudyProtocol, source: ThyroidStudyProtocol): ThyroidStudyProtocol {
+    const result: ThyroidStudyProtocol = {
+      ...target,
+      conclusion: source.conclusion ?? target.conclusion,
+      recommendations: source.recommendations ?? target.recommendations,
+      thyroid: mergeThyroidData(target.thyroid, source.thyroid),
+    };
+    return result;
+  }
+
+  function mergeThyroidData(
+    target: ThyroidProtocol | null,
+    source: ThyroidProtocol | null
+  ): ThyroidProtocol | null {
+    if (!source) return target;
+    if (!target) return source;
+
+    const mergedRightLobe = mergeThyroidLobe(target.rightLobe, source.rightLobe);
+    const mergedLeftLobe = mergeThyroidLobe(target.leftLobe, source.leftLobe);
+
+    return {
+      ...target,
+      ...source,
+      rightLobe: mergedRightLobe,
+      leftLobe: mergedLeftLobe,
+    };
+  }
+
+  function mergeThyroidLobe(
+    target: import("@/types").ThyroidLobeProtocol,
+    source: import("@/types").ThyroidLobeProtocol | undefined
+  ): import("@/types").ThyroidLobeProtocol {
+    if (!source) return target;
+
+    // Обновляем размеры из source, но сохраняем существующие селекты
+    const merged = { ...target, ...source };
+
+    // Узлы: обновляем size1/size2 из source, но не затираем селекты
+    if (source.nodesList && source.nodesList.length > 0) {
+      const existingNodes = target.nodesList ?? [];
+
+      if (existingNodes.length === 0) {
+        // Если нет существующих узлов — просто используем source (с пустыми селектами)
+        merged.nodesList = source.nodesList.map((n, i) => ({
+          number: i + 1,
+          size1: n.size1 ?? "",
+          size2: n.size2 ?? "",
+          echogenicity: "",
+          echostructure: "",
+          contour: "",
+          echogenicFoci: "",
+          orientation: "",
+          bloodFlow: "",
+          comment: "",
+        }));
+      } else {
+        // Обновляем существующие узлы — мержим size1/size2, сохраняя селекты
+        merged.nodesList = existingNodes.map((existingNode, i) => {
+          const sourceNode = source.nodesList[i];
+          if (sourceNode) {
+            return {
+              ...existingNode,
+              size1: sourceNode.size1 ?? existingNode.size1,
+              size2: sourceNode.size2 ?? existingNode.size2,
+            };
+          }
+          return existingNode;
+        });
+
+        // Добавляем новые узлы, которых нет в target
+        for (let i = existingNodes.length; i < source.nodesList.length; i++) {
+          merged.nodesList.push({
+            number: i + 1,
+            size1: source.nodesList[i].size1 ?? "",
+            size2: source.nodesList[i].size2 ?? "",
+            echogenicity: "",
+            echostructure: "",
+            contour: "",
+            echogenicFoci: "",
+            orientation: "",
+            bloodFlow: "",
+            comment: "",
+          });
+        }
+      }
+    }
+
+    return merged;
+  }
 
   const sync = (updated: ThyroidStudyProtocol) => {
     setForm(updated);

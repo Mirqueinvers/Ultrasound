@@ -176,6 +176,61 @@ export function makeUrinaryBladderPartial(data: NonNullable<MedisonParsedData["u
   return undefined;
 }
 
+function makeThyroidLobeData(
+  medisonLobe: NonNullable<NonNullable<MedisonParsedData["thyroid"]>["rightLobe"]>,
+  masses: { length: number; width: number }[]
+) {
+  const result: Record<string, unknown> = {
+    length: medisonLobe.length.value.toString(),
+    width: medisonLobe.width.value.toString(),
+    depth: medisonLobe.height.value.toString(),
+    volume: medisonLobe.volume.value.toString(),
+  };
+
+  if (masses.length > 0) {
+    result.volumeFormations = "определяются";
+    // Возвращаем узлы только с размером, без пустых селектов
+    result.nodesList = masses.map((m) => ({
+      number: 1,
+      size1: m.length.toString(),
+      size2: m.width.toString(),
+    }));
+  }
+
+  return result;
+}
+
+export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroid"]>) {
+  const result: Record<string, unknown> = {};
+
+  const rightMassesFixed = data.rightMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
+  const leftMassesFixed = data.leftMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
+
+  const rightLobe = data.rightLobe
+    ? makeThyroidLobeData(data.rightLobe, rightMassesFixed)
+    : null;
+  const leftLobe = data.leftLobe
+    ? makeThyroidLobeData(data.leftLobe, leftMassesFixed)
+    : null;
+
+  const rightVol = rightLobe ? parseFloat(rightLobe.volume as string) || 0 : 0;
+  const leftVol = leftLobe ? parseFloat(leftLobe.volume as string) || 0 : 0;
+
+  // Возвращаем только поля из XML, БЕЗ дефолтных пустых значений
+  const partialThyroid: Record<string, unknown> = {};
+
+  if (data.rightLobe || data.leftLobe) {
+    if (rightLobe) partialThyroid.rightLobe = rightLobe;
+    if (leftLobe) partialThyroid.leftLobe = leftLobe;
+    if (data.isthmus?.value) partialThyroid.isthmusSize = data.isthmus.value.toString();
+    partialThyroid.totalVolume = (rightVol + leftVol).toFixed(2);
+  }
+
+  result.thyroid = partialThyroid;
+
+  return result;
+}
+
 interface UseMedisonImportOptions {
   onDataReady: (data: {
     patientFullName: string;
@@ -186,6 +241,7 @@ interface UseMedisonImportOptions {
     omtFemaleStudyData?: Record<string, unknown>;
     bladderStudyData?: Record<string, unknown>;
     bladderPartial?: Record<string, unknown>;
+    thyroidStudyData?: Record<string, unknown>;
   }) => void;
   onXmlContent?: string; // внешне не используется, добавляем в сигнатуру
 }
@@ -218,6 +274,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
       let kidneyStudyData: Record<string, unknown> | undefined;
       let omtFemaleStudyData: Record<string, unknown> | undefined;
       let bladderStudyData: Record<string, unknown> | undefined;
+      let thyroidStudyData: Record<string, unknown> | undefined;
 
       if (parsed.obp) {
         obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
@@ -235,6 +292,10 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         bladderStudyData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
       }
 
+      if (parsed.thyroid) {
+        thyroidStudyData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
+      }
+
       const bladderPartial = parsed.uro ? makeUrinaryBladderPartial(parsed.uro) : undefined;
 
       onDataReady({
@@ -246,6 +307,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         omtFemaleStudyData,
         bladderStudyData,
         bladderPartial,
+        thyroidStudyData,
         // @ts-expect-error - добавляем content для deduplication
         _xmlContent: content,
       });

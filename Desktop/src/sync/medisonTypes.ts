@@ -84,6 +84,26 @@ export interface MedisonUroData {
   bladder?: MedisonBladderData;
 }
 
+export interface MedisonThyroidLobeData {
+  length: MedisonMeasurement;
+  height: MedisonMeasurement;
+  width: MedisonMeasurement;
+  volume: MedisonMeasurement;
+}
+
+export interface MedisonThyroidMassData {
+  length: MedisonMeasurement;
+  width: MedisonMeasurement;
+}
+
+export interface MedisonThyroidData {
+  rightLobe?: MedisonThyroidLobeData;
+  leftLobe?: MedisonThyroidLobeData;
+  isthmus: MedisonMeasurement;
+  rightMasses: MedisonThyroidMassData[];
+  leftMasses: MedisonThyroidMassData[];
+}
+
 export interface MedisonParsedData {
   patient: {
     fullName: string;
@@ -100,4 +120,5 @@ export interface MedisonParsedData {
   kidneys?: MedisonKidneyData;
   gyn?: MedisonGynData;
   uro?: MedisonUroData;
+  thyroid?: MedisonThyroidData;
 }

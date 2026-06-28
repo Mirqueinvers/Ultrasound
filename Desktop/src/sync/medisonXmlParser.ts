@@ -91,6 +91,10 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       ? parseUroData(getMeasurementValue)
       : null;
 
+    const thyroid = hasPackage("Thyroid")
+      ? parseThyroidData(xmlContent, getMeasurementValue)
+      : null;
+
     return {
       patient: {
         fullName,
@@ -110,6 +114,7 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       kidneys: kidneys && (kidneys.left || kidneys.right) ? kidneys : undefined,
       gyn: gyn && (gyn.uterus || gyn.rightOvary || gyn.leftOvary) ? gyn : undefined,
       uro: uro && uro.bladder ? uro : undefined,
+      thyroid: thyroid && (thyroid.rightLobe || thyroid.leftLobe) ? thyroid : undefined,
     };
   } catch (err) {
     console.error("Failed to parse Medison XML:", err);
@@ -330,5 +335,89 @@ function parseUroData(
 
   return {
     bladder: bladder ?? undefined,
+  };
+}
+
+function parseThyroidData(
+  xmlContent: string,
+  getMeasurementValue: (measurementId: string) => number | null
+) {
+  const rl = getMeasurementValue("Thyroid_Lobe_RL");
+  const rh = getMeasurementValue("Thyroid_Lobe_RH");
+  const rw = getMeasurementValue("Thyroid_Lobe_RW");
+  const rvol = getMeasurementValue("Thyroid_Lobe_RVol");
+
+  const ll = getMeasurementValue("Thyroid_Lobe_LL");
+  const lh = getMeasurementValue("Thyroid_Lobe_LH");
+  const lw = getMeasurementValue("Thyroid_Lobe_LW");
+  const lvol = getMeasurementValue("Thyroid_Lobe_LVol");
+
+  const isthmus = getMeasurementValue("Thyroid_Lobe_Isthmus");
+
+  // Парсим образования (узлы) — group id="Thyroid_Mass1", Thyroid_Mass2 и т.д.
+  // Каждая группа может появляться с laterality="0" (право) и laterality="1" (лево)
+  const rightMasses: { length: number; width: number }[] = [];
+  const leftMasses: { length: number; width: number }[] = [];
+
+  // Извлекаем все группы Thyroid_Mass с атрибутом laterality
+  const massRegex = /<Group\s+id="Thyroid_Mass\d+"[^>]*laterality="([01])"[^>]*>.*?<\/Group>/gs;
+  let massMatch: RegExpExecArray | null;
+  while ((massMatch = massRegex.exec(xmlContent)) !== null) {
+    const laterality = massMatch[1];
+    const groupXml = massMatch[0];
+
+    const getGroupMeasurement = (id: string): number | null => {
+      const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const m = groupXml.match(
+        new RegExp(`<measurement\\s+id="${escapedId}"[^>]*>.*?<m(?:1)?\\s+value="([^"]*)"`, "s")
+      );
+      if (m && m[1].trim() !== "") {
+        const parsed = parseFloat(m[1]);
+        return isNaN(parsed) ? null : parsed;
+      }
+      return null;
+    };
+
+    const massL = getGroupMeasurement("Thyroid_Mass1_L") ?? getGroupMeasurement("Thyroid_Mass2_L");
+    const massW = getGroupMeasurement("Thyroid_Mass1_W") ?? getGroupMeasurement("Thyroid_Mass2_W");
+
+    if (massL !== null && massW !== null) {
+      const mass = { length: massL, width: massW };
+      if (laterality === "0") {
+        rightMasses.push(mass);
+      } else {
+        leftMasses.push(mass);
+      }
+    }
+  }
+
+  return {
+    rightLobe:
+      rl !== null || rh !== null || rw !== null || rvol !== null
+        ? {
+            length: { value: rl ?? 0, unit: "mm" },
+            height: { value: rh ?? 0, unit: "mm" },
+            width: { value: rw ?? 0, unit: "mm" },
+            volume: { value: rvol ?? 0, unit: "ml" },
+          }
+        : undefined,
+    leftLobe:
+      ll !== null || lh !== null || lw !== null || lvol !== null
+        ? {
+            length: { value: ll ?? 0, unit: "mm" },
+            height: { value: lh ?? 0, unit: "mm" },
+            width: { value: lw ?? 0, unit: "mm" },
+            volume: { value: lvol ?? 0, unit: "ml" },
+          }
+        : undefined,
+    isthmus: { value: isthmus ?? 0, unit: "mm" },
+    rightMasses: rightMasses.map((m) => ({
+      length: { value: m.length, unit: "mm" },
+      width: { value: m.width, unit: "mm" },
+    })),
+    leftMasses: leftMasses.map((m) => ({
+      length: { value: m.length, unit: "mm" },
+      width: { value: m.width, unit: "mm" },
+    })),
   };
 }
