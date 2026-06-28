@@ -2,10 +2,8 @@ import { useEffect, useRef } from "react";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
 import type { MedisonParsedData } from "@/sync/medisonTypes";
 import { defaultLiverState } from "@/types/defaultStates/organs/liver";
-import { defaultGallbladderState } from "@/types/defaultStates/organs/gallbladder";
 import { defaultPancreasState } from "@/types/defaultStates/organs/pancreas";
 import { defaultSpleenState } from "@/types/defaultStates/organs/spleen";
-import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
 import { defaultUterusState } from "@/types/defaultStates/organs/uterus";
 import { defaultOvaryState } from "@/types/defaultStates/organs/ovary";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
@@ -24,8 +22,8 @@ function makeLiverData(medisonLiver: NonNullable<NonNullable<MedisonParsedData["
 }
 
 function makeGallbladderData(medisonGb: NonNullable<NonNullable<MedisonParsedData["obp"]>["gallbladder"]>) {
+  // БЕЗ спреда дефолтного состояния — не затираем массивы concretionsList/polypsList
   return {
-    ...defaultGallbladderState,
     length: medisonGb.length.value.toString(),
     width: medisonGb.width.value.toString(),
     wallThickness: medisonGb.wallThickness.value.toString(),
@@ -51,8 +49,8 @@ function makeSpleenData(medisonSpleen: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeKidneySideData(medisonKidney: NonNullable<NonNullable<MedisonParsedData["kidneys"]>["left"]>) {
+  // БЕЗ спреда дефолтного состояния — не затираем массивы concretions/cysts/pcs списки
   return {
-    ...defaultKidneyState,
     length: medisonKidney.length.value.toString(),
     width: medisonKidney.width.value.toString(),
     parenchymaSize: medisonKidney.parenchymaSize.value.toString(),
