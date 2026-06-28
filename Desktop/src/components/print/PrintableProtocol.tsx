@@ -371,8 +371,14 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     [sourceBlockHtml, studyDefinitions],
   );
 
+  // Сбрасываем sourceBlockHtml при изменении studyDefinitions, чтобы перечитать актуальный HTML
+  const studyDefsKey = React.useMemo(() => 
+    studyDefinitions.map(d => `${d.id}:${d.studyData ? "1" : "0"}`).join("|"), 
+    [studyDefinitions]
+  );
+
   React.useLayoutEffect(() => {
-    if (Object.keys(sourceBlockHtml).length > 0 || !sourceContainerRef.current) {
+    if (!sourceContainerRef.current) {
       return;
     }
 
@@ -392,7 +398,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       nextHtml[blockId] = element.innerHTML.trim();
     });
     setSourceBlockHtml(nextHtml);
-  }, [sourceBlockHtml]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyDefsKey]);
 
   React.useEffect(() => {
     if (Object.keys(sourceBlockHtml).length === 0) {

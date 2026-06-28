@@ -21,19 +21,47 @@ interface KidneyWithSectionsProps extends KidneyStudyProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
+// Глубокое рекурсивное слияние — не затирает уже заполненные поля
+function deepMerge(target: unknown, source: unknown): KidneyStudyProtocol {
+  if (source === null || source === undefined) return target as unknown as KidneyStudyProtocol;
+  if (target === null || target === undefined) return source as unknown as KidneyStudyProtocol;
+  if (typeof target !== "object" || typeof source !== "object") return source as unknown as KidneyStudyProtocol;
+  if (Array.isArray(target) || Array.isArray(source)) return source as unknown as KidneyStudyProtocol;
+
+  const result = { ...(target as Record<string, unknown>) };
+  for (const key of Object.keys(source as Record<string, unknown>)) {
+    const targetVal = (target as Record<string, unknown>)[key];
+    const sourceVal = (source as Record<string, unknown>)[key];
+    if (
+      targetVal !== null && targetVal !== undefined &&
+      typeof targetVal === "object" && !Array.isArray(targetVal) &&
+      typeof sourceVal === "object" && !Array.isArray(sourceVal)
+    ) {
+      result[key] = deepMerge(targetVal, sourceVal);
+    } else if (sourceVal !== undefined) {
+      if (sourceVal !== "") {
+        result[key] = sourceVal;
+      }
+    }
+  }
+  return result as unknown as KidneyStudyProtocol;
+}
+
 export const Kidney: React.FC<KidneyWithSectionsProps> = ({
   value,
   onChange,
   sectionRefs,
 }) => {
-  const valueSignature = JSON.stringify(value ?? defaultKidneyStudyState);
   const [form, setForm] = useState<KidneyStudyProtocol>(
     value ?? defaultKidneyStudyState
   );
 
+  // Глубокое слияние — не затирает уже заполненные поля
   useEffect(() => {
-    setForm(value ?? defaultKidneyStudyState);
-  }, [valueSignature]);
+    if (value) {
+      setForm((prev) => deepMerge(prev, value));
+    }
+  }, [value]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

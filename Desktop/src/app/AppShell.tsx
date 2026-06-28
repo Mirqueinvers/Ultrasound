@@ -12,6 +12,7 @@ import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
 import RegistryPanel from "@/components/registry/RegistryPanel";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
+import MedisonAutoImport from "@/components/registry/MedisonAutoImport";
 
 export function AppTitlebar() {
   const handleMinimize = () => {
@@ -107,6 +108,7 @@ const AppShell: React.FC = () => {
       )}
       {activeSection === "journal" && (
         <ResearchProvider>
+          <MedisonAutoImport />
           <RightPanelProvider>{mainLayout(<Journal />)}</RightPanelProvider>
         </ResearchProvider>
       )}
@@ -126,6 +128,7 @@ const AppShell: React.FC = () => {
       )}
       {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && (
         <ResearchProvider>
+          <MedisonAutoImport />
           <RightPanelProvider>
             {mainLayout(
               <Content

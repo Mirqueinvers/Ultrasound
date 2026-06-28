@@ -60,7 +60,7 @@ export default function AllDoctorsView({
           >
             <ChevronLeft size={18} />
           </button>
-          <span className="text-sm font-medium text-slate-700 min-w-[140px] text-center">
+          <span className="text-sm font-medium text-slate-700 min-w-35 text-center">
             {MONTH_NAMES[calendarMonth]} {calendarYear}
           </span>
           <button

@@ -23170,6 +23170,7 @@ async function initDb() {
 		const fileBuffer = fs.default.readFileSync(DB_PATH);
 		db = new SQL.Database(fileBuffer);
 	} else db = new SQL.Database();
+	if (!db) return;
 	db.run("PRAGMA foreign_keys = ON");
 	initSchema();
 	saveDb();

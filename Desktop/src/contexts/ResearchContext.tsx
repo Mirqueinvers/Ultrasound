@@ -23,6 +23,7 @@ interface ResearchContextType {
 
   studiesData: DesktopStudiesDataMap;
   setStudyData: (studyType: string, data: DesktopStudyData) => void;
+  mergeStudyData: (studyType: string, partialData: Record<string, unknown>) => void;
   clearStudyData: (studyType: string) => void;
   clearStudiesData: () => void;
 
@@ -69,7 +70,6 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       [studyType]: data,
     }));
 
-
     publishSyncMessage({
       type: "sync:update",
       fragment: "studiesData",
@@ -82,6 +82,43 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       updatedAt: createSyncTimestamp(),
     });
   }, [publishSyncMessage]);
+
+  // Глубокое рекурсивное слияние — мержит вложенные объекты, а не заменяет их
+  const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
+    if (source === null || source === undefined) return target;
+    if (target === null || target === undefined) return source;
+    if (typeof target !== "object" || typeof source !== "object") return source;
+    if (Array.isArray(target) || Array.isArray(source)) return source;
+
+    const result = { ...(target as Record<string, unknown>) };
+    for (const key of Object.keys(source as Record<string, unknown>)) {
+      const targetVal = (target as Record<string, unknown>)[key];
+      const sourceVal = (source as Record<string, unknown>)[key];
+      if (
+        targetVal !== null && targetVal !== undefined &&
+        typeof targetVal === "object" && !Array.isArray(targetVal) &&
+        typeof sourceVal === "object" && !Array.isArray(sourceVal)
+      ) {
+        result[key] = deepMerge(targetVal, sourceVal);
+      } else {
+        result[key] = sourceVal;
+      }
+    }
+    return result;
+  }, []);
+
+  const mergeStudyData = useCallback((studyType: string, partialData: Record<string, unknown>) => {
+    setStudiesDataState((prev) => {
+      const existing = prev[studyType];
+      const merged = existing && typeof existing === "object" && !Array.isArray(existing)
+        ? deepMerge(existing, partialData)
+        : partialData;
+      return {
+        ...prev,
+        [studyType]: merged,
+      };
+    });
+  }, [deepMerge]);
 
 
   const setPatientFullName = useCallback((value: string) => {
@@ -197,6 +234,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       setOrganization,
       studiesData,
       setStudyData,
+      mergeStudyData,
       clearStudyData,
       clearStudiesData,
       clearHeaderData,
@@ -205,6 +243,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       clearHeaderData,
       clearStudiesData,
       clearStudyData,
+      mergeStudyData,
       organization,
       patientDateOfBirth,
       patientFullName,

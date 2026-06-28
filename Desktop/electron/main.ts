@@ -4,6 +4,7 @@ import path from "path";
 import { setupAuthHandlers } from "./ipc-handlers";
 import { setupProtocolHandlers } from "./ipc/protocolHandlers";
 import { setupMobileHostHandlers } from "./ipc/mobileHostHandlers";
+import { setupMedisonHandlers } from "./ipc/medisonIpc";
 import { DatabaseManager } from "./database/database";
 import { getMobileHostService } from "./mobile-host";
 
@@ -37,6 +38,11 @@ function createWindow() {
   setupAuthHandlers(mainWindow);
   setupProtocolHandlers(dbManager.protocol);
   setupMobileHostHandlers();
+  setupMedisonHandlers((payload) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("medison:xmlFound", payload);
+    }
+  });
   getMobileHostService().setRendererWindow(mainWindow);
 
   if (process.env.NODE_ENV === "development") {

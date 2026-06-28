@@ -183,6 +183,13 @@ export interface MobileHostStatus {
   wsUrl: string | null;
 }
 
+export interface MedisonAPI {
+  startWatching: () => Promise<{ success: boolean }>;
+  stopWatching: () => Promise<{ success: boolean }>;
+  scanAndRead: () => Promise<{ success: boolean; content?: string; filePath?: string; filename?: string; message?: string }>;
+  onXmlFound: (handler: (data: { filePath: string; filename: string; content: string }) => void) => () => void;
+}
+
 export interface MobileHostAPI {
   getStatus: () => Promise<MobileHostStatus>;
   start: () => Promise<MobileHostStatus>;
@@ -421,6 +428,21 @@ const patientSearchAPI: PatientSearchAPI = {
   },
 };
 
+const medisonAPI: MedisonAPI = {
+  startWatching: () => ipcRenderer.invoke("medison:startWatching"),
+  stopWatching: () => ipcRenderer.invoke("medison:stopWatching"),
+  scanAndRead: () => ipcRenderer.invoke("medison:scanAndRead"),
+  onXmlFound: (handler) => {
+    const listener = (_event: unknown, data: { filePath: string; filename: string; content: string }) => {
+      handler(data);
+    };
+    ipcRenderer.on("medison:xmlFound", listener);
+    return () => {
+      ipcRenderer.removeListener("medison:xmlFound", listener);
+    };
+  },
+};
+
 const databaseAPI: DatabaseAPI = {
   getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => 
     ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
@@ -437,5 +459,6 @@ contextBridge.exposeInMainWorld("mobileHostAPI", mobileHostAPI);
 contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 contextBridge.exposeInMainWorld("fileAPI", fileAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
+contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 

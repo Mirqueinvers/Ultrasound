@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useCallback } from "react";
+import { RefreshCw } from "lucide-react";
 import { useResearch } from "@contexts";
 import DatePickerField from "./DatePickerField";
+import { parseMedisonXml } from "@/sync/medisonXmlParser";
+import { makeObpStudyData, makeKidneyStudyData, makeOmtFemaleStudyData, makeBladderStudyData, makeUrinaryBladderPartial } from "@/hooks/useMedisonImport";
 
 /** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
 const isoToRu = (iso: string): string => {
@@ -31,7 +34,78 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
     setPatientDateOfBirth,
     researchDate,
     setResearchDate,
+    mergeStudyData,
   } = useResearch();
+
+  // Обработчик ручного импорта с флешки
+  const handleMedisonImport = useCallback(async () => {
+    try {
+      const result = await window.medisonAPI?.scanAndRead();
+      if (!result?.success || !result.content) {
+        console.warn("ResearchHeader: флешка не найдена", result?.message);
+        return;
+      }
+
+      const parsed = parseMedisonXml(result.content);
+      if (!parsed) {
+        console.warn("ResearchHeader: не удалось распарсить XML");
+        return;
+      }
+
+      // Нормализация ФИО и дат
+      const name = normalizeFullName(parsed.patient.fullName);
+      const dob = normalizeDateOfBirth(parsed.patient.dateOfBirth);
+      const researchDateStr = normalizeDateForDesktop(parsed.examDate);
+
+      if (name) setPatientFullName(name);
+      else if (parsed.patient.fullName) setPatientFullName(normalizeFullName(parsed.patient.fullName));
+      if (dob) setPatientDateOfBirth(dob);
+      else if (parsed.patient.dateOfBirth) setPatientDateOfBirth(normalizeDateOfBirth(parsed.patient.dateOfBirth));
+      if (researchDateStr) setResearchDate(researchDateStr);
+      else if (parsed.examDate) setResearchDate(normalizeDateForDesktop(parsed.examDate));
+
+      // Заполняем данные протоколов
+      if (parsed.obp) {
+        const obpData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
+        if (Object.keys(obpData).length > 0) {
+          mergeStudyData("ОБП", obpData);
+        }
+      }
+
+      if (parsed.kidneys) {
+        const kidneyData = makeKidneyStudyData(parsed.kidneys) as unknown as Record<string, unknown>;
+        if (Object.keys(kidneyData).length > 0) {
+          mergeStudyData("Почки", kidneyData);
+        }
+      }
+
+      if (parsed.gyn) {
+        const omtFemaleData = makeOmtFemaleStudyData(parsed.gyn) as unknown as Record<string, unknown>;
+        if (Object.keys(omtFemaleData).length > 0) {
+          mergeStudyData("ОМТ (Ж)", omtFemaleData);
+        }
+      }
+
+      if (parsed.uro) {
+        const bladderData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
+        if (Object.keys(bladderData).length > 0) {
+          mergeStudyData("Мочевой пузырь", bladderData);
+        }
+
+        // Также мержим urinaryBladder как подполе в Почки, ОМТ (Ж), ОМТ (М)
+        const bladderPartial = makeUrinaryBladderPartial(parsed.uro) as Record<string, unknown> | undefined;
+        if (bladderPartial) {
+          mergeStudyData("Почки", bladderPartial);
+          mergeStudyData("ОМТ (Ж)", bladderPartial);
+          mergeStudyData("ОМТ (М)", bladderPartial);
+        }
+      }
+
+      console.log("ResearchHeader: данные импортированы с флешки");
+    } catch (err) {
+      console.error("ResearchHeader: ошибка импорта", err);
+    }
+  }, [setPatientFullName, setPatientDateOfBirth, setResearchDate, mergeStudyData]);
 
   const fullNameParts = patientFullName.split(" ");
   const lastName = fullNameParts[0] || "";
@@ -91,16 +165,26 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
 
   return (
     <div className="mb-6 rounded-xl border border-slate-200 bg-white">
-      {/* Шапка с иконкой и заголовком */}
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100">
-        <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center">
-          <svg className="w-3.5 h-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+      {/* Шапка с иконкой и заголовком и кнопкой обновления */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center">
+            <svg className="w-3.5 h-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h2 className="text-sm font-semibold text-slate-800">
+            Данные пациента
+          </h2>
         </div>
-        <h2 className="text-sm font-semibold text-slate-800">
-          Данные пациента
-        </h2>
+        <button
+          type="button"
+          onClick={handleMedisonImport}
+          title="Импортировать данные с флешки"
+          className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all"
+        >
+          <RefreshCw size={16} />
+        </button>
       </div>
 
       <div className="px-5 py-4">
@@ -197,3 +281,33 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 };
 
 export default ResearchHeader;
+
+/** Преобразует "КУЗНЕЦОВ, ДМИТРИЙ ЮРЬЕВИЧ" в "Кузнецов Дмитрий Юрьевич" */
+function normalizeFullName(name: string): string {
+  return name
+    .replace(/,/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+/** Преобразует "1990-10-12" в "12.10.1990" */
+function normalizeDateOfBirth(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${day}.${month}.${year}`;
+  }
+  return dateStr;
+}
+
+/** Из DD-MM-YYYY в YYYY-MM-DD */
+function normalizeDateForDesktop(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  }
+  return dateStr;
+}

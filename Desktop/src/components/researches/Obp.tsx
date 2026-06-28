@@ -1,5 +1,5 @@
 // src/components/researches/Obp.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
@@ -36,14 +36,43 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  // Глубокое слияние — мержит вложенные объекты, а не заменяет целиком
+  const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
+    if (source === null || source === undefined) return target;
+    if (target === null || target === undefined) return source;
+    if (typeof target !== "object" || typeof source !== "object") return source;
+    if (Array.isArray(target) || Array.isArray(source)) return source;
+
+    const result = { ...(target as Record<string, unknown>) };
+    for (const key of Object.keys(source as Record<string, unknown>)) {
+      const targetVal = (target as Record<string, unknown>)[key];
+      const sourceVal = (source as Record<string, unknown>)[key];
+      if (
+        targetVal !== null && targetVal !== undefined &&
+        typeof targetVal === "object" && !Array.isArray(targetVal) &&
+        typeof sourceVal === "object" && !Array.isArray(sourceVal)
+      ) {
+        result[key] = deepMerge(targetVal, sourceVal);
+      } else if (sourceVal !== undefined) {
+        // Не затираем пустыми строками из дефолтного состояния
+        if (sourceVal !== "") {
+          result[key] = sourceVal;
+        }
+      }
+    }
+    return result;
+  }, []);
+
   const initialValue = value ?? defaultObpState;
   const [form, setForm] = useState<ObpProtocol>(initialValue);
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   useEffect(() => {
-    setForm(value ?? defaultObpState);
-  }, [value, setForm]);
+    if (value) {
+      setForm((prev) => deepMerge(prev, value) as ObpProtocol);
+    }
+  }, [value, deepMerge]);
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);
