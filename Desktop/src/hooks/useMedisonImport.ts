@@ -227,6 +227,30 @@ export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroi
   return result;
 }
 
+function makeProstateData(medisonProstate: NonNullable<NonNullable<MedisonParsedData["uro"]>["prostate"]>) {
+  const tzValue = medisonProstate.tzLength?.value;
+
+  return {
+    length: medisonProstate.length.value.toString(),
+    width: medisonProstate.width.value.toString(),
+    apDimension: medisonProstate.height.value.toString(),
+    volume: medisonProstate.volume.value.toString(),
+    ...(tzValue && tzValue > 0
+      ? { bladderProtrusion: "выступает", bladderProtrusionMm: tzValue.toString() }
+      : {}),
+  };
+}
+
+export function makeProstateStudyData(data: NonNullable<MedisonParsedData["uro"]>) {
+  const result: Record<string, unknown> = {};
+
+  if (data.prostate) {
+    result.prostate = makeProstateData(data.prostate);
+  }
+
+  return result;
+}
+
 interface UseMedisonImportOptions {
   onDataReady: (data: {
     patientFullName: string;
@@ -238,6 +262,7 @@ interface UseMedisonImportOptions {
     bladderStudyData?: Record<string, unknown>;
     bladderPartial?: Record<string, unknown>;
     thyroidStudyData?: Record<string, unknown>;
+    prostateStudyData?: Record<string, unknown>;
   }) => void;
   onXmlContent?: string; // внешне не используется, добавляем в сигнатуру
 }
@@ -271,6 +296,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
       let omtFemaleStudyData: Record<string, unknown> | undefined;
       let bladderStudyData: Record<string, unknown> | undefined;
       let thyroidStudyData: Record<string, unknown> | undefined;
+      let prostateStudyData: Record<string, unknown> | undefined;
 
       if (parsed.obp) {
         obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
@@ -286,6 +312,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
 
       if (parsed.uro) {
         bladderStudyData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
+        prostateStudyData = makeProstateStudyData(parsed.uro) as unknown as Record<string, unknown>;
       }
 
       if (parsed.thyroid) {
@@ -304,6 +331,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         bladderStudyData,
         bladderPartial,
         thyroidStudyData,
+        prostateStudyData,
         // @ts-expect-error - добавляем content для deduplication
         _xmlContent: content,
       });

@@ -109,6 +109,11 @@ export default function MedisonAutoImport() {
         mergeStudy("Щитовидная железа", data.thyroidStudyData);
       }
 
+      // Заполняем данные протокола ОМТ (М) — только те поля, что пришли из XML
+      if (data.prostateStudyData) {
+        mergeStudy("ОМТ (М)", data.prostateStudyData);
+      }
+
       console.log("MedisonAutoImport: данные импортированы", data);
     },
   });

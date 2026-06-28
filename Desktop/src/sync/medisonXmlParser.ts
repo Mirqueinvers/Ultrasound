@@ -88,7 +88,7 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       : null;
 
     const uro = hasPackage("Uro")
-      ? parseUroData(getMeasurementValue)
+      ? parseUroData(getMeasurementValue, hasGroup("Uro_Prostate"))
       : null;
 
     const thyroid = hasPackage("Thyroid")
@@ -113,7 +113,7 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
         : undefined,
       kidneys: kidneys && (kidneys.left || kidneys.right) ? kidneys : undefined,
       gyn: gyn && (gyn.uterus || gyn.rightOvary || gyn.leftOvary) ? gyn : undefined,
-      uro: uro && uro.bladder ? uro : undefined,
+      uro: uro && (uro.bladder || uro.prostate) ? uro : undefined,
       thyroid: thyroid && (thyroid.rightLobe || thyroid.leftLobe) ? thyroid : undefined,
     };
   } catch (err) {
@@ -328,13 +328,41 @@ function parseBladderData(
   };
 }
 
-function parseUroData(
+function parseProstateData(
   getMeasurementValue: (measurementId: string) => number | null
 ) {
+  const lengthVal = getMeasurementValue("Uro_Prostate_Length");
+  const heightVal = getMeasurementValue("Uro_Prostate_Height");
+  const widthVal = getMeasurementValue("Uro_Prostate_Width");
+  const volVal = getMeasurementValue("Uro_Prostate_Volume");
+  const tzVal = getMeasurementValue("Uro_TZ_Length");
+  const psaVal = getMeasurementValue("Uro_PREDPSA_PREDPSA");
+
+  if (lengthVal === null && heightVal === null && widthVal === null && volVal === null)
+    return null;
+
+  return {
+    length: { value: lengthVal ?? 0, unit: "mm" },
+    height: { value: heightVal ?? 0, unit: "mm" },
+    width: { value: widthVal ?? 0, unit: "mm" },
+    volume: { value: volVal ?? 0, unit: "ml" },
+    tzLength: { value: tzVal ?? 0, unit: "mm" },
+    predictedPSA: { value: psaVal ?? 0, unit: "ng" },
+  };
+}
+
+function parseUroData(
+  getMeasurementValue: (measurementId: string) => number | null,
+  hasProstate: boolean = false
+) {
   const bladder = parseBladderData(getMeasurementValue);
+  const prostate = hasProstate
+    ? parseProstateData(getMeasurementValue)
+    : null;
 
   return {
     bladder: bladder ?? undefined,
+    prostate: prostate ?? undefined,
   };
 }
 

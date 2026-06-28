@@ -82,6 +82,16 @@ export interface MedisonBladderData {
 
 export interface MedisonUroData {
   bladder?: MedisonBladderData;
+  prostate?: MedisonProstateData;
+}
+
+export interface MedisonProstateData {
+  length: MedisonMeasurement;
+  height: MedisonMeasurement;
+  width: MedisonMeasurement;
+  volume: MedisonMeasurement;
+  tzLength: MedisonMeasurement;
+  predictedPSA: MedisonMeasurement;
 }
 
 export interface MedisonThyroidLobeData {
