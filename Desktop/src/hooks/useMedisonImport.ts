@@ -4,8 +4,6 @@ import type { MedisonParsedData } from "@/sync/medisonTypes";
 import { defaultLiverState } from "@/types/defaultStates/organs/liver";
 import { defaultPancreasState } from "@/types/defaultStates/organs/pancreas";
 import { defaultSpleenState } from "@/types/defaultStates/organs/spleen";
-import { defaultUterusState } from "@/types/defaultStates/organs/uterus";
-import { defaultOvaryState } from "@/types/defaultStates/organs/ovary";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 
 /**
@@ -98,8 +96,8 @@ export function makeKidneyStudyData(data: NonNullable<MedisonParsedData["kidneys
 }
 
 function makeUterusData(medisonUterus: NonNullable<NonNullable<MedisonParsedData["gyn"]>["uterus"]>) {
+  // БЕЗ спреда дефолтного состояния — не затираем myomaNodesList и другие массивы
   return {
-    ...defaultUterusState,
     length: medisonUterus.length.value.toString(),
     width: medisonUterus.width.value.toString(),
     apDimension: medisonUterus.height.value.toString(),
@@ -110,8 +108,8 @@ function makeUterusData(medisonUterus: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeOvaryData(medisonOvary: NonNullable<NonNullable<MedisonParsedData["gyn"]>["rightOvary"]>) {
+  // БЕЗ спреда дефолтного состояния — не затираем cystsList и другие массивы
   return {
-    ...defaultOvaryState,
     length: medisonOvary.length.value.toString(),
     width: medisonOvary.width.value.toString(),
   };

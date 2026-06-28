@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/OmtFemale.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
@@ -32,8 +32,26 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     value ?? defaultOmtFemaleState
   );
 
+  const prevValueRef = useRef(value);
+
   useEffect(() => {
-    setForm(value ?? defaultOmtFemaleState);
+    if (value === prevValueRef.current) return;
+    prevValueRef.current = value;
+
+    if (!value) {
+      setForm(defaultOmtFemaleState);
+      return;
+    }
+
+    // Глубокое слияние — мержим только то, что пришло, не затираем массивы/селекты
+    setForm((prev) => ({
+      ...prev,
+      ...value,
+      uterus: value.uterus ? { ...prev.uterus, ...value.uterus } : prev.uterus,
+      leftOvary: value.leftOvary ? { ...prev.leftOvary, ...value.leftOvary } : prev.leftOvary,
+      rightOvary: value.rightOvary ? { ...prev.rightOvary, ...value.rightOvary } : prev.rightOvary,
+      urinaryBladder: value.urinaryBladder ? { ...prev.urinaryBladder, ...value.urinaryBladder } : prev.urinaryBladder,
+    }));
   }, [value]);
 
   const { setStudyData } = useResearch();
