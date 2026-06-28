@@ -20,6 +20,7 @@ export default function App() {
   const [date, setDate] = useState(getTodayString());
   const {
     appointments,
+    allAppointments,
     loading: loadingAppointments,
     createAppointment,
     updateAppointment,
@@ -300,7 +301,7 @@ export default function App() {
           ) : selectedDoctorId === "all" ? (
             <AllDoctorsView
               doctors={doctors}
-              appointments={appointments}
+              appointments={allAppointments}
               calendarMonth={calendarMonth}
               calendarYear={calendarYear}
               onPrevMonth={prevMonth}
@@ -310,7 +311,7 @@ export default function App() {
           ) : selectedDoctor ? (
             <CalendarView
               doctor={selectedDoctor}
-              appointments={appointments}
+              appointments={allAppointments}
               calendarMonth={calendarMonth}
               calendarYear={calendarYear}
               onPrevMonth={prevMonth}

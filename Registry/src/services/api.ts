@@ -36,6 +36,10 @@ export function fetchAppointmentsByDate(date: string): Promise<Appointment[]> {
   return request<Appointment[]>(`/appointments?date=${date}`);
 }
 
+export function fetchAppointmentsByMonth(month: number, year: number): Promise<Appointment[]> {
+  return request<Appointment[]>(`/appointments?month=${month}&year=${year}`);
+}
+
 export function createAppointment(
   data: PatientFormData & { appointmentDate: string; department: string }
 ): Promise<Appointment> {

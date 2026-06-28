@@ -23224,6 +23224,22 @@ function getAppointmentFromRow(row) {
 		}
 	};
 }
+function getAppointmentsByMonth(month, year) {
+	if (!db) return [];
+	const prefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+	const stmt = db.prepare(`
+    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM appointments a
+    JOIN patients p ON p.id = a.patient_id
+    WHERE a.appointment_date LIKE ?
+    ORDER BY a.appointment_date ASC, a.created_at ASC
+  `);
+	stmt.bind([`${prefix}%`]);
+	const rows = [];
+	while (stmt.step()) rows.push(stmt.getAsObject());
+	stmt.free();
+	return rows.map(getAppointmentFromRow);
+}
 function getAppointmentsByDate(date) {
 	if (!db) return [];
 	const stmt = db.prepare(`
@@ -23453,6 +23469,13 @@ function formatValidationErrors(errors) {
 var router$1 = (0, import_express.Router)();
 router$1.get("/", (req, res) => {
 	const date = req.query.date;
+	const month = req.query.month;
+	const year = req.query.year;
+	if (month && year) {
+		const appointments = getAppointmentsByMonth(parseInt(month), parseInt(year));
+		res.json(appointments);
+		return;
+	}
 	if (!date) {
 		res.status(400).json({ error: "date parameter is required" });
 		return;

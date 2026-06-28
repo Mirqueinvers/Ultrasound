@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getAppointmentsByDate,
+  getAppointmentsByMonth,
   createAppointment,
   updateAppointment,
   deleteAppointment,
@@ -15,6 +16,15 @@ const router = Router();
 
 router.get("/", (req, res) => {
   const date = req.query.date as string;
+  const month = req.query.month as string;
+  const year = req.query.year as string;
+
+  if (month && year) {
+    const appointments = getAppointmentsByMonth(parseInt(month), parseInt(year));
+    res.json(appointments);
+    return;
+  }
+
   if (!date) {
     res.status(400).json({ error: "date parameter is required" });
     return;

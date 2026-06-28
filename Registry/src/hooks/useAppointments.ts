@@ -3,24 +3,31 @@ import type { Appointment, PatientFormData } from "../types";
 import { toApiDate } from "../utils/date";
 import { getDepartment } from "../utils/patient";
 import {
-  fetchAppointmentsByDate,
+  fetchAppointmentsByMonth,
   createAppointment as apiCreate,
   updateAppointment as apiUpdate,
   deleteAppointment as apiDelete,
 } from "../services/api";
 
 export function useAppointments(date: string) {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Загружаем записи за месяц, соответствующий выбранной дате
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const apiDate = toApiDate(date);
-      const data = await fetchAppointmentsByDate(apiDate);
-      setAppointments(data);
+      const parts = date.split(".");
+      if (parts.length === 3) {
+        const month = parseInt(parts[1]) - 1;
+        const year = parseInt(parts[2]);
+        const data = await fetchAppointmentsByMonth(month, year);
+        setAllAppointments(data);
+      } else {
+        setAllAppointments([]);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Ошибка загрузки записей";
       setError(msg);
@@ -32,6 +39,12 @@ export function useAppointments(date: string) {
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
+
+  // Фильтруем записи для выбранной даты
+  const appointments = allAppointments.filter((a) => {
+    const apiDate = toApiDate(date);
+    return a.appointment_date === apiDate;
+  });
 
   const createAppointment = async (
     data: PatientFormData
@@ -83,6 +96,7 @@ export function useAppointments(date: string) {
 
   return {
     appointments,
+    allAppointments,
     loading,
     error,
     fetchAppointments,

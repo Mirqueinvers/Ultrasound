@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initDb = initDb;
+exports.getAppointmentsByMonth = getAppointmentsByMonth;
 exports.getAppointmentsByDate = getAppointmentsByDate;
 exports.createAppointment = createAppointment;
 exports.updateAppointment = updateAppointment;
@@ -45,6 +46,8 @@ async function initDb() {
     else {
         db = new SQL.Database();
     }
+    if (!db)
+        return;
     db.run("PRAGMA foreign_keys = ON");
     initSchema();
     saveDb();
@@ -103,6 +106,26 @@ function getAppointmentFromRow(row) {
             date_of_birth: row.date_of_birth,
         },
     };
+}
+function getAppointmentsByMonth(month, year) {
+    if (!db)
+        return [];
+    const monthStr = String(month + 1).padStart(2, "0");
+    const prefix = `${year}-${monthStr}`;
+    const stmt = db.prepare(`
+    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM appointments a
+    JOIN patients p ON p.id = a.patient_id
+    WHERE a.appointment_date LIKE ?
+    ORDER BY a.appointment_date ASC, a.created_at ASC
+  `);
+    stmt.bind([`${prefix}%`]);
+    const rows = [];
+    while (stmt.step()) {
+        rows.push(stmt.getAsObject());
+    }
+    stmt.free();
+    return rows.map(getAppointmentFromRow);
 }
 function getAppointmentsByDate(date) {
     if (!db)

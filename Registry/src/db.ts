@@ -1,4 +1,5 @@
-import initSqlJs, { Database as SqlJsDatabase } from "sql.js";
+import initSqlJs from "sql.js";
+type SqlJsDatabase = import("sql.js").Database;
 import fs from "fs";
 import path from "path";
 
@@ -35,6 +36,7 @@ export async function initDb(): Promise<void> {
     db = new SQL.Database();
   }
 
+  if (!db) return;
   db.run("PRAGMA foreign_keys = ON");
   initSchema();
   saveDb();
@@ -120,6 +122,30 @@ function getAppointmentFromRow(row: any): Appointment {
       date_of_birth: row.date_of_birth,
     },
   };
+}
+
+export function getAppointmentsByMonth(month: number, year: number): Appointment[] {
+  if (!db) return [];
+
+  const monthStr = String(month + 1).padStart(2, "0");
+  const prefix = `${year}-${monthStr}`;
+
+  const stmt = db.prepare(`
+    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
+    FROM appointments a
+    JOIN patients p ON p.id = a.patient_id
+    WHERE a.appointment_date LIKE ?
+    ORDER BY a.appointment_date ASC, a.created_at ASC
+  `);
+  stmt.bind([`${prefix}%`]);
+
+  const rows: any[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+
+  return rows.map(getAppointmentFromRow);
 }
 
 export function getAppointmentsByDate(date: string): Appointment[] {

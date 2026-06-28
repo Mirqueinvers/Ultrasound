@@ -6,6 +6,13 @@ const validation_1 = require("../validation");
 const router = (0, express_1.Router)();
 router.get("/", (req, res) => {
     const date = req.query.date;
+    const month = req.query.month;
+    const year = req.query.year;
+    if (month && year) {
+        const appointments = (0, db_1.getAppointmentsByMonth)(parseInt(month), parseInt(year));
+        res.json(appointments);
+        return;
+    }
     if (!date) {
         res.status(400).json({ error: "date parameter is required" });
         return;

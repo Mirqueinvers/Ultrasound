@@ -30,3 +30,4 @@ Registry/test-*.json
 *.njsproj
 *.sln
 *.sw?
+.aider*
