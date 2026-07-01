@@ -376,6 +376,41 @@ export function BreastProtocolBlock({
         </View>
 
         {renderRow(
+          "Размер 3 (мм)",
+          node.size3 || "Нажмите для ввода",
+          "numpad",
+          Boolean(node.size3),
+          () =>
+            openEditor({
+              title: `Узел #${index + 1}: размер 3`,
+              mode: "number",
+              value: node.size3,
+              placeholder: "мм",
+              onSave: (nextValue) => updateNodeField(side, index, "size3", nextValue),
+            }),
+        )}
+
+        {(() => {
+          const a = parseFloat(node.size1);
+          const b = parseFloat(node.size2);
+          const c = parseFloat(node.size3);
+          if (!isNaN(a) && !isNaN(b) && !isNaN(c)) {
+            const vol = ((Math.PI * a * b * c) / 6 / 1000).toFixed(2);
+            return (
+              <View style={styles.obpFieldRow}>
+                <Text style={[styles.obpFieldLabel, { fontWeight: "600" }]}>
+                  Объём
+                </Text>
+                <Text style={[styles.obpFieldValue, { fontWeight: "600" }]}>
+                  {vol} см³
+                </Text>
+              </View>
+            );
+          }
+          return null;
+        })()}
+
+        {renderRow(
           "Глубина (мм)",
           node.depth || "Нажмите для ввода",
           "numpad",

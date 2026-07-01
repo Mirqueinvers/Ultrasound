@@ -46,6 +46,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
       number: form.nodesList.length + 1,
       size1: "",
       size2: "",
+      size3: "",
       depth: "",
       direction: "",
       echogenicity: "",

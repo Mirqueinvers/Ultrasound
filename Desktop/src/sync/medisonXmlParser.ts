@@ -1,4 +1,4 @@
-import type { MedisonParsedData, MedisonKidneySideData, MedisonUterusData, MedisonOvaryData, MedisonBladderData } from "./medisonTypes";
+import type { MedisonParsedData, MedisonKidneySideData, MedisonUterusData, MedisonOvaryData, MedisonBladderData, MedisonBreastMassData, MedisonBreastData } from "./medisonTypes";
 
 /**
  * Парсит XML-отчёт из сканера Medison без DOM-парсера.
@@ -95,6 +95,10 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       ? parseThyroidData(xmlContent, getMeasurementValue)
       : null;
 
+    const breast = hasPackage("Breast")
+      ? parseBreastData(xmlContent)
+      : null;
+
     return {
       patient: {
         fullName,
@@ -115,6 +119,7 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       gyn: gyn && (gyn.uterus || gyn.rightOvary || gyn.leftOvary) ? gyn : undefined,
       uro: uro && (uro.bladder || uro.prostate) ? uro : undefined,
       thyroid: thyroid && (thyroid.rightLobe || thyroid.leftLobe) ? thyroid : undefined,
+      breast: breast && (breast.rightMasses.length > 0 || breast.leftMasses.length > 0) ? breast : undefined,
     };
   } catch (err) {
     console.error("Failed to parse Medison XML:", err);
@@ -453,4 +458,71 @@ function parseThyroidData(
       width: { value: m.width, unit: "mm" },
     })),
   };
+}
+
+function parseBreastData(xmlContent: string): MedisonBreastData {
+  const rightMasses: MedisonBreastMassData[] = [];
+  const leftMasses: MedisonBreastMassData[] = [];
+
+  // Парсим группы Breast_Mass через прямой поиск <Group id="Breast_Mass
+  // и вырезаем содержимое до </Group>
+  let searchFrom = 0;
+  let massIndex = 0;
+
+  while (true) {
+    const groupStart = xmlContent.indexOf('<Group id="Breast_Mass', searchFrom);
+    if (groupStart === -1) break;
+
+    const groupEnd = xmlContent.indexOf('</Group>', groupStart);
+    if (groupEnd === -1) break;
+
+    const groupXml = xmlContent.substring(groupStart, groupEnd + 8); // +8 for </Group>
+    searchFrom = groupEnd + 8;
+
+    massIndex++;
+    const laterality = groupXml.includes('laterality="0"') ? "0" :
+                       groupXml.includes('laterality="1"') ? "1" : null;
+    if (!laterality) {
+      continue;
+    }
+
+    // Извлекаем id группы: Breast_Mass1, Breast_Mass2 и т.д.
+    const idMatch = groupXml.match(/id="(Breast_Mass\d+)"/);
+    if (!idMatch) continue;
+    const groupId = idMatch[1];
+
+    // Вспомогательная функция для поиска измерения внутри строки группы
+    const getVal = (suffix: string): number | null => {
+      const searchId = groupId + suffix;
+      const measMatch = groupXml.match(
+        new RegExp(`<measurement\\s+id="${searchId}"[^>]*>.*?<m(?:1)?\\s+value="([^"]*)"`, "s")
+      );
+      if (measMatch && measMatch[1].trim() !== "") {
+        const parsed = parseFloat(measMatch[1]);
+        return isNaN(parsed) ? null : parsed;
+      }
+      return null;
+    };
+
+    const massL = getVal("_L");
+    const massD = getVal("_D");
+    const massW = getVal("_W");
+    const massVol = getVal("_Vol");
+
+    if (massL !== null && massD !== null && massW !== null) {
+      const mass: MedisonBreastMassData = {
+        length: { value: massL, unit: "mm" },
+        height: { value: massD, unit: "mm" },
+        width: { value: massW, unit: "mm" },
+        volume: { value: massVol ?? 0, unit: "ml" },
+      };
+      if (laterality === "0") {
+        rightMasses.push(mass);
+      } else {
+        leftMasses.push(mass);
+      }
+    }
+  }
+
+  return { rightMasses, leftMasses };
 }

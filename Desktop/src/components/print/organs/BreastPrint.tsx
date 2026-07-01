@@ -96,8 +96,18 @@ const formatSideNodesList = (side: BreastSideProtocol): React.ReactNode[] => {
     const sizes: string[] = [];
     if (n.size1?.trim()) sizes.push(n.size1.trim());
     if (n.size2?.trim()) sizes.push(n.size2.trim());
+    if (n.size3?.trim()) sizes.push(n.size3.trim());
     if (sizes.length) {
       parts.push(`размерами ${sizes.join(" × ")} мм`);
+    }
+    if (sizes.length === 3) {
+      const a = parseFloat(n.size1);
+      const b = parseFloat(n.size2);
+      const c = parseFloat(n.size3);
+      if (!isNaN(a) && !isNaN(b) && !isNaN(c)) {
+        const vol = ((Math.PI * a * b * c) / 6 / 1000).toFixed(2);
+        parts.push(`объём ${vol} см³`);
+      }
     }
 
     if (n.depth?.trim()) {

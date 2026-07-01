@@ -2,6 +2,7 @@ export interface BreastNodeDraft {
   number: number;
   size1: string;
   size2: string;
+  size3: string;
   depth: string;
   direction: string;
   echogenicity: string;
@@ -42,6 +43,7 @@ export function createEmptyBreastNodeDraft(): BreastNodeDraft {
     number: 1,
     size1: "",
     size2: "",
+    size3: "",
     depth: "",
     direction: "",
     echogenicity: "",

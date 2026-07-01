@@ -21,6 +21,7 @@ export function normalizeBreastStudyDraft(value: unknown): BreastStudyDraft {
       number: typeof sourceNode.number === "number" ? sourceNode.number : 1,
       size1: sourceNode.size1 ?? "",
       size2: sourceNode.size2 ?? "",
+      size3: sourceNode.size3 ?? "",
       depth: sourceNode.depth ?? "",
       direction: sourceNode.direction ?? "",
       echogenicity: sourceNode.echogenicity ?? "средняя",

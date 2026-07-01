@@ -1,8 +1,18 @@
-﻿import React from "react";
+﻿import React, { useMemo } from "react";
 import { ButtonSelect } from "@/UI";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { Trash2, Plus } from "lucide-react";
 import type { BreastNodeProps } from "@types";
+
+function calcVolume(a: string, b: string, c: string): string {
+  const va = parseFloat(a);
+  const vb = parseFloat(b);
+  const vc = parseFloat(c);
+  if (isNaN(va) || isNaN(vb) || isNaN(vc)) return "";
+  const volumeMm3 = (Math.PI * va * vb * vc) / 6;
+  const volumeCm3 = volumeMm3 / 1000;
+  return volumeCm3.toFixed(2);
+}
 
 export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
   node,
@@ -11,6 +21,8 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
   onAdd,
   isLast = false,
 }) => {
+  const volume = useMemo(() => calcVolume(node.size1, node.size2, node.size3), [node.size1, node.size2, node.size3]);
+
   return (
     <>
       <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 shadow-md overflow-hidden transition-all hover:shadow-lg">
@@ -51,6 +63,17 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
             </label>
 
             <label className={labelClasses}>
+              Размер 3 (мм)
+              <input
+                type="text"
+                className={inputClasses}
+                value={node.size3}
+                onChange={(e) => onUpdate("size3", e.target.value)}
+                placeholder="0.0"
+              />
+            </label>
+
+            <label className={labelClasses}>
               Глубина (мм)
               <input
                 type="text"
@@ -61,6 +84,12 @@ export const BreastNodeComponent: React.FC<BreastNodeProps> = ({
               />
             </label>
           </div>
+
+          {volume && (
+            <div className="text-sm font-semibold text-slate-700 bg-sky-50 rounded-lg px-3 py-2 border border-sky-200">
+              Объём: {volume} см³
+            </div>
+          )}
 
           <label className={labelClasses}>
             Направление узла (часы)

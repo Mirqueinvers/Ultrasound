@@ -47,12 +47,17 @@ export default function MedisonAutoImport() {
 
   useMedisonImport({
     onDataReady: (data) => {
+      console.log("MedisonAutoImport: получены данные", {
+        keys: Object.keys(data),
+        breastStudyData: data.breastStudyData ? JSON.parse(JSON.stringify(data.breastStudyData)) : undefined,
+      });
+
       // Проверяем по hash содержимого — не импортировали ли этот файл ранее
       const content = (window as any).__medisonLastContent as string | undefined;
       if (content) {
         const hash = simpleHash(content);
         if (sessionStorage.getItem(IMPORTED_KEY) === hash) {
-          console.log("MedisonAutoImport: файл уже импортирован ранее, пропускаем");
+          console.log("MedisonAutoImport: файл уже импортирован ранее, пропускаем. Очистите sessionStorage чтобы импортировать снова.");
           return;
         }
         // Запоминаем hash импортированного файла
@@ -112,6 +117,11 @@ export default function MedisonAutoImport() {
       // Заполняем данные протокола ОМТ (М) — только те поля, что пришли из XML
       if (data.prostateStudyData) {
         mergeStudy("ОМТ (М)", data.prostateStudyData);
+      }
+
+      // Заполняем данные протокола Молочные железы — только те поля, что пришли из XML
+      if (data.breastStudyData) {
+        mergeStudy("Молочные железы", data.breastStudyData);
       }
 
       console.log("MedisonAutoImport: данные импортированы", data);

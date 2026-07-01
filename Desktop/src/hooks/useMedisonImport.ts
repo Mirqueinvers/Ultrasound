@@ -190,6 +190,37 @@ function makeThyroidLobeData(
   };
 }
 
+function makeBreastSideMasses(masses: NonNullable<NonNullable<MedisonParsedData["breast"]>["rightMasses"]>): {
+  volumeFormations: string;
+  nodesList: { number: number; size1: string; size2: string; size3: string; depth: string }[];
+} {
+  if (!masses || masses.length === 0) {
+    return { volumeFormations: "не определяются", nodesList: [] };
+  }
+  return {
+    volumeFormations: "определяются",
+    nodesList: masses.map((m, i) => ({
+      number: i + 1,
+      size1: m.length.value.toString(),
+      size2: m.height.value.toString(),
+      size3: m.width.value.toString(),
+      depth: "",
+    })),
+  };
+}
+
+export function makeBreastStudyData(data: NonNullable<MedisonParsedData["breast"]>) {
+  const rightSide = data.rightMasses?.length > 0 ? makeBreastSideMasses(data.rightMasses) : null;
+  const leftSide = data.leftMasses?.length > 0 ? makeBreastSideMasses(data.leftMasses) : null;
+
+  return {
+    breast: {
+      rightBreast: rightSide ?? { volumeFormations: "не определяются", nodesList: [] },
+      leftBreast: leftSide ?? { volumeFormations: "не определяются", nodesList: [] },
+    },
+  };
+}
+
 export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroid"]>) {
   const result: Record<string, unknown> = {};
 
@@ -257,6 +288,7 @@ interface UseMedisonImportOptions {
     bladderPartial?: Record<string, unknown>;
     thyroidStudyData?: Record<string, unknown>;
     prostateStudyData?: Record<string, unknown>;
+    breastStudyData?: Record<string, unknown>;
   }) => void;
   onXmlContent?: string; // внешне не используется, добавляем в сигнатуру
 }
@@ -291,6 +323,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
       let bladderStudyData: Record<string, unknown> | undefined;
       let thyroidStudyData: Record<string, unknown> | undefined;
       let prostateStudyData: Record<string, unknown> | undefined;
+      let breastStudyData: Record<string, unknown> | undefined;
 
       if (parsed.obp) {
         obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
@@ -313,6 +346,10 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         thyroidStudyData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
       }
 
+      if (parsed.breast) {
+        breastStudyData = makeBreastStudyData(parsed.breast) as unknown as Record<string, unknown>;
+      }
+
       const bladderPartial = parsed.uro ? makeUrinaryBladderPartial(parsed.uro) : undefined;
 
       onDataReady({
@@ -326,6 +363,7 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         bladderPartial,
         thyroidStudyData,
         prostateStudyData,
+        breastStudyData,
         // @ts-expect-error - добавляем content для deduplication
         _xmlContent: content,
       });
