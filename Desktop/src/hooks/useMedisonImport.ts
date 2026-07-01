@@ -172,24 +172,22 @@ function makeThyroidLobeData(
   medisonLobe: NonNullable<NonNullable<MedisonParsedData["thyroid"]>["rightLobe"]>,
   masses: { length: number; width: number }[]
 ) {
-  const result: Record<string, unknown> = {
+  return {
     length: medisonLobe.length.value.toString(),
     width: medisonLobe.width.value.toString(),
     depth: medisonLobe.height.value.toString(),
     volume: medisonLobe.volume.value.toString(),
+    ...(masses.length > 0
+      ? {
+          volumeFormations: "определяются",
+          nodesList: masses.map((m, i) => ({
+            number: i + 1,
+            size1: m.length.toString(),
+            size2: m.width.toString(),
+          })),
+        }
+      : {}),
   };
-
-  if (masses.length > 0) {
-    result.volumeFormations = "определяются";
-    // Возвращаем узлы только с размером, без пустых селектов
-    result.nodesList = masses.map((m) => ({
-      number: 1,
-      size1: m.length.toString(),
-      size2: m.width.toString(),
-    }));
-  }
-
-  return result;
 }
 
 export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroid"]>) {

@@ -88,56 +88,36 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   ): import("@/types").ThyroidLobeProtocol {
     if (!source) return target;
 
-    // Обновляем размеры из source, но сохраняем существующие селекты
+    // Мержим простые поля, source имеет приоритет
     const merged = { ...target, ...source };
 
-    // Узлы: обновляем size1/size2 из source, но не затираем селекты
-    if (source.nodesList && source.nodesList.length > 0) {
-      const existingNodes = target.nodesList ?? [];
+    // Узлы: глубокое слияние по индексу, чтобы не затирать селекты
+    const targetNodes = target.nodesList ?? [];
+    const sourceNodes = source.nodesList ?? [];
 
-      if (existingNodes.length === 0) {
-        // Если нет существующих узлов — просто используем source (с пустыми селектами)
-        merged.nodesList = source.nodesList.map((n, i) => ({
-          number: i + 1,
-          size1: n.size1 ?? "",
-          size2: n.size2 ?? "",
-          echogenicity: "",
-          echostructure: "",
-          contour: "",
-          echogenicFoci: "",
-          orientation: "",
-          bloodFlow: "",
-          comment: "",
-        }));
-      } else {
-        // Обновляем существующие узлы — мержим size1/size2, сохраняя селекты
-        merged.nodesList = existingNodes.map((existingNode, i) => {
-          const sourceNode = source.nodesList[i];
-          if (sourceNode) {
-            return {
-              ...existingNode,
-              size1: sourceNode.size1 ?? existingNode.size1,
-              size2: sourceNode.size2 ?? existingNode.size2,
-            };
-          }
-          return existingNode;
-        });
+    if (sourceNodes.length > 0) {
+      merged.nodesList = targetNodes.map((existingNode, i) => {
+        const sourceNode = sourceNodes[i];
+        if (!sourceNode) return existingNode;
+        // Мерж: каждое поле source перезаписывает target только если оно не пустое
+        return {
+          ...existingNode,
+          size1: sourceNode.size1 ?? existingNode.size1,
+          size2: sourceNode.size2 ?? existingNode.size2,
+          echogenicity: sourceNode.echogenicity ?? existingNode.echogenicity,
+          echostructure: sourceNode.echostructure ?? existingNode.echostructure,
+          contour: sourceNode.contour ?? existingNode.contour,
+          echogenicFoci: sourceNode.echogenicFoci ?? existingNode.echogenicFoci,
+          orientation: sourceNode.orientation ?? existingNode.orientation,
+          bloodFlow: sourceNode.bloodFlow ?? existingNode.bloodFlow,
+          comment: sourceNode.comment ?? existingNode.comment,
+          tiradsCategory: sourceNode.tiradsCategory ?? existingNode.tiradsCategory,
+        };
+      });
 
-        // Добавляем новые узлы, которых нет в target
-        for (let i = existingNodes.length; i < source.nodesList.length; i++) {
-          merged.nodesList.push({
-            number: i + 1,
-            size1: source.nodesList[i].size1 ?? "",
-            size2: source.nodesList[i].size2 ?? "",
-            echogenicity: "",
-            echostructure: "",
-            contour: "",
-            echogenicFoci: "",
-            orientation: "",
-            bloodFlow: "",
-            comment: "",
-          });
-        }
+      // Добавляем новые узлы, которых нет в target
+      for (let i = targetNodes.length; i < sourceNodes.length; i++) {
+        merged.nodesList.push({ ...sourceNodes[i] });
       }
     }
 

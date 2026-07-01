@@ -83,6 +83,29 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   }, [publishSyncMessage]);
 
+  /** 
+   * Мержит два массива узлов по индексу: source-значения имеют приоритет,
+   * но только если поле в source не пустое. Это защищает селекты от затирания,
+   * когда source содержит неполные узлы (например, только size1/size2 с флешки).
+   */
+  const mergeNodeArrays = useCallback((target: unknown[], source: unknown[]): unknown[] => {
+    return target.map((existingNode, i) => {
+      const sourceNode = source[i];
+      if (!sourceNode || typeof sourceNode !== "object") return existingNode;
+      if (typeof existingNode !== "object") return sourceNode;
+      const result = { ...(existingNode as Record<string, unknown>) };
+      for (const key of Object.keys(sourceNode as Record<string, unknown>)) {
+        const sourceVal = (sourceNode as Record<string, unknown>)[key];
+        if (sourceVal !== undefined && sourceVal !== null && sourceVal !== "") {
+          result[key] = sourceVal;
+        }
+      }
+      return result;
+    }).concat(
+      source.slice(target.length).map((n) => (typeof n === "object" ? { ...(n as Record<string, unknown>) } : n)),
+    );
+  }, []);
+
   // Глубокое рекурсивное слияние — мержит вложенные объекты, а не заменяет их
   const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
     if (source === null || source === undefined) return target;
@@ -100,6 +123,13 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
         typeof sourceVal === "object" && !Array.isArray(sourceVal)
       ) {
         result[key] = deepMerge(targetVal, sourceVal);
+      } else if (
+        targetVal !== null && targetVal !== undefined &&
+        Array.isArray(targetVal) && Array.isArray(sourceVal) &&
+        sourceVal.length > 0 && typeof sourceVal[0] === "object" && "number" in (sourceVal[0] as Record<string, unknown>)
+      ) {
+        // Спецобработка для массивов с числовым полем "number" (nodesList, concretionsList и т.д.)
+        result[key] = mergeNodeArrays(targetVal, sourceVal);
       } else {
         result[key] = sourceVal;
       }

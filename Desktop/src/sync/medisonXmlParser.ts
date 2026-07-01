@@ -388,14 +388,19 @@ function parseThyroidData(
   const leftMasses: { length: number; width: number }[] = [];
 
   // Извлекаем все группы Thyroid_Mass с атрибутом laterality
-  const massRegex = /<Group\s+id="Thyroid_Mass\d+"[^>]*laterality="([01])"[^>]*>.*?<\/Group>/gs;
+  const massRegex = /<Group\s+id="(Thyroid_Mass(\d+))"[^>]*laterality="([01])"[^>]*>.*?<\/Group>/gs;
   let massMatch: RegExpExecArray | null;
   while ((massMatch = massRegex.exec(xmlContent)) !== null) {
-    const laterality = massMatch[1];
+    const groupId = massMatch[1];      // e.g. "Thyroid_Mass3"
+    const massNumber = massMatch[2];    // e.g. "3"
+    const laterality = massMatch[3];   // e.g. "0" or "1"
     const groupXml = massMatch[0];
 
-    const getGroupMeasurement = (id: string): number | null => {
-      const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const getGroupMeasurement = (suffix: string): number | null => {
+      // Ищем measurement id внутри группы по шаблону, который включает номер группы
+      // e.g. для suffix="_L" ищем "Thyroid_Mass3_L"
+      const searchId = `${groupId}${suffix}`;
+      const escapedId = searchId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const m = groupXml.match(
         new RegExp(`<measurement\\s+id="${escapedId}"[^>]*>.*?<m(?:1)?\\s+value="([^"]*)"`, "s")
       );
@@ -406,8 +411,8 @@ function parseThyroidData(
       return null;
     };
 
-    const massL = getGroupMeasurement("Thyroid_Mass1_L") ?? getGroupMeasurement("Thyroid_Mass2_L");
-    const massW = getGroupMeasurement("Thyroid_Mass1_W") ?? getGroupMeasurement("Thyroid_Mass2_W");
+    const massL = getGroupMeasurement("_L");
+    const massW = getGroupMeasurement("_W");
 
     if (massL !== null && massW !== null) {
       const mass = { length: massL, width: massW };

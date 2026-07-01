@@ -11,16 +11,15 @@ export function normalizeThyroidDraft(value: unknown): ThyroidStudyDraft {
         : {};
 
     return {
-      ...createEmptyThyroidStudyDraft().thyroid.rightLobe.nodesList[0] ?? undefined,
       number: typeof sourceNode.number === "number" ? sourceNode.number : 1,
       size1: sourceNode.size1 ?? "",
       size2: sourceNode.size2 ?? "",
-      echogenicity: sourceNode.echogenicity ?? "изоэхогенный",
-      echostructure: sourceNode.echostructure ?? "однородная",
-      contour: sourceNode.contour ?? "четкий ровный",
+      echogenicity: sourceNode.echogenicity ?? "",
+      echostructure: sourceNode.echostructure ?? "",
+      contour: sourceNode.contour ?? "",
       echogenicFoci: sourceNode.echogenicFoci ?? "",
-      orientation: sourceNode.orientation ?? "горизонтальная",
-      bloodFlow: sourceNode.bloodFlow ?? "не изменен",
+      orientation: sourceNode.orientation ?? "",
+      bloodFlow: sourceNode.bloodFlow ?? "",
       comment: sourceNode.comment ?? "",
       tiradsCategory: sourceNode.tiradsCategory ?? "",
     };
