@@ -126,6 +126,18 @@ export interface MedisonBreastData {
   leftMasses: MedisonBreastMassData[];
 }
 
+export interface MedisonTestisVolumeData {
+  length: MedisonMeasurement;
+  height: MedisonMeasurement;
+  width: MedisonMeasurement;
+  volume: MedisonMeasurement;
+}
+
+export interface MedisonTestisData {
+  left: MedisonTestisVolumeData;
+  right: MedisonTestisVolumeData;
+}
+
 export interface MedisonParsedData {
   patient: {
     fullName: string;
@@ -144,4 +156,5 @@ export interface MedisonParsedData {
   uro?: MedisonUroData;
   thyroid?: MedisonThyroidData;
   breast?: MedisonBreastData;
+  testis?: MedisonTestisData;
 }

@@ -1,4 +1,4 @@
-import type { MedisonParsedData, MedisonKidneySideData, MedisonUterusData, MedisonOvaryData, MedisonBladderData, MedisonBreastMassData, MedisonBreastData } from "./medisonTypes";
+import type { MedisonParsedData, MedisonKidneySideData, MedisonUterusData, MedisonOvaryData, MedisonBladderData, MedisonBreastMassData, MedisonBreastData, MedisonTestisVolumeData, MedisonTestisData } from "./medisonTypes";
 
 /**
  * Парсит XML-отчёт из сканера Medison без DOM-парсера.
@@ -99,6 +99,10 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       ? parseBreastData(xmlContent)
       : null;
 
+    const testis = hasPackage("Test")
+      ? parseTestisData(xmlContent)
+      : null;
+
     return {
       patient: {
         fullName,
@@ -120,6 +124,7 @@ export function parseMedisonXml(xmlContent: string): MedisonParsedData | null {
       uro: uro && (uro.bladder || uro.prostate) ? uro : undefined,
       thyroid: thyroid && (thyroid.rightLobe || thyroid.leftLobe) ? thyroid : undefined,
       breast: breast && (breast.rightMasses.length > 0 || breast.leftMasses.length > 0) ? breast : undefined,
+      testis: testis ?? undefined,
     };
   } catch (err) {
     console.error("Failed to parse Medison XML:", err);
@@ -458,6 +463,64 @@ function parseThyroidData(
       width: { value: m.width, unit: "mm" },
     })),
   };
+}
+
+function parseTestisData(xmlContent: string): MedisonTestisData | null {
+  // Ищем группу Test_Vol с laterality="0" (право) или "1" (лево)
+  // Измерения: _L (длина), _H (высота), _W (ширина), _Vol (объём)
+  let rightSide: MedisonTestisVolumeData | null = null;
+  let leftSide: MedisonTestisVolumeData | null = null;
+
+  let searchFrom = 0;
+  while (true) {
+    const groupStart = xmlContent.indexOf('<Group id="Test_Vol"', searchFrom);
+    if (groupStart === -1) break;
+
+    const groupEnd = xmlContent.indexOf('</Group>', groupStart);
+    if (groupEnd === -1) break;
+
+    const groupXml = xmlContent.substring(groupStart, groupEnd + 8);
+    searchFrom = groupEnd + 8;
+
+    const laterality = groupXml.includes('laterality="0"') ? "0" :
+                       groupXml.includes('laterality="1"') ? "1" : null;
+    if (!laterality) continue;
+
+    const getVal = (suffix: string): number | null => {
+      const searchId = "Test_Vol" + suffix;
+      const m = groupXml.match(
+        new RegExp(`<measurement\\s+id="${searchId}"[^>]*>.*?<m(?:1)?\\s+value="([^"]*)"`, "s")
+      );
+      if (m && m[1].trim() !== "") {
+        const parsed = parseFloat(m[1]);
+        return isNaN(parsed) ? null : parsed;
+      }
+      return null;
+    };
+
+    const testL = getVal("_L");
+    const testH = getVal("_H");
+    const testW = getVal("_W");
+    const testVol = getVal("_Vol");
+
+    if (testL !== null && testH !== null && testW !== null) {
+      const data: MedisonTestisVolumeData = {
+        length: { value: testL, unit: "mm" },
+        height: { value: testH, unit: "mm" },
+        width: { value: testW, unit: "mm" },
+        volume: { value: testVol ?? 0, unit: "ml" },
+      };
+      if (laterality === "0") {
+        rightSide = data;
+      } else {
+        leftSide = data;
+      }
+    }
+  }
+
+  if (!rightSide && !leftSide) return null;
+  const empty: MedisonTestisVolumeData = { length: { value: 0, unit: "mm" }, height: { value: 0, unit: "mm" }, width: { value: 0, unit: "mm" }, volume: { value: 0, unit: "ml" } };
+  return { right: rightSide ?? empty, left: leftSide ?? empty };
 }
 
 function parseBreastData(xmlContent: string): MedisonBreastData {

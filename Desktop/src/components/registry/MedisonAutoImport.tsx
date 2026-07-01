@@ -124,6 +124,11 @@ export default function MedisonAutoImport() {
         mergeStudy("Молочные железы", data.breastStudyData);
       }
 
+      // Заполняем данные протокола Органы мошонки — только те поля, что пришли из XML
+      if (data.testisStudyData) {
+        mergeStudy("Органы мошонки", data.testisStudyData);
+      }
+
       console.log("MedisonAutoImport: данные импортированы", data);
     },
   });
