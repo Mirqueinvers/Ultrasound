@@ -125,6 +125,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   const { user } = useAuth();
 
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
+  const lastCapturedHtmlRef = React.useRef<string>("");
+  const captureAttemptRef = React.useRef(0);
   const [appliedOverrides, setAppliedOverrides] = React.useState<PrintOverrideMap>({});
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [isEditMode, setIsEditMode] = React.useState(editMode ?? false);
@@ -371,35 +373,50 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     [sourceBlockHtml, studyDefinitions],
   );
 
-  // Сбрасываем sourceBlockHtml при изменении studyDefinitions, чтобы перечитать актуальный HTML
-  const studyDefsKey = React.useMemo(() => 
-    studyDefinitions.map(d => `${d.id}:${d.studyData ? "1" : "0"}`).join("|"), 
-    [studyDefinitions]
-  );
-
-  React.useLayoutEffect(() => {
+  /**
+   * Захватывает innerHTML из скрытого source-контейнера.
+   * Срабатывает на каждый рендер — это гарантирует, что после мержа данных
+   * (например, импорт с флешки) превью печати получит актуальный HTML.
+   * Guard через JSON.stringify предотвращает бесконечный цикл.
+   * Дополнительно — отложенный захват через requestAnimationFrame и setTimeout,
+   * чтобы подхватить дочерние компоненты, которые рендерятся асинхронно.
+   */
+  const captureSourceHtml = React.useCallback(() => {
     if (!sourceContainerRef.current) {
       return;
     }
-
     const sourceElements = sourceContainerRef.current.querySelectorAll<HTMLElement>(
       "[data-source-block-id]",
     );
     if (sourceElements.length === 0) {
       return;
     }
-
     const nextHtml: Record<string, string> = {};
     sourceElements.forEach((element) => {
       const blockId = element.dataset.sourceBlockId;
-      if (!blockId) {
-        return;
-      }
+      if (!blockId) return;
       nextHtml[blockId] = element.innerHTML.trim();
     });
-    setSourceBlockHtml(nextHtml);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studyDefsKey]);
+    const snapshot = JSON.stringify(nextHtml);
+    if (snapshot !== lastCapturedHtmlRef.current) {
+      lastCapturedHtmlRef.current = snapshot;
+      setSourceBlockHtml(nextHtml);
+    }
+  }, []);
+
+  // Синхронный захват после каждого рендера DOM
+  React.useLayoutEffect(() => {
+    captureSourceHtml();
+  });
+
+  // Отложенный захват после того, как браузер отрисовал кадр
+  // Нужно для случаев, когда дочерние компоненты рендерятся асинхронно
+  React.useEffect(() => {
+    const rafId = requestAnimationFrame(() => {
+      captureSourceHtml();
+    });
+    return () => cancelAnimationFrame(rafId);
+  });
 
   React.useEffect(() => {
     if (Object.keys(sourceBlockHtml).length === 0) {

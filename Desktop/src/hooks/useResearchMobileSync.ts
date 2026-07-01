@@ -37,7 +37,14 @@ export const useResearchMobileSync = ({
         setPatientDateOfBirthState(header.patientDateOfBirth);
         setResearchDateState(header.researchDate);
         setOrganizationState(header.organization);
-        setStudiesDataState({ ...nextStudiesData });
+        // МЕРЖИМ, а не заменяем — чтобы сохранить данные, которые были добавлены
+        // локально на десктопе (например, импорт с флешки через mergeStudyData)
+        // и ещё не отправлены на сервер. Серверные данные имеют приоритет для
+        // уже существующих ключей, но поля, которых нет в snapshot, остаются.
+        setStudiesDataState((prev) => ({
+          ...nextStudiesData,
+          ...prev,
+        }));
         return;
       }
 

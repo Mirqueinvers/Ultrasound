@@ -1,18 +1,14 @@
 import { useEffect, useRef } from "react";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
 import type { MedisonParsedData } from "@/sync/medisonTypes";
-import { defaultLiverState } from "@/types/defaultStates/organs/liver";
-import { defaultPancreasState } from "@/types/defaultStates/organs/pancreas";
-import { defaultSpleenState } from "@/types/defaultStates/organs/spleen";
-import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 
 /**
- * Создаёт полный LiverProtocol с дефолтными значениями, мержа данные из XML.
- * Все остальные поля liver остаются пустыми (не затираются на уровне mergeStudyData/deepMerge).
+ * Возвращает только те поля печени, которые реально пришли из XML.
+ * БЕЗ спреда defaultLiverState — чтобы не затирать уже введённые селекты
+ * (echogenicity, homogeneity, contours, focalLesionsPresence и т.д.).
  */
 function makeLiverData(medisonLiver: NonNullable<NonNullable<MedisonParsedData["obp"]>["liver"]>, portalVeinDiameter?: string) {
   return {
-    ...defaultLiverState,
     rightLobeAP: medisonLiver.length.value.toString(),
     leftLobeAP: medisonLiver.width.value.toString(),
     ...(portalVeinDiameter ? { portalVeinDiameter } : {}),
@@ -30,8 +26,8 @@ function makeGallbladderData(medisonGb: NonNullable<NonNullable<MedisonParsedDat
 }
 
 function makePancreasData(medisonPanc: NonNullable<NonNullable<MedisonParsedData["obp"]>["pancreas"]>) {
+  // БЕЗ спреда defaultPancreasState — не затираем echogenicity, echostructure, contour, pathologicalFormations
   return {
-    ...defaultPancreasState,
     head: medisonPanc.head.value.toString(),
     body: medisonPanc.body.value.toString(),
     tail: medisonPanc.tail.value.toString(),
@@ -39,8 +35,8 @@ function makePancreasData(medisonPanc: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeSpleenData(medisonSpleen: NonNullable<NonNullable<MedisonParsedData["obp"]>["spleen"]>) {
+  // БЕЗ спреда defaultSpleenState — не затираем остальные поля
   return {
-    ...defaultSpleenState,
     length: medisonSpleen.length.value.toString(),
     width: medisonSpleen.width.value.toString(),
   };
@@ -135,8 +131,8 @@ export function makeOmtFemaleStudyData(data: NonNullable<MedisonParsedData["gyn"
 }
 
 function makeBladderData(medisonBladder: NonNullable<NonNullable<MedisonParsedData["uro"]>["bladder"]>) {
+  // БЕЗ спреда defaultUrinaryBladderState — не затираем селекты (contents, contentsSize, wall, conclusion и т.д.)
   return {
-    ...defaultUrinaryBladderState,
     length: medisonBladder.length.value.toString(),
     width: medisonBladder.width.value.toString(),
     depth: medisonBladder.height.value.toString(),
