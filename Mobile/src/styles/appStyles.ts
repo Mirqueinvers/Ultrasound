@@ -694,7 +694,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 10,
     paddingBottom: 14,
-    backgroundColor: "rgba(7, 17, 31, 0.94)",
+    backgroundColor: "#07111f",
     borderTopWidth: 1,
     borderTopColor: "rgba(148, 163, 184, 0.14)",
   },
@@ -789,6 +789,30 @@ export const styles = StyleSheet.create({
   },
   scannerPermissionButton: {
     alignSelf: "stretch",
+  },
+  bottomNavWrapper: {
+    position: "relative",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  navItemHidden: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    backgroundColor: "rgba(148, 163, 184, 0.08)",
+    minWidth: 40,
+    zIndex: 0,
+  },
+  navItemHiddenInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    width: "100%",
   },
 });
 
