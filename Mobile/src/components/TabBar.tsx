@@ -9,7 +9,7 @@ type TabBarStyles = {
   buttonPressed: object;
 };
 
-export type TabKey = "settings" | "library" | "draft" | "summary";
+export type TabKey = "connect" | "library" | "draft" | "summary";
 
 type TabBarProps = {
   activeTab: TabKey;

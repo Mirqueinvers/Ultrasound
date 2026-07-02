@@ -21,7 +21,7 @@ import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
 const BOTTOM_SPACER_HEIGHT = 110;
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>("settings");
+  const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
   const [, setSessionId] = useState<string | null>(null);
   const contentScrollRef = useRef<ScrollView>(null);
@@ -100,35 +100,39 @@ export default function App() {
         <View style={styles.blobB} />
       </View>
 
-      {(activeTab === "settings" && (connectionState === "checking" || connectionState === "connecting")) && (
-        <View style={styles.connectionNotice}>
-          <Text style={styles.connectionNoticeText}>
-            {connectionState === "checking"
-              ? "Проверка рабочего места..."
-              : "Подключение к рабочему месту..."}
-          </Text>
-        </View>
+      {activeTab === "connect" && (
+        <>
+          <AppHeader styles={styles} />
+
+          {(connectionState === "checking" || connectionState === "connecting") && (
+            <View style={styles.connectionNotice}>
+              <Text style={styles.connectionNoticeText}>
+                {connectionState === "checking"
+                  ? "Проверка рабочего места..."
+                  : "Подключение к рабочему месту..."}
+              </Text>
+            </View>
+          )}
+        </>
       )}
 
-      {activeTab === "draft" && (
-        <ProtocolNav
-          styles={styles}
-          selectedStudies={snapshot.selection.selectedStudies}
-          activeProtocolManifest={activeProtocolManifest}
-          activeSectionId={activeSectionId}
-          activeDraftMode={activeDraftMode}
-          setActiveDraftMode={setActiveDraftMode}
-          onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
-          onSelectSection={setActiveSectionId}
-        />
-      )}
+      <ProtocolNav
+        styles={styles}
+        selectedStudies={snapshot.selection.selectedStudies}
+        activeProtocolManifest={activeProtocolManifest}
+        activeSectionId={activeSectionId}
+        activeDraftMode={activeDraftMode}
+        setActiveDraftMode={setActiveDraftMode}
+        onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
+        onSelectSection={setActiveSectionId}
+      />
 
       <ScrollView
         ref={contentScrollRef}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {activeTab === "settings" && (
+        {activeTab === "connect" && (
           <ConnectScreen
             styles={styles}
             connected={connected}

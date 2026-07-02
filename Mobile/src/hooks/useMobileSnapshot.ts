@@ -237,7 +237,7 @@ export function useMobileSnapshot({
     setSnapshot(nextSnapshot);
     setSessionId(null);
     closeDraftSession();
-    setActiveTab("settings");
+    setActiveTab("connect");
     setSaveState("idle");
     setActiveDraftMode("patient");
   };

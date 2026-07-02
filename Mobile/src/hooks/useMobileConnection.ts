@@ -248,7 +248,7 @@ export function useMobileConnection({
 
   const openScanner = async () => {
     setConnectionError("");
-    setActiveTab("settings");
+    setActiveTab("connect");
     qrScanHandledRef.current = false;
 
     if (!cameraPermission?.granted) {
