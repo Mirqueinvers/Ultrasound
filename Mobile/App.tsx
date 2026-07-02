@@ -100,32 +100,28 @@ export default function App() {
         <View style={styles.blobB} />
       </View>
 
-      {activeTab === "connect" && (
-        <>
-          <AppHeader styles={styles} />
-
-          {(connectionState === "checking" || connectionState === "connecting") && (
-            <View style={styles.connectionNotice}>
-              <Text style={styles.connectionNoticeText}>
-                {connectionState === "checking"
-                  ? "Проверка рабочего места..."
-                  : "Подключение к рабочему месту..."}
-              </Text>
-            </View>
-          )}
-        </>
+      {activeTab === "connect" && (connectionState === "checking" || connectionState === "connecting") && (
+        <View style={styles.connectionNotice}>
+          <Text style={styles.connectionNoticeText}>
+            {connectionState === "checking"
+              ? "Проверка рабочего места..."
+              : "Подключение к рабочему месту..."}
+          </Text>
+        </View>
       )}
 
-      <ProtocolNav
-        styles={styles}
-        selectedStudies={snapshot.selection.selectedStudies}
-        activeProtocolManifest={activeProtocolManifest}
-        activeSectionId={activeSectionId}
-        activeDraftMode={activeDraftMode}
-        setActiveDraftMode={setActiveDraftMode}
-        onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
-        onSelectSection={setActiveSectionId}
-      />
+      {activeTab === "draft" && (
+        <ProtocolNav
+          styles={styles}
+          selectedStudies={snapshot.selection.selectedStudies}
+          activeProtocolManifest={activeProtocolManifest}
+          activeSectionId={activeSectionId}
+          activeDraftMode={activeDraftMode}
+          setActiveDraftMode={setActiveDraftMode}
+          onSelectProtocol={(manifest) => setFocusedProtocolId(manifest.id)}
+          onSelectSection={setActiveSectionId}
+        />
+      )}
 
       <ScrollView
         ref={contentScrollRef}
