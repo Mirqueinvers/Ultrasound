@@ -98,25 +98,24 @@ export function BottomNav({ styles, activeTab, setActiveTab }: BottomNavProps) {
           <Pressable
             onPress={handleConnectPress}
             style={({ pressed }) => [
-              styles.navItem,
-              activeTab === "connect" && styles.navItemActive,
-              pressed && styles.navItemPressed,
+              {
+                flex: 1,
+                borderRadius: 16,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: activeTab === "connect" ? "#f97316" : "rgba(148, 163, 184, 0.08)",
+              },
+              pressed && { opacity: 0.86 },
             ]}
           >
-            <Text
-              style={[
-                styles.navLabel,
-                { fontSize: 20 },
-                activeTab === "connect" && styles.navLabelActive,
-              ]}
-            >
+            <Text style={{ fontSize: 24, color: activeTab === "connect" ? "#fff7ed" : "#cbd5e1", fontWeight: "800" }}>
               ⚙
             </Text>
           </Pressable>
         </View>
 
-        {/* 3 кнопки */}
-        <View style={{ flex: 1, paddingRight: 12, paddingTop: 10, paddingBottom: 14, flexDirection: "row", gap: 8 }}>
+        {/* 3 кнопки — точная ширина экрана, без flex */}
+        <View style={{ width: SCREEN_WIDTH, paddingHorizontal: 12, paddingTop: 10, paddingBottom: 14, flexDirection: "row", gap: 8 }}>
           {BOTTOM_NAV_TABS.map(({ key, label }) => {
             const active = activeTab === key;
             return (
