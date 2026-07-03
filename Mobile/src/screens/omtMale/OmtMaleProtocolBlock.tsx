@@ -12,6 +12,7 @@ import {
 import { type UrinaryBladderDraft } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -35,9 +36,10 @@ type ConclusionSample = {
 
 type OmtMaleProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: OmtMaleDraft;
-  onChange: (value: OmtMaleDraft) => void;
   activeSectionId?: string | null;
+  onChange: (value: OmtMaleDraft) => void;
 };
 
 const PROSTATE_STUDY_TYPE_OPTIONS: FieldEditorOption[] = [
@@ -133,9 +135,10 @@ function renderPairSize(first: string, second: string): string {
 
 export function OmtMaleProtocolBlock({
   styles,
+  fieldVisibility,
   value,
+  activeSectionId,
   onChange,
-  activeSectionId = null,
 }: OmtMaleProtocolBlockProps) {
   const [form, setForm] = useState<OmtMaleDraft>(value ?? createEmptyOmtMaleDraft());
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -185,6 +188,8 @@ export function OmtMaleProtocolBlock({
         : null;
   const showProstateSection = !activeSectionId || activeOmtMaleSection === "prostate" || (!activeOmtMaleSection && Boolean(activeSectionId));
   const showBladderSection = !activeSectionId ? true : activeOmtMaleSection === "bladder";
+  const showConclusionSection = !activeSectionId ? true : activeOmtMaleSection === null && activeSectionId === "omt_male.conclusion";
+  const fv = fieldVisibility as Record<string, boolean>;
 
   const renderRow = (
     label: string,
@@ -377,7 +382,7 @@ export function OmtMaleProtocolBlock({
           (nextValue) => updateProstateField("position", nextValue),
         )}
 
-          {isOrdinaryPosition && (
+          {isOrdinaryPosition && fv["omt_male.prostate.sizes"] !== false && (
             <>
               <ProtocolSectionHeader title="Размеры" />
               {renderRow(
@@ -430,7 +435,11 @@ export function OmtMaleProtocolBlock({
                 undefined,
                 true,
               )}
+            </>
+          )}
 
+          {isOrdinaryPosition && fv["omt_male.prostate.contour"] !== false && (
+            <>
               <ProtocolSectionHeader title="Контур" />
               {renderRow(
           "Контур",
@@ -466,7 +475,11 @@ export function OmtMaleProtocolBlock({
           PROSTATE_SHAPE_OPTIONS,
           (nextValue) => updateProstateField("shape", nextValue),
         )}
+            </>
+          )}
 
+          {isOrdinaryPosition && fv["omt_male.prostate.echogenicity"] !== false && (
+            <>
               <ProtocolSectionHeader title="Эхогенность" />
               {renderRow(
           "Эхогенность",
@@ -564,6 +577,8 @@ export function OmtMaleProtocolBlock({
             </>
           )}
 
+          {fv["omt_male.prostate.additional"] !== false && (
+            <>
           <ProtocolSectionHeader title="Дополнительно" />
           {renderRow(
             "Дополнительно",
@@ -579,6 +594,8 @@ export function OmtMaleProtocolBlock({
                 multiline: true,
                 onSave: (nextValue) => updateProstateField("additional", nextValue),
               }),
+          )}
+            </>
           )}
         </View>
       </View>
@@ -769,6 +786,7 @@ export function OmtMaleProtocolBlock({
       </View>
       )}
 
+      {showConclusionSection && fv["omt_male.conclusion"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -849,6 +867,7 @@ export function OmtMaleProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }

@@ -22,6 +22,7 @@ import {
   type ThyroidStudyDraft,
 } from "../../shared/thyroidDraft";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -45,6 +46,7 @@ type ConclusionSample = {
 
 type ThyroidProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: ThyroidStudyDraft;
   onChange: (value: ThyroidStudyDraft) => void;
   activeSectionId?: string | null;
@@ -264,9 +266,10 @@ function computeNodeTiradsCategory(node: ThyroidNodeDraft): string {
 
 export function ThyroidProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
-  activeSectionId = null,
+  activeSectionId,
 }: ThyroidProtocolBlockProps) {
   const [form, setForm] = useState<ThyroidStudyDraft>(
     value ?? createEmptyThyroidStudyDraft(),
@@ -274,6 +277,7 @@ export function ThyroidProtocolBlock({
   const [editorState, setEditorState] = useState<EditorState>(null);
 
   const thyroid = form.thyroid;
+  const fv = fieldVisibility as Record<string, boolean>;
 
   const openEditor = (config: NonNullable<EditorState>) => {
     Keyboard.dismiss();
@@ -456,6 +460,8 @@ export function ThyroidProtocolBlock({
         <ProtocolOrganHeader title={title} />
 
         <View style={styles.obpFieldList}>
+          {fv["thyroid.lobe.sizes"] !== false && (
+            <>
           <ProtocolSectionHeader title="Размеры" />
           {renderField(
             "Длина (мм)",
@@ -506,6 +512,8 @@ export function ThyroidProtocolBlock({
             Boolean(lobe.volume),
             undefined,
             true,
+          )}
+            </>
           )}
 
           <ProtocolSectionHeader title="Объемные образования" />
@@ -675,6 +683,8 @@ export function ThyroidProtocolBlock({
             </View>
           )}
 
+          {fv["thyroid.additional"] !== false && (
+            <>
           <ProtocolSectionHeader title="Дополнительно" />
           {renderField(
             "Дополнительно",
@@ -690,6 +700,8 @@ export function ThyroidProtocolBlock({
                 multiline: true,
                 onSave: (nextValue) => updateLobeField(side, "additional", nextValue),
               }),
+          )}
+            </>
           )}
         </View>
       </View>
@@ -758,6 +770,7 @@ export function ThyroidProtocolBlock({
         {renderLobe("left")}
       </View>
 
+      {fv["thyroid.isthmus"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Перешеек" />
         <View style={styles.obpFieldList}>
@@ -777,6 +790,7 @@ export function ThyroidProtocolBlock({
           )}
         </View>
       </View>
+      )}
 
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Общие показатели" />
@@ -786,6 +800,8 @@ export function ThyroidProtocolBlock({
             totalVolume={thyroid.totalVolume}
             rightToLeftRatio={thyroid.rightToLeftRatio}
           />
+          {fv["thyroid.echogenicity"] !== false && (
+            <>
           {renderField(
           "Эхогенность железы",
           thyroid.echogenicity || "Нажмите для ввода",
@@ -836,9 +852,12 @@ export function ThyroidProtocolBlock({
           THYROID_POSITION_OPTIONS,
           (nextValue) => updateThyroidField("position", nextValue),
         )}
+            </>
+          )}
         </View>
       </View>
 
+      {(!activeSectionId || activeSectionId === "thyroid.conclusion") && fv["thyroid.conclusion"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -904,6 +923,7 @@ export function ThyroidProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }

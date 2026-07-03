@@ -87,6 +87,19 @@ export type ProtocolSectionId =
   | 'lymph_nodes.subclavian'
   | 'lymph_nodes.axillary'
   | 'lymph_nodes.inguinal'
+  | 'obp.conclusion'
+  | 'kidneys.conclusion'
+  | 'scrotum.conclusion'
+  | 'omt_female.conclusion'
+  | 'omt_male.conclusion'
+  | 'thyroid.conclusion'
+  | 'pleural.conclusion'
+  | 'salivary_glands.conclusion'
+  | 'brachio_cephalic_arteries.conclusion'
+  | 'lower_extremity_veins.conclusion'
+  | 'breast.conclusion'
+  | 'soft_tissue.conclusion'
+  | 'lymph_nodes.conclusion'
 
 export interface ProtocolSectionDefinition {
   id: ProtocolSectionId
@@ -175,6 +188,19 @@ export const SECTION_DEFINITIONS = [
   { id: 'lymph_nodes.subclavian', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:Надключичные', label: 'Надключичные', order: 4 },
   { id: 'lymph_nodes.axillary', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:Подмышечные', label: 'Подмышечные', order: 5 },
   { id: 'lymph_nodes.inguinal', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:Паховые', label: 'Паховые', order: 6 },
+  { id: 'obp.conclusion', protocolId: 'obp', desktopKey: 'ОБП:заключение', label: 'Заключение', order: 5 },
+  { id: 'kidneys.conclusion', protocolId: 'kidneys', desktopKey: 'Почки:заключение', label: 'Заключение', order: 4 },
+  { id: 'scrotum.conclusion', protocolId: 'scrotum', desktopKey: 'Органы мошонки:заключение', label: 'Заключение', order: 3 },
+  { id: 'omt_female.conclusion', protocolId: 'omt_female', desktopKey: 'ОМТ (Ж):заключение', label: 'Заключение', order: 5 },
+  { id: 'omt_male.conclusion', protocolId: 'omt_male', desktopKey: 'ОМТ (М):заключение', label: 'Заключение', order: 3 },
+  { id: 'thyroid.conclusion', protocolId: 'thyroid', desktopKey: 'Щитовидная железа:заключение', label: 'Заключение', order: 3 },
+  { id: 'pleural.conclusion', protocolId: 'pleural', desktopKey: 'Плевральная полость:заключение', label: 'Заключение', order: 3 },
+  { id: 'salivary_glands.conclusion', protocolId: 'salivary_glands', desktopKey: 'Слюнные железы:заключение', label: 'Заключение', order: 7 },
+  { id: 'brachio_cephalic_arteries.conclusion', protocolId: 'brachio_cephalic_arteries', desktopKey: 'БЦА:заключение', label: 'Заключение', order: 11 },
+  { id: 'lower_extremity_veins.conclusion', protocolId: 'lower_extremity_veins', desktopKey: 'Вены НК:заключение', label: 'Заключение', order: 11 },
+  { id: 'breast.conclusion', protocolId: 'breast', desktopKey: 'Молочные железы:заключение', label: 'Заключение', order: 3 },
+  { id: 'soft_tissue.conclusion', protocolId: 'soft_tissue', desktopKey: 'Мягкие ткани:заключение', label: 'Заключение', order: 2 },
+  { id: 'lymph_nodes.conclusion', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:заключение', label: 'Заключение', order: 7 },
 ] as const satisfies readonly ProtocolSectionDefinition[]
 
 export const PROTOCOL_DEFINITIONS = [
@@ -183,42 +209,42 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'ОБП',
     title: 'УЗИ органов брюшной полости',
     description: 'Печень, желчный пузырь, поджелудочная железа и селезёнка.',
-    sectionIds: ['obp.liver', 'obp.gallbladder', 'obp.pancreas', 'obp.spleen'],
+    sectionIds: ['obp.liver', 'obp.gallbladder', 'obp.pancreas', 'obp.spleen', 'obp.conclusion'],
   },
   {
     id: 'kidneys',
     selectionLabel: 'Почки',
     title: 'УЗИ почек',
     description: 'Правая и левая почка, мочевой пузырь.',
-    sectionIds: ['kidneys.right', 'kidneys.left', 'kidneys.bladder'],
+    sectionIds: ['kidneys.right', 'kidneys.left', 'kidneys.bladder', 'kidneys.conclusion'],
   },
   {
     id: 'scrotum',
     selectionLabel: 'Органы мошонки',
     title: 'УЗИ органов мошонки',
     description: 'Правое и левое яичко.',
-    sectionIds: ['scrotum.right_testis', 'scrotum.left_testis'],
+    sectionIds: ['scrotum.right_testis', 'scrotum.left_testis', 'scrotum.conclusion'],
   },
   {
     id: 'omt_female',
     selectionLabel: 'ОМТ (Ж)',
     title: 'УЗИ органов малого таза у женщин',
     description: 'Матка, яичники и мочевой пузырь.',
-    sectionIds: ['omt_female.uterus', 'omt_female.right_ovary', 'omt_female.left_ovary', 'omt_female.bladder'],
+    sectionIds: ['omt_female.uterus', 'omt_female.right_ovary', 'omt_female.left_ovary', 'omt_female.bladder', 'omt_female.conclusion'],
   },
   {
     id: 'omt_male',
     selectionLabel: 'ОМТ (М)',
     title: 'УЗИ органов малого таза у мужчин',
     description: 'Простата и мочевой пузырь.',
-    sectionIds: ['omt_male.prostate', 'omt_male.bladder'],
+    sectionIds: ['omt_male.prostate', 'omt_male.bladder', 'omt_male.conclusion'],
   },
   {
     id: 'thyroid',
     selectionLabel: 'Щитовидная железа',
     title: 'УЗИ щитовидной железы',
     description: 'Правая и левая доля.',
-    sectionIds: ['thyroid.right_lobe', 'thyroid.left_lobe'],
+    sectionIds: ['thyroid.right_lobe', 'thyroid.left_lobe', 'thyroid.conclusion'],
   },
   {
     id: 'salivary_glands',
@@ -232,6 +258,7 @@ export const PROTOCOL_DEFINITIONS = [
       'salivary_glands.left_submandibular',
       'salivary_glands.right_sublingual',
       'salivary_glands.left_sublingual',
+      'salivary_glands.conclusion',
     ],
   },
   {
@@ -250,6 +277,7 @@ export const PROTOCOL_DEFINITIONS = [
       'brachio_cephalic_arteries.left_nsa',
       'brachio_cephalic_arteries.left_vertebral',
       'brachio_cephalic_arteries.left_subclavian',
+      'brachio_cephalic_arteries.conclusion',
     ],
   },
   {
@@ -268,6 +296,7 @@ export const PROTOCOL_DEFINITIONS = [
       'lower_extremity_veins.left_pv',
       'lower_extremity_veins.right_mv',
       'lower_extremity_veins.left_mv',
+      'lower_extremity_veins.conclusion',
     ],
   },
   {
@@ -275,7 +304,7 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'Молочные железы',
     title: 'УЗИ молочных желёз',
     description: 'Правая и левая молочная железа.',
-    sectionIds: ['breast.right', 'breast.left'],
+    sectionIds: ['breast.right', 'breast.left', 'breast.conclusion'],
   },
   {
     id: 'child_dispensary',
@@ -289,7 +318,7 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'Мягких тканей',
     title: 'УЗИ мягких тканей',
     description: 'Одна форма с общим блоком и заключением.',
-    sectionIds: ['soft_tissue.main'],
+    sectionIds: ['soft_tissue.main', 'soft_tissue.conclusion'],
   },
   {
     id: 'urinary_bladder',
@@ -303,7 +332,7 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'Плевральные полости',
     title: 'УЗИ плевральных полостей',
     description: 'Правая и левая плевральная полость.',
-    sectionIds: ['pleural.right', 'pleural.left'],
+    sectionIds: ['pleural.right', 'pleural.left', 'pleural.conclusion'],
   },
   {
     id: 'lymph_nodes',
@@ -317,6 +346,7 @@ export const PROTOCOL_DEFINITIONS = [
       'lymph_nodes.subclavian',
       'lymph_nodes.axillary',
       'lymph_nodes.inguinal',
+      'lymph_nodes.conclusion',
     ],
   },
 ] as const satisfies readonly ProtocolDefinition[]

@@ -3,18 +3,22 @@ import type { ObpDraftActions } from "../../protocols/obp/useObpDraftActions";
 import type { AppStyles } from "../../styles/appStyles";
 import type { ObpDraft } from "../../shared/obpDraft";
 
+import type { FieldVisibility } from "../../settings/fieldVisibility";
+
 type RenderObpProps = {
   styles: AppStyles;
   activeSectionId: string | null;
+  fieldVisibility: FieldVisibility;
   activeObpDraft: ObpDraft;
   obpActions: ObpDraftActions;
 };
 
-export function renderObp({ styles, activeSectionId, activeObpDraft, obpActions }: RenderObpProps) {
+export function renderObp({ styles, activeSectionId, fieldVisibility, activeObpDraft, obpActions }: RenderObpProps) {
   return (
     <ObpProtocolBlock
       styles={styles}
       activeSectionId={activeSectionId}
+      fieldVisibility={fieldVisibility}
       obpDraft={activeObpDraft}
       onUpdateLiverField={obpActions.updateObpLiverField}
       onUpdateGallbladderField={obpActions.updateObpGallbladderField}

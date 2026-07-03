@@ -126,7 +126,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
 
   const [sourceBlockHtml, setSourceBlockHtml] = React.useState<Record<string, string>>({});
   const lastCapturedHtmlRef = React.useRef<string>("");
-  const captureAttemptRef = React.useRef(0);
+  
   const [appliedOverrides, setAppliedOverrides] = React.useState<PrintOverrideMap>({});
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [isEditMode, setIsEditMode] = React.useState(editMode ?? false);

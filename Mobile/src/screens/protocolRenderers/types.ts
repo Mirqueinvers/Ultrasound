@@ -8,11 +8,13 @@ import type { ScrotumDraft } from "../../shared/scrotumDraft";
 import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
 import type { ObpDraftActions } from "../../protocols/obp/useObpDraftActions";
 import type { ProtocolUpdateHandlers } from "../../hooks/useProtocolUpdateHandlers";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 import type { AppStyles } from "../../styles/appStyles";
 
 export type ProtocolRendererContext = {
   styles: AppStyles;
   activeSectionId: string | null;
+  fieldVisibility: FieldVisibility;
   obpActions: ObpDraftActions;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
   activeObpDraft: ObpDraft;

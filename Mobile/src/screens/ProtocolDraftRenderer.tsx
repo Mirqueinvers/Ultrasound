@@ -10,6 +10,7 @@ import type { ObpDraftActions } from "../protocols/obp/useObpDraftActions";
 import type { ProtocolUpdateHandlers } from "../hooks/useProtocolUpdateHandlers";
 import type { AppStyles } from "../styles/appStyles";
 import type { MobileStudiesDataMap } from "../protocols/types";
+import type { FieldVisibility } from "../settings/fieldVisibility";
 import { useActiveProtocolDrafts } from "../hooks/useActiveProtocolDrafts";
 import { PROTOCOL_RENDERERS, type ProtocolRendererContext } from "./protocolRenderers";
 
@@ -18,6 +19,7 @@ type ProtocolDraftRendererProps = {
   activeSectionId: string | null;
   studiesData: MobileStudiesDataMap;
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   obpActions: ObpDraftActions;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
   onUpdateGeneralNote: (protocolLabel: string, value: string) => void;
@@ -29,6 +31,7 @@ export function ProtocolDraftRenderer({
   activeSectionId,
   studiesData,
   styles,
+  fieldVisibility,
   obpActions,
   onUpdateGeneralNote,
   onUpdateSectionNote,
@@ -65,6 +68,7 @@ export function ProtocolDraftRenderer({
   const rendererContext: ProtocolRendererContext = {
     styles,
     activeSectionId,
+    fieldVisibility,
     obpActions,
     protocolUpdateHandlers,
     activeObpDraft,

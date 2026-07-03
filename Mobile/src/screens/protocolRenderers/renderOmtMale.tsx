@@ -2,10 +2,12 @@ import { OmtMaleProtocolBlock } from "../omtMale/OmtMaleProtocolBlock";
 import type { ProtocolUpdateHandlers } from "../../hooks/useProtocolUpdateHandlers";
 import type { AppStyles } from "../../styles/appStyles";
 import type { OmtMaleDraft } from "../../shared/omtMaleDraft";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type RenderOmtMaleProps = {
   styles: AppStyles;
   activeSectionId: string | null;
+  fieldVisibility: FieldVisibility;
   activeOmtMaleDraft: OmtMaleDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -13,11 +15,13 @@ type RenderOmtMaleProps = {
 export function renderOmtMale({
   styles,
   activeSectionId,
+  fieldVisibility,
   activeOmtMaleDraft,
   protocolUpdateHandlers,
 }: RenderOmtMaleProps) {
   return (
     <OmtMaleProtocolBlock
+      fieldVisibility={fieldVisibility}
       styles={styles}
       value={activeOmtMaleDraft}
       activeSectionId={activeSectionId}

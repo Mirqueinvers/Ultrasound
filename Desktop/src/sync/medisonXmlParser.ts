@@ -402,7 +402,7 @@ function parseThyroidData(
   let massMatch: RegExpExecArray | null;
   while ((massMatch = massRegex.exec(xmlContent)) !== null) {
     const groupId = massMatch[1];      // e.g. "Thyroid_Mass3"
-    const massNumber = massMatch[2];    // e.g. "3"
+    
     const laterality = massMatch[3];   // e.g. "0" or "1"
     const groupXml = massMatch[0];
 

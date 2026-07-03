@@ -1,6 +1,6 @@
 ﻿import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
 
 import { type TabKey } from "./src/components/TabBar";
 import { BottomNav } from "./src/components/BottomNav";
@@ -17,6 +17,8 @@ import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
 import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
+import { useFieldVisibility } from "./src/settings/useFieldVisibility";
+import { FieldVisibilitySettings } from "./src/components/FieldVisibilitySettings";
 
 const BOTTOM_SPACER_HEIGHT = 110;
 
@@ -24,8 +26,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
   const [, setSessionId] = useState<string | null>(null);
+  const [connectSubTab, setConnectSubTab] = useState<"connect" | "fields">("connect");
   const contentScrollRef = useRef<ScrollView>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
+  const { visibility, toggleGroup } = useFieldVisibility();
 
   const {
     connectionState,
@@ -90,7 +94,7 @@ export default function App() {
 
   useEffect(() => {
     contentScrollRef.current?.scrollTo({ y: 0, animated: false });
-  }, [activeTab, activeSectionId, activeProtocolManifest?.id, activeDraftMode]);
+  }, [activeTab, activeSectionId, activeProtocolManifest?.id, activeDraftMode, connectSubTab]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -123,12 +127,60 @@ export default function App() {
         />
       )}
 
+      {activeTab === "connect" && (
+        <View style={[styles.tabBar, { marginHorizontal: 16, marginBottom: 0, marginTop: 2 }]}>
+          <Pressable
+            onPress={() => setConnectSubTab("connect")}
+            style={({ pressed }) => [
+              styles.tabButton,
+              connectSubTab === "connect" && styles.tabButtonActive,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabButtonText,
+                connectSubTab === "connect" && styles.tabButtonTextActive,
+              ]}
+            >
+              Подключение
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setConnectSubTab("fields")}
+            style={({ pressed }) => [
+              styles.tabBar, // используется как фон кнопки
+              styles.tabButton,
+              connectSubTab === "fields" && styles.tabButtonActive,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabButtonText,
+                connectSubTab === "fields" && styles.tabButtonTextActive,
+              ]}
+            >
+              Видимость полей
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       <ScrollView
         ref={contentScrollRef}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {activeTab === "connect" && (
+        {activeTab === "connect" && connectSubTab === "fields" && (
+          <FieldVisibilitySettings
+            styles={styles}
+            visibility={visibility}
+            onToggle={(id) => toggleGroup(id as any)}
+            onClose={() => setConnectSubTab("connect")}
+          />
+        )}
+        {activeTab === "connect" && connectSubTab !== "fields" && (
           <ConnectScreen
             styles={styles}
             connected={connected}
@@ -167,6 +219,7 @@ export default function App() {
             activeProtocolManifest={activeProtocolManifest}
             activeSectionId={activeSectionId}
             activeDraftMode={activeDraftMode}
+            fieldVisibility={visibility}
             obpActions={obpActions}
             protocolUpdateHandlers={protocolUpdateHandlers}
             onUpdateHeaderField={updateHeaderField}
@@ -190,7 +243,11 @@ export default function App() {
         <View style={{ height: BOTTOM_SPACER_HEIGHT }} />
       </ScrollView>
 
-      <BottomNav styles={styles} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav
+        styles={styles}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
       <ScannerOverlay
         visible={scannerVisible}

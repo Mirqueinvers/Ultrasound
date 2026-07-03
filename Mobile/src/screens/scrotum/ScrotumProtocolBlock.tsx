@@ -12,6 +12,7 @@ import {
 } from "../../shared/scrotumDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -35,6 +36,7 @@ type ConclusionSample = {
 
 type ScrotumProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: ScrotumDraft;
   onChange: (value: ScrotumDraft) => void;
   activeSectionId?: string | null;
@@ -118,9 +120,10 @@ function computeVolume(length: string, width: string, depth: string): string {
 
 export function ScrotumProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
-  activeSectionId = null,
+  activeSectionId,
 }: ScrotumProtocolBlockProps) {
   const [form, setForm] = useState<ScrotumDraft>(value ?? createEmptyScrotumDraft());
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -243,10 +246,14 @@ export function ScrotumProtocolBlock({
     const showAppendageText = isNormalizedMatch(testis.appendage, "изменен");
     const showFluidAmountText = isNormalizedMatch(testis.fluidAmount, "увеличено");
 
+    const fv = fieldVisibility as Record<string, boolean>;
+
     return (
       <View key={sideKey} style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title={title} />
         <View style={styles.obpFieldList}>
+          {fv["scrotum.sizes"] !== false && (
+            <>
           <ProtocolSectionHeader title="Размеры" />
           {renderRow(
             "Длина (мм)",
@@ -298,7 +305,11 @@ export function ScrotumProtocolBlock({
             undefined,
             true,
           )}
+            </>
+          )}
 
+          {fv["scrotum.position"] !== false && (
+            <>
           <ProtocolSectionHeader title="Расположение" />
           {renderRow(
           "Расположение",
@@ -310,7 +321,11 @@ export function ScrotumProtocolBlock({
           LOCATION_OPTIONS,
           (nextValue) => updateTestisField(side, "location", nextValue),
         )}
+            </>
+          )}
 
+          {fv["scrotum.contour"] !== false && (
+            <>
           <ProtocolSectionHeader title="Контур" />
           {renderRow(
           "Контур",
@@ -322,7 +337,11 @@ export function ScrotumProtocolBlock({
           CONTOUR_OPTIONS,
           (nextValue) => updateTestisField(side, "contour", nextValue),
         )}
+            </>
+          )}
 
+          {fv["scrotum.capsule"] !== false && (
+            <>
           <ProtocolSectionHeader title="Капсула" />
           {renderRow(
           "Капсула",
@@ -350,7 +369,11 @@ export function ScrotumProtocolBlock({
                   onSave: (nextValue) => updateTestisField(side, "capsuleText", nextValue),
                 }),
             )}
+            </>
+          )}
 
+          {fv["scrotum.echogenicity"] !== false && (
+            <>
           <ProtocolSectionHeader title="Эхогенность" />
           {renderRow(
           "Эхогенность",
@@ -390,7 +413,11 @@ export function ScrotumProtocolBlock({
                   onSave: (nextValue) => updateTestisField(side, "echotextureText", nextValue),
                 }),
             )}
+            </>
+          )}
 
+          {fv["scrotum.mediastinum"] !== false && (
+            <>
           <ProtocolSectionHeader title="Структура средостения" />
           {renderRow(
           "Структура средостения",
@@ -418,7 +445,11 @@ export function ScrotumProtocolBlock({
                   onSave: (nextValue) => updateTestisField(side, "mediastinumText", nextValue),
                 }),
             )}
+            </>
+          )}
 
+          {fv["scrotum.bloodFlow"] !== false && (
+            <>
           <ProtocolSectionHeader title="Кровоток в яичке" />
           {renderRow(
           "Кровоток",
@@ -430,7 +461,11 @@ export function ScrotumProtocolBlock({
           BLOOD_FLOW_OPTIONS,
           (nextValue) => updateTestisField(side, "bloodFlow", nextValue),
         )}
+            </>
+          )}
 
+          {fv["scrotum.appendage"] !== false && (
+            <>
           <ProtocolSectionHeader title="Придаток яичка" />
           {renderRow(
           "Придаток",
@@ -458,7 +493,11 @@ export function ScrotumProtocolBlock({
                   onSave: (nextValue) => updateTestisField(side, "appendageText", nextValue),
                 }),
             )}
+            </>
+          )}
 
+          {fv["scrotum.fluid"] !== false && (
+            <>
           <ProtocolSectionHeader title="Количество жидкости в оболочках" />
           {renderRow(
           "Количество жидкости",
@@ -486,7 +525,11 @@ export function ScrotumProtocolBlock({
                   onSave: (nextValue) => updateTestisField(side, "fluidAmountText", nextValue),
                 }),
             )}
+            </>
+          )}
 
+          {fv["scrotum.additional"] !== false && (
+            <>
           <ProtocolSectionHeader title="Дополнительно" />
           {renderRow(
             "Дополнительно",
@@ -503,11 +546,17 @@ export function ScrotumProtocolBlock({
                 onSave: (nextValue) => updateTestisField(side, "additional", nextValue),
               }),
           )}
+            </>
+          )}
 
         </View>
       </View>
     );
   };
+
+  const showConclusionSection = Boolean(
+    !activeSectionId || activeSectionId === "scrotum.conclusion"
+  );
 
   return (
     <>
@@ -564,7 +613,7 @@ export function ScrotumProtocolBlock({
         onSave={saveEditor}
       />
 
-      {activeTestisSide ? (
+      {activeSectionId === "scrotum.conclusion" ? null : activeTestisSide ? (
         renderTestis(activeTestisSide)
       ) : activeSectionId ? (
         renderTestis("right")
@@ -575,6 +624,7 @@ export function ScrotumProtocolBlock({
         </>
       )}
 
+      {showConclusionSection && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -655,10 +705,9 @@ export function ScrotumProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }
 
 export default ScrotumProtocolBlock;
-
-

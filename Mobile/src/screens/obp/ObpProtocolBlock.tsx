@@ -27,6 +27,7 @@ import type {
   SpleenDraft,
 } from "../../shared/obpDraft";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -45,6 +46,7 @@ type LiverFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 type GallbladderFieldKey = Exclude<
@@ -60,6 +62,7 @@ type GallbladderFieldSpec = {
   multiline?: boolean;
   options?: FieldEditorOption[];
   hiddenWhenCholecystectomy?: boolean;
+  visibilityGroup?: string;
 };
 
 type GallbladderConcretionFieldSpec = {
@@ -85,6 +88,7 @@ type PancreasFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 type SpleenFieldSpec = {
@@ -94,6 +98,7 @@ type SpleenFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 type ObpFinalFieldSpec = {
@@ -103,10 +108,12 @@ type ObpFinalFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 type ObpProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   obpDraft: ObpDraft;
   activeSectionId?: string | null;
   onUpdateLiverField: (field: keyof LiverDraft, value: string) => void;
@@ -313,6 +320,7 @@ const OBP_CONCLUSION_SAMPLES: Array<{ title: string; value: string }> = [
 
 export function ObpProtocolBlock({
   styles,
+  fieldVisibility,
   obpDraft: incomingObpDraft,
   activeSectionId,
   onUpdateLiverField,
@@ -343,39 +351,39 @@ export function ObpProtocolBlock({
     isNormalizedMatch(activeSpleen.pathologicalFormations, "определяются");
 
   const liverFields: LiverFieldSpec[] = [
-    { key: "rightLobeAP", label: "Правая доля, ПЗР", kind: "number", placeholder: "мм" },
-    { key: "leftLobeAP", label: "Левая доля, ПЗР", kind: "number", placeholder: "мм" },
-    { key: "rightLobeCCR", label: "Правая доля, ККР", kind: "number", placeholder: "мм" },
-    { key: "rightLobeCVR", label: "Правая доля, КВР", kind: "number", placeholder: "мм" },
-    { key: "leftLobeCCR", label: "Левая доля, ККР", kind: "number", placeholder: "мм" },
-    { key: "rightLobeTotal", label: "Правая доля, ККР + ПЗР", kind: "number", placeholder: "Авторасчёт" },
-    { key: "leftLobeTotal", label: "Левая доля, ККР + ПЗР", kind: "number", placeholder: "Авторасчёт" },
-    { key: "echogenicity", label: "Эхогенность", kind: "select", options: ECHOGENICITY_OPTIONS },
-    { key: "homogeneity", label: "Эхоструктура", kind: "select", options: HOMOGENEITY_OPTIONS },
-    { key: "contours", label: "Контуры", kind: "select", options: CONTOURS_OPTIONS },
-    { key: "lowerEdgeAngle", label: "Угол нижнего края", kind: "select", options: LOWER_EDGE_OPTIONS },
-    { key: "focalLesionsPresence", label: "Патологические образования", kind: "select", options: FOCAL_OPTIONS },
-    { key: "focalLesions", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true },
-    { key: "vascularPattern", label: "Сосудистый рисунок", kind: "select", options: VASCULAR_OPTIONS },
-    { key: "portalVeinDiameter", label: "Воротная вена", kind: "number", placeholder: "мм" },
-    { key: "ivc", label: "Нижняя полая вена", kind: "number", placeholder: "мм" },
-    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+    { key: "rightLobeAP", label: "Правая доля, ПЗР", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.sizes" },
+    { key: "leftLobeAP", label: "Левая доля, ПЗР", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.sizes" },
+    { key: "rightLobeCCR", label: "Правая доля, ККР", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.sizes" },
+    { key: "rightLobeCVR", label: "Правая доля, КВР", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.sizes" },
+    { key: "leftLobeCCR", label: "Левая доля, ККР", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.sizes" },
+    { key: "rightLobeTotal", label: "Правая доля, ККР + ПЗР", kind: "number", placeholder: "Авторасчёт", visibilityGroup: "obp.liver.sizes" },
+    { key: "leftLobeTotal", label: "Левая доля, ККР + ПЗР", kind: "number", placeholder: "Авторасчёт", visibilityGroup: "obp.liver.sizes" },
+    { key: "echogenicity", label: "Эхогенность", kind: "select", options: ECHOGENICITY_OPTIONS, visibilityGroup: "obp.liver.structure" },
+    { key: "homogeneity", label: "Эхоструктура", kind: "select", options: HOMOGENEITY_OPTIONS, visibilityGroup: "obp.liver.structure" },
+    { key: "contours", label: "Контуры", kind: "select", options: CONTOURS_OPTIONS, visibilityGroup: "obp.liver.structure" },
+    { key: "lowerEdgeAngle", label: "Угол нижнего края", kind: "select", options: LOWER_EDGE_OPTIONS, visibilityGroup: "obp.liver.structure" },
+    { key: "focalLesionsPresence", label: "Патологические образования", kind: "select", options: FOCAL_OPTIONS, visibilityGroup: "obp.liver.focal" },
+    { key: "focalLesions", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true, visibilityGroup: "obp.liver.focal" },
+    { key: "vascularPattern", label: "Сосудистый рисунок", kind: "select", options: VASCULAR_OPTIONS, visibilityGroup: "obp.liver.vessels" },
+    { key: "portalVeinDiameter", label: "Воротная вена", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.vessels" },
+    { key: "ivc", label: "Нижняя полая вена", kind: "number", placeholder: "мм", visibilityGroup: "obp.liver.vessels" },
+    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "obp.liver.additional" },
   ];
 
   const gallbladderFields: GallbladderFieldSpec[] = [
-    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_POSITION_OPTIONS },
-    { key: "length", label: "Длина", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true },
-    { key: "width", label: "Ширина", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true },
-    { key: "wallThickness", label: "Толщина стенки", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true },
-    { key: "shape", label: "Форма", kind: "select", options: GALLBLADDER_SHAPE_OPTIONS, hiddenWhenCholecystectomy: true },
-    { key: "constriction", label: "Перетяжка", kind: "select", options: GALLBLADDER_CONSTRICTION_OPTIONS, hiddenWhenCholecystectomy: true },
-    { key: "contentType", label: "Тип содержимого", kind: "select", options: GALLBLADDER_CONTENT_OPTIONS, hiddenWhenCholecystectomy: true },
-    { key: "concretions", label: "Конкременты", kind: "select", options: GALLBLADDER_YES_NO_OPTIONS, hiddenWhenCholecystectomy: true },
-    { key: "polyps", label: "Полипы", kind: "select", options: GALLBLADDER_YES_NO_OPTIONS, hiddenWhenCholecystectomy: true },
-    { key: "content", label: "Дополнительно по содержимому", kind: "text", placeholder: "Введите описание содержимого", multiline: true, hiddenWhenCholecystectomy: true },
-    { key: "cysticDuct", label: "Пузырный проток", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true },
-    { key: "commonBileDuct", label: "Общий желчный проток", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true },
-    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+    { key: "position", label: "Положение", kind: "select", options: GALLBLADDER_POSITION_OPTIONS, visibilityGroup: "obp.gallbladder.position" },
+    { key: "length", label: "Длина", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.sizes" },
+    { key: "width", label: "Ширина", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.sizes" },
+    { key: "wallThickness", label: "Толщина стенки", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.sizes" },
+    { key: "shape", label: "Форма", kind: "select", options: GALLBLADDER_SHAPE_OPTIONS, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.shape" },
+    { key: "constriction", label: "Перетяжка", kind: "select", options: GALLBLADDER_CONSTRICTION_OPTIONS, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.shape" },
+    { key: "contentType", label: "Тип содержимого", kind: "select", options: GALLBLADDER_CONTENT_OPTIONS, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.content" },
+    { key: "concretions", label: "Конкременты", kind: "select", options: GALLBLADDER_YES_NO_OPTIONS, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.content" },
+    { key: "polyps", label: "Полипы", kind: "select", options: GALLBLADDER_YES_NO_OPTIONS, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.content" },
+    { key: "content", label: "Дополнительно по содержимому", kind: "text", placeholder: "Введите описание содержимого", multiline: true, hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.content" },
+    { key: "cysticDuct", label: "Пузырный проток", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.ducts" },
+    { key: "commonBileDuct", label: "Общий желчный проток", kind: "number", placeholder: "мм", hiddenWhenCholecystectomy: true, visibilityGroup: "obp.gallbladder.ducts" },
+    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "obp.gallbladder.additional" },
   ];
 
   const gallbladderConcretionFields: GallbladderConcretionFieldSpec[] = [
@@ -390,37 +398,37 @@ export function ObpProtocolBlock({
   ];
 
   const pancreasFields: PancreasFieldSpec[] = [
-    { key: "head", label: "Головка", kind: "number", placeholder: "мм" },
-    { key: "body", label: "Тело", kind: "number", placeholder: "мм" },
-    { key: "tail", label: "Хвост", kind: "number", placeholder: "мм" },
-    { key: "echogenicity", label: "Эхогенность", kind: "select", options: PANCREAS_ECHOGENICITY_OPTIONS },
-    { key: "echostructure", label: "Эхоструктура", kind: "select", options: PANCREAS_ECHOSTRUCTURE_OPTIONS },
-    { key: "contour", label: "Контур", kind: "select", options: PANCREAS_CONTOUR_OPTIONS },
-    { key: "pathologicalFormations", label: "Патологические образования", kind: "select", options: YES_NO_OPTIONS },
-    { key: "pathologicalFormationsText", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true },
-    { key: "wirsungDuct", label: "Вирсунгов проток", kind: "number", placeholder: "мм" },
-    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+    { key: "head", label: "Головка", kind: "number", placeholder: "мм", visibilityGroup: "obp.pancreas.sizes" },
+    { key: "body", label: "Тело", kind: "number", placeholder: "мм", visibilityGroup: "obp.pancreas.sizes" },
+    { key: "tail", label: "Хвост", kind: "number", placeholder: "мм", visibilityGroup: "obp.pancreas.sizes" },
+    { key: "echogenicity", label: "Эхогенность", kind: "select", options: PANCREAS_ECHOGENICITY_OPTIONS, visibilityGroup: "obp.pancreas.structure" },
+    { key: "echostructure", label: "Эхоструктура", kind: "select", options: PANCREAS_ECHOSTRUCTURE_OPTIONS, visibilityGroup: "obp.pancreas.structure" },
+    { key: "contour", label: "Контур", kind: "select", options: PANCREAS_CONTOUR_OPTIONS, visibilityGroup: "obp.pancreas.structure" },
+    { key: "pathologicalFormations", label: "Патологические образования", kind: "select", options: YES_NO_OPTIONS, visibilityGroup: "obp.pancreas.structure" },
+    { key: "pathologicalFormationsText", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true, visibilityGroup: "obp.pancreas.structure" },
+    { key: "wirsungDuct", label: "Вирсунгов проток", kind: "number", placeholder: "мм", visibilityGroup: "obp.pancreas.duct" },
+    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "obp.pancreas.additional" },
   ];
 
   const spleenFields: SpleenFieldSpec[] = [
-    { key: "position", label: "Положение", kind: "select", options: SPLEEN_POSITION_OPTIONS },
-    { key: "length", label: "Длина", kind: "number", placeholder: "мм" },
-    { key: "width", label: "Ширина", kind: "number", placeholder: "мм" },
-    { key: "echogenicity", label: "Эхогенность", kind: "select", options: SPLEEN_ECHOGENICITY_OPTIONS },
-    { key: "echostructure", label: "Эхоструктура", kind: "select", options: SPLEEN_ECHOSTRUCTURE_OPTIONS },
-    { key: "contours", label: "Контур", kind: "select", options: SPLEEN_CONTOUR_OPTIONS },
-    { key: "pathologicalFormations", label: "Патологические образования", kind: "select", options: YES_NO_OPTIONS },
-    { key: "pathologicalFormationsText", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true },
-    { key: "splenicVein", label: "Селезёночная вена", kind: "number", placeholder: "мм" },
-    { key: "splenicArtery", label: "Селезёночная артерия", kind: "number", placeholder: "мм" },
-    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+    { key: "position", label: "Положение", kind: "select", options: SPLEEN_POSITION_OPTIONS, visibilityGroup: "obp.spleen.sizes" },
+    { key: "length", label: "Длина", kind: "number", placeholder: "мм", visibilityGroup: "obp.spleen.sizes" },
+    { key: "width", label: "Ширина", kind: "number", placeholder: "мм", visibilityGroup: "obp.spleen.sizes" },
+    { key: "echogenicity", label: "Эхогенность", kind: "select", options: SPLEEN_ECHOGENICITY_OPTIONS, visibilityGroup: "obp.spleen.structure" },
+    { key: "echostructure", label: "Эхоструктура", kind: "select", options: SPLEEN_ECHOSTRUCTURE_OPTIONS, visibilityGroup: "obp.spleen.structure" },
+    { key: "contours", label: "Контур", kind: "select", options: SPLEEN_CONTOUR_OPTIONS, visibilityGroup: "obp.spleen.structure" },
+    { key: "pathologicalFormations", label: "Патологические образования", kind: "select", options: YES_NO_OPTIONS, visibilityGroup: "obp.spleen.structure" },
+    { key: "pathologicalFormationsText", label: "Описание патологических образований", kind: "text", placeholder: "Введите описание", multiline: true, visibilityGroup: "obp.spleen.structure" },
+    { key: "splenicVein", label: "Селезёночная вена", kind: "number", placeholder: "мм", visibilityGroup: "obp.spleen.vessels" },
+    { key: "splenicArtery", label: "Селезёночная артерия", kind: "number", placeholder: "мм", visibilityGroup: "obp.spleen.vessels" },
+    { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "obp.spleen.additional" },
   ];
 
   const obpFinalFields: ObpFinalFieldSpec[] = [
-    { key: "freeFluid", label: "Свободная жидкость в брюшной полости", kind: "select", options: OBP_FREE_FLUID_OPTIONS },
-    { key: "freeFluidDetails", label: "Описание свободной жидкости", kind: "text", placeholder: "Введите описание", multiline: true },
-    { key: "conclusion", label: "Заключение ОБП", kind: "text", placeholder: "Введите общее заключение", multiline: true },
-    { key: "recommendations", label: "Рекомендации", kind: "text", placeholder: "Введите рекомендации", multiline: true },
+    { key: "freeFluid", label: "Свободная жидкость в брюшной полости", kind: "select", options: OBP_FREE_FLUID_OPTIONS, visibilityGroup: "obp.final.freeFluid" },
+    { key: "freeFluidDetails", label: "Описание свободной жидкости", kind: "text", placeholder: "Введите описание", multiline: true, visibilityGroup: "obp.final.freeFluid" },
+    { key: "conclusion", label: "Заключение ОБП", kind: "text", placeholder: "Введите общее заключение", multiline: true, visibilityGroup: "obp.final.conclusion" },
+    { key: "recommendations", label: "Рекомендации", kind: "text", placeholder: "Введите рекомендации", multiline: true, visibilityGroup: "obp.final.conclusion" },
   ];
 
   const OBP_SECTION_IDS = {
@@ -428,6 +436,7 @@ export function ObpProtocolBlock({
     gallbladder: "obp.gallbladder",
     pancreas: "obp.pancreas",
     spleen: "obp.spleen",
+    conclusion: "obp.conclusion",
   } as const;
 
   function resolveActiveObpSection(sectionId: string | null | undefined) {
@@ -444,6 +453,8 @@ export function ObpProtocolBlock({
         return OBP_SECTION_IDS.pancreas;
       case OBP_SECTION_IDS.spleen:
         return OBP_SECTION_IDS.spleen;
+      case OBP_SECTION_IDS.conclusion:
+        return OBP_SECTION_IDS.conclusion;
       default:
         return OBP_SECTION_IDS.liver;
     }
@@ -456,6 +467,7 @@ export function ObpProtocolBlock({
     showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.gallbladder;
   const showPancreasSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.pancreas;
   const showSpleenSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.spleen;
+  const showConclusionSection = showAllSections || resolvedActiveSectionId === OBP_SECTION_IDS.conclusion;
 
   const hasValue = (currentValue: string) => currentValue.trim().length > 0;
 
@@ -710,6 +722,10 @@ export function ObpProtocolBlock({
             return null;
           }
 
+          if (field.visibilityGroup && (fieldVisibility as Record<string, boolean>)[field.visibilityGroup] === false) {
+            return null;
+          }
+
           const currentValue = draft.liver[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
           const isReadOnly = field.key === "rightLobeTotal" || field.key === "leftLobeTotal";
@@ -883,6 +899,10 @@ export function ObpProtocolBlock({
       <View style={styles.obpFieldList}>
         {gallbladderFields.map((field) => {
           if (field.hiddenWhenCholecystectomy && isCholecystectomy) {
+            return null;
+          }
+
+          if (field.visibilityGroup && (fieldVisibility as Record<string, boolean>)[field.visibilityGroup] === false) {
             return null;
           }
 
@@ -1114,6 +1134,10 @@ export function ObpProtocolBlock({
             return null;
           }
 
+          if (field.visibilityGroup && (fieldVisibility as Record<string, boolean>)[field.visibilityGroup] === false) {
+            return null;
+          }
+
           const currentValue = draft.pancreas[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
 
@@ -1161,6 +1185,10 @@ export function ObpProtocolBlock({
             return null;
           }
 
+          if (field.visibilityGroup && (fieldVisibility as Record<string, boolean>)[field.visibilityGroup] === false) {
+            return null;
+          }
+
           const currentValue = draft.spleen[field.key];
           const displayValue = currentValue || "Нажмите для ввода";
 
@@ -1199,7 +1227,8 @@ export function ObpProtocolBlock({
         </>
       )}
 
-      <ProtocolOrganHeader title="Свободная жидкость" />
+      {showConclusionSection && (
+        <><ProtocolOrganHeader title="Свободная жидкость" />
 
       <View style={styles.obpFieldList}>
         {renderObpFieldRow({
@@ -1251,7 +1280,7 @@ export function ObpProtocolBlock({
       </View>
 
       <View style={styles.obpFieldList}>
-        <ProtocolOrganHeader title="Итоговое заключение" />
+        <ProtocolOrganHeader title="Заключение" />
 
         <ProtocolFieldRow
           label={obpFinalFields[2].label}
@@ -1286,7 +1315,8 @@ export function ObpProtocolBlock({
             });
           }}
         />
-      </View>
+      </View></>
+      )}
     </View>
   );
 }

@@ -19,6 +19,7 @@ import {
   type LymphNodesStudyDraft,
 } from "../../shared/lymphNodesDraft";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -37,6 +38,7 @@ type EditorState = {
 
 type LymphNodesProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: LymphNodesStudyDraft;
   onChange: (value: LymphNodesStudyDraft) => void;
   activeSectionId?: string | null;
@@ -84,9 +86,10 @@ const LYMPH_NODE_BLOOD_FLOW_OPTIONS: FieldEditorOption[] = [
 
 export function LymphNodesProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
-  activeSectionId = null,
+  activeSectionId,
 }: LymphNodesProtocolBlockProps) {
   const [form, setForm] = useState<LymphNodesStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -96,6 +99,7 @@ export function LymphNodesProtocolBlock({
   }, [value]);
 
   const lymphNodes = form.lymphNodes;
+  const fv = fieldVisibility as Record<string, boolean>;
   const activeRegionKey =
     activeSectionId === "lymph_nodes.submandibular"
       ? "submandibular"
@@ -419,11 +423,13 @@ export function LymphNodesProtocolBlock({
         onSave={saveEditor}
       />
 
+      {fv["lymph_nodes.sizes"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Лимфатические узлы" />
       </View>
+      )}
 
-      {activeRegionKey ? (
+      {activeSectionId === "lymph_nodes.conclusion" ? null : activeRegionKey ? (
         <View style={styles.kidneyPlainSection}>{renderRegion(activeRegionKey, REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? "")}</View>
       ) : activeSectionId ? (
         <View style={styles.kidneyPlainSection}>
@@ -437,6 +443,7 @@ export function LymphNodesProtocolBlock({
         ))
       )}
 
+      {(!activeSectionId || activeSectionId === "lymph_nodes.conclusion") && fv["lymph_nodes.conclusion"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -480,6 +487,7 @@ export function LymphNodesProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }

@@ -8,6 +8,7 @@ import type { ObpDraftActions } from "../protocols/obp/useObpDraftActions";
 import type { ProtocolUpdateHandlers } from "../hooks/useProtocolUpdateHandlers";
 import type { AppStyles } from "../styles/appStyles";
 import type { MobileStudiesDataMap } from "../protocols/types";
+import type { FieldVisibility } from "../settings/fieldVisibility";
 import { ProtocolDraftRenderer } from "./ProtocolDraftRenderer";
 
 type DraftScreenProps = {
@@ -17,6 +18,7 @@ type DraftScreenProps = {
   activeProtocolManifest: ProtocolManifest | null;
   activeSectionId: string | null;
   activeDraftMode: "patient" | "protocol";
+  fieldVisibility: FieldVisibility;
   obpActions: ObpDraftActions;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
   onUpdateHeaderField: (key: keyof MobileSyncSnapshot["header"], value: string) => void;
@@ -49,6 +51,7 @@ export function DraftScreen({
   activeProtocolManifest,
   activeSectionId,
   activeDraftMode,
+  fieldVisibility,
   obpActions,
   protocolUpdateHandlers,
   onUpdateHeaderField,
@@ -105,6 +108,7 @@ export function DraftScreen({
           activeSectionId={activeSectionId}
           studiesData={studiesData}
           styles={styles}
+          fieldVisibility={fieldVisibility}
           obpActions={obpActions}
           protocolUpdateHandlers={protocolUpdateHandlers}
           onUpdateGeneralNote={onUpdateGeneralNote}

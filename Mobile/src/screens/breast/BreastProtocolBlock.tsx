@@ -22,6 +22,7 @@ import {
 } from "../../shared/breastDraft";
 import { formatDateForMobileDisplay } from "../../shared/formatDate";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -35,6 +36,7 @@ type EditorState = {
 
 type BreastProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: BreastStudyDraft;
   onChange: (value: BreastStudyDraft) => void;
   activeSectionId?: string | null;
@@ -154,9 +156,10 @@ function computeCycleDay(dateValue: string): string {
 
 export function BreastProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
-  activeSectionId = null,
+  activeSectionId,
 }: BreastProtocolBlockProps) {
   const [form, setForm] = useState<BreastStudyDraft>(value);
   const [editorState, setEditorState] = useState<EditorState>(null);
@@ -194,6 +197,7 @@ export function BreastProtocolBlock({
       : activeSectionId === "breast.left"
         ? "left"
         : null;
+  const fv = fieldVisibility as Record<string, boolean>;
 
   const updateBreastField = <K extends keyof BreastProtocolDraft>(
     field: K,
@@ -519,11 +523,18 @@ export function BreastProtocolBlock({
     const title = side === "right" ? "Правая молочная железа" : "Левая молочная железа";
     const showNodeList = isNormalizedMatch(breastSide.volumeFormations, "определяются");
 
+    const sideKey = side === "right" ? "right" : "left";
+    const showSkin = fv[`breast.${sideKey}.skin`] !== false;
+    const showParenchyma = fv[`breast.${sideKey}.parenchyma`] !== false;
+    const showAdditional = fv[`breast.${sideKey}.additional`] !== false;
+
     return (
       <View style={styles.kidneyPlainSection} key={side}>
         <ProtocolOrganHeader title={title} />
 
         <View style={styles.obpFieldList}>
+          {showSkin && (
+            <>
           <ProtocolSectionHeader title="Общие характеристики" />
           {renderRow(
           "Кожа",
@@ -589,7 +600,11 @@ export function BreastProtocolBlock({
           BREAST_MILK_DUCTS_OPTIONS,
           (nextValue) => updateSideField(side, "milkDucts", nextValue),
         )}
+            </>
+          )}
 
+          {showParenchyma && (
+            <>
           <ProtocolSectionHeader title="Объемные образования" />
           {renderRow(
           "Определение",
@@ -617,7 +632,11 @@ export function BreastProtocolBlock({
               />
             </View>
           )}
+            </>
+          )}
 
+          {showAdditional && (
+            <>
           <ProtocolSectionHeader title="Дополнительно" />
           {renderRow(
             "Дополнительно",
@@ -633,6 +652,8 @@ export function BreastProtocolBlock({
                 multiline: true,
                 onSave: (nextValue) => updateSideField(side, "additional", nextValue),
               }),
+          )}
+            </>
           )}
         </View>
       </View>
@@ -680,7 +701,7 @@ export function BreastProtocolBlock({
         )}
       </View>
 
-      {activeBreastSide ? (
+      {activeSectionId === "breast.conclusion" ? null : activeBreastSide ? (
         renderSide(activeBreastSide)
       ) : activeSectionId ? (
         renderSide("right")
@@ -691,6 +712,7 @@ export function BreastProtocolBlock({
         </>
       )}
 
+      {activeSectionId === "breast.conclusion" ? null : (
       <View style={styles.kidneyPlainSection}>
         <ProtocolSectionHeader title="Структура молочных желез" />
         {renderRow(
@@ -704,7 +726,9 @@ export function BreastProtocolBlock({
           (nextValue) => updateBreastField("structure", nextValue),
         )}
       </View>
+      )}
 
+      {(!activeSectionId || activeSectionId === "breast.conclusion") && fv["breast.conclusion"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -748,6 +772,7 @@ export function BreastProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }

@@ -24,6 +24,7 @@ import {
 } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -42,6 +43,7 @@ type ConclusionSample = {
 
 type OmtFemaleProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: OmtFemaleDraft;
   onChange: (value: OmtFemaleDraft) => void;
   activeSectionId?: string | null;
@@ -145,6 +147,7 @@ const OMT_FEMALE_SECTION_IDS = {
   rightOvary: "omt_female.right_ovary",
   leftOvary: "omt_female.left_ovary",
   bladder: "omt_female.bladder",
+  conclusion: "omt_female.conclusion",
 } as const;
 
 function resolveActiveOmtFemaleSection(activeSectionId: string | null | undefined) {
@@ -161,6 +164,8 @@ function resolveActiveOmtFemaleSection(activeSectionId: string | null | undefine
       return OMT_FEMALE_SECTION_IDS.leftOvary;
     case OMT_FEMALE_SECTION_IDS.bladder:
       return OMT_FEMALE_SECTION_IDS.bladder;
+    case OMT_FEMALE_SECTION_IDS.conclusion:
+      return OMT_FEMALE_SECTION_IDS.conclusion;
     default:
       return OMT_FEMALE_SECTION_IDS.uterus;
   }
@@ -287,6 +292,7 @@ function ensurePeriod(text: string): string {
 
 export function OmtFemaleProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
   activeSectionId,
@@ -333,6 +339,7 @@ export function OmtFemaleProtocolBlock({
   const showCervicalCanalText = isNormalizedMatch(uterus.cervicalCanal, "расширен");
   const showFreeFluidText = isNormalizedMatch(uterus.freeFluid, "определяется");
   const showContentsText = isNormalizedMatch(urinaryBladder.contents, "неоднородное");
+  const fv = fieldVisibility as Record<string, boolean>;
 
   const resolvedActiveSectionId = resolveActiveOmtFemaleSection(activeSectionId);
   const showAllSections = resolvedActiveSectionId === null;
@@ -340,6 +347,8 @@ export function OmtFemaleProtocolBlock({
     showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.uterus;
   const showBladderSection =
     showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.bladder;
+  const showConclusionSection =
+    showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.conclusion;
   const activeOvarySides = showAllSections
     ? (["right", "left"] as const)
     : resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.leftOvary
@@ -1575,6 +1584,7 @@ export function OmtFemaleProtocolBlock({
       </View>
       )}
 
+      {showConclusionSection && fv["omt_female.conclusion"] !== false && (
       <View style={styles.kidneyPlainSection}>
         <ProtocolOrganHeader title="Заключение" />
         <View style={styles.obpFieldList}>
@@ -1618,6 +1628,7 @@ export function OmtFemaleProtocolBlock({
           )}
         </View>
       </View>
+      )}
     </>
   );
 }

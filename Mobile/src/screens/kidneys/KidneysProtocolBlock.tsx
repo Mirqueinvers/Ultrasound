@@ -25,6 +25,7 @@ import {
 } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
+import type { FieldVisibility } from "../../settings/fieldVisibility";
 
 type EditorState = {
   title: string;
@@ -80,6 +81,7 @@ type UrinaryBladderFieldSpec = {
 
 type KidneysProtocolBlockProps = {
   styles: AppStyles;
+  fieldVisibility: FieldVisibility;
   value: KidneyStudyDraft;
   onChange: (value: KidneyStudyDraft) => void;
   activeSectionId?: string | null;
@@ -139,6 +141,7 @@ const KIDNEY_SECTION_IDS = {
   right: "kidneys.right",
   left: "kidneys.left",
   bladder: "kidneys.bladder",
+  conclusion: "kidneys.conclusion",
 } as const;
 
 function resolveActiveKidneySection(activeSectionId: string | null | undefined) {
@@ -153,6 +156,8 @@ function resolveActiveKidneySection(activeSectionId: string | null | undefined) 
       return KIDNEY_SECTION_IDS.left;
     case KIDNEY_SECTION_IDS.bladder:
       return KIDNEY_SECTION_IDS.bladder;
+    case KIDNEY_SECTION_IDS.conclusion:
+      return KIDNEY_SECTION_IDS.conclusion;
     default:
       return KIDNEY_SECTION_IDS.right;
   }
@@ -198,6 +203,7 @@ const BLADDER_NUMERIC_FIELDS = new Set<keyof UrinaryBladderDraft>([
 
 export function KidneysProtocolBlock({
   styles,
+  fieldVisibility,
   value,
   onChange,
   activeSectionId,
@@ -1185,6 +1191,8 @@ export function KidneysProtocolBlock({
             );
           })}
 
+          {fv["kidneys.sinus"] !== false && (
+            <>
           {renderInlineSectionHeader("Синус")}
           {renderFieldRow(
             "Почечный синус",
@@ -1198,7 +1206,11 @@ export function KidneysProtocolBlock({
             ],
             (nextValue) => updateKidneyField(side, "sinus", nextValue),
           )}
+            </>
+          )}
 
+          {fv["kidneys.adrenal"] !== false && (
+            <>
           {renderInlineSectionHeader("Область надпочечников")}
           {renderFieldRow(
             "Область надпочечников",
@@ -1237,7 +1249,11 @@ export function KidneysProtocolBlock({
               <Text style={styles.obpFieldType}>text</Text>
             </Pressable>
           )}
+            </>
+          )}
 
+          {fv["kidneys.additional"] !== false && (
+            <>
           {renderInlineSectionHeader("Дополнительно", "Описание и замечания")}
           <Pressable
             onPress={() =>
@@ -1264,6 +1280,8 @@ export function KidneysProtocolBlock({
             </View>
             <Text style={styles.obpFieldType}>text</Text>
           </Pressable>
+            </>
+          )}
 
           {showPositionText && (
             <Pressable
@@ -1474,6 +1492,7 @@ export function KidneysProtocolBlock({
   };
 
   const resolvedActiveSectionId = resolveActiveKidneySection(activeSectionId);
+  const fv = fieldVisibility as Record<string, boolean>;
 
   return (
     <View style={styles.activeProtocolBlock}>
@@ -1534,6 +1553,7 @@ export function KidneysProtocolBlock({
       {renderKidneySide("Левая почка", "leftKidney")}
       {renderBladder()}
 
+      {(!resolvedActiveSectionId || resolvedActiveSectionId === KIDNEY_SECTION_IDS.conclusion) && (
       <View style={styles.obpFieldList}>
         <ProtocolOrganHeader title="Заключение почек" />
 
@@ -1579,6 +1599,7 @@ export function KidneysProtocolBlock({
           }
         />
       </View>
+      )}
     </View>
   );
 }
