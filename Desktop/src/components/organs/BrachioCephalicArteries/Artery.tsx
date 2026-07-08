@@ -10,6 +10,7 @@ import type {
   BrachioCephalicFormationProps,
 } from "@/types/organs/brachioCephalicArteries";
 import { defaultArteryState } from "@/types";
+import { DETECTION_OPTIONS } from "@utils/constants";
 
 const parseNumber = (value: string): number | null => {
   const normalized = value.replace(",", ".").trim();
@@ -404,8 +405,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               value={form.sinusPlaques}
               onChange={handleSinusPlaquesToggle}
               options={[
-                { value: "не определяются", label: "не определяются" },
-                { value: "определяются", label: "определяются" },
+                ...DETECTION_OPTIONS,
               ]}
             />
 
@@ -499,8 +499,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
                 value={form.plaques}
                 onChange={handlePlaquesToggle}
                 options={[
-                  { value: "не определяются", label: "не определяются" },
-                  { value: "определяются", label: "определяются" },
+                  ...DETECTION_OPTIONS,
                 ]}
               />
 
@@ -841,8 +840,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
               value={form.plaques}
               onChange={handlePlaquesToggle}
               options={[
-                { value: "не определяются", label: "не определяются" },
-                { value: "определяются", label: "определяются" },
+                ...DETECTION_OPTIONS,
               ]}
             />
 

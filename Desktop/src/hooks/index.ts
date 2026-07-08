@@ -4,6 +4,8 @@ export * from './useFormState';
 export * from './useFieldUpdate';
 export * from './useListManager';
 export * from './useConclusion';
+export * from './useClearStaleStudies';
+export * from './useResearchConclusionAddText';
 export * from './useSaveResearch';
 export * from './useAvailableSectionKeys';
 export * from './useSectionRefs';

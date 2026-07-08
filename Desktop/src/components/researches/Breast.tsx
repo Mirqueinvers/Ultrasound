@@ -3,6 +3,7 @@ import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 import type {
   BreastStudyProtocol,
   BreastStudyProps,
@@ -77,39 +78,7 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
     setCurrentOrgan("breast");
   };
 
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-
-      if (studyId !== "study-breast") return;
-
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion
-        ? `${currentConclusion} ${text}`
-        : text;
-
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("Молочные железы", updated);
-    };
-
-    window.addEventListener(
-      "add-conclusion-text",
-      handleAddConclusionText as EventListener
-    );
-
-    return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddConclusionText as EventListener
-      );
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-breast', 'Молочные железы', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

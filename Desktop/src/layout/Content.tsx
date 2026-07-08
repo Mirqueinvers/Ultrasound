@@ -10,6 +10,7 @@ import {
   useSaveResearch,
   useMobileDraftCommands,
   useClearResearchDraft,
+  useClearStaleStudies,
 } from "@hooks";
 import {
   ResearchActions,
@@ -63,22 +64,7 @@ const Content: React.FC<ContentProps> = ({
   const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
   const [currentResearchId, setCurrentResearchId] = React.useState<number | null>(null);
 
-  React.useEffect(() => {
-    const selectedStudyKeys = new Set(selectedStudies);
-    const allowedDataKeys = new Set(selectedStudies);
-
-    // Поддерживаем исторические ключи для лимфоузлов, чтобы не терять совместимость.
-    if (selectedStudyKeys.has("Лимфоузлы")) {
-      allowedDataKeys.add("Лимфатические узлы");
-      allowedDataKeys.add("lymphNodes");
-    }
-
-    Object.keys(studiesData).forEach((studyKey) => {
-      if (!allowedDataKeys.has(studyKey)) {
-        clearStudyData(studyKey);
-      }
-    });
-  }, [selectedStudies, studiesData, clearStudyData]);
+  useClearStaleStudies(selectedStudies, studiesData, clearStudyData);
 
   React.useEffect(() => {
     if (user?.organization) {

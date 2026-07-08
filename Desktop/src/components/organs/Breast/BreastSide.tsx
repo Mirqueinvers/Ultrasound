@@ -4,6 +4,7 @@ import { Fieldset, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate, useListManager } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import { BreastNodeComponent } from "./BreastNode";
 import type { BreastSideProtocol, BreastNode, BreastSideProps } from "@types";
 import { defaultBreastSideState } from "@/types/defaultStates";
@@ -135,8 +136,7 @@ export const BreastSide: React.FC<BreastSideProps> = ({
             value={form.volumeFormations}
             onChange={(val) => updateSelect("volumeFormations", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 

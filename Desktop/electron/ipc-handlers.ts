@@ -339,7 +339,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
       });
       const tempHtmlPath = path.join(
         app.getPath("temp"),
-        `ultrasound-print-${Date.now()}.html`,
+        `ultrasound-print-${crypto.randomUUID()}.html`,
       );
 
       try {

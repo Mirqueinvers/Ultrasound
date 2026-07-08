@@ -7,6 +7,133 @@ const normalizeSize = (size: string): string =>
     .replace(/\s+/g, " ")
     .trim();
 
+/**
+ * Словарь для параметризованного построения фразы об образованиях (конкременты / кисты).
+ */
+type FormationDict = {
+  /** Название типа в родительном падеже, множественное: "конкременты" | "кисты" */
+  typeName: string;
+  /** Единственное число: "гиперэхогенное образование" | "анэхогенное образование" */
+  singular: string;
+  /** 2-4 штуки: "гиперэхогенных образования" | "анэхогенных образования" */
+  few: string;
+  /** 5+ штук: "гиперэхогенных образований" | "анэхогенных образований" */
+  many: string;
+  /** Добавлять "с акустической тенью" */
+  withShadow: boolean;
+};
+
+const CONCREMENTS_DICT: FormationDict = {
+  typeName: "конкременты",
+  singular: "гиперэхогенное образование",
+  few: "гиперэхогенных образования",
+  many: "гиперэхогенных образований",
+  withShadow: true,
+};
+
+const CYSTS_DICT: FormationDict = {
+  typeName: "кисты",
+  singular: "анэхогенное образование",
+  few: "анэхогенных образования",
+  many: "анэхогенных образований",
+  withShadow: false,
+};
+
+/**
+ * Параметризованная фабрика для построения фразы об образованиях.
+ *
+ * @param mode — в именительном падеже ("паренхима")
+ * @param flag — значение поля ("определяются" | "не определяются")
+ * @param list — список образований
+ * @param dict — словарь терминов
+ * @param extra — опциональные параметры для кист (multiple + multipleSize)
+ */
+function buildFormationPhrase(
+  mode: string,
+  flag: string | undefined | null,
+  list: Array<{ size?: string; location?: string }> | undefined | null,
+  dict: FormationDict,
+  extra?: { multiple: boolean; multipleSize: string },
+): string {
+  if (flag !== "определяются") {
+    return "";
+  }
+
+  // Спецобработка для кист: множественные кисты с размером
+  if (extra?.multiple && extra.multipleSize.trim()) {
+    const normSize = normalizeSize(extra.multipleSize);
+    return `определяются множественные ${dict.typeName} в ${mode} размерами до ${normSize} мм`;
+  }
+
+  const valid = (list || []).filter(
+    (c) =>
+      (c.size && c.size.toString().trim()) ||
+      (c.location && c.location.trim()),
+  );
+
+  if (valid.length === 0) {
+    return `${dict.typeName} в ${mode} определяются`;
+  }
+
+  const count = valid.length;
+  const locations = Array.from(
+    new Set(
+      valid
+        .map((c) => c.location?.trim())
+        .filter((p): p is string => !!p),
+    ),
+  );
+
+  let locText = "";
+  if (locations.length === 1) {
+    locText = `В области ${locations[0]}`;
+  } else if (locations.length === 2) {
+    locText = `В области ${locations[0]} и ${locations[1]}`;
+  } else if (locations.length >= 3) {
+    const last = locations[locations.length - 1];
+    const rest = locations.slice(0, -1);
+    locText = `В области ${rest.join(", ")} и ${last}`;
+  }
+
+  const sizes = valid
+    .map((c) => c.size?.toString().trim())
+    .filter((s): s is string => !!s)
+    .map((s) => normalizeSize(s));
+
+  let sizeText = "";
+  if (sizes.length === 1) {
+    sizeText = `размерами ${sizes[0]} мм`;
+  } else if (sizes.length > 1) {
+    const last = sizes[sizes.length - 1];
+    const rest = sizes.slice(0, -1);
+    sizeText = `размерами ${rest.join(" мм, ")} мм и ${last} мм`;
+  }
+
+  const isSingle = count === 1;
+  const isFew = count >= 2 && count <= 4;
+
+  let countText: string;
+  if (isSingle) {
+    countText = dict.singular;
+  } else if (isFew) {
+    countText = `${count} ${dict.few}`;
+  } else {
+    countText = `${count} ${dict.many}`;
+  }
+
+  const verb = isSingle ? "определяется" : "определяются";
+
+  const tailParts = [
+    locText,
+    verb,
+    countText,
+    dict.withShadow ? "с акустической тенью" : null,
+    sizeText,
+  ].filter(Boolean);
+
+  return tailParts.join(" ").trim();
+}
+
 export const buildKidneyText = (
   label: string,
   value: KidneyProtocol,
@@ -112,7 +239,7 @@ export const buildKidneyText = (
     parenchymaSentence = `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
   }
 
-  // --- Билдеры для конкрементов и кист
+  // --- Билдеры для конкрементов и кист (параметризованная фабрика)
   const buildConcrementsPhrase = (
     mode: "паренхима" | "чашечно-лоханочная система",
     flag:
@@ -122,83 +249,7 @@ export const buildKidneyText = (
       | KidneyProtocol["parenchymaConcrementslist"]
       | KidneyProtocol["pcsConcrementslist"],
   ): string => {
-    if (flag !== "определяются") {
-      return "";
-    }
-
-    if (!list || list.length === 0) {
-      return `конкременты в ${mode} определяются`;
-    }
-
-    const valid = list.filter(
-      (c) =>
-        (c.size && c.size.toString().trim()) ||
-        (c.location && c.location.trim()),
-    );
-
-    if (valid.length === 0) {
-      return `конкременты в ${mode} определяются`;
-    }
-
-    const count = valid.length;
-    const locations = Array.from(
-      new Set(
-        valid
-          .map((c) => c.location?.trim())
-          .filter((p): p is string => !!p),
-      ),
-    );
-
-    let locText = "";
-    if (locations.length === 1) {
-      locText = `В области ${locations[0]}`;
-    } else if (locations.length === 2) {
-      locText = `В области ${locations[0]} и ${locations[1]}`;
-    } else if (locations.length >= 3) {
-      const last = locations[locations.length - 1];
-      const rest = locations.slice(0, -1);
-      locText = `В области ${rest.join(", ")} и ${last}`;
-    }
-
-    const sizes = valid
-      .map((c) => c.size?.toString().trim())
-      .filter((s): s is string => !!s)
-      .map((s) => normalizeSize(s));
-
-    let sizeText = "";
-    if (sizes.length === 1) {
-      sizeText = `размерами ${sizes[0]} мм`;
-    } else if (sizes.length > 1) {
-      const last = sizes[sizes.length - 1];
-      const rest = sizes.slice(0, -1);
-      sizeText = `размерами ${rest.join(" мм, ")} мм и ${last} мм`;
-    }
-
-    const isSingle = count === 1;
-    const isFew = count >= 2 && count <= 4;
-
-    let countText = "";
-    if (isSingle) {
-      countText = "гиперэхогенное образование";
-    } else if (isFew) {
-      countText = `${count} гиперэхогенных образования`;
-    } else {
-      countText = `${count} гиперэхогенных образований`;
-    }
-
-    const verb = isSingle ? "определяется" : "определяются";
-
-    const tail = [
-      locText,
-      verb,
-      countText,
-      "с акустической тенью",
-      sizeText,
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    return tail.trim();
+    return buildFormationPhrase(mode, flag, list, CONCREMENTS_DICT);
   };
 
   const buildCystsPhrase = (
@@ -208,74 +259,7 @@ export const buildKidneyText = (
     multiple: boolean,
     multipleSize: string,
   ): string => {
-    if (flag !== "определяются") {
-      return "";
-    }
-
-    const valid = (list || []).filter(
-      (c) =>
-        (c.size && c.size.toString().trim()) ||
-        (c.location && c.location.trim()),
-    );
-
-    if (multiple && multipleSize.trim()) {
-      const normSize = normalizeSize(multipleSize);
-      return `определяются множественные кисты в ${mode} размерами до ${normSize} мм`;
-    }
-
-    if (!multiple && valid.length === 0) {
-      return `кисты в ${mode} определяются`;
-    }
-
-    if (valid.length === 0) {
-      return `кисты в ${mode} определяются`;
-    }
-
-    const count = valid.length;
-    const locations = Array.from(
-      new Set(
-        valid
-          .map((c) => c.location?.trim())
-          .filter((p): p is string => !!p),
-      ),
-    );
-
-    let locText = "";
-    if (locations.length === 1) {
-      locText = `В области ${locations[0]}`;
-    } else if (locations.length === 2) {
-      locText = `В области ${locations[0]} и ${locations[1]}`;
-    } else if (locations.length >= 3) {
-      const last = locations[locations.length - 1];
-      const rest = locations.slice(0, -1);
-      locText = `В области ${rest.join(", ")} и ${last}`;
-    }
-
-    const sizes = valid
-      .map((c) => c.size?.toString().trim())
-      .filter((s): s is string => !!s)
-      .map((s) => normalizeSize(s));
-
-    let sizeText = "";
-    if (sizes.length === 1) {
-      sizeText = `размерами ${sizes[0]} мм`;
-    } else if (sizes.length > 1) {
-      const last = sizes[sizes.length - 1];
-      const rest = sizes.slice(0, -1);
-      sizeText = `размерами ${rest.join(" мм, ")} мм и ${last} мм`;
-    }
-
-    const isSingle = count === 1;
-    const verb = isSingle ? "определяется" : "определяются";
-    const countPart = isSingle
-      ? "анэхогенное образование"
-      : `${count} анэхогенных образования`;
-
-    const tail = [locText, verb, countPart, sizeText]
-      .filter(Boolean)
-      .join(" ");
-
-    return tail.trim();
+    return buildFormationPhrase(mode, flag, list, CYSTS_DICT, { multiple, multipleSize });
   };
 
   // --- Паренхима: выводим кисты/камни/образования только если есть

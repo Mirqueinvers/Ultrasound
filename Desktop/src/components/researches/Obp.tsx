@@ -7,6 +7,7 @@ import Pancreas from "@organs/Pancreas";
 import Spleen from "@organs/Spleen";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
+import { useResearchConclusionAddText } from "@hooks";
 import { SelectWithTextarea } from "@/UI";
 
 import type {
@@ -36,11 +37,40 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  /**
+   * Слияние двух массивов узлов по индексу: source-значения имеют приоритет,
+   * но только если поле в source не пустое. Аналог ResearchContext.mergeNodeArrays.
+   */
+  const mergeNodeArrays = useCallback((target: unknown[], source: unknown[]): unknown[] => {
+    return target.map((existingNode, i) => {
+      const sourceNode = source[i];
+      if (!sourceNode || typeof sourceNode !== "object") return existingNode;
+      if (typeof existingNode !== "object") return sourceNode;
+      const result = { ...(existingNode as Record<string, unknown>) };
+      for (const key of Object.keys(sourceNode as Record<string, unknown>)) {
+        const sourceVal = (sourceNode as Record<string, unknown>)[key];
+        if (sourceVal !== undefined && sourceVal !== null && sourceVal !== "") {
+          result[key] = sourceVal;
+        }
+      }
+      return result;
+    }).concat(
+      source.slice(target.length).map((n) => (typeof n === "object" ? { ...(n as Record<string, unknown>) } : n)),
+    );
+  }, []);
+
   // Глубокое слияние — мержит вложенные объекты, а не заменяет целиком
   const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
     if (source === null || source === undefined) return target;
     if (target === null || target === undefined) return source;
     if (typeof target !== "object" || typeof source !== "object") return source;
+    if (Array.isArray(target) && Array.isArray(source)) {
+      // Если оба массива — сливаем по индексу для массивов с полем "number"
+      if (source.length > 0 && typeof source[0] === "object" && "number" in (source[0] as Record<string, unknown>)) {
+        return mergeNodeArrays(target, source);
+      }
+      return source;
+    }
     if (Array.isArray(target) || Array.isArray(source)) return source;
 
     const result = { ...(target as Record<string, unknown>) };
@@ -54,14 +84,11 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
       ) {
         result[key] = deepMerge(targetVal, sourceVal);
       } else if (sourceVal !== undefined) {
-        // Не затираем пустыми строками из дефолтного состояния
-        if (sourceVal !== "") {
-          result[key] = sourceVal;
-        }
+        result[key] = sourceVal;
       }
     }
     return result;
-  }, []);
+  }, [mergeNodeArrays]);
 
   const initialValue = value ?? defaultObpState;
   const [form, setForm] = useState<ObpProtocol>(initialValue);
@@ -120,35 +147,8 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
     setCurrentOrgan("obp");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-obp') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("ОБП", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  // Обработка добавления текста образца заключения
+  useResearchConclusionAddText('study-obp', 'ОБП', form, setForm, onChange);
 
   const handleConclusionBlur = () => {
     // если нужно скрывать панель после выхода из поля, раскомментируй

@@ -10,6 +10,7 @@ import {
   useConclusion,
 } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import type { ProstateProtocol, ProstateProps } from "@types";
 import { defaultProstateState } from "@types";
 
@@ -244,8 +245,7 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
                   updateField("pathologicLesionsText", val)
                 }
                 options={[
-                  { value: "не определяются", label: "не определяются" },
-                  { value: "определяются", label: "определяются" },
+                  ...DETECTION_OPTIONS,
                 ]}
                 triggerValue="определяются"
                 textareaLabel="Описание"

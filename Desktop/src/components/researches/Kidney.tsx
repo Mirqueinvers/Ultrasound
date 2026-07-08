@@ -6,6 +6,7 @@ import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useRightPanel } from "@contexts/RightPanelContext";
 import { useResearch } from "@contexts";
+import { useResearchConclusionAddText } from "@hooks";
 
 import type {
   KidneyStudyProtocol,
@@ -21,11 +22,46 @@ interface KidneyWithSectionsProps extends KidneyStudyProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
 }
 
-// Глубокое рекурсивное слияние — не затирает уже заполненные поля
+/**
+ * Слияние двух массивов узлов по индексу: source-значения имеют приоритет,
+ * но только если поле в source не пустое. Аналог ResearchContext.mergeNodeArrays.
+ */
+function mergeNodeArrays(target: unknown[], source: unknown[]): unknown[] {
+  const merged = target.map((existingNode, i) => {
+    const sourceNode = source[i];
+    if (!sourceNode || typeof sourceNode !== "object") return existingNode;
+    if (typeof existingNode !== "object") return sourceNode;
+    const result = { ...(existingNode as Record<string, unknown>) };
+    for (const key of Object.keys(sourceNode as Record<string, unknown>)) {
+      const sourceVal = (sourceNode as Record<string, unknown>)[key];
+      if (sourceVal !== undefined && sourceVal !== null && sourceVal !== "") {
+        result[key] = sourceVal;
+      }
+    }
+    return result;
+  }).concat(
+    source.slice(target.length).map((n) => (typeof n === "object" ? { ...(n as Record<string, unknown>) } : n)),
+  );
+  return merged;
+}
+
+/**
+ * Глубокое рекурсивное слияние объектов.
+ * - Вложенные объекты сливаются рекурсивно.
+ * - Массивы с числовым полем "number" сливаются по индексу.
+ * - Остальные значения из source имеют приоритет над target.
+ */
 function deepMerge(target: unknown, source: unknown): KidneyStudyProtocol {
   if (source === null || source === undefined) return target as unknown as KidneyStudyProtocol;
   if (target === null || target === undefined) return source as unknown as KidneyStudyProtocol;
   if (typeof target !== "object" || typeof source !== "object") return source as unknown as KidneyStudyProtocol;
+  if (Array.isArray(target) && Array.isArray(source)) {
+    // Если оба массива — сливаем по индексу для массивов с полем "number"
+    if (source.length > 0 && typeof source[0] === "object" && "number" in (source[0] as Record<string, unknown>)) {
+      return mergeNodeArrays(target, source) as unknown as KidneyStudyProtocol;
+    }
+    return source as unknown as KidneyStudyProtocol;
+  }
   if (Array.isArray(target) || Array.isArray(source)) return source as unknown as KidneyStudyProtocol;
 
   const result = { ...(target as Record<string, unknown>) };
@@ -39,9 +75,7 @@ function deepMerge(target: unknown, source: unknown): KidneyStudyProtocol {
     ) {
       result[key] = deepMerge(targetVal, sourceVal);
     } else if (sourceVal !== undefined) {
-      if (sourceVal !== "") {
-        result[key] = sourceVal;
-      }
+      result[key] = sourceVal;
     }
   }
   return result as unknown as KidneyStudyProtocol;
@@ -111,35 +145,8 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     setCurrentOrgan("kidneys");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-kidneys') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("Почки", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  // Обработка добавления текста образца заключения
+  useResearchConclusionAddText('study-kidneys', 'Почки', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

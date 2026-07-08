@@ -269,9 +269,18 @@ export class ResearchRepository {
       .replace(/ё/g, "е")
       .replace(/[^0-9а-я]/g, "");
 
-    const researches = this.db
-      .prepare(
-        `
+    const likeParam = `%${raw}%`;
+    const codeLikeParam = normalizedCode.length > 0 ? `%${normalizedCode}%` : null;
+
+    // Экранирование спецсимволов LIKE
+    const escapeLike = (val: string) => val.replace(/%/g, '\\%').replace(/_/g, '\\_');
+
+    let sql: string;
+    let params: unknown[];
+
+    if (!raw) {
+      // пустой запрос — без WHERE
+      sql = `
         SELECT
           r.*,
           p.last_name,
@@ -282,9 +291,42 @@ export class ResearchRepository {
         JOIN patients p ON r.patient_id = p.id
         ORDER BY r.research_date DESC, r.created_at DESC
         LIMIT ?
-      `
-      )
-      .all(limit) as Array<
+      `;
+      params = [limit];
+    } else {
+      // поиск через WHERE
+      const escapedLike = escapeLike(likeParam);
+      const escapedCodeLike = codeLikeParam ? escapeLike(codeLikeParam) : null;
+
+      sql = `
+        SELECT
+          r.*,
+          p.last_name,
+          p.first_name,
+          p.middle_name,
+          p.date_of_birth
+        FROM researches r
+        JOIN patients p ON r.patient_id = p.id
+        WHERE (
+             REPLACE(LOWER(p.last_name || ' ' || p.first_name || ' ' || COALESCE(p.middle_name, '')), 'ё', 'е') LIKE ?
+          OR REPLACE(LOWER(p.date_of_birth), 'ё', 'е') LIKE ?
+          OR REPLACE(LOWER(r.research_date), 'ё', 'е') LIKE ?
+          OR CAST(p.id AS TEXT) LIKE ?
+          ${escapedCodeLike ? `OR REPLACE(LOWER(SUBSTR(p.last_name, 1, 1) || SUBSTR(p.first_name, 1, 1) || COALESCE(SUBSTR(p.middle_name, 1, 1), '') || REPLACE(p.date_of_birth, '-', '')), 'ё', 'е') LIKE ?` : ''}
+        )
+        ORDER BY r.research_date DESC, r.created_at DESC
+        LIMIT ?
+      `;
+      params = [escapedLike, escapedLike, escapedLike, escapedLike];
+      if (escapedCodeLike) {
+        params.push(escapedCodeLike);
+      }
+      params.push(limit);
+    }
+
+    const researches = this.db
+      .prepare(sql)
+      .all(...params) as Array<
       Research & {
         last_name: string;
         first_name: string;
@@ -307,40 +349,6 @@ export class ResearchRepository {
       };
     });
 
-    // если пустой запрос — возвращаем всё
-    if (!raw) return withStudies;
-
-    return withStudies.filter((r) => {
-      const fio =
-        `${r.last_name} ${r.first_name} ${r.middle_name ?? ""}`.toLowerCase();
-      const dob = (r.date_of_birth || "").toLowerCase();
-      const researchDate = (r.research_date || "").toLowerCase();
-      const idStr = String(r.patient_id).toLowerCase();
-
-      // обычный текстовый поиск (без учёта регистра)
-      const textMatch =
-        fio.includes(raw) ||
-        dob.includes(raw) ||
-        researchDate.includes(raw) ||
-        idStr.includes(raw);
-
-      // код вида кдю12101990
-      const code =
-        (r.last_name[0] || "") +
-        (r.first_name[0] || "") +
-        ((r.middle_name || "")[0] || "") +
-        (r.date_of_birth || "").replace(/\D/g, "");
-
-      const normalizedDbCode = code
-        .toLowerCase()
-        .replace(/ё/g, "е")
-        .replace(/\s+/g, "");
-
-      const codeMatch =
-        normalizedCode.length > 0 &&
-        normalizedDbCode.includes(normalizedCode);
-
-      return textMatch || codeMatch;
-    });
+    return withStudies;
   }
 }

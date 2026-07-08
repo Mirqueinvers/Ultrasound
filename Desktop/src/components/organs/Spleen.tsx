@@ -9,6 +9,7 @@ import {
   useConclusion,
 } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
 import type { SpleenProtocol, SpleenProps } from "@types";
 import { defaultSpleenState } from "@types";
 
@@ -117,8 +118,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
                   updateField("pathologicalFormationsText", val)
                 }
                 options={[
-                  { value: "Не определяются", label: "Не определяются" },
-                  { value: "Определяются", label: "Определяются" },
+                  ...DETECTION_OPTIONS_CAPITALIZED,
                 ]}
                 triggerValue="Определяются"
                 textareaLabel="Описание патологических образований"

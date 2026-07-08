@@ -7,6 +7,7 @@ import { Conclusion } from "@common";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 
 import type {
   OmtFemaleProtocol,
@@ -97,35 +98,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     setCurrentOrgan("omt_female");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-omt_female') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("ОМТ (Ж)", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-omt_female', 'ОМТ (Ж)', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

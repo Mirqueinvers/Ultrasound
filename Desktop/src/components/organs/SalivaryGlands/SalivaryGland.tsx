@@ -14,6 +14,7 @@ import {
   defaultLymphNodeState,
 } from "@/types/organs/lymphNodes";
 import { Plus } from "lucide-react";
+import { DETECTION_OPTIONS, DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
 
 export const SalivaryGland: React.FC<SalivaryGlandProps> = ({
   gland,
@@ -264,8 +265,7 @@ export const SalivaryGland: React.FC<SalivaryGlandProps> = ({
               updateField("volumeFormationsDescription", val)
             }
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
             triggerValue="определяются"
             textareaLabel="Описание объемных образований"

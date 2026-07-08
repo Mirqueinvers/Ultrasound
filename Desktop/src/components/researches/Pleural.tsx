@@ -4,6 +4,7 @@ import PleuralCommon from "@organs/Pleural/PleuralCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 import type {
   PleuralStudyProtocol,
   PleuralStudyProps,
@@ -63,35 +64,7 @@ export const Pleural: React.FC<PleuralWithSectionsProps> = ({
     setCurrentOrgan("pleural");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-pleural') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("Плевральные полости", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-pleural', 'Плевральные полости', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

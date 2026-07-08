@@ -3,6 +3,7 @@ import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 import type {
   UrinaryBladderStudyProtocol,
   UrinaryBladderStudyProps,
@@ -52,35 +53,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
     setCurrentOrgan("urinary_bladder");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-urinary_bladder') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated: UrinaryBladderStudyProtocol = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("Мочевой пузырь", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-urinary_bladder', 'Мочевой пузырь', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

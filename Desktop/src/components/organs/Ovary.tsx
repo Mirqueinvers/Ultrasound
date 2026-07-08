@@ -11,6 +11,7 @@ import {
   useListManager,
 } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import { Plus, Trash2 } from "lucide-react";
 import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";
 import { defaultOvaryState } from "@types";
@@ -172,8 +173,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                 value={form.cysts}
                 onChange={(val) => updateField("cysts", val)}
                 options={[
-                  { value: "не определяются", label: "не определяются" },
-                  { value: "определяются", label: "определяются" },
+                  ...DETECTION_OPTIONS,
                 ]}
               />
 
@@ -267,8 +267,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                   updateField("formationsText", val)
                 }
                 options={[
-                  { value: "не определяются", label: "не определяются" },
-                  { value: "определяются", label: "определяются" },
+                  ...DETECTION_OPTIONS,
                 ]}
                 triggerValue="определяются"
                 textareaLabel="Описание"

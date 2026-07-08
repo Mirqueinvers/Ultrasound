@@ -11,6 +11,7 @@ import {
   useListManager,
 } from "@hooks";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import { UterusNodeComponent } from "./UterusNode";
 import type { UterusNode, UterusProps, UterusProtocol } from "@types";
 import { defaultUterusState } from "@types";
@@ -317,8 +318,7 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 value={form.myomaNodesPresence}
                 onChange={updateMyomaPresence}
                 options={[
-                  { value: "не определяются", label: "не определяются" },
-                  { value: "определяются", label: "определяются" },
+                  ...DETECTION_OPTIONS,
                 ]}
               />
 

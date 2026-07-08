@@ -11,6 +11,7 @@ import {
   useListManager,
 } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
 import type {
   Concretion,
   Polyp,
@@ -164,8 +165,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                   value={form.concretions}
                   onChange={(val) => updateField("concretions", val)}
                   options={[
-                    { value: "Не определяются", label: "Не определяются" },
-                    { value: "Определяются", label: "Определяются" },
+                    ...DETECTION_OPTIONS_CAPITALIZED,
                   ]}
                 />
 
@@ -192,8 +192,7 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
                   value={form.polyps}
                   onChange={(val) => updateField("polyps", val)}
                   options={[
-                    { value: "Не определяются", label: "Не определяются" },
-                    { value: "Определяются", label: "Определяются" },
+                    ...DETECTION_OPTIONS_CAPITALIZED,
                   ]}
                 />
 

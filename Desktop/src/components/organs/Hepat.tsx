@@ -4,6 +4,7 @@ import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldFocus, useConclusion } from "@hooks";
 import { inputClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import type { LiverProtocol, HepatProps } from "@types";
 import { defaultLiverState } from "@types";
 
@@ -211,8 +212,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             onSelectChange={(val) => updateField("focalLesionsPresence", val)}
             onTextareaChange={(val) => updateField("focalLesions", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
             triggerValue="определяются"
             textareaLabel="Описание патологических образований"

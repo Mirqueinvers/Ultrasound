@@ -4,6 +4,7 @@ import LymphNodesCommon from "@organs/LymphNodes/LymphNodesCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 import type {
   LymphNodesStudyProtocol,
   LymphNodesStudyProps,
@@ -58,34 +59,7 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
     setCurrentOrgan("lymphNodes");
   };
 
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-
-      if (studyId !== "study-lymphNodes") return;
-
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion ? `${currentConclusion} ${text}` : text;
-
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("Лимфоузлы", updated);
-    };
-
-    window.addEventListener("add-conclusion-text", handleAddConclusionText as EventListener);
-
-    return () => {
-      window.removeEventListener(
-        "add-conclusion-text",
-        handleAddConclusionText as EventListener,
-      );
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-lymphNodes', 'Лимфоузлы', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

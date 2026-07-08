@@ -4,6 +4,7 @@ import BrachioCephalicCommon from "@organs/BrachioCephalicArteries/BrachioCephal
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { useResearchConclusionAddText } from "@hooks";
 import type {
   BrachioCephalicArteriesStudyProtocol,
   BrachioCephalicArteriesStudyProps,
@@ -71,35 +72,7 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
     setCurrentOrgan("brachioCephalicArteries");
   };
 
-  // Обработчик события добавления текста образца заключения
-  useEffect(() => {
-    const handleAddConclusionText = (event: CustomEvent) => {
-      const { text, studyId } = event.detail;
-      
-      // Проверяем, что событие относится к данному исследованию
-      if (studyId !== 'study-brachioCephalicArteries') return;
-      
-      const currentConclusion = form.conclusion?.trim() ?? "";
-      const newConclusion = currentConclusion 
-        ? `${currentConclusion} ${text}`
-        : text;
-      
-      const updated = {
-        ...form,
-        conclusion: newConclusion,
-        recommendations: form.recommendations ?? "",
-      };
-      setForm(updated);
-      onChange?.(updated);
-      setStudyData("БЦА", updated);
-    };
-
-    window.addEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    
-    return () => {
-      window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
-    };
-  }, [form, onChange, setStudyData]);
+  useResearchConclusionAddText('study-brachioCephalicArteries', 'БЦА', form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

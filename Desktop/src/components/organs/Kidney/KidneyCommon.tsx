@@ -1,5 +1,5 @@
 // /components/print/organs/kidney/KidneyCommon.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
@@ -7,6 +7,7 @@ import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@ho
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { inputClasses, labelClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS } from "@utils/constants";
 import type { Concrement, Cyst, KidneyProtocol, KidneyCommonProps } from "@types";
 import { defaultKidneyState } from "@types";
 
@@ -15,7 +16,8 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   value,
   onChange,
 }) => {
-  const valueSignature = JSON.stringify(value ?? defaultKidneyState);
+  // Отслеживаем предыдущий value через ref, чтобы не пересоздавать форму на каждый render
+  const prevValueRef = useRef(value);
   const initialValue: KidneyProtocol = {
     ...defaultKidneyState,
     ...(value || {}),
@@ -32,6 +34,9 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   const [form, setForm] = useFormState<KidneyProtocol>(initialValue);
 
   useEffect(() => {
+    if (value === prevValueRef.current) return;
+    prevValueRef.current = value;
+
     setForm({
       ...defaultKidneyState,
       ...(value || {}),
@@ -44,7 +49,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
       pcsMultipleCysts: value?.pcsMultipleCysts || false,
       pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
     });
-  }, [valueSignature, setForm]);
+  }, [value, setForm]);
 
   const updateField = useFieldUpdate(form, setForm, onChange);
 
@@ -250,8 +255,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             value={form.parenchymaConcrements}
             onChange={(val) => updateSelect("parenchymaConcrements", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 
@@ -271,8 +275,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             value={form.parenchymaCysts}
             onChange={(val) => updateSelect("parenchymaCysts", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 
@@ -304,8 +307,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
               updateField("parenchymaPathologicalFormationsText", val)
             }
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
             triggerValue="определяются"
             textareaLabel="Описание патологических образований"
@@ -334,8 +336,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
               })
             }
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 
@@ -360,8 +361,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             value={form.pcsConcrements}
             onChange={(val) => updateSelect("pcsConcrements", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 
@@ -381,8 +381,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
             value={form.pcsCysts}
             onChange={(val) => updateSelect("pcsCysts", val)}
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
           />
 
@@ -414,8 +413,7 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
               updateField("pcsPathologicalFormationsText", val)
             }
             options={[
-              { value: "не определяются", label: "не определяются" },
-              { value: "определяются", label: "определяются" },
+              ...DETECTION_OPTIONS,
             ]}
             triggerValue="определяются"
             textareaLabel="Описание патологических образований"

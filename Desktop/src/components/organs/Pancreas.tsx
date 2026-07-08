@@ -4,6 +4,7 @@ import { SizeRow, ButtonSelect, SelectWithTextarea, Fieldset } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses } from "@utils/formClasses";
+import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
 import type { PancreasProps } from "@types";
 import { defaultPancreasState } from "@types";
 import {
@@ -109,8 +110,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
               updateField("pathologicalFormationsText", val)
             }
             options={[
-              { value: "Не определяются", label: "Не определяются" },
-              { value: "Определяются", label: "Определяются" },
+              ...DETECTION_OPTIONS_CAPITALIZED,
             ]}
             triggerValue="Определяются"
             textareaLabel="Описание патологических образований"
