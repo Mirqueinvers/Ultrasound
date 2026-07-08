@@ -1,6 +1,6 @@
-﻿import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 import { type TabKey } from "./src/components/TabBar";
 import { BottomNav } from "./src/components/BottomNav";
@@ -19,6 +19,9 @@ import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
 import { useFieldVisibility } from "./src/settings/useFieldVisibility";
 import { FieldVisibilitySettings } from "./src/components/FieldVisibilitySettings";
+import { useOrientation } from "./src/hooks/useOrientation";
+import { getProtocolManifestByLabel } from "./src/shared/protocols";
+import type { ProtocolManifest } from "./src/shared/protocols";
 
 const BOTTOM_SPACER_HEIGHT = 110;
 
@@ -30,6 +33,7 @@ export default function App() {
   const contentScrollRef = useRef<ScrollView>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
   const { visibility, toggleGroup } = useFieldVisibility();
+  const { isLandscape } = useOrientation();
 
   const {
     connectionState,
@@ -96,6 +100,155 @@ export default function App() {
     contentScrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [activeTab, activeSectionId, activeProtocolManifest?.id, activeDraftMode, connectSubTab]);
 
+  // --- Навигация по разделам/протоколам (стрелки) ---
+  const navigateSection = useCallback((direction: "prev" | "next") => {
+    if (!activeProtocolManifest || !activeSectionId) return;
+
+    const sections = activeProtocolManifest.sections;
+    const currentIndex = sections.findIndex((s) => s.id === activeSectionId);
+    if (currentIndex === -1) return;
+
+    const selectedStudies = snapshot.selection.selectedStudies;
+    const currentLabel = activeProtocolManifest.selectionLabel;
+
+    if (direction === "next") {
+      if (currentIndex + 1 < sections.length) {
+        setActiveSectionId(sections[currentIndex + 1].id);
+        return;
+      }
+      // Последний раздел → следующий протокол
+      const labelIndex = selectedStudies.indexOf(currentLabel);
+      if (labelIndex === -1 || labelIndex + 1 >= selectedStudies.length) return;
+      const nextLabel = selectedStudies[labelIndex + 1];
+      const nextManifest = getProtocolManifestByLabel(nextLabel);
+      if (!nextManifest) return;
+      setFocusedProtocolId(nextManifest.id);
+      setActiveDraftMode("protocol");
+      if (nextManifest.sections.length > 0) {
+        setActiveSectionId(nextManifest.sections[0].id);
+      }
+    } else {
+      if (currentIndex > 0) {
+        setActiveSectionId(sections[currentIndex - 1].id);
+        return;
+      }
+      // Первый раздел → предыдущий протокол
+      const labelIndex = selectedStudies.indexOf(currentLabel);
+      if (labelIndex <= 0) return;
+      const prevLabel = selectedStudies[labelIndex - 1];
+      const prevManifest = getProtocolManifestByLabel(prevLabel);
+      if (!prevManifest) return;
+      setFocusedProtocolId(prevManifest.id);
+      setActiveDraftMode("protocol");
+      if (prevManifest.sections.length > 0) {
+        setActiveSectionId(prevManifest.sections[prevManifest.sections.length - 1].id);
+      }
+    }
+  }, [activeProtocolManifest, activeSectionId, snapshot.selection.selectedStudies, setActiveSectionId, setFocusedProtocolId, setActiveDraftMode]);
+
+  const contentArea = (
+    <ScrollView
+      ref={contentScrollRef}
+      contentContainerStyle={[styles.content, isLandscape && { paddingHorizontal: 10, paddingTop: 2, paddingBottom: 10 }]}
+      showsVerticalScrollIndicator={false}
+    >
+      {activeTab === "connect" && connectSubTab === "fields" && (
+        <FieldVisibilitySettings
+          styles={styles}
+          visibility={visibility}
+          onToggle={(id) => toggleGroup(id as any)}
+          onClose={() => setConnectSubTab("connect")}
+        />
+      )}
+      {activeTab === "connect" && connectSubTab !== "fields" && (
+        <ConnectScreen
+          styles={styles}
+          connected={connected}
+          connectionState={connectionState}
+          connectionError={connectionError}
+          hostUrl={hostUrl}
+          pairingCode={pairingCode}
+          setHostUrl={setHostUrlInput}
+          setPairingCode={setPairingCode}
+          connectToHost={connectToHost}
+          disconnect={disconnect}
+          openScanner={openScanner}
+          resetDraft={resetDraft}
+          toWsUrl={toWsUrl}
+          socketStatus={socketStatus}
+          snapshot={snapshot}
+          saveState={saveState}
+        />
+      )}
+
+      {activeTab === "library" && (
+        <LibraryScreen
+          styles={styles}
+          manifests={PROTOCOL_MANIFESTS}
+          selectedStudies={snapshot.selection.selectedStudies}
+          focusedProtocolId={focusedProtocolId}
+          onToggleProtocol={toggleProtocol}
+        />
+      )}
+
+      {activeTab === "draft" && (
+        <DraftScreen
+          styles={styles}
+          snapshot={snapshot}
+          studiesData={studiesData}
+          activeProtocolManifest={activeProtocolManifest}
+          activeSectionId={activeSectionId}
+          activeDraftMode={activeDraftMode}
+          fieldVisibility={visibility}
+          obpActions={obpActions}
+          protocolUpdateHandlers={protocolUpdateHandlers}
+          onUpdateHeaderField={updateHeaderField}
+          onUpdateGeneralNote={updateGeneralNote}
+          onUpdateSectionNote={updateSectionNote}
+        />
+      )}
+      {activeTab === "summary" && (
+        <SummaryScreen
+          styles={styles}
+          snapshot={snapshot}
+          reviewIssues={reviewIssues}
+          canSaveDraft={canSaveDraft}
+          saveState={saveState}
+          onRequestDesktopSave={requestDesktopSave}
+          onRequestDesktopPrint={requestDesktopPrint}
+          onRequestDesktopClear={requestDesktopClear}
+        />
+      )}
+
+      <View style={{ height: isLandscape ? 20 : BOTTOM_SPACER_HEIGHT }} />
+    </ScrollView>
+  );
+
+  // Плавающая плашка с названием + стрелки
+  const floatingNav = activeTab === "draft" && activeDraftMode === "protocol" && activeProtocolManifest ? (
+    <View style={landscapeStyles.floatingContainer} pointerEvents="box-none">
+      {/* Плашка с названием */}
+      <View style={landscapeStyles.headerPill}>
+        <Text style={landscapeStyles.headerText}>
+          {activeProtocolManifest.selectionLabel} → {activeProtocolManifest.sections.find(s => s.id === activeSectionId)?.label ?? activeSectionId}
+        </Text>
+      </View>
+      {/* Стрелки */}
+      <Pressable
+        onPress={() => navigateSection("prev")}
+        style={({ pressed }) => [landscapeStyles.arrowButton, pressed && { opacity: 0.7 }]}
+      >
+        <Text style={landscapeStyles.arrowText}>◀</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => navigateSection("next")}
+        style={({ pressed }) => [landscapeStyles.arrowButton, pressed && { opacity: 0.7 }]}
+      >
+        <Text style={landscapeStyles.arrowText}>▶</Text>
+      </Pressable>
+    </View>
+  ) : null;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
@@ -114,7 +267,7 @@ export default function App() {
         </View>
       )}
 
-      {activeTab === "draft" && (
+      {activeTab === "draft" && !isLandscape && (
         <ProtocolNav
           styles={styles}
           selectedStudies={snapshot.selection.selectedStudies}
@@ -137,117 +290,41 @@ export default function App() {
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text
-              style={[
-                styles.tabButtonText,
-                connectSubTab === "connect" && styles.tabButtonTextActive,
-              ]}
-            >
+            <Text style={[styles.tabButtonText, connectSubTab === "connect" && styles.tabButtonTextActive]}>
               Подключение
             </Text>
           </Pressable>
           <Pressable
             onPress={() => setConnectSubTab("fields")}
             style={({ pressed }) => [
-              styles.tabBar, // используется как фон кнопки
+              styles.tabBar,
               styles.tabButton,
               connectSubTab === "fields" && styles.tabButtonActive,
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text
-              style={[
-                styles.tabButtonText,
-                connectSubTab === "fields" && styles.tabButtonTextActive,
-              ]}
-            >
+            <Text style={[styles.tabButtonText, connectSubTab === "fields" && styles.tabButtonTextActive]}>
               Видимость полей
             </Text>
           </Pressable>
         </View>
       )}
 
-      <ScrollView
-        ref={contentScrollRef}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {activeTab === "connect" && connectSubTab === "fields" && (
-          <FieldVisibilitySettings
+      {isLandscape ? (
+        <View style={{ flex: 1 }}>
+          {contentArea}
+          {floatingNav}
+        </View>
+      ) : (
+        <>
+          {contentArea}
+          <BottomNav
             styles={styles}
-            visibility={visibility}
-            onToggle={(id) => toggleGroup(id as any)}
-            onClose={() => setConnectSubTab("connect")}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
-        )}
-        {activeTab === "connect" && connectSubTab !== "fields" && (
-          <ConnectScreen
-            styles={styles}
-            connected={connected}
-            connectionState={connectionState}
-            connectionError={connectionError}
-            hostUrl={hostUrl}
-            pairingCode={pairingCode}
-            setHostUrl={setHostUrlInput}
-            setPairingCode={setPairingCode}
-            connectToHost={connectToHost}
-            disconnect={disconnect}
-            openScanner={openScanner}
-            resetDraft={resetDraft}
-            toWsUrl={toWsUrl}
-            socketStatus={socketStatus}
-            snapshot={snapshot}
-            saveState={saveState}
-          />
-        )}
-
-        {activeTab === "library" && (
-          <LibraryScreen
-            styles={styles}
-            manifests={PROTOCOL_MANIFESTS}
-            selectedStudies={snapshot.selection.selectedStudies}
-            focusedProtocolId={focusedProtocolId}
-            onToggleProtocol={toggleProtocol}
-          />
-        )}
-
-        {activeTab === "draft" && (
-          <DraftScreen
-            styles={styles}
-            snapshot={snapshot}
-            studiesData={studiesData}
-            activeProtocolManifest={activeProtocolManifest}
-            activeSectionId={activeSectionId}
-            activeDraftMode={activeDraftMode}
-            fieldVisibility={visibility}
-            obpActions={obpActions}
-            protocolUpdateHandlers={protocolUpdateHandlers}
-            onUpdateHeaderField={updateHeaderField}
-            onUpdateGeneralNote={updateGeneralNote}
-            onUpdateSectionNote={updateSectionNote}
-          />
-        )}
-        {activeTab === "summary" && (
-          <SummaryScreen
-            styles={styles}
-            snapshot={snapshot}
-            reviewIssues={reviewIssues}
-            canSaveDraft={canSaveDraft}
-            saveState={saveState}
-            onRequestDesktopSave={requestDesktopSave}
-            onRequestDesktopPrint={requestDesktopPrint}
-            onRequestDesktopClear={requestDesktopClear}
-          />
-        )}
-
-        <View style={{ height: BOTTOM_SPACER_HEIGHT }} />
-      </ScrollView>
-
-      <BottomNav
-        styles={styles}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+        </>
+      )}
 
       <ScannerOverlay
         visible={scannerVisible}
@@ -261,3 +338,48 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+const landscapeStyles = StyleSheet.create({
+  floatingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    pointerEvents: "box-none",
+  },
+  headerPill: {
+    position: "absolute",
+    top: 6,
+    alignSelf: "center",
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.12)",
+  },
+  headerText: {
+    color: "#cbd5e1",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  arrowButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.7)",
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.12)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 6,
+  },
+  arrowText: {
+    color: "#f8fafc",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+});
