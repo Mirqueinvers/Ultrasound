@@ -1,0 +1,214 @@
+import { Text, View } from "react-native";
+
+import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
+import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
+import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
+import type { BreastNodeDraft, BreastSideDraft } from "../../shared/breastDraft";
+import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import type { AppStyles } from "../../styles/appStyles";
+import {
+  BREAST_MILK_DUCTS_OPTIONS,
+  BREAST_NIPPLES_OPTIONS,
+  BREAST_SKIN_OPTIONS,
+  BREAST_VOLUME_FORMATIONS_OPTIONS,
+  type EditorState,
+} from "./breastFieldConfigs";
+import { BreastNodeCard } from "./BreastNodeCard";
+
+type BreastSidePanelProps = {
+  styles: AppStyles;
+  side: "right" | "left";
+  breastSide: BreastSideDraft;
+  fv: Record<string, boolean>;
+  openEditor: (config: NonNullable<EditorState>) => void;
+  onUpdateSideField: (side: "right" | "left", field: keyof BreastSideDraft, value: string) => void;
+  onAddNode: (side: "right" | "left") => void;
+  onUpdateNodeField: (side: "right" | "left", index: number, field: keyof BreastNodeDraft, value: string) => void;
+  onRemoveNode: (side: "right" | "left", index: number) => void;
+};
+
+function renderRow(
+  label: string,
+  valueText: string,
+  typeLabel: "numpad" | "select" | "text" | "auto",
+  filled: boolean,
+  onPress?: () => void,
+  readonly?: boolean,
+  options?: { value: string; label: string }[],
+  onSelectOption?: (value: string) => void,
+) {
+  return (
+    <ProtocolFieldRow
+      label={label}
+      value={valueText}
+      typeLabel={typeLabel}
+      filled={filled}
+      readonly={readonly}
+      onPress={onPress}
+      options={options}
+      onSelectOption={onSelectOption}
+    />
+  );
+}
+
+export function BreastSidePanel({
+  styles,
+  side,
+  breastSide,
+  fv,
+  openEditor,
+  onUpdateSideField,
+  onAddNode,
+  onUpdateNodeField,
+  onRemoveNode,
+}: BreastSidePanelProps) {
+  const title = side === "right" ? "Правая молочная железа" : "Левая молочная железа";
+  const showNodeList = isNormalizedMatch(breastSide.volumeFormations, "определяются");
+
+  const sideKey = side === "right" ? "right" : "left";
+  const showSkin = fv[`breast.${sideKey}.skin`] !== false;
+  const showParenchyma = fv[`breast.${sideKey}.parenchyma`] !== false;
+  const showAdditional = fv[`breast.${sideKey}.additional`] !== false;
+
+  return (
+    <View style={styles.kidneyPlainSection}>
+      <ProtocolOrganHeader title={title} />
+
+      <View style={styles.obpFieldList}>
+        {showSkin && (
+          <>
+            <ProtocolSectionHeader title="Общие характеристики" />
+            {renderRow(
+              "Кожа",
+              breastSide.skin || "Нажмите для ввода",
+              "select",
+              Boolean(breastSide.skin),
+              undefined,
+              undefined,
+              BREAST_SKIN_OPTIONS,
+              (nextValue) => onUpdateSideField(side, "skin", nextValue),
+            )}
+            {isNormalizedMatch(breastSide.skin, "изменена") &&
+              renderRow(
+                "Описание изменений кожи",
+                breastSide.skinComment || "Нажмите для ввода",
+                "text",
+                Boolean(breastSide.skinComment),
+                () =>
+                  openEditor({
+                    title: `${title}: описание изменений кожи`,
+                    mode: "text",
+                    value: breastSide.skinComment,
+                    placeholder: "Введите описание",
+                    multiline: true,
+                    onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue),
+                  }),
+              )}
+
+            {renderRow(
+              "Соски и ареолы",
+              breastSide.nipples || "Нажмите для ввода",
+              "select",
+              Boolean(breastSide.nipples),
+              undefined,
+              undefined,
+              BREAST_NIPPLES_OPTIONS,
+              (nextValue) => onUpdateSideField(side, "nipples", nextValue),
+            )}
+            {isNormalizedMatch(breastSide.nipples, "изменены") &&
+              renderRow(
+                "Описание изменений сосков и ареол",
+                breastSide.nipplesComment || "Нажмите для ввода",
+                "text",
+                Boolean(breastSide.nipplesComment),
+                () =>
+                  openEditor({
+                    title: `${title}: описание изменений сосков и ареол`,
+                    mode: "text",
+                    value: breastSide.nipplesComment,
+                    placeholder: "Введите описание",
+                    multiline: true,
+                    onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue),
+                  }),
+              )}
+
+            {renderRow(
+              "Млечные протоки",
+              breastSide.milkDucts || "Нажмите для ввода",
+              "select",
+              Boolean(breastSide.milkDucts),
+              undefined,
+              undefined,
+              BREAST_MILK_DUCTS_OPTIONS,
+              (nextValue) => onUpdateSideField(side, "milkDucts", nextValue),
+            )}
+          </>
+        )}
+
+        {showParenchyma && (
+          <>
+            <ProtocolSectionHeader title="Объемные образования" />
+            {renderRow(
+              "Определение",
+              breastSide.volumeFormations || "Нажмите для ввода",
+              "select",
+              Boolean(breastSide.volumeFormations),
+              undefined,
+              undefined,
+              BREAST_VOLUME_FORMATIONS_OPTIONS,
+              (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue),
+            )}
+
+            {showNodeList && (
+              <View style={styles.obpFieldList}>
+                <ProtocolSectionHeader title="Узлы" />
+                {breastSide.nodesList.length === 0 ? (
+                  <Text style={styles.helperText}>Добавьте хотя бы один узел.</Text>
+                ) : (
+                  breastSide.nodesList.map((node, index) => (
+                    <BreastNodeCard
+                      key={`${side}-breast-node-${index}`}
+                      styles={styles}
+                      node={node}
+                      index={index}
+                      side={side}
+                      openEditor={openEditor}
+                      onUpdateNodeField={onUpdateNodeField}
+                      onRemoveNode={onRemoveNode}
+                    />
+                  ))
+                )}
+
+                <ProtocolActionButton
+                  label="+ Узел"
+                  onPress={() => onAddNode(side)}
+                />
+              </View>
+            )}
+          </>
+        )}
+
+        {showAdditional && (
+          <>
+            <ProtocolSectionHeader title="Дополнительно" />
+            {renderRow(
+              "Дополнительно",
+              breastSide.additional || "Нажмите для ввода",
+              "text",
+              Boolean(breastSide.additional),
+              () =>
+                openEditor({
+                  title: `${title}: дополнительно`,
+                  mode: "text",
+                  value: breastSide.additional,
+                  placeholder: "Введите дополнительное описание",
+                  multiline: true,
+                  onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue),
+                }),
+            )}
+          </>
+        )}
+      </View>
+    </View>
+  );
+}

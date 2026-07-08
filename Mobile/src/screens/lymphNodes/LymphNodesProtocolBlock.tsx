@@ -1,40 +1,14 @@
-import { Fragment, useEffect, useState, type ReactNode } from "react";
-import { Keyboard, Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
-import {
-  FieldEditorModal,
-  type FieldEditorOption,
-} from "../../components/FieldEditorModal";
-import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
-import { ProtocolCard } from "../../components/protocol/ProtocolCard";
-import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
-import {
-  ProtocolOrganHeader,
-  ProtocolSectionHeader,
-} from "../../components/protocol/ProtocolHeaders";
-import {
-  createEmptyLymphNodeDraft,
-  type LymphNodeDraft,
-  type LymphNodeRegionDraft,
-  type LymphNodesStudyDraft,
-} from "../../shared/lymphNodesDraft";
+import { FieldEditorModal } from "../../components/FieldEditorModal";
+import { ProtocolOrganHeader } from "../../components/protocol/ProtocolHeaders";
+import type { LymphNodesStudyDraft } from "../../shared/lymphNodesDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
-
-type EditorState = {
-  title: string;
-  mode: "number" | "select" | "text";
-  value: string;
-  placeholder?: string;
-  multiline?: boolean;
-  options?: FieldEditorOption[];
-  footerContent?: (context: {
-    value: string;
-    setValue: (nextValue: string) => void;
-    close: () => void;
-  }) => ReactNode;
-  onSave: (value: string) => void;
-} | null;
+import { REGION_FIELDS } from "./lymphNodesFieldConfigs";
+import { useLymphNodesDraft } from "./useLymphNodesDraft";
+import { LymphNodeRegionCard } from "./LymphNodeRegionCard";
+import { LymphNodesConclusionPanel } from "./LymphNodesConclusionPanel";
 
 type LymphNodesProtocolBlockProps = {
   styles: AppStyles;
@@ -44,46 +18,6 @@ type LymphNodesProtocolBlockProps = {
   activeSectionId?: string | null;
 };
 
-const REGION_FIELDS = [
-  { key: "submandibular" as const, title: "Поднижнечелюстные" },
-  { key: "cervical" as const, title: "Шейные" },
-  { key: "subclavian" as const, title: "Подключичные" },
-  { key: "supraclavicular" as const, title: "Надключичные" },
-  { key: "axillary" as const, title: "Подмышечные" },
-  { key: "inguinal" as const, title: "Паховые" },
-];
-
-const DETECTION_OPTIONS: FieldEditorOption[] = [
-  { value: "not_detected", label: "Не определяются" },
-  { value: "detected", label: "Определяются" },
-];
-
-const LYMPH_NODE_ECHOGENICITY_OPTIONS: FieldEditorOption[] = [
-  { value: "изоэхогенный", label: "изоэхогенный" },
-  { value: "гипоэхогенный", label: "гипоэхогенный" },
-];
-
-const LYMPH_NODE_ECHOSTRUCTURE_OPTIONS: FieldEditorOption[] = [
-  { value: "однородная", label: "однородная" },
-  { value: "неоднородная", label: "неоднородная" },
-];
-
-const LYMPH_NODE_SHAPE_OPTIONS: FieldEditorOption[] = [
-  { value: "овальная", label: "овальная" },
-  { value: "округлая", label: "округлая" },
-];
-
-const LYMPH_NODE_CONTOUR_OPTIONS: FieldEditorOption[] = [
-  { value: "ровный четкий", label: "ровный четкий" },
-  { value: "нечеткий", label: "нечеткий" },
-  { value: "неровный", label: "неровный" },
-];
-
-const LYMPH_NODE_BLOOD_FLOW_OPTIONS: FieldEditorOption[] = [
-  { value: "не определяется", label: "не определяется" },
-  { value: "сохранен", label: "сохранен" },
-];
-
 export function LymphNodesProtocolBlock({
   styles,
   fieldVisibility,
@@ -91,14 +25,9 @@ export function LymphNodesProtocolBlock({
   onChange,
   activeSectionId,
 }: LymphNodesProtocolBlockProps) {
-  const [form, setForm] = useState<LymphNodesStudyDraft>(value);
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const draftApi = useLymphNodesDraft(value, onChange);
 
-  useEffect(() => {
-    setForm(value);
-  }, [value]);
-
-  const lymphNodes = form.lymphNodes;
+  const lymphNodes = draftApi.form.lymphNodes;
   const fv = fieldVisibility as Record<string, boolean>;
   const activeRegionKey =
     activeSectionId === "lymph_nodes.submandibular"
@@ -115,379 +44,83 @@ export function LymphNodesProtocolBlock({
                 ? "inguinal"
                 : null;
 
-  const updateForm = (updater: (current: LymphNodesStudyDraft) => LymphNodesStudyDraft) => {
-    setForm((current) => {
-      const next = updater(current);
-      onChange(next);
-      return next;
-    });
-  };
-
-  const openEditor = (config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => {
-      setEditorState(config);
-    }, 0);
-  };
-
-  const closeEditor = () => setEditorState(null);
-
-  const saveEditor = (nextValue: string) => {
-    editorState?.onSave(nextValue);
-    closeEditor();
-  };
-
-  const updateRegionField = (
-    regionKey: keyof LymphNodesStudyDraft["lymphNodes"],
-    field: keyof LymphNodeRegionDraft,
-    nextValue: string,
-  ) => {
-    updateForm((current) => {
-      const sourceRegion = current.lymphNodes[regionKey];
-      const nextRegion: LymphNodeRegionDraft = {
-        ...sourceRegion,
-        [field]: nextValue,
-      };
-
-      if (field === "detected" && nextValue === "not_detected") {
-        nextRegion.nodes = [];
-      }
-
-      return {
-        ...current,
-        lymphNodes: {
-          ...current.lymphNodes,
-          [regionKey]: nextRegion,
-        },
-      };
-    });
-  };
-
-  const addNode = (regionKey: keyof LymphNodesStudyDraft["lymphNodes"], side: "left" | "right") => {
-    updateForm((current) => {
-      const sourceRegion = current.lymphNodes[regionKey];
-      const nextNode: LymphNodeDraft = {
-        ...createEmptyLymphNodeDraft(),
-        id: `${Date.now()}-${Math.random()}`,
-        side,
-      };
-
-      return {
-        ...current,
-        lymphNodes: {
-          ...current.lymphNodes,
-          [regionKey]: {
-            ...sourceRegion,
-            detected: "detected",
-            nodes: [...sourceRegion.nodes, nextNode],
-          },
-        },
-      };
-    });
-  };
-
-  const updateNodeField = (
-    regionKey: keyof LymphNodesStudyDraft["lymphNodes"],
-    index: number,
-    field: keyof LymphNodeDraft,
-    nextValue: string,
-  ) => {
-    updateForm((current) => {
-      const sourceRegion = current.lymphNodes[regionKey];
-      const nextNodes = sourceRegion.nodes.map((node, nodeIndex) =>
-        nodeIndex === index ? { ...node, [field]: nextValue } : node,
-      );
-
-      return {
-        ...current,
-        lymphNodes: {
-          ...current.lymphNodes,
-          [regionKey]: {
-            ...sourceRegion,
-            nodes: nextNodes,
-          },
-        },
-      };
-    });
-  };
-
-  const removeNode = (regionKey: keyof LymphNodesStudyDraft["lymphNodes"], index: number) => {
-    updateForm((current) => {
-      const sourceRegion = current.lymphNodes[regionKey];
-      const nextNodes = sourceRegion.nodes.filter((_, nodeIndex) => nodeIndex !== index);
-
-      return {
-        ...current,
-        lymphNodes: {
-          ...current.lymphNodes,
-          [regionKey]: {
-            ...sourceRegion,
-            nodes: nextNodes,
-          },
-        },
-      };
-    });
-  };
-
-  const renderField = (
-    label: string,
-    valueText: string,
-    typeLabel: "numpad" | "select" | "text" | "auto",
-    filled: boolean,
-    onPress?: () => void,
-    readonly?: boolean,
-  options?: FieldEditorOption[],
-    onSelectOption?: (value: string) => void,
-  ) => (
-    <ProtocolFieldRow
-      label={label}
-      value={valueText}
-      typeLabel={typeLabel}
-      filled={filled}
-      readonly={readonly}
-      onPress={onPress}
-      options={options}
-      onSelectOption={onSelectOption}
-    />
-  );
-
-  const renderNode = (
-    regionKey: keyof LymphNodesStudyDraft["lymphNodes"],
-    node: LymphNodeDraft,
-    index: number,
-  ) => (
-    <ProtocolCard
-      key={`${regionKey}-node-${node.id || index}`}
-      title={`Узел ${node.side === "right" ? "правый" : "левый"}`}
-      actionLabel="Удалить"
-      actionVariant="danger"
-      onActionPress={() => removeNode(regionKey, index)}
-      variant="item"
-    >
-      <View style={styles.obpFieldList}>
-        <View style={styles.dualRow}>
-          <View style={styles.dualCol}>
-            {renderField(
-              "Размер 1 (мм)",
-              node.size1 || "Введите размер",
-              "numpad",
-              Boolean(node.size1),
-              () =>
-                openEditor({
-                  title: `Узел #${index + 1}: Размер 1`,
-                  mode: "number",
-                  value: node.size1,
-                  placeholder: "мм",
-                  onSave: (nextValue) => updateNodeField(regionKey, index, "size1", nextValue),
-                }),
-            )}
-          </View>
-          <View style={styles.dualCol}>
-            {renderField(
-              "Размер 2 (мм)",
-              node.size2 || "Введите размер",
-              "numpad",
-              Boolean(node.size2),
-              () =>
-                openEditor({
-                  title: `Узел #${index + 1}: Размер 2`,
-                  mode: "number",
-                  value: node.size2,
-                  placeholder: "мм",
-                  onSave: (nextValue) => updateNodeField(regionKey, index, "size2", nextValue),
-                }),
-            )}
-          </View>
-        </View>
-
-        {renderField(
-          "Эхогенность",
-          node.echogenicity || "Введите значение",
-          "select",
-          Boolean(node.echogenicity),
-          undefined,
-          undefined,
-          LYMPH_NODE_ECHOGENICITY_OPTIONS,
-          (nextValue) => updateNodeField(regionKey, index, "echogenicity", nextValue),
-        )}
-
-        {renderField(
-          "Эхоструктура",
-          node.echostructure || "Введите значение",
-          "select",
-          Boolean(node.echostructure),
-          undefined,
-          undefined,
-          LYMPH_NODE_ECHOSTRUCTURE_OPTIONS,
-          (nextValue) => updateNodeField(regionKey, index, "echostructure", nextValue),
-        )}
-
-        {renderField(
-          "Форма",
-          node.shape || "Введите значение",
-          "select",
-          Boolean(node.shape),
-          undefined,
-          undefined,
-          LYMPH_NODE_SHAPE_OPTIONS,
-          (nextValue) => updateNodeField(regionKey, index, "shape", nextValue),
-        )}
-
-        {renderField(
-          "Контур",
-          node.contour || "Введите значение",
-          "select",
-          Boolean(node.contour),
-          undefined,
-          undefined,
-          LYMPH_NODE_CONTOUR_OPTIONS,
-          (nextValue) => updateNodeField(regionKey, index, "contour", nextValue),
-        )}
-
-        {renderField(
-          "Кровоток",
-          node.bloodFlow || "Введите значение",
-          "select",
-          Boolean(node.bloodFlow),
-          undefined,
-          undefined,
-          LYMPH_NODE_BLOOD_FLOW_OPTIONS,
-          (nextValue) => updateNodeField(regionKey, index, "bloodFlow", nextValue),
-        )}
-      </View>
-    </ProtocolCard>
-  );
-
-  const renderRegion = (
-    regionKey: keyof LymphNodesStudyDraft["lymphNodes"],
-    title: string,
-  ) => {
-    const region = lymphNodes[regionKey];
-
-    return (
-      <ProtocolCard title={title} key={regionKey}>
-        <View style={styles.obpFieldList}>
-          {renderField(
-          "Определение",
-          region.detected === "detected" ? "Определяются" : "Не определяются",
-          "select",
-          region.detected === "detected",
-          undefined,
-          undefined,
-          DETECTION_OPTIONS,
-          (nextValue) =>
-                  updateRegionField(regionKey, "detected", nextValue as LymphNodeRegionDraft["detected"]),
-        )}
-
-          {region.detected === "detected" && (
-            <View style={styles.obpFieldList}>
-              {region.nodes.length === 0 ? (
-                <Text style={styles.helperText}>Лимфатические узлы не добавлены</Text>
-              ) : (
-                region.nodes.map((node, index) => renderNode(regionKey, node, index))
-              )}
-
-              <View style={styles.dualRow}>
-                <View style={styles.dualCol}>
-                  <ProtocolActionButton
-                    label="+ Правый узел"
-                    onPress={() => addNode(regionKey, "right")}
-                  />
-                </View>
-                <View style={styles.dualCol}>
-                  <ProtocolActionButton
-                    label="+ Левый узел"
-                    onPress={() => addNode(regionKey, "left")}
-                  />
-                </View>
-              </View>
-            </View>
-          )}
-        </View>
-      </ProtocolCard>
-    );
-  };
-
   return (
     <>
       <FieldEditorModal
-        visible={Boolean(editorState)}
-        title={editorState?.title ?? ""}
-        mode={editorState?.mode ?? "text"}
-        value={editorState?.value ?? ""}
-        options={editorState?.options}
-        placeholder={editorState?.placeholder}
-        multiline={editorState?.multiline}
-        footerContent={editorState?.footerContent}
-        onCancel={closeEditor}
-        onSave={saveEditor}
+        visible={Boolean(draftApi.editorState)}
+        title={draftApi.editorState?.title ?? ""}
+        mode={draftApi.editorState?.mode ?? "text"}
+        value={draftApi.editorState?.value ?? ""}
+        options={draftApi.editorState?.options}
+        placeholder={draftApi.editorState?.placeholder}
+        multiline={draftApi.editorState?.multiline}
+        footerContent={draftApi.editorState?.footerContent}
+        onCancel={draftApi.closeEditor}
+        onSave={draftApi.saveEditor}
       />
 
       {fv["lymph_nodes.sizes"] !== false && (
-      <View style={styles.kidneyPlainSection}>
-        <ProtocolOrganHeader title="Лимфатические узлы" />
-      </View>
+        <View style={styles.kidneyPlainSection}>
+          <ProtocolOrganHeader title="Лимфатические узлы" />
+        </View>
       )}
 
       {activeSectionId === "lymph_nodes.conclusion" ? null : activeRegionKey ? (
-        <View style={styles.kidneyPlainSection}>{renderRegion(activeRegionKey, REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? "")}</View>
+        <View style={styles.kidneyPlainSection}>
+          <LymphNodeRegionCard
+            styles={styles}
+            regionKey={activeRegionKey}
+            title={REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? ""}
+            region={lymphNodes[activeRegionKey]}
+            openEditor={draftApi.openEditor}
+            onUpdateRegionField={draftApi.updateRegionField}
+            onAddNode={draftApi.addNode}
+            onUpdateNodeField={draftApi.updateNodeField}
+            onRemoveNode={draftApi.removeNode}
+          />
+        </View>
       ) : activeSectionId ? (
         <View style={styles.kidneyPlainSection}>
-          {renderRegion("submandibular", REGION_FIELDS[0].title)}
+          <LymphNodeRegionCard
+            styles={styles}
+            regionKey="submandibular"
+            title={REGION_FIELDS[0].title}
+            region={lymphNodes.submandibular}
+            openEditor={draftApi.openEditor}
+            onUpdateRegionField={draftApi.updateRegionField}
+            onAddNode={draftApi.addNode}
+            onUpdateNodeField={draftApi.updateNodeField}
+            onRemoveNode={draftApi.removeNode}
+          />
         </View>
       ) : (
         REGION_FIELDS.map(({ key, title }) => (
           <View key={key} style={styles.kidneyPlainSection}>
-            {renderRegion(key, title)}
+            <LymphNodeRegionCard
+              styles={styles}
+              regionKey={key}
+              title={title}
+              region={lymphNodes[key]}
+              openEditor={draftApi.openEditor}
+              onUpdateRegionField={draftApi.updateRegionField}
+              onAddNode={draftApi.addNode}
+              onUpdateNodeField={draftApi.updateNodeField}
+              onRemoveNode={draftApi.removeNode}
+            />
           </View>
         ))
       )}
 
-      {(!activeSectionId || activeSectionId === "lymph_nodes.conclusion") && fv["lymph_nodes.conclusion"] !== false && (
-      <View style={styles.kidneyPlainSection}>
-        <ProtocolOrganHeader title="Заключение" />
-        <View style={styles.obpFieldList}>
-          {renderField(
-            "Заключение",
-            form.conclusion || "Введите заключение",
-            "text",
-            Boolean(form.conclusion),
-            () =>
-              openEditor({
-                title: "Заключение лимфоузлов",
-                mode: "text",
-                value: form.conclusion,
-                placeholder: "Введите заключение",
-                multiline: true,
-                onSave: (nextValue) =>
-                  updateForm((current) => ({
-                    ...current,
-                    conclusion: nextValue,
-                  })),
-              }),
-          )}
-          {renderField(
-            "Рекомендации",
-            form.recommendations || "Введите рекомендации",
-            "text",
-            Boolean(form.recommendations),
-            () =>
-              openEditor({
-                title: "Рекомендации лимфоузлов",
-                mode: "text",
-                value: form.recommendations,
-                placeholder: "Введите рекомендации",
-                multiline: true,
-                onSave: (nextValue) =>
-                  updateForm((current) => ({
-                    ...current,
-                    recommendations: nextValue,
-                  })),
-              }),
-          )}
-        </View>
-      </View>
-      )}
+      {(!activeSectionId || activeSectionId === "lymph_nodes.conclusion") &&
+        fv["lymph_nodes.conclusion"] !== false && (
+          <LymphNodesConclusionPanel
+            styles={styles}
+            conclusion={draftApi.form.conclusion}
+            recommendations={draftApi.form.recommendations}
+            openEditor={draftApi.openEditor}
+            onUpdateForm={draftApi.updateForm}
+          />
+        )}
     </>
   );
 }
