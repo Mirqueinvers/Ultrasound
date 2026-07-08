@@ -70,6 +70,7 @@ export function OmtFemaleProtocolBlock({
             key={side}
             styles={styles} side={side}
             ovary={ovaryData ?? { position: "", length: "", width: "", thickness: "", volume: "", shape: "", contour: "", cysts: "", cystsList: [], formations: "", formationsText: "", additional: "" }}
+            fv={fv}
             openEditor={draftApi.openEditor}
             onUpdateOvaryField={draftApi.updateOvaryField}
             onAddCyst={draftApi.addOvaryCyst}
@@ -82,6 +83,7 @@ export function OmtFemaleProtocolBlock({
       <OmtFemaleBladderPanel
         styles={styles}
         bladder={draftApi.form.urinaryBladder ?? { length: "", width: "", depth: "", volume: "", wallThickness: "", residualStatus: "", residualLength: "", residualWidth: "", residualDepth: "", residualVolume: "", contents: "", contentsText: "", additional: "" }}
+        fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.bladder}
         openEditor={draftApi.openEditor}
         onUpdateBladderField={draftApi.updateBladderField}

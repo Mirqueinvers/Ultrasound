@@ -5,6 +5,7 @@ import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { createEmptyKidneyDraft, type KidneyConcrementDraft, type KidneyCystDraft, type KidneyDraft, type KidneyStudyDraft } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import {
@@ -18,9 +19,20 @@ import {
   KIDNEY_SECTION_IDS,
   type EditorState,
   kidneyFields,
+  type KidneyFieldSpec,
 } from "./kidneysFieldConfigs";
 import { KidneyConcrementSection } from "./KidneyConcrementSection";
 import { KidneyCystPanel } from "./KidneyCystPanel";
+
+/** Заголовки секций для kidneyFields — появляются перед первым полем группы */
+const KIDNEY_SECTION_HEADERS: Partial<Record<string, string>> = {
+  length: "Размеры",
+  parenchymaSize: "Паренхима",
+  pcsSize: "ЧЛС",
+  sinus: "Почечный синус",
+  adrenalArea: "Область надпочечников",
+  additional: "Дополнительно",
+};
 
 type KidneySidePanelProps = {
   styles: AppStyles;
@@ -118,26 +130,18 @@ export function KidneySidePanel({
           if (field.key === "pcsMicrolithsSize" && !showPcsMicrolithsSize) {
             return null;
           }
-          if (field.key === "sinus" || field.key === "adrenalArea" || field.key === "additional") {
-            return null;
-          }
+	          if (!isFieldVisible(field, fieldVisibility)) {
+	            return null;
+	          }
           const currentValue = kidney[field.key];
           const filled = Boolean(currentValue && currentValue.trim().length > 0);
           const currentDisplay = currentValue || "Нажмите для ввода";
 
           return (
             <Fragment key={field.key}>
-              {field.key === "length" && (
-                <ProtocolSectionHeader title="Размеры" />
-              )}
-
-              {field.key === "parenchymaSize" && (
-                <ProtocolSectionHeader title="Паренхима" />
-              )}
-
-              {field.key === "pcsSize" && (
-                <ProtocolSectionHeader title="ЧЛС" />
-              )}
+	              {KIDNEY_SECTION_HEADERS[field.key] && (
+	                <ProtocolSectionHeader title={KIDNEY_SECTION_HEADERS[field.key]!} />
+	              )}
 
               <ProtocolFieldRow
                 label={field.label}
@@ -147,19 +151,19 @@ export function KidneySidePanel({
                 onPress={
                   field.kind === "select"
                     ? undefined
-                    : () => {
-                        openEditor({
-                          title: `${title}: Описание патологических образований паренхимы`,
-                          mode: field.kind,
-                          value: currentValue,
-                          placeholder: field.placeholder,
-                          multiline: field.multiline,
-                          options: field.options,
-                          onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
-                        });
-                      }
-                }
-                options={field.kind === "select" ? field.options : undefined}
+	                    : () => {
+	                        openEditor({
+	                          title: `${title}: ${field.label}`,
+	                          mode: field.kind,
+	                          value: currentValue,
+	                          placeholder: field.placeholder,
+	                          multiline: field.multiline,
+	                          options: field.options,
+	                          onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
+	                        });
+	                      }
+	                }
+	                options={field.kind === "select" ? field.options : undefined}
                 onSelectOption={
                   field.kind === "select"
                     ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
@@ -273,11 +277,39 @@ export function KidneySidePanel({
                 />
               )}
 
-              {field.key === "pcsPathologicalFormations" && showPcsPathology && (
-                <Pressable
-                  onPress={() =>
-                    openEditor({
-                      title: "Описание патологических образований ЧЛС",
+	              {field.key === "adrenalArea" && showAdrenalText && (
+	                <Pressable
+	                  onPress={() =>
+	                    openEditor({
+	                      title: "Область надпочечников: Описание изменений",
+	                      mode: "text",
+	                      value: kidney.adrenalAreaText,
+	                      placeholder: "Введите описание",
+	                      multiline: true,
+	                      onSave: (nextValue) => onUpdateKidneyField(side, "adrenalAreaText", nextValue),
+	                    })
+	                  }
+	                  style={({ pressed }) => [
+	                    styles.obpFieldRow,
+	                    kidney.adrenalAreaText.trim().length > 0 && styles.obpFieldRowFilled,
+	                    pressed && styles.obpFieldRowPressed,
+	                  ]}
+	                >
+	                  <View style={styles.obpFieldRowContent}>
+	                    <Text style={styles.obpFieldLabel}>Описание изменений</Text>
+	                    <Text style={styles.obpFieldValue}>
+	                      {kidney.adrenalAreaText || "Нажмите для ввода"}
+	                    </Text>
+	                  </View>
+	                  <Text style={styles.obpFieldType}>text</Text>
+	                </Pressable>
+	              )}
+
+	              {field.key === "pcsPathologicalFormations" && showPcsPathology && (
+	                <Pressable
+	                  onPress={() =>
+	                    openEditor({
+	                      title: "Описание патологических образований ЧЛС",
                       mode: "text",
                       value: kidney.pcsPathologicalFormationsText,
                       placeholder: "Введите описание",
@@ -305,97 +337,7 @@ export function KidneySidePanel({
           );
         })}
 
-        {fv["kidneys.sinus"] !== false && (
-          <>
-            <ProtocolSectionHeader title="Синус" />
-            <ProtocolFieldRow
-              label="Почечный синус"
-              value={kidney.sinus || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={kidney.sinus.trim().length > 0}
-              options={[
-                { value: "без включений", label: "Без включений" },
-                { value: "с включениями", label: "С включениями" },
-              ]}
-              onSelectOption={(nextValue) => onUpdateKidneyField(side, "sinus", nextValue)}
-            />
-          </>
-        )}
-
-        {fv["kidneys.adrenal"] !== false && (
-          <>
-            <ProtocolSectionHeader title="Область надпочечников" />
-            <ProtocolFieldRow
-              label="Область надпочечников"
-              value={kidney.adrenalArea || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={kidney.adrenalArea.trim().length > 0}
-              options={KIDNEY_ADRENAL_OPTIONS}
-              onSelectOption={(nextValue) => onUpdateKidneyField(side, "adrenalArea", nextValue)}
-            />
-
-            {showAdrenalText && (
-              <Pressable
-                onPress={() =>
-                  openEditor({
-                    title: "Область надпочечников: Описание изменений",
-                    mode: "text",
-                    value: kidney.adrenalAreaText,
-                    placeholder: "Введите описание",
-                    multiline: true,
-                    onSave: (nextValue) => onUpdateKidneyField(side, "adrenalAreaText", nextValue),
-                  })
-                }
-                style={({ pressed }) => [
-                  styles.obpFieldRow,
-                  kidney.adrenalAreaText.trim().length > 0 && styles.obpFieldRowFilled,
-                  pressed && styles.obpFieldRowPressed,
-                ]}
-              >
-                <View style={styles.obpFieldRowContent}>
-                  <Text style={styles.obpFieldLabel}>Описание изменений</Text>
-                  <Text style={styles.obpFieldValue}>
-                    {kidney.adrenalAreaText || "Нажмите для ввода"}
-                  </Text>
-                </View>
-                <Text style={styles.obpFieldType}>text</Text>
-              </Pressable>
-            )}
-          </>
-        )}
-
-        {fv["kidneys.additional"] !== false && (
-          <>
-            <ProtocolSectionHeader title="Дополнительно" note="Описание и замечания" />
-            <Pressable
-              onPress={() =>
-                openEditor({
-                  title: `${title}: Дополнительно`,
-                  mode: "text",
-                  value: kidney.additional,
-                  placeholder: "Введите дополнительное описание",
-                  multiline: true,
-                  onSave: (nextValue) => onUpdateKidneyField(side, "additional", nextValue),
-                })
-              }
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                kidney.additional.trim().length > 0 && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>Дополнительно</Text>
-                <Text style={styles.obpFieldValue}>
-                  {kidney.additional || "Нажмите для ввода"}
-                </Text>
-              </View>
-              <Text style={styles.obpFieldType}>text</Text>
-            </Pressable>
-          </>
-        )}
-
-        {showPositionText && (
+	        {fv["kidneys.position"] !== false && showPositionText && (
           <Pressable
             onPress={() =>
               openEditor({

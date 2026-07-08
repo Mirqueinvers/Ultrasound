@@ -13,7 +13,7 @@ import type { EditorState } from "./useObpEditor";
 const LIVER_SECTION_HEADERS: Record<string, string> = {
   rightLobeAP: "Размеры",
   echogenicity: "Структура",
-  vascularPattern: "Сосуды",
+  portalVeinDiameter: "Сосуды",
   additional: "Дополнительно",
 };
 

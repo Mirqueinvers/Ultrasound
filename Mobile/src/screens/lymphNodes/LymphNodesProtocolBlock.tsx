@@ -59,11 +59,9 @@ export function LymphNodesProtocolBlock({
         onSave={draftApi.saveEditor}
       />
 
-      {fv["lymph_nodes.sizes"] !== false && (
-        <View style={styles.kidneyPlainSection}>
-          <ProtocolOrganHeader title="Лимфатические узлы" />
-        </View>
-      )}
+      <View style={styles.kidneyPlainSection}>
+        <ProtocolOrganHeader title="Лимфатические узлы" />
+      </View>
 
       {activeSectionId === "lymph_nodes.conclusion" ? null : activeRegionKey ? (
         <View style={styles.kidneyPlainSection}>
@@ -72,6 +70,7 @@ export function LymphNodesProtocolBlock({
             regionKey={activeRegionKey}
             title={REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? ""}
             region={lymphNodes[activeRegionKey]}
+            fv={fv}
             openEditor={draftApi.openEditor}
             onUpdateRegionField={draftApi.updateRegionField}
             onAddNode={draftApi.addNode}
@@ -86,6 +85,7 @@ export function LymphNodesProtocolBlock({
             regionKey="submandibular"
             title={REGION_FIELDS[0].title}
             region={lymphNodes.submandibular}
+            fv={fv}
             openEditor={draftApi.openEditor}
             onUpdateRegionField={draftApi.updateRegionField}
             onAddNode={draftApi.addNode}
@@ -101,6 +101,7 @@ export function LymphNodesProtocolBlock({
               regionKey={key}
               title={title}
               region={lymphNodes[key]}
+              fv={fv}
               openEditor={draftApi.openEditor}
               onUpdateRegionField={draftApi.updateRegionField}
               onAddNode={draftApi.addNode}

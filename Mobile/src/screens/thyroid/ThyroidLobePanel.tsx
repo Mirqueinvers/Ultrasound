@@ -51,9 +51,11 @@ export function ThyroidLobePanel({
       <ProtocolOrganHeader title={title} />
 
       <View style={styles.obpFieldList}>
-        {fv["thyroid.lobe.sizes"] !== false && (
-          <>
+        <>
+          {(fv["thyroid.length"] !== false || fv["thyroid.width"] !== false || fv["thyroid.depth"] !== false || fv["thyroid.volume"] !== false) && (
             <ProtocolSectionHeader title="Размеры" />
+          )}
+          {fv["thyroid.length"] !== false && (
             <ProtocolFieldRow
               label="Длина (мм)"
               value={lobe.length || "Нажмите для ввода"}
@@ -69,6 +71,8 @@ export function ThyroidLobePanel({
                 })
               }
             />
+          )}
+          {fv["thyroid.width"] !== false && (
             <ProtocolFieldRow
               label="Ширина (мм)"
               value={lobe.width || "Нажмите для ввода"}
@@ -84,6 +88,8 @@ export function ThyroidLobePanel({
                 })
               }
             />
+          )}
+          {fv["thyroid.depth"] !== false && (
             <ProtocolFieldRow
               label="Глубина (мм)"
               value={lobe.depth || "Нажмите для ввода"}
@@ -99,6 +105,8 @@ export function ThyroidLobePanel({
                 })
               }
             />
+          )}
+          {fv["thyroid.volume"] !== false && (
             <ProtocolFieldRow
               label="Объем (мл)"
               value={lobe.volume || "Рассчитывается автоматически"}
@@ -106,43 +114,47 @@ export function ThyroidLobePanel({
               filled={Boolean(lobe.volume)}
               readonly
             />
-          </>
-        )}
+          )}
+        </>
 
-        <ProtocolSectionHeader title="Объемные образования" />
-        <ProtocolFieldRow
-          label="Определение"
-          value={lobe.volumeFormations || "Нажмите для ввода"}
-          typeLabel="select"
-          filled={Boolean(lobe.volumeFormations)}
-          options={THYROID_VOLUME_FORMATIONS_OPTIONS}
-          onSelectOption={(nextValue) => onUpdateLobeField(side, "volumeFormations", nextValue)}
-        />
-
-        {showNodes && (
-          <View style={styles.obpFieldList}>
-            {lobe.nodesList.length === 0 ? (
-              <Text style={styles.helperText}>Добавьте хотя бы один узел.</Text>
-            ) : (
-              lobe.nodesList.map((node, index) => (
-                <ThyroidNodeCard
-                  key={`${side}-thyroid-node-${index}`}
-                  styles={styles}
-                  node={node}
-                  index={index}
-                  side={side}
-                  openEditor={openEditor}
-                  onUpdateNodeField={onUpdateNodeField}
-                  onRemoveNode={onRemoveNode}
-                />
-              ))
-            )}
-
-            <ProtocolActionButton
-              label="+ Узел"
-              onPress={() => onAddNode(side)}
+        {fv["thyroid.volumeFormations"] !== false && (
+          <>
+            <ProtocolSectionHeader title="Объемные образования" />
+            <ProtocolFieldRow
+              label="Определение"
+              value={lobe.volumeFormations || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(lobe.volumeFormations)}
+              options={THYROID_VOLUME_FORMATIONS_OPTIONS}
+              onSelectOption={(nextValue) => onUpdateLobeField(side, "volumeFormations", nextValue)}
             />
-          </View>
+
+            {showNodes && (
+              <View style={styles.obpFieldList}>
+                {lobe.nodesList.length === 0 ? (
+                  <Text style={styles.helperText}>Добавьте хотя бы один узел.</Text>
+                ) : (
+                  lobe.nodesList.map((node, index) => (
+                    <ThyroidNodeCard
+                      key={`${side}-thyroid-node-${index}`}
+                      styles={styles}
+                      node={node}
+                      index={index}
+                      side={side}
+                      openEditor={openEditor}
+                      onUpdateNodeField={onUpdateNodeField}
+                      onRemoveNode={onRemoveNode}
+                    />
+                  ))
+                )}
+
+                <ProtocolActionButton
+                  label="+ Узел"
+                  onPress={() => onAddNode(side)}
+                />
+              </View>
+            )}
+          </>
         )}
 
         {fv["thyroid.additional"] !== false && (

@@ -1,136 +1,326 @@
 /**
  * VisibilityGroupId — идентификатор группы полей, которую можно скрыть в UI.
  * Каждый протокол имеет свои группы.
- * Группы выделены по логическим секциям (Размеры, Структура, Сосуды и т.д.)
+ * Каждая группа соответствует ОДНОМУ полю (ProtocolFieldRow).
  */
 
 // ===== OBP =====
 export const OBP_VISIBILITY_GROUPS = {
-  "obp.liver.sizes": "Печень: Размеры",
-  "obp.liver.structure": "Печень: Структура",
-  "obp.liver.vessels": "Печень: Сосуды",
-  "obp.liver.focal": "Печень: Очаговые образования",
+  // === Печень ===
+  "obp.liver.rightLobeAP": "Печень: Правая доля, ПЗР",
+  "obp.liver.leftLobeAP": "Печень: Левая доля, ПЗР",
+  "obp.liver.rightLobeCCR": "Печень: Правая доля, ККР",
+  "obp.liver.rightLobeCVR": "Печень: Правая доля, КВР",
+  "obp.liver.leftLobeCCR": "Печень: Левая доля, ККР",
+  "obp.liver.rightLobeTotal": "Печень: Правая доля, ККР + ПЗР",
+  "obp.liver.leftLobeTotal": "Печень: Левая доля, ККР + ПЗР",
+  "obp.liver.echogenicity": "Печень: Эхогенность",
+  "obp.liver.homogeneity": "Печень: Эхоструктура",
+  "obp.liver.contours": "Печень: Контуры",
+  "obp.liver.lowerEdgeAngle": "Печень: Угол нижнего края",
+  "obp.liver.focalLesionsPresence": "Печень: Патологические образования",
+  "obp.liver.focalLesions": "Печень: Описание патологических образований",
+  "obp.liver.vascularPattern": "Печень: Сосудистый рисунок",
+  "obp.liver.portalVeinDiameter": "Печень: Воротная вена",
+  "obp.liver.ivc": "Печень: Нижняя полая вена",
   "obp.liver.additional": "Печень: Дополнительно",
+
+  // === Желчный пузырь ===
   "obp.gallbladder.position": "ЖП: Положение",
-  "obp.gallbladder.sizes": "ЖП: Размеры",
+  "obp.gallbladder.length": "ЖП: Длина",
+  "obp.gallbladder.width": "ЖП: Ширина",
+  "obp.gallbladder.wallThickness": "ЖП: Толщина стенки",
   "obp.gallbladder.shape": "ЖП: Форма",
-  "obp.gallbladder.content": "ЖП: Содержимое",
-  "obp.gallbladder.ducts": "ЖП: Протоки",
+  "obp.gallbladder.constriction": "ЖП: Перетяжка",
+  "obp.gallbladder.contentType": "ЖП: Тип содержимого",
+  "obp.gallbladder.concretions": "ЖП: Конкременты",
+  "obp.gallbladder.polyps": "ЖП: Полипы",
+  "obp.gallbladder.content": "ЖП: Дополнительно по содержимому",
+  "obp.gallbladder.cysticDuct": "ЖП: Пузырный проток",
+  "obp.gallbladder.commonBileDuct": "ЖП: Общий желчный проток",
   "obp.gallbladder.additional": "ЖП: Дополнительно",
-  "obp.pancreas.sizes": "ПЖ: Размеры",
-  "obp.pancreas.structure": "ПЖ: Структура",
-  "obp.pancreas.duct": "ПЖ: Проток",
+
+  // === Поджелудочная железа ===
+  "obp.pancreas.head": "ПЖ: Головка",
+  "obp.pancreas.body": "ПЖ: Тело",
+  "obp.pancreas.tail": "ПЖ: Хвост",
+  "obp.pancreas.echogenicity": "ПЖ: Эхогенность",
+  "obp.pancreas.echostructure": "ПЖ: Эхоструктура",
+  "obp.pancreas.contour": "ПЖ: Контур",
+  "obp.pancreas.pathologicalFormations": "ПЖ: Патологические образования",
+  "obp.pancreas.pathologicalFormationsText": "ПЖ: Описание патологических образований",
+  "obp.pancreas.wirsungDuct": "ПЖ: Вирсунгов проток",
   "obp.pancreas.additional": "ПЖ: Дополнительно",
-  "obp.spleen.sizes": "Селезёнка: Размеры",
-  "obp.spleen.structure": "Селезёнка: Структура",
-  "obp.spleen.vessels": "Селезёнка: Сосуды",
+
+  // === Селезёнка ===
+  "obp.spleen.position": "Селезёнка: Положение",
+  "obp.spleen.length": "Селезёнка: Длина",
+  "obp.spleen.width": "Селезёнка: Ширина",
+  "obp.spleen.echogenicity": "Селезёнка: Эхогенность",
+  "obp.spleen.echostructure": "Селезёнка: Эхоструктура",
+  "obp.spleen.contours": "Селезёнка: Контур",
+  "obp.spleen.pathologicalFormations": "Селезёнка: Патологические образования",
+  "obp.spleen.pathologicalFormationsText": "Селезёнка: Описание патологических образований",
+  "obp.spleen.splenicVein": "Селезёнка: Селезёночная вена",
+  "obp.spleen.splenicArtery": "Селезёнка: Селезёночная артерия",
   "obp.spleen.additional": "Селезёнка: Дополнительно",
-  "obp.final.freeFluid": "Свободная жидкость",
-  "obp.final.conclusion": "Заключение / Рекомендации",
+
+  // === Финал ===
+  "obp.final.freeFluid": "Свободная жидкость в брюшной полости",
+  "obp.final.freeFluidDetails": "Описание свободной жидкости",
+  "obp.final.conclusion": "Заключение ОБП",
+  "obp.final.recommendations": "Рекомендации",
 } as const;
 
 // ===== Kidneys =====
 export const KIDNEYS_VISIBILITY_GROUPS = {
+  // === Почка ===
   "kidneys.position": "Положение",
-  "kidneys.sizes": "Размеры",
-  "kidneys.contour": "Контур",
-  "kidneys.parenchyma": "Паренхима",
-  "kidneys.parenchyma.concrements": "Паренхима: Конкременты",
-  "kidneys.parenchyma.cysts": "Паренхима: Кисты",
-  "kidneys.parenchyma.pathology": "Паренхима: Патология",
-  "kidneys.pcs": "ЧЛС",
-  "kidneys.pcs.microliths": "ЧЛС: Микролиты",
-  "kidneys.pcs.concrements": "ЧЛС: Конкременты",
-  "kidneys.pcs.cysts": "ЧЛС: Кисты",
-  "kidneys.pcs.pathology": "ЧЛС: Патология",
+  "kidneys.length": "Длина",
+  "kidneys.width": "Ширина",
+  "kidneys.thickness": "Толщина",
+  "kidneys.contour": "Контур почки",
+  "kidneys.parenchymaSize": "Размер паренхимы",
+  "kidneys.parenchymaEchogenicity": "Эхогенность паренхимы",
+  "kidneys.parenchymaStructure": "Структура паренхимы",
+  "kidneys.parenchymaConcrements": "Конкременты паренхимы",
+  "kidneys.parenchymaCysts": "Кисты паренхимы",
+  "kidneys.parenchymaPathologicalFormations": "Патологические образования паренхимы",
+  "kidneys.pcsSize": "Размер ЧЛС",
+  "kidneys.pcsMicroliths": "Микролиты",
+  "kidneys.pcsMicrolithsSize": "Размер микролитов (мм)",
+  "kidneys.pcsConcrements": "Конкременты ЧЛС",
+  "kidneys.pcsCysts": "Кисты ЧЛС",
+  "kidneys.pcsPathologicalFormations": "Патологические образования ЧЛС",
   "kidneys.sinus": "Почечный синус",
-  "kidneys.adrenal": "Область надпочечников",
+  "kidneys.adrenalArea": "Область надпочечников",
   "kidneys.additional": "Почки: Дополнительно",
-  "kidneys.bladder.sizes": "МП: Размеры",
-  "kidneys.bladder.wall": "МП: Стенка",
-  "kidneys.bladder.residual": "МП: Остаточная моча",
-  "kidneys.bladder.contents": "МП: Содержимое",
+
+  // === Мочевой пузырь ===
+  "kidneys.bladder.length": "МП: Длина",
+  "kidneys.bladder.width": "МП: Ширина",
+  "kidneys.bladder.depth": "МП: Передне-задний",
+  "kidneys.bladder.volume": "МП: Объём",
+  "kidneys.bladder.wallThickness": "МП: Толщина стенки",
+  "kidneys.bladder.residualStatus": "МП: Объём остаточной мочи",
+  "kidneys.bladder.residualLength": "МП: Ост. моча - Длина",
+  "kidneys.bladder.residualWidth": "МП: Ост. моча - Ширина",
+  "kidneys.bladder.residualDepth": "МП: Ост. моча - Передне-задний",
+  "kidneys.bladder.residualVolume": "МП: Ост. моча - Объём",
+  "kidneys.bladder.contents": "МП: Характер содержимого",
+  "kidneys.bladder.contentsText": "МП: Описание содержимого",
   "kidneys.bladder.additional": "МП: Дополнительно",
   "kidneys.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== Scrotum =====
 export const SCROTUM_VISIBILITY_GROUPS = {
-  "scrotum.sizes": "Размеры",
-  "scrotum.position": "Положение",
-  "scrotum.contour": "Контур",
-  "scrotum.capsule": "Капсула",
-  "scrotum.echogenicity": "Эхогенность / Структура",
-  "scrotum.mediastinum": "Средостение",
-  "scrotum.bloodFlow": "Кровоток",
-  "scrotum.appendage": "Придаток",
-  "scrotum.fluid": "Жидкость",
-  "scrotum.additional": "Дополнительно",
+  "scrotum.length": "Яичко: Длина (мм)",
+  "scrotum.width": "Яичко: Ширина (мм)",
+  "scrotum.depth": "Яичко: Глубина (мм)",
+  "scrotum.volume": "Яичко: Объем (см³)",
+  "scrotum.location": "Яичко: Расположение",
+  "scrotum.contour": "Яичко: Контур",
+  "scrotum.capsule": "Яичко: Капсула",
+  "scrotum.capsuleText": "Яичко: Описание капсулы",
+  "scrotum.echogenicity": "Яичко: Эхогенность",
+  "scrotum.echotexture": "Яичко: Эхоструктура",
+  "scrotum.echotextureText": "Яичко: Описание эхоструктуры",
+  "scrotum.mediastinum": "Яичко: Структура средостения",
+  "scrotum.mediastinumText": "Яичко: Описание средостения",
+  "scrotum.bloodFlow": "Яичко: Кровоток",
+  "scrotum.appendage": "Яичко: Придаток",
+  "scrotum.appendageText": "Яичко: Описание придатка",
+  "scrotum.fluidAmount": "Яичко: Количество жидкости",
+  "scrotum.fluidAmountText": "Яичко: Описание жидкости",
+  "scrotum.additional": "Яичко: Дополнительно",
   "scrotum.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== OMT Female =====
 export const OMTFEMALE_VISIBILITY_GROUPS = {
-  "omt_female.uterus.sizes": "Матка: Размеры",
-  "omt_female.uterus.position": "Матка: Положение",
-  "omt_female.uterus.contour": "Матка: Контур",
-  "omt_female.uterus.myometrium": "Матка: Миометрий",
-  "omt_female.uterus.endometrium": "Матка: Эндометрий",
-  "omt_female.uterus.cervix": "Матка: Шейка",
-  "omt_female.uterus.additional": "Матка: Дополнительно",
-  "omt_female.rightOvary": "Правый яичник",
-  "omt_female.leftOvary": "Левый яичник",
-  "omt_female.additional": "Дополнительно",
+  // === Матка: Информация ===
+  "omt_female.uterusStatus": "Матка: Положение матки",
+  "omt_female.studyType": "Матка: Вид исследования",
+  "omt_female.lastMenstruationDate": "Матка: Дата последней менструации",
+  "omt_female.cycleDay": "Матка: День цикла",
+  "omt_female.menopause": "Матка: Менопауза",
+
+  // === Матка: Размеры ===
+  "omt_female.length": "Матка: Длина (мм)",
+  "omt_female.width": "Матка: Ширина (мм)",
+  "omt_female.apDimension": "Матка: ПЗР (мм)",
+  "omt_female.volume": "Матка: Объем (см³)",
+
+  // === Матка: Форма ===
+  "omt_female.shape": "Матка: Форма",
+  "omt_female.position": "Матка: Положение",
+
+  // === Матка: Миометрий ===
+  "omt_female.myometriumStructure": "Матка: Структура миометрия",
+  "omt_female.myometriumStructureText": "Матка: Описание миометрия",
+  "omt_female.myometriumEchogenicity": "Матка: Эхогенность миометрия",
+
+  // === Матка: Миома ===
+  "omt_female.myomaNodesPresence": "Матка: Миоматозные узлы",
+
+  // === Матка: Эндометрий ===
+  "omt_female.endometriumSize": "Матка: Размер эндометрия (мм)",
+  "omt_female.endometriumStructure": "Матка: Структура эндометрия",
+
+  // === Матка: Шейка ===
+  "omt_female.cervixSize": "Матка: Размер шейки (мм)",
+  "omt_female.cervixEchostructure": "Матка: Эхоструктура шейки",
+  "omt_female.cervixEchostructureText": "Матка: Описание эхоструктуры шейки",
+  "omt_female.cervicalCanal": "Матка: Цервикальный канал",
+  "omt_female.cervicalCanalText": "Матка: Описание цервикального канала",
+  "omt_female.freeFluid": "Матка: Свободная жидкость",
+  "omt_female.freeFluidText": "Матка: Описание свободной жидкости",
+
+  // === Матка: Дополнительно ===
+  "omt_female.additional": "Матка: Дополнительно",
+
+  // === Яичники (правый/левый) ===
+  "omt_female.ovaryPosition": "Яичник: Положение",
+  "omt_female.ovaryLength": "Яичник: Длина (мм)",
+  "omt_female.ovaryWidth": "Яичник: Ширина (мм)",
+  "omt_female.ovaryThickness": "Яичник: Толщина (мм)",
+  "omt_female.ovaryVolume": "Яичник: Объем (см³)",
+  "omt_female.ovaryShape": "Яичник: Форма",
+  "omt_female.ovaryContour": "Яичник: Контур",
+  "omt_female.ovaryCysts": "Яичник: Наличие кист",
+  "omt_female.ovaryFormations": "Яичник: Наличие образований",
+  "omt_female.ovaryFormationsText": "Яичник: Описание образований",
+  "omt_female.ovaryAdditional": "Яичник: Дополнительно",
+
+  // === Мочевой пузырь (ОМТ Ж) ===
+  "omt_female.bladderLength": "МП: Длина",
+  "omt_female.bladderWidth": "МП: Ширина",
+  "omt_female.bladderDepth": "МП: Передне-задний",
+  "omt_female.bladderVolume": "МП: Объем",
+  "omt_female.bladderWallThickness": "МП: Толщина стенки",
+  "omt_female.bladderResidualStatus": "МП: Определение остаточной мочи",
+  "omt_female.bladderResidualLength": "МП: Ост. моча - Длина",
+  "omt_female.bladderResidualWidth": "МП: Ост. моча - Ширина",
+  "omt_female.bladderResidualDepth": "МП: Ост. моча - Передне-задний",
+  "omt_female.bladderResidualVolume": "МП: Объем остаточной мочи",
+  "omt_female.bladderContents": "МП: Характер содержимого",
+  "omt_female.bladderContentsText": "МП: Описание содержимого",
+  "omt_female.bladderAdditional": "МП: Дополнительно",
+
+  // === Финал ===
   "omt_female.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== OMT Male =====
 export const OMTMALE_VISIBILITY_GROUPS = {
-  "omt_male.prostate.sizes": "Простата: Размеры",
-  "omt_male.prostate.contour": "Простата: Контур",
-  "omt_male.prostate.echogenicity": "Простата: Эхогенность",
-  "omt_male.prostate.additional": "Простата: Дополнительно",
-  "omt_male.seminalVesicles": "Семенные пузырьки",
-  "omt_male.additional": "Дополнительно",
+  // === Простата ===
+  "omt_male.studyType": "Простата: Вид исследования",
+  "omt_male.position": "Простата: Положение",
+  "omt_male.length": "Простата: Длина (мм)",
+  "omt_male.width": "Простата: Ширина (мм)",
+  "omt_male.apDimension": "Простата: ПЗР (мм)",
+  "omt_male.volume": "Простата: Объем (см³)",
+  "omt_male.contour": "Простата: Контур",
+  "omt_male.symmetry": "Простата: Симметричность",
+  "omt_male.shape": "Простата: Форма",
+  "omt_male.echogenicity": "Простата: Эхогенность",
+  "omt_male.echotexture": "Простата: Эхоструктура",
+  "omt_male.echotextureText": "Простата: Описание эхоструктуры",
+  "omt_male.bladderProtrusion": "Простата: Выпячивание",
+  "omt_male.bladderProtrusionMm": "Простата: Выпячивание на (мм)",
+  "omt_male.pathologicLesions": "Простата: Патологические образования",
+  "omt_male.pathologicLesionsText": "Простата: Описание патологических образований",
+  "omt_male.additional": "Простата: Дополнительно",
+
+  // === Мочевой пузырь (ОМТ М) ===
+  "omt_male.bladderLength": "МП: Длина",
+  "omt_male.bladderWidth": "МП: Ширина",
+  "omt_male.bladderDepth": "МП: Передне-задний",
+  "omt_male.bladderVolume": "МП: Объем",
+  "omt_male.bladderWallThickness": "МП: Толщина стенки",
+  "omt_male.bladderResidualStatus": "МП: Определение остаточной мочи",
+  "omt_male.bladderResidualLength": "МП: Ост. моча - Длина",
+  "omt_male.bladderResidualWidth": "МП: Ост. моча - Ширина",
+  "omt_male.bladderResidualDepth": "МП: Ост. моча - Передне-задний",
+  "omt_male.bladderResidualVolume": "МП: Объем остаточной мочи",
+  "omt_male.bladderContents": "МП: Характер содержимого",
+  "omt_male.bladderContentsText": "МП: Описание содержимого",
+  "omt_male.bladderAdditional": "МП: Дополнительно",
+
+  // === Финал ===
   "omt_male.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== Thyroid =====
 export const THYROID_VISIBILITY_GROUPS = {
-  "thyroid.lobe.sizes": "Размеры долей",
-  "thyroid.isthmus": "Перешеек",
-  "thyroid.echogenicity": "Эхогенность",
-  "thyroid.bloodFlow": "Кровоток",
-  "thyroid.lymphNodes": "Лимфоузлы",
-  "thyroid.additional": "Дополнительно",
+  // === Доля ===
+  "thyroid.length": "Щитовидная железа: Длина (мм)",
+  "thyroid.width": "Щитовидная железа: Ширина (мм)",
+  "thyroid.depth": "Щитовидная железа: Глубина (мм)",
+  "thyroid.volume": "Щитовидная железа: Объем (мл)",
+
+  // === Перешеек ===
+  "thyroid.isthmusSize": "Щитовидная железа: Размер перешейка (мм)",
+
+  // === Общие показатели ===
+  "thyroid.echogenicity": "Щитовидная железа: Эхогенность железы",
+  "thyroid.echostructure": "Щитовидная железа: Эхоструктура",
+  "thyroid.contour": "Щитовидная железа: Контур",
+  "thyroid.symmetry": "Щитовидная железа: Симметричность",
+  "thyroid.position": "Щитовидная железа: Положение",
+
+  // === Объемные образования ===
+  "thyroid.volumeFormations": "Щитовидная железа: Определение",
+
+  // === Дополнительно ===
+  "thyroid.additional": "Щитовидная железа: Дополнительно",
+
+  // === Финал ===
   "thyroid.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== Breast =====
 export const BREAST_VISIBILITY_GROUPS = {
-  "breast.right.skin": "Правая: Кожа / ПЖК",
-  "breast.right.parenchyma": "Правая: Паренхима",
-  "breast.right.retromammary": "Правая: Ретромаммарное",
-  "breast.right.lymphNodes": "Правая: Лимфоузлы",
-  "breast.right.patology": "Правая: Патология",
+  // === Общая информация ===
+  "breast.lastMenstruationDate": "Молочные железы: Дата последней менструации",
+  "breast.cycleDay": "Молочные железы: День цикла",
+
+  // === Правая молочная железа ===
+  "breast.right.skin": "Правая: Кожа",
+  "breast.right.skinComment": "Правая: Описание изменений кожи",
+  "breast.right.nipples": "Правая: Соски и ареолы",
+  "breast.right.nipplesComment": "Правая: Описание изменений сосков и ареол",
+  "breast.right.milkDucts": "Правая: Млечные протоки",
+  "breast.right.volumeFormations": "Правая: Определение",
   "breast.right.additional": "Правая: Дополнительно",
-  "breast.left.skin": "Левая: Кожа / ПЖК",
-  "breast.left.parenchyma": "Левая: Паренхима",
-  "breast.left.retromammary": "Левая: Ретромаммарное",
-  "breast.left.lymphNodes": "Левая: Лимфоузлы",
-  "breast.left.patology": "Левая: Патология",
+
+  // === Левая молочная железа ===
+  "breast.left.skin": "Левая: Кожа",
+  "breast.left.skinComment": "Левая: Описание изменений кожи",
+  "breast.left.nipples": "Левая: Соски и ареолы",
+  "breast.left.nipplesComment": "Левая: Описание изменений сосков и ареол",
+  "breast.left.milkDucts": "Левая: Млечные протоки",
+  "breast.left.volumeFormations": "Левая: Определение",
   "breast.left.additional": "Левая: Дополнительно",
+
+  // === Структура ===
+  "breast.structure": "Молочные железы: Структура",
+
+  // === Финал ===
   "breast.conclusion": "Заключение / Рекомендации",
 } as const;
 
 // ===== Lymph Nodes =====
 export const LYMPH_VISIBILITY_GROUPS = {
-  "lymph_nodes.sizes": "Размеры",
-  "lymph_nodes.shape": "Форма",
-  "lymph_nodes.contour": "Контур",
-  "lymph_nodes.echogenicity": "Эхогенность / Структура",
-  "lymph_nodes.bloodFlow": "Кровоток",
-  "lymph_nodes.additional": "Дополнительно",
+  "lymph_nodes.size1": "Лимфоузлы: Размер 1 (мм)",
+  "lymph_nodes.size2": "Лимфоузлы: Размер 2 (мм)",
+  "lymph_nodes.echogenicity": "Лимфоузлы: Эхогенность",
+  "lymph_nodes.echostructure": "Лимфоузлы: Эхоструктура",
+  "lymph_nodes.shape": "Лимфоузлы: Форма",
+  "lymph_nodes.contour": "Лимфоузлы: Контур",
+  "lymph_nodes.bloodFlow": "Лимфоузлы: Кровоток",
+  "lymph_nodes.additional": "Лимфоузлы: Дополнительно",
   "lymph_nodes.conclusion": "Заключение / Рекомендации",
 } as const;
 

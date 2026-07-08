@@ -18,6 +18,7 @@ type LymphNodeRegionCardProps = {
   regionKey: keyof LymphNodesDraft;
   title: string;
   region: LymphNodeRegionDraft;
+  fv: Record<string, boolean>;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateRegionField: (regionKey: keyof LymphNodesDraft, field: keyof LymphNodeRegionDraft, value: string) => void;
   onAddNode: (regionKey: keyof LymphNodesDraft, side: "left" | "right") => void;
@@ -30,6 +31,7 @@ export function LymphNodeRegionCard({
   regionKey,
   title,
   region,
+  fv,
   openEditor,
   onUpdateRegionField,
   onAddNode,
@@ -62,6 +64,7 @@ export function LymphNodeRegionCard({
                   regionKey={regionKey}
                   node={node}
                   index={index}
+                  fv={fv}
                   openEditor={openEditor}
                   onUpdateNodeField={onUpdateNodeField}
                   onRemoveNode={onRemoveNode}

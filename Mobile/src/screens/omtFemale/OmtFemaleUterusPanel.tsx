@@ -56,75 +56,103 @@ export function OmtFemaleUterusPanel({
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title="Матка" />
       <View style={styles.obpFieldList}>
-        <ProtocolSectionHeader title="Положение" />
-        <ProtocolFieldRow label="Положение матки" value={uterus.uterusStatus || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(uterus.uterusStatus)} options={UTERUS_STATUS_OPTIONS}
-          onSelectOption={(v) => onUpdateUterusField("uterusStatus", v)} />
+        {fv["omt_female.uterusStatus"] !== false && (
+          <>
+            <ProtocolSectionHeader title="Положение" />
+            <ProtocolFieldRow label="Положение матки" value={uterus.uterusStatus || "Нажмите для ввода"}
+              typeLabel="select" filled={Boolean(uterus.uterusStatus)} options={UTERUS_STATUS_OPTIONS}
+              onSelectOption={(v) => onUpdateUterusField("uterusStatus", v)} />
+          </>
+        )}
 
-        {fv["omt_female.information"] !== false && (
+        {(fv["omt_female.studyType"] !== false || fv["omt_female.lastMenstruationDate"] !== false || fv["omt_female.cycleDay"] !== false || fv["omt_female.menopause"] !== false) && (
           <>
             <ProtocolSectionHeader title="Информация об исследовании" />
-            <ProtocolFieldRow label="Вид исследования" value={uterus.studyType || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.studyType)} options={UTERUS_STUDY_TYPE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("studyType", v)} />
-            <ProtocolFieldRow label="Дата последней менструации" value={formatDateDisplay(uterus.lastMenstruationDate) || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.lastMenstruationDate)}
-              onPress={() => openEditor({ title: "Дата последней менструации", mode: "number", value: getDateEditorValue(uterus.lastMenstruationDate), placeholder: "дд.мм.гггг", onSave: (v) => onUpdateUterusField("lastMenstruationDate", parseDateInput(v)) })} />
-            <ProtocolFieldRow label="День цикла" value={uterus.cycleDay || "Рассчитывается автоматически"}
-              typeLabel="auto" filled={Boolean(uterus.cycleDay)} readonly />
-            <ProtocolFieldRow label="Менопауза" value={uterus.menopause || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.menopause)} options={MENOPAUSE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("menopause", v)} />
+            {fv["omt_female.studyType"] !== false && (
+              <ProtocolFieldRow label="Вид исследования" value={uterus.studyType || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.studyType)} options={UTERUS_STUDY_TYPE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("studyType", v)} />
+            )}
+            {fv["omt_female.lastMenstruationDate"] !== false && (
+              <ProtocolFieldRow label="Дата последней менструации" value={formatDateDisplay(uterus.lastMenstruationDate) || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.lastMenstruationDate)}
+                onPress={() => openEditor({ title: "Дата последней менструации", mode: "number", value: getDateEditorValue(uterus.lastMenstruationDate), placeholder: "дд.мм.гггг", onSave: (v) => onUpdateUterusField("lastMenstruationDate", parseDateInput(v)) })} />
+            )}
+            {fv["omt_female.cycleDay"] !== false && (
+              <ProtocolFieldRow label="День цикла" value={uterus.cycleDay || "Рассчитывается автоматически"}
+                typeLabel="auto" filled={Boolean(uterus.cycleDay)} readonly />
+            )}
+            {fv["omt_female.menopause"] !== false && (
+              <ProtocolFieldRow label="Менопауза" value={uterus.menopause || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.menopause)} options={MENOPAUSE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("menopause", v)} />
+            )}
           </>
         )}
 
-        {fv["omt_female.uterus.sizes"] !== false && (
+        {(fv["omt_female.length"] !== false || fv["omt_female.width"] !== false || fv["omt_female.apDimension"] !== false || fv["omt_female.volume"] !== false) && (
           <>
             <ProtocolSectionHeader title="Размеры" />
-            <ProtocolFieldRow label="Длина (мм)" value={uterus.length || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.length)}
-              onPress={() => openEditor({ title: "Матка: длина", mode: "number", value: uterus.length, placeholder: "мм", onSave: (v) => onUpdateUterusField("length", v) })} />
-            <ProtocolFieldRow label="Ширина (мм)" value={uterus.width || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.width)}
-              onPress={() => openEditor({ title: "Матка: ширина", mode: "number", value: uterus.width, placeholder: "мм", onSave: (v) => onUpdateUterusField("width", v) })} />
-            <ProtocolFieldRow label="ПЗР (мм)" value={uterus.apDimension || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.apDimension)}
-              onPress={() => openEditor({ title: "Матка: ПЗР", mode: "number", value: uterus.apDimension, placeholder: "мм", onSave: (v) => onUpdateUterusField("apDimension", v) })} />
-            <ProtocolFieldRow label="Объем (см³)" value={uterus.volume || "Рассчитывается автоматически"}
-              typeLabel="auto" filled={Boolean(uterus.volume)} readonly />
+            {fv["omt_female.length"] !== false && (
+              <ProtocolFieldRow label="Длина (мм)" value={uterus.length || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.length)}
+                onPress={() => openEditor({ title: "Матка: длина", mode: "number", value: uterus.length, placeholder: "мм", onSave: (v) => onUpdateUterusField("length", v) })} />
+            )}
+            {fv["omt_female.width"] !== false && (
+              <ProtocolFieldRow label="Ширина (мм)" value={uterus.width || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.width)}
+                onPress={() => openEditor({ title: "Матка: ширина", mode: "number", value: uterus.width, placeholder: "мм", onSave: (v) => onUpdateUterusField("width", v) })} />
+            )}
+            {fv["omt_female.apDimension"] !== false && (
+              <ProtocolFieldRow label="ПЗР (мм)" value={uterus.apDimension || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.apDimension)}
+                onPress={() => openEditor({ title: "Матка: ПЗР", mode: "number", value: uterus.apDimension, placeholder: "мм", onSave: (v) => onUpdateUterusField("apDimension", v) })} />
+            )}
+            {fv["omt_female.volume"] !== false && (
+              <ProtocolFieldRow label="Объем (см³)" value={uterus.volume || "Рассчитывается автоматически"}
+                typeLabel="auto" filled={Boolean(uterus.volume)} readonly />
+            )}
           </>
         )}
 
-        {fv["omt_female.uterus.shape"] !== false && (
+        {(fv["omt_female.shape"] !== false || fv["omt_female.position"] !== false) && (
           <>
             <ProtocolSectionHeader title="Форма" />
-            <ProtocolFieldRow label="Форма" value={uterus.shape || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.shape)} options={UTERUS_SHAPE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("shape", v)} />
-            <ProtocolFieldRow label="Положение" value={uterus.position || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.position)} options={UTERUS_POSITION_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("position", v)} />
+            {fv["omt_female.shape"] !== false && (
+              <ProtocolFieldRow label="Форма" value={uterus.shape || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.shape)} options={UTERUS_SHAPE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("shape", v)} />
+            )}
+            {fv["omt_female.position"] !== false && (
+              <ProtocolFieldRow label="Положение" value={uterus.position || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.position)} options={UTERUS_POSITION_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("position", v)} />
+            )}
           </>
         )}
 
-        {fv["omt_female.uterus.myometrium"] !== false && (
+        {(fv["omt_female.myometriumStructure"] !== false || fv["omt_female.myometriumStructureText"] !== false || fv["omt_female.myometriumEchogenicity"] !== false) && (
           <>
             <ProtocolSectionHeader title="Строение миометрия" />
-            <ProtocolFieldRow label="Структура" value={uterus.myometriumStructure || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.myometriumStructure)} options={UTERUS_STRUCTURE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("myometriumStructure", v)} />
-            {showMyometriumText && (
+            {fv["omt_female.myometriumStructure"] !== false && (
+              <ProtocolFieldRow label="Структура" value={uterus.myometriumStructure || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.myometriumStructure)} options={UTERUS_STRUCTURE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("myometriumStructure", v)} />
+            )}
+            {showMyometriumText && fv["omt_female.myometriumStructureText"] !== false && (
               <ProtocolFieldRow label="Описание" value={uterus.myometriumStructureText || "Нажмите для ввода"}
                 typeLabel="text" filled={Boolean(uterus.myometriumStructureText)}
                 onPress={() => openEditor({ title: "Матка: описание строения миометрия", mode: "text", value: uterus.myometriumStructureText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateUterusField("myometriumStructureText", v) })} />
             )}
-            <ProtocolFieldRow label="Эхогенность" value={uterus.myometriumEchogenicity || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.myometriumEchogenicity)} options={UTERUS_ECHOGENICITY_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("myometriumEchogenicity", v)} />
+            {fv["omt_female.myometriumEchogenicity"] !== false && (
+              <ProtocolFieldRow label="Эхогенность" value={uterus.myometriumEchogenicity || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.myometriumEchogenicity)} options={UTERUS_ECHOGENICITY_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("myometriumEchogenicity", v)} />
+            )}
           </>
         )}
 
-        {fv["omt_female.uterus.myoma"] !== false && (
+        {fv["omt_female.myomaNodesPresence"] !== false && (
           <>
             <ProtocolSectionHeader title="Объемные образования" />
             <ProtocolFieldRow label="Миоматозные узлы" value={uterus.myomaNodesPresence || "Нажмите для ввода"}
@@ -146,54 +174,70 @@ export function OmtFemaleUterusPanel({
           </>
         )}
 
-        {fv["omt_female.uterus.endometrium"] !== false && (
+        {(fv["omt_female.endometriumSize"] !== false || fv["omt_female.endometriumStructure"] !== false) && (
           <>
             <ProtocolSectionHeader title="Эндометрий" />
-            <ProtocolFieldRow label="Размер (мм)" value={uterus.endometriumSize || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.endometriumSize)}
-              onPress={() => openEditor({ title: "Матка: размер эндометрия", mode: "number", value: uterus.endometriumSize, placeholder: "мм", onSave: (v) => onUpdateUterusField("endometriumSize", v) })} />
-            <ProtocolFieldRow label="Структура" value={uterus.endometriumStructure || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.endometriumStructure)} options={ENDOMETRIUM_STRUCTURE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("endometriumStructure", v)} />
+            {fv["omt_female.endometriumSize"] !== false && (
+              <ProtocolFieldRow label="Размер (мм)" value={uterus.endometriumSize || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.endometriumSize)}
+                onPress={() => openEditor({ title: "Матка: размер эндометрия", mode: "number", value: uterus.endometriumSize, placeholder: "мм", onSave: (v) => onUpdateUterusField("endometriumSize", v) })} />
+            )}
+            {fv["omt_female.endometriumStructure"] !== false && (
+              <ProtocolFieldRow label="Структура" value={uterus.endometriumStructure || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.endometriumStructure)} options={ENDOMETRIUM_STRUCTURE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("endometriumStructure", v)} />
+            )}
           </>
         )}
 
-        {fv["omt_female.uterus.cervix"] !== false && (
+        {(fv["omt_female.cervixSize"] !== false || fv["omt_female.cervixEchostructure"] !== false || fv["omt_female.cervixEchostructureText"] !== false || fv["omt_female.cervicalCanal"] !== false || fv["omt_female.cervicalCanalText"] !== false || fv["omt_female.freeFluid"] !== false || fv["omt_female.freeFluidText"] !== false) && (
           <>
             <ProtocolSectionHeader title="Шейка матки" />
-            <ProtocolFieldRow label="Размер шейки (мм)" value={uterus.cervixSize || "Нажмите для ввода"}
-              typeLabel="numpad" filled={Boolean(uterus.cervixSize)}
-              onPress={() => openEditor({ title: "Шейка матки: размер", mode: "number", value: uterus.cervixSize, placeholder: "мм", onSave: (v) => onUpdateUterusField("cervixSize", v) })} />
-            <ProtocolFieldRow label="Эхоструктура" value={uterus.cervixEchostructure || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.cervixEchostructure)} options={CERVIX_ECHOSTRUCTURE_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("cervixEchostructure", v)} />
-            {showCervixEchostructureText && (
+            {fv["omt_female.cervixSize"] !== false && (
+              <ProtocolFieldRow label="Размер шейки (мм)" value={uterus.cervixSize || "Нажмите для ввода"}
+                typeLabel="numpad" filled={Boolean(uterus.cervixSize)}
+                onPress={() => openEditor({ title: "Шейка матки: размер", mode: "number", value: uterus.cervixSize, placeholder: "мм", onSave: (v) => onUpdateUterusField("cervixSize", v) })} />
+            )}
+            {fv["omt_female.cervixEchostructure"] !== false && (
+              <ProtocolFieldRow label="Эхоструктура" value={uterus.cervixEchostructure || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.cervixEchostructure)} options={CERVIX_ECHOSTRUCTURE_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("cervixEchostructure", v)} />
+            )}
+            {showCervixEchostructureText && fv["omt_female.cervixEchostructureText"] !== false && (
               <ProtocolFieldRow label="Описание" value={uterus.cervixEchostructureText || "Нажмите для ввода"}
                 typeLabel="text" filled={Boolean(uterus.cervixEchostructureText)}
                 onPress={() => openEditor({ title: "Шейка матки: описание эхоструктуры", mode: "text", value: uterus.cervixEchostructureText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateUterusField("cervixEchostructureText", v) })} />
             )}
-            <ProtocolFieldRow label="Цервикальный канал" value={uterus.cervicalCanal || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.cervicalCanal)} options={CERVICAL_CANAL_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("cervicalCanal", v)} />
-            {showCervicalCanalText && (
+            {fv["omt_female.cervicalCanal"] !== false && (
+              <ProtocolFieldRow label="Цервикальный канал" value={uterus.cervicalCanal || "Нажмите для ввода"}
+                typeLabel="select" filled={Boolean(uterus.cervicalCanal)} options={CERVICAL_CANAL_OPTIONS}
+                onSelectOption={(v) => onUpdateUterusField("cervicalCanal", v)} />
+            )}
+            {showCervicalCanalText && fv["omt_female.cervicalCanalText"] !== false && (
               <ProtocolFieldRow label="Описание" value={uterus.cervicalCanalText || "Нажмите для ввода"}
                 typeLabel="text" filled={Boolean(uterus.cervicalCanalText)}
                 onPress={() => openEditor({ title: "Шейка матки: описание канала", mode: "text", value: uterus.cervicalCanalText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateUterusField("cervicalCanalText", v) })} />
             )}
 
-            <ProtocolSectionHeader title="Свободная жидкость" />
-            <ProtocolFieldRow label="Свободная жидкость" value={uterus.freeFluid || "Нажмите для ввода"}
-              typeLabel="select" filled={Boolean(uterus.freeFluid)} options={FREE_FLUID_OPTIONS}
-              onSelectOption={(v) => onUpdateUterusField("freeFluid", v)} />
-            {showFreeFluidText && (
-              <ProtocolFieldRow label="Описание" value={uterus.freeFluidText || "Нажмите для ввода"}
-                typeLabel="text" filled={Boolean(uterus.freeFluidText)}
-                onPress={() => openEditor({ title: "Матка: описание свободной жидкости", mode: "text", value: uterus.freeFluidText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateUterusField("freeFluidText", v) })} />
+            {(fv["omt_female.freeFluid"] !== false || fv["omt_female.freeFluidText"] !== false) && (
+              <>
+                <ProtocolSectionHeader title="Свободная жидкость" />
+                {fv["omt_female.freeFluid"] !== false && (
+                  <ProtocolFieldRow label="Свободная жидкость" value={uterus.freeFluid || "Нажмите для ввода"}
+                    typeLabel="select" filled={Boolean(uterus.freeFluid)} options={FREE_FLUID_OPTIONS}
+                    onSelectOption={(v) => onUpdateUterusField("freeFluid", v)} />
+                )}
+                {showFreeFluidText && fv["omt_female.freeFluidText"] !== false && (
+                  <ProtocolFieldRow label="Описание" value={uterus.freeFluidText || "Нажмите для ввода"}
+                    typeLabel="text" filled={Boolean(uterus.freeFluidText)}
+                    onPress={() => openEditor({ title: "Матка: описание свободной жидкости", mode: "text", value: uterus.freeFluidText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateUterusField("freeFluidText", v) })} />
+                )}
+              </>
             )}
           </>
         )}
 
-        {fv["omt_female.uterus.additional"] !== false && (
+        {fv["omt_female.additional"] !== false && (
           <>
             <ProtocolSectionHeader title="Дополнительно" />
             <ProtocolFieldRow label="Дополнительно" value={uterus.additional || "Нажмите для ввода"}

@@ -111,7 +111,7 @@ export function ScrotumProtocolBlock({
         </>
       )}
 
-      {showConclusionSection && (
+      {showConclusionSection && fv["scrotum.conclusion"] !== false && (
         <ScrotumConclusionPanel
           styles={styles}
           conclusion={draftApi.form.conclusion}

@@ -5,6 +5,7 @@ import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { createEmptyUrinaryBladderDraft, type UrinaryBladderDraft } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import {
@@ -28,15 +29,24 @@ type UrinaryBladderPanelProps = {
 };
 
 const bladderFields: UrinaryBladderFieldSpec[] = [
-  { key: "length", label: "Длина", kind: "number", placeholder: "мм" },
-  { key: "width", label: "Ширина", kind: "number", placeholder: "мм" },
-  { key: "depth", label: "Передне-задний", kind: "number", placeholder: "мм" },
-  { key: "volume", label: "Объём", kind: "number", placeholder: "мл" },
-  { key: "wallThickness", label: "Толщина стенки", kind: "number", placeholder: "мм" },
-  { key: "residualStatus", label: "Объём остаточной мочи", kind: "select", options: RESIDUAL_STATUS_OPTIONS },
-  { key: "contents", label: "Характер содержимого", kind: "select", options: BLADDER_CONTENT_OPTIONS },
-  { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+  { key: "length", label: "Длина", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.bladder.sizes" },
+  { key: "width", label: "Ширина", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.bladder.sizes" },
+  { key: "depth", label: "Передне-задний", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.bladder.sizes" },
+  { key: "volume", label: "Объём", kind: "number", placeholder: "мл", visibilityGroup: "kidneys.bladder.sizes" },
+  { key: "wallThickness", label: "Толщина стенки", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.bladder.wall" },
+  { key: "residualStatus", label: "Объём остаточной мочи", kind: "select", options: RESIDUAL_STATUS_OPTIONS, visibilityGroup: "kidneys.bladder.residual" },
+  { key: "contents", label: "Характер содержимого", kind: "select", options: BLADDER_CONTENT_OPTIONS, visibilityGroup: "kidneys.bladder.contents" },
+  { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "kidneys.bladder.additional" },
 ];
+
+/** Заголовки секций для полей мочевого пузыря */
+const BLADDER_SECTION_HEADERS: Partial<Record<string, string>> = {
+  length: "Размеры",
+  wallThickness: "Стенка",
+  residualStatus: "Объем остаточной мочи",
+  contents: "Содержимое",
+  additional: "Дополнительно",
+};
 
 export function UrinaryBladderPanel({
   styles,
@@ -63,7 +73,7 @@ export function UrinaryBladderPanel({
 
       <View style={styles.obpFieldList}>
         {bladderFields.map((field) => {
-          if (field.key === "additional") {
+          if (!isFieldVisible(field, fieldVisibility)) {
             return null;
           }
 
@@ -73,16 +83,8 @@ export function UrinaryBladderPanel({
 
           return (
             <Fragment key={field.key}>
-              {field.key === "length" && (
-                <ProtocolSectionHeader title="Размеры" />
-              )}
-
-              {field.key === "residualStatus" && (
-                <ProtocolSectionHeader title="Объем остаточной мочи" />
-              )}
-
-              {field.key === "contents" && (
-                <ProtocolSectionHeader title="Содержимое" />
+              {BLADDER_SECTION_HEADERS[field.key] && (
+                <ProtocolSectionHeader title={BLADDER_SECTION_HEADERS[field.key]!} />
               )}
 
               {field.key === "residualStatus" && showResidualFields && (
@@ -135,6 +137,34 @@ export function UrinaryBladderPanel({
                 </View>
               )}
 
+              {field.key === "contents" && showContentsText && (
+                <Pressable
+                  onPress={() =>
+                    openEditor({
+                      title: "Мочевой пузырь: Описание содержимого",
+                      mode: "text",
+                      value: bladder.contentsText,
+                      placeholder: "Введите описание",
+                      multiline: true,
+                      onSave: (nextValue) => onUpdateBladderField("contentsText", nextValue),
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.obpFieldRow,
+                    bladder.contentsText.trim().length > 0 && styles.obpFieldRowFilled,
+                    pressed && styles.obpFieldRowPressed,
+                  ]}
+                >
+                  <View style={styles.obpFieldRowContent}>
+                    <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
+                    <Text style={styles.obpFieldValue}>
+                      {bladder.contentsText || "Нажмите для ввода"}
+                    </Text>
+                  </View>
+                  <Text style={styles.obpFieldType}>text</Text>
+                </Pressable>
+              )}
+
               <ProtocolFieldRow
                 label={field.label}
                 value={currentDisplay}
@@ -165,61 +195,7 @@ export function UrinaryBladderPanel({
             </Fragment>
           );
         })}
-
-        {showContentsText && (
-          <Pressable
-            onPress={() =>
-              openEditor({
-                title: "Мочевой пузырь: Описание содержимого",
-                mode: "text",
-                value: bladder.contentsText,
-                placeholder: "Введите описание",
-                multiline: true,
-                onSave: (nextValue) => onUpdateBladderField("contentsText", nextValue),
-              })
-            }
-            style={({ pressed }) => [
-              styles.obpFieldRow,
-              bladder.contentsText.trim().length > 0 && styles.obpFieldRowFilled,
-              pressed && styles.obpFieldRowPressed,
-            ]}
-          >
-            <View style={styles.obpFieldRowContent}>
-              <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
-              <Text style={styles.obpFieldValue}>
-                {bladder.contentsText || "Нажмите для ввода"}
-              </Text>
-            </View>
-            <Text style={styles.obpFieldType}>text</Text>
-          </Pressable>
-        )}
       </View>
-
-      <ProtocolSectionHeader title="Дополнительно" />
-
-      <Pressable
-        onPress={() =>
-          openEditor({
-            title: "Мочевой пузырь: Дополнительно",
-            mode: "text",
-            value: bladder.additional,
-            placeholder: "Введите дополнительное описание",
-            multiline: true,
-            onSave: (nextValue) => onUpdateBladderField("additional", nextValue),
-          })
-        }
-        style={({ pressed }) => [
-          styles.obpFieldRow,
-          bladder.additional.trim().length > 0 && styles.obpFieldRowFilled,
-          pressed && styles.obpFieldRowPressed,
-        ]}
-      >
-        <View style={styles.obpFieldRowContent}>
-          <Text style={styles.obpFieldLabel}>Дополнительно</Text>
-          <Text style={styles.obpFieldValue}>{bladder.additional || "Нажмите для ввода"}</Text>
-        </View>
-        <Text style={styles.obpFieldType}>text</Text>
-      </Pressable>
     </View>
   );
 }

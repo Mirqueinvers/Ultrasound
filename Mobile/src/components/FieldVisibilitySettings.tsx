@@ -1,8 +1,5 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  PanResponder,
   Pressable,
   ScrollView,
   Switch,
@@ -20,10 +17,6 @@ type FieldVisibilitySettingsProps = {
   onClose: () => void;
 };
 
-const PANEL_WIDTH = 240;
-const SWIPE_THRESHOLD = 80;
-const SCREEN_WIDTH = Dimensions.get("window").width;
-
 const PROTOCOL_LABELS: Record<string, string> = {
   obp: "ОБП",
   kidneys: "Почки",
@@ -35,12 +28,24 @@ const PROTOCOL_LABELS: Record<string, string> = {
   lymph_nodes: "Лимфоузлы",
 };
 
+const COLLAPSED_ICON = "▶";
+const EXPANDED_ICON = "▼";
+
 export function FieldVisibilitySettings({
   styles,
   visibility,
   onToggle,
   onClose,
 }: FieldVisibilitySettingsProps) {
+  const [expandedProtocols, setExpandedProtocols] = useState<Record<string, boolean>>({});
+
+  const toggleProtocol = (protocolKey: string) => {
+    setExpandedProtocols((prev) => ({
+      ...prev,
+      [protocolKey]: !prev[protocolKey],
+    }));
+  };
+
   return (
     <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 8 }}>
       <View
@@ -77,6 +82,8 @@ export function FieldVisibilitySettings({
             return null;
           }
 
+          const isExpanded = expandedProtocols[protocolKey] === true;
+
           return (
             <View
               key={protocolKey}
@@ -87,22 +94,34 @@ export function FieldVisibilitySettings({
                 borderColor: "rgba(148, 163, 184, 0.12)",
                 padding: 12,
                 marginBottom: 10,
-                gap: 8,
+                gap: isExpanded ? 8 : 0,
               }}
             >
-              <Text
+              <Pressable
+                onPress={() => toggleProtocol(protocolKey)}
                 style={{
-                  color: "#7dd3fc",
-                  fontSize: 13,
-                  fontWeight: "800",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                {PROTOCOL_LABELS[protocolKey] ?? protocolKey}
-              </Text>
+                <Text
+                  style={{
+                    color: "#7dd3fc",
+                    fontSize: 13,
+                    fontWeight: "800",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  {PROTOCOL_LABELS[protocolKey] ?? protocolKey}
+                </Text>
+                <Text style={{ color: "#64748b", fontSize: 12 }}>
+                  {isExpanded ? EXPANDED_ICON : COLLAPSED_ICON}
+                </Text>
+              </Pressable>
 
-              {groupEntries.map(([groupId, label]) => {
+              {isExpanded && groupEntries.map(([groupId, label]) => {
                 const visible = visibility[groupId] !== false;
 
                 return (

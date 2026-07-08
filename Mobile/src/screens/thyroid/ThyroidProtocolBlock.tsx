@@ -95,7 +95,7 @@ export function ThyroidProtocolBlock({
         />
       </View>
 
-      {fv["thyroid.isthmus"] !== false && (
+      {fv["thyroid.isthmusSize"] !== false && (
         <View style={styles.kidneyPlainSection}>
           <ProtocolOrganHeader title="Перешеек" />
           <View style={styles.obpFieldList}>
@@ -127,48 +127,54 @@ export function ThyroidProtocolBlock({
             rightToLeftRatio={thyroid.rightToLeftRatio}
           />
           {fv["thyroid.echogenicity"] !== false && (
-            <>
-              <ProtocolFieldRow
-                label="Эхогенность железы"
-                value={thyroid.echogenicity || "Нажмите для ввода"}
-                typeLabel="select"
-                filled={Boolean(thyroid.echogenicity)}
-                options={THYROID_ECHOGENICITY_OPTIONS}
-                onSelectOption={(nextValue) => draftApi.updateThyroidField("echogenicity", nextValue)}
-              />
-              <ProtocolFieldRow
-                label="Эхоструктура"
-                value={thyroid.echostructure || "Нажмите для ввода"}
-                typeLabel="select"
-                filled={Boolean(thyroid.echostructure)}
-                options={THYROID_ECHOSTRUCTURE_OPTIONS}
-                onSelectOption={(nextValue) => draftApi.updateThyroidField("echostructure", nextValue)}
-              />
-              <ProtocolFieldRow
-                label="Контур"
-                value={thyroid.contour || "Нажмите для ввода"}
-                typeLabel="select"
-                filled={Boolean(thyroid.contour)}
-                options={THYROID_CONTOUR_OPTIONS}
-                onSelectOption={(nextValue) => draftApi.updateThyroidField("contour", nextValue)}
-              />
-              <ProtocolFieldRow
-                label="Симметричность"
-                value={thyroid.symmetry || "Нажмите для ввода"}
-                typeLabel="select"
-                filled={Boolean(thyroid.symmetry)}
-                options={THYROID_SYMMETRY_OPTIONS}
-                onSelectOption={(nextValue) => draftApi.updateThyroidField("symmetry", nextValue)}
-              />
-              <ProtocolFieldRow
-                label="Положение"
-                value={thyroid.position || "Нажмите для ввода"}
-                typeLabel="select"
-                filled={Boolean(thyroid.position)}
-                options={THYROID_POSITION_OPTIONS}
-                onSelectOption={(nextValue) => draftApi.updateThyroidField("position", nextValue)}
-              />
-            </>
+            <ProtocolFieldRow
+              label="Эхогенность железы"
+              value={thyroid.echogenicity || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(thyroid.echogenicity)}
+              options={THYROID_ECHOGENICITY_OPTIONS}
+              onSelectOption={(nextValue) => draftApi.updateThyroidField("echogenicity", nextValue)}
+            />
+          )}
+          {fv["thyroid.echostructure"] !== false && (
+            <ProtocolFieldRow
+              label="Эхоструктура"
+              value={thyroid.echostructure || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(thyroid.echostructure)}
+              options={THYROID_ECHOSTRUCTURE_OPTIONS}
+              onSelectOption={(nextValue) => draftApi.updateThyroidField("echostructure", nextValue)}
+            />
+          )}
+          {fv["thyroid.contour"] !== false && (
+            <ProtocolFieldRow
+              label="Контур"
+              value={thyroid.contour || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(thyroid.contour)}
+              options={THYROID_CONTOUR_OPTIONS}
+              onSelectOption={(nextValue) => draftApi.updateThyroidField("contour", nextValue)}
+            />
+          )}
+          {fv["thyroid.symmetry"] !== false && (
+            <ProtocolFieldRow
+              label="Симметричность"
+              value={thyroid.symmetry || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(thyroid.symmetry)}
+              options={THYROID_SYMMETRY_OPTIONS}
+              onSelectOption={(nextValue) => draftApi.updateThyroidField("symmetry", nextValue)}
+            />
+          )}
+          {fv["thyroid.position"] !== false && (
+            <ProtocolFieldRow
+              label="Положение"
+              value={thyroid.position || "Нажмите для ввода"}
+              typeLabel="select"
+              filled={Boolean(thyroid.position)}
+              options={THYROID_POSITION_OPTIONS}
+              onSelectOption={(nextValue) => draftApi.updateThyroidField("position", nextValue)}
+            />
           )}
         </View>
       </View>

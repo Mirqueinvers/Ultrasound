@@ -55,6 +55,7 @@ export function OmtMaleProtocolBlock({
 
       <OmtMaleBladderPanel
         styles={styles} bladder={draftApi.form.urinaryBladder}
+        fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_MALE_SECTION_IDS.bladder}
         openEditor={draftApi.openEditor}
         onUpdateBladderField={draftApi.updateBladderField}

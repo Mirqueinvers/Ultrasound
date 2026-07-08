@@ -37,6 +37,7 @@ export type KidneyFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 export type UrinaryBladderFieldSpec = {
@@ -46,6 +47,7 @@ export type UrinaryBladderFieldSpec = {
   placeholder?: string;
   multiline?: boolean;
   options?: FieldEditorOption[];
+  visibilityGroup?: string;
 };
 
 // ---- Опции полей ----
@@ -142,17 +144,17 @@ export const BLADDER_NUMERIC_FIELDS = new Set<keyof UrinaryBladderDraft>([
 // ---- Field specs ----
 
 export const kidneyFields: KidneyFieldSpec[] = [
-  { key: "position", label: "Положение", kind: "select", options: KIDNEY_POSITION_OPTIONS },
-  { key: "length", label: "Длина", kind: "number", placeholder: "мм" },
-  { key: "width", label: "Ширина", kind: "number", placeholder: "мм" },
-  { key: "thickness", label: "Толщина", kind: "number", placeholder: "мм" },
-  { key: "contour", label: "Контур почки", kind: "select", options: KIDNEY_CONTOUR_OPTIONS },
-  { key: "parenchymaSize", label: "Размер паренхимы", kind: "number", placeholder: "мм" },
-  { key: "parenchymaEchogenicity", label: "Эхогенность", kind: "select", options: KIDNEY_PARRENCHYMA_ECHOGENICITY_OPTIONS },
-  { key: "parenchymaStructure", label: "Структура", kind: "select", options: KIDNEY_PARRENCHYMA_STRUCTURE_OPTIONS },
-  { key: "parenchymaConcrements", label: "Конкременты паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
-  { key: "parenchymaCysts", label: "Кисты паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
-  { key: "parenchymaPathologicalFormations", label: "Патологические образования паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
+  { key: "position", label: "Положение", kind: "select", options: KIDNEY_POSITION_OPTIONS, visibilityGroup: "kidneys.position" },
+  { key: "length", label: "Длина", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.sizes" },
+  { key: "width", label: "Ширина", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.sizes" },
+  { key: "thickness", label: "Толщина", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.sizes" },
+  { key: "contour", label: "Контур почки", kind: "select", options: KIDNEY_CONTOUR_OPTIONS, visibilityGroup: "kidneys.contour" },
+  { key: "parenchymaSize", label: "Размер паренхимы", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.parenchyma" },
+  { key: "parenchymaEchogenicity", label: "Эхогенность", kind: "select", options: KIDNEY_PARRENCHYMA_ECHOGENICITY_OPTIONS, visibilityGroup: "kidneys.parenchyma" },
+  { key: "parenchymaStructure", label: "Структура", kind: "select", options: KIDNEY_PARRENCHYMA_STRUCTURE_OPTIONS, visibilityGroup: "kidneys.parenchyma" },
+  { key: "parenchymaConcrements", label: "Конкременты паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.parenchyma.concrements" },
+  { key: "parenchymaCysts", label: "Кисты паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.parenchyma.cysts" },
+  { key: "parenchymaPathologicalFormations", label: "Патологические образования паренхимы", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.parenchyma.pathology" },
   {
     key: "pcsSize",
     label: "Размер ЧЛС",
@@ -161,18 +163,19 @@ export const kidneyFields: KidneyFieldSpec[] = [
       { value: "не расширена", label: "Не расширена" },
       { value: "расширена", label: "Расширена" },
     ],
+    visibilityGroup: "kidneys.pcs",
   },
-  { key: "pcsMicroliths", label: "Микролиты", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
-  { key: "pcsMicrolithsSize", label: "Размером до", kind: "number", placeholder: "мм" },
-  { key: "pcsConcrements", label: "Конкременты ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
-  { key: "pcsCysts", label: "Кисты ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
-  { key: "pcsPathologicalFormations", label: "Патологические образования ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS },
+  { key: "pcsMicroliths", label: "Микролиты", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.pcs.microliths" },
+  { key: "pcsMicrolithsSize", label: "Размером до", kind: "number", placeholder: "мм", visibilityGroup: "kidneys.pcs.microliths" },
+  { key: "pcsConcrements", label: "Конкременты ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.pcs.concrements" },
+  { key: "pcsCysts", label: "Кисты ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.pcs.cysts" },
+  { key: "pcsPathologicalFormations", label: "Патологические образования ЧЛС", kind: "select", options: KIDNEY_YES_NO_OPTIONS, visibilityGroup: "kidneys.pcs.pathology" },
   { key: "sinus", label: "Почечный синус", kind: "select", options: [
     { value: "без включений", label: "Без включений" },
     { value: "с включениями", label: "С включениями" },
-  ] },
-  { key: "adrenalArea", label: "Область надпочечников", kind: "select", options: KIDNEY_ADRENAL_OPTIONS },
-  { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true },
+  ], visibilityGroup: "kidneys.sinus" },
+  { key: "adrenalArea", label: "Область надпочечников", kind: "select", options: KIDNEY_ADRENAL_OPTIONS, visibilityGroup: "kidneys.adrenal" },
+  { key: "additional", label: "Дополнительно", kind: "text", placeholder: "Введите дополнительное описание", multiline: true, visibilityGroup: "kidneys.additional" },
 ];
 
 // ---- Утилиты ----

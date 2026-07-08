@@ -108,7 +108,7 @@ export function KidneysProtocolBlock({
         onUpdateStudy={draftApi.updateStudy}
       />
 
-      {(!resolvedActiveSectionId || resolvedActiveSectionId === KIDNEY_SECTION_IDS.conclusion) && (
+      {fv["kidneys.conclusion"] !== false && (!resolvedActiveSectionId || resolvedActiveSectionId === KIDNEY_SECTION_IDS.conclusion) && (
         <KidneysConclusionPanel
           styles={styles}
           conclusion={draftApi.form.conclusion}

@@ -59,32 +59,38 @@ export function BreastProtocolBlock({
         onSave={draftApi.saveEditor}
       />
 
-      <View style={styles.kidneyPlainSection}>
-        <ProtocolSectionHeader title="Общая информация" />
-        <ProtocolFieldRow
-          label="Дата последней менструации"
-          value={formatDateForMobileDisplay(breast.lastMenstruationDate) || "Нажмите для ввода"}
-          typeLabel="numpad"
-          filled={Boolean(breast.lastMenstruationDate)}
-          onPress={() =>
-            draftApi.openEditor({
-              title: "Дата последней менструации",
-              mode: "number",
-              value: getDateEditorValue(breast.lastMenstruationDate),
-              placeholder: "дд.мм.гггг",
-              onSave: (nextValue) =>
-                draftApi.updateBreastField("lastMenstruationDate", parseDateInput(nextValue)),
-            })
-          }
-        />
-        <ProtocolFieldRow
-          label="День цикла"
-          value={breast.cycleDay || "Рассчитывается автоматически"}
-          typeLabel="auto"
-          filled={Boolean(breast.cycleDay)}
-          readonly
-        />
-      </View>
+      {(fv["breast.lastMenstruationDate"] !== false || fv["breast.cycleDay"] !== false) && (
+        <View style={styles.kidneyPlainSection}>
+          <ProtocolSectionHeader title="Общая информация" />
+          {fv["breast.lastMenstruationDate"] !== false && (
+            <ProtocolFieldRow
+              label="Дата последней менструации"
+              value={formatDateForMobileDisplay(breast.lastMenstruationDate) || "Нажмите для ввода"}
+              typeLabel="numpad"
+              filled={Boolean(breast.lastMenstruationDate)}
+              onPress={() =>
+                draftApi.openEditor({
+                  title: "Дата последней менструации",
+                  mode: "number",
+                  value: getDateEditorValue(breast.lastMenstruationDate),
+                  placeholder: "дд.мм.гггг",
+                  onSave: (nextValue) =>
+                    draftApi.updateBreastField("lastMenstruationDate", parseDateInput(nextValue)),
+                })
+              }
+            />
+          )}
+          {fv["breast.cycleDay"] !== false && (
+            <ProtocolFieldRow
+              label="День цикла"
+              value={breast.cycleDay || "Рассчитывается автоматически"}
+              typeLabel="auto"
+              filled={Boolean(breast.cycleDay)}
+              readonly
+            />
+          )}
+        </View>
+      )}
 
       {activeSectionId === "breast.conclusion" ? null : activeBreastSide ? (
         <BreastSidePanel
@@ -139,7 +145,7 @@ export function BreastProtocolBlock({
         </>
       )}
 
-      {activeSectionId === "breast.conclusion" ? null : (
+      {activeSectionId === "breast.conclusion" ? null : fv["breast.structure"] !== false && (
         <View style={styles.kidneyPlainSection}>
           <ProtocolSectionHeader title="Структура молочных желез" />
           <ProtocolFieldRow

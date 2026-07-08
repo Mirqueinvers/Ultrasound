@@ -66,19 +66,18 @@ export function BreastSidePanel({
   const showNodeList = isNormalizedMatch(breastSide.volumeFormations, "определяются");
 
   const sideKey = side === "right" ? "right" : "left";
-  const showSkin = fv[`breast.${sideKey}.skin`] !== false;
-  const showParenchyma = fv[`breast.${sideKey}.parenchyma`] !== false;
-  const showAdditional = fv[`breast.${sideKey}.additional`] !== false;
 
   return (
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title={title} />
 
       <View style={styles.obpFieldList}>
-        {showSkin && (
-          <>
+        <>
+          {(fv[`breast.${sideKey}.skin`] !== false || fv[`breast.${sideKey}.skinComment`] !== false || fv[`breast.${sideKey}.nipples`] !== false || fv[`breast.${sideKey}.nipplesComment`] !== false || fv[`breast.${sideKey}.milkDucts`] !== false) && (
             <ProtocolSectionHeader title="Общие характеристики" />
-            {renderRow(
+          )}
+          {fv[`breast.${sideKey}.skin`] !== false &&
+            renderRow(
               "Кожа",
               breastSide.skin || "Нажмите для ввода",
               "select",
@@ -88,24 +87,25 @@ export function BreastSidePanel({
               BREAST_SKIN_OPTIONS,
               (nextValue) => onUpdateSideField(side, "skin", nextValue),
             )}
-            {isNormalizedMatch(breastSide.skin, "изменена") &&
-              renderRow(
-                "Описание изменений кожи",
-                breastSide.skinComment || "Нажмите для ввода",
-                "text",
-                Boolean(breastSide.skinComment),
-                () =>
-                  openEditor({
-                    title: `${title}: описание изменений кожи`,
-                    mode: "text",
-                    value: breastSide.skinComment,
-                    placeholder: "Введите описание",
-                    multiline: true,
-                    onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue),
-                  }),
-              )}
+          {isNormalizedMatch(breastSide.skin, "изменена") && fv[`breast.${sideKey}.skinComment`] !== false &&
+            renderRow(
+              "Описание изменений кожи",
+              breastSide.skinComment || "Нажмите для ввода",
+              "text",
+              Boolean(breastSide.skinComment),
+              () =>
+                openEditor({
+                  title: `${title}: описание изменений кожи`,
+                  mode: "text",
+                  value: breastSide.skinComment,
+                  placeholder: "Введите описание",
+                  multiline: true,
+                  onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue),
+                }),
+            )}
 
-            {renderRow(
+          {fv[`breast.${sideKey}.nipples`] !== false &&
+            renderRow(
               "Соски и ареолы",
               breastSide.nipples || "Нажмите для ввода",
               "select",
@@ -115,24 +115,25 @@ export function BreastSidePanel({
               BREAST_NIPPLES_OPTIONS,
               (nextValue) => onUpdateSideField(side, "nipples", nextValue),
             )}
-            {isNormalizedMatch(breastSide.nipples, "изменены") &&
-              renderRow(
-                "Описание изменений сосков и ареол",
-                breastSide.nipplesComment || "Нажмите для ввода",
-                "text",
-                Boolean(breastSide.nipplesComment),
-                () =>
-                  openEditor({
-                    title: `${title}: описание изменений сосков и ареол`,
-                    mode: "text",
-                    value: breastSide.nipplesComment,
-                    placeholder: "Введите описание",
-                    multiline: true,
-                    onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue),
-                  }),
-              )}
+          {isNormalizedMatch(breastSide.nipples, "изменены") && fv[`breast.${sideKey}.nipplesComment`] !== false &&
+            renderRow(
+              "Описание изменений сосков и ареол",
+              breastSide.nipplesComment || "Нажмите для ввода",
+              "text",
+              Boolean(breastSide.nipplesComment),
+              () =>
+                openEditor({
+                  title: `${title}: описание изменений сосков и ареол`,
+                  mode: "text",
+                  value: breastSide.nipplesComment,
+                  placeholder: "Введите описание",
+                  multiline: true,
+                  onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue),
+                }),
+            )}
 
-            {renderRow(
+          {fv[`breast.${sideKey}.milkDucts`] !== false &&
+            renderRow(
               "Млечные протоки",
               breastSide.milkDucts || "Нажмите для ввода",
               "select",
@@ -142,10 +143,9 @@ export function BreastSidePanel({
               BREAST_MILK_DUCTS_OPTIONS,
               (nextValue) => onUpdateSideField(side, "milkDucts", nextValue),
             )}
-          </>
-        )}
+        </>
 
-        {showParenchyma && (
+        {fv[`breast.${sideKey}.volumeFormations`] !== false && (
           <>
             <ProtocolSectionHeader title="Объемные образования" />
             {renderRow(
@@ -188,7 +188,7 @@ export function BreastSidePanel({
           </>
         )}
 
-        {showAdditional && (
+        {fv[`breast.${sideKey}.additional`] !== false && (
           <>
             <ProtocolSectionHeader title="Дополнительно" />
             {renderRow(
