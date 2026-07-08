@@ -15,7 +15,7 @@ import { DraftScreen } from "./src/screens/DraftScreen";
 import { LibraryScreen } from "./src/screens/LibraryScreen";
 import { SummaryScreen } from "./src/screens/SummaryScreen";
 import { styles } from "./src/styles/appStyles";
-import { PROTOCOL_MANIFESTS } from "./src/shared/protocols";
+import { PROTOCOL_MANIFESTS, getProtocolManifestByLabel } from "./src/shared/protocols";
 import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
 import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
@@ -100,6 +100,21 @@ export default function App() {
   useEffect(() => {
     contentScrollRef.current?.scrollTo({ y: 0, animated: false });
   }, [activeTab, activeSectionId, activeProtocolManifest?.id, activeDraftMode, connectSubTab]);
+
+  // Если вкладка "Пациент" скрыта в настройках — автоматически переключаем на первый протокол
+  useEffect(() => {
+    const showPatientTab = visibility["_general.showPatientTab"] !== false;
+    if (!showPatientTab && activeDraftMode === "patient") {
+      const firstStudy = snapshot.selection.selectedStudies[0];
+      if (firstStudy) {
+        const manifest = getProtocolManifestByLabel(firstStudy);
+        if (manifest) {
+          setFocusedProtocolId(manifest.id);
+          setActiveDraftMode("protocol");
+        }
+      }
+    }
+  }, [visibility, activeDraftMode, snapshot.selection.selectedStudies]);
 
   const contentArea = (
     <ScrollView
