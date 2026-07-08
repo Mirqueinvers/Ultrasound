@@ -324,6 +324,11 @@ export const LYMPH_VISIBILITY_GROUPS = {
   "lymph_nodes.conclusion": "Заключение / Рекомендации",
 } as const;
 
+/** Общие настройки видимости (не привязаны к протоколу) */
+export const GENERAL_VISIBILITY_GROUPS = {
+  "_general.showPatientTab": "Вкладка «Пациент» в верхнем навигаторе",
+} as const;
+
 /** Все группы видимости для всех протоколов (объединение) */
 export const ALL_VISIBILITY_GROUPS = {
   ...OBP_VISIBILITY_GROUPS,
@@ -334,6 +339,7 @@ export const ALL_VISIBILITY_GROUPS = {
   ...THYROID_VISIBILITY_GROUPS,
   ...BREAST_VISIBILITY_GROUPS,
   ...LYMPH_VISIBILITY_GROUPS,
+  ...GENERAL_VISIBILITY_GROUPS,
 } as const;
 
 /** Тип — ключ группы видимости */
@@ -356,6 +362,7 @@ export const STORAGE_KEY = "ultrasound-mobile:field-visibility";
 
 /** Группирует VisibilityGroupId по протоколам для UI */
 export const VISIBILITY_GROUPS_BY_PROTOCOL: Record<string, Record<string, string>> = {
+  _general: GENERAL_VISIBILITY_GROUPS,
   obp: OBP_VISIBILITY_GROUPS,
   kidneys: KIDNEYS_VISIBILITY_GROUPS,
   scrotum: SCROTUM_VISIBILITY_GROUPS,

@@ -216,6 +216,7 @@ export default function App() {
         {activeTab === "draft" && !isLandscape && (
           <ProtocolNav
             styles={styles}
+            visibility={visibility}
             selectedStudies={snapshot.selection.selectedStudies}
             activeProtocolManifest={activeProtocolManifest}
             activeSectionId={activeSectionId}

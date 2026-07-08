@@ -14,6 +14,7 @@ type ProtocolNavProps = {
   setActiveDraftMode: (mode: "patient" | "protocol") => void;
   onSelectProtocol: (manifest: ProtocolManifest) => void;
   onSelectSection: (sectionId: string) => void;
+  visibility?: Record<string, boolean>;
 };
 
 function ProtocolNavComponent({
@@ -25,10 +26,13 @@ function ProtocolNavComponent({
   setActiveDraftMode,
   onSelectProtocol,
   onSelectSection,
+  visibility = {},
 }: ProtocolNavProps) {
   const selectedManifests = selectedStudies
     .map((label) => getProtocolManifestByLabel(label))
     .filter((manifest): manifest is ProtocolManifest => Boolean(manifest));
+
+  const showPatientTab = visibility["_general.showPatientTab"] !== false;
 
   return (
     <View style={styles.protocolNav}>
@@ -41,23 +45,25 @@ function ProtocolNavComponent({
           alwaysBounceHorizontal={false}
           contentContainerStyle={styles.protocolNavChipRow}
         >
-          <Pressable
-            onPress={() => setActiveDraftMode("patient")}
-            style={({ pressed }) => [
-              styles.protocolNavChip,
-              activeDraftMode === "patient" && styles.protocolNavChipActive,
-              pressed && styles.protocolNavChipPressed,
-            ]}
-          >
-            <Text
-              style={[
-                styles.protocolNavChipText,
-                activeDraftMode === "patient" && styles.protocolNavChipTextActive,
+          {showPatientTab && (
+            <Pressable
+              onPress={() => setActiveDraftMode("patient")}
+              style={({ pressed }) => [
+                styles.protocolNavChip,
+                activeDraftMode === "patient" && styles.protocolNavChipActive,
+                pressed && styles.protocolNavChipPressed,
               ]}
             >
-              Пациент
-            </Text>
-          </Pressable>
+              <Text
+                style={[
+                  styles.protocolNavChipText,
+                  activeDraftMode === "patient" && styles.protocolNavChipTextActive,
+                ]}
+              >
+                Пациент
+              </Text>
+            </Pressable>
+          )}
 
           {selectedManifests.map((manifest) => {
             const active = activeDraftMode === "protocol" && activeProtocolManifest?.id === manifest.id;
