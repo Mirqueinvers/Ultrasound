@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyLymphNodeDraft,
@@ -7,14 +6,14 @@ import {
   type LymphNodeRegionDraft,
   type LymphNodesStudyDraft,
 } from "../../shared/lymphNodesDraft";
-import { type EditorState } from "./lymphNodesFieldConfigs";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
 
 export function useLymphNodesDraft(
   value: LymphNodesStudyDraft,
   onChange: (value: LymphNodesStudyDraft) => void,
 ) {
   const [form, setForm] = useState<LymphNodesStudyDraft>(value);
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     setForm(value);
@@ -29,23 +28,6 @@ export function useLymphNodesDraft(
       });
     },
     [onChange],
-  );
-
-  const openEditor = useCallback((config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => {
-      setEditorState(config);
-    }, 0);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      editorState?.onSave(nextValue);
-      closeEditor();
-    },
-    [editorState, closeEditor],
   );
 
   const updateRegionField = useCallback(

@@ -12,7 +12,7 @@ import type { AppStyles } from "../styles/appStyles";
 import type { MobileStudiesDataMap } from "../protocols/types";
 import type { FieldVisibility } from "../settings/fieldVisibility";
 import { useActiveProtocolDrafts } from "../hooks/useActiveProtocolDrafts";
-import { PROTOCOL_RENDERERS, type ProtocolRendererContext } from "./protocolRenderers";
+import { PROTOCOL_RENDERERS } from "./protocolRenderers";
 
 type ProtocolDraftRendererProps = {
   activeProtocolManifest: ProtocolManifest | null;
@@ -65,7 +65,7 @@ export function ProtocolDraftRenderer({
       activeProtocolManifest.sections[0] ??
       null
     : null;
-  const rendererContext: ProtocolRendererContext = {
+  const rendererContext = {
     styles,
     activeSectionId,
     fieldVisibility,
@@ -79,7 +79,7 @@ export function ProtocolDraftRenderer({
     activeThyroidDraft,
     activeBreastDraft,
     activeLymphNodesDraft,
-  };
+  } as const;
 
   if (!activeProtocolManifest) {
     return (
@@ -95,7 +95,7 @@ export function ProtocolDraftRenderer({
   return (
     <View style={styles.activeProtocolBlock}>
       {protocolRenderer ? (
-        protocolRenderer(rendererContext)
+        (protocolRenderer as (ctx: Record<string, unknown>) => React.ReactNode)(rendererContext)
       ) : activeSection ? (
         <>
           <MobileField

@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
 import { FieldEditorModal } from "../../components/FieldEditorModal";
+import { ConclusionSamples } from "../../components/ConclusionSamples";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
@@ -26,56 +27,6 @@ type ThyroidProtocolBlockProps = {
   onChange: (value: ThyroidStudyDraft) => void;
   activeSectionId?: string | null;
 };
-
-function ConclusionSamples({
-  currentValue,
-  setValue,
-  close,
-  styles,
-}: {
-  currentValue: string;
-  setValue: (v: string) => void;
-  close: () => void;
-  styles: AppStyles;
-}) {
-  return (
-    <View style={styles.obpSampleList}>
-      {THYROID_CONCLUSION_SAMPLES.map((sample) => (
-        <Pressable
-          key={sample.title}
-          onPress={() => {
-            const nextValue = currentValue
-              ? `${currentValue}${currentValue.endsWith("\n") ? "" : "\n"}${sample.value}`
-              : sample.value;
-            setValue(nextValue);
-          }}
-          style={({ pressed }) => [
-            styles.obpSampleButton,
-            pressed && styles.obpSampleButtonPressed,
-          ]}
-        >
-          <Text style={styles.obpSampleButtonTitle}>{sample.title}</Text>
-          <Text style={styles.obpSampleButtonText}>{sample.value}</Text>
-        </Pressable>
-      ))}
-
-      <Pressable
-        onPress={close}
-        style={({ pressed }) => [
-          styles.secondaryButton,
-          {
-            alignSelf: "flex-start",
-            paddingVertical: 10,
-            paddingHorizontal: 14,
-          },
-          pressed && styles.buttonPressed,
-        ]}
-      >
-        <Text style={styles.secondaryButtonText}>Закрыть</Text>
-      </Pressable>
-    </View>
-  );
-}
 
 export function ThyroidProtocolBlock({
   styles,
@@ -108,6 +59,7 @@ export function ThyroidProtocolBlock({
                   setValue={setValue}
                   close={close}
                   styles={styles}
+                  samples={THYROID_CONCLUSION_SAMPLES}
                 />
               )
             : undefined

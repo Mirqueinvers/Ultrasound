@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyBreastNodeDraft,
@@ -9,17 +8,15 @@ import {
   type BreastStudyDraft,
 } from "../../shared/breastDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
-import {
-  type EditorState,
-  computeCycleDay,
-} from "./breastFieldConfigs";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
+import { computeCycleDay } from "./breastFieldConfigs";
 
 export function useBreastDraft(
   value: BreastStudyDraft,
   onChange: (value: BreastStudyDraft) => void,
 ) {
   const [form, setForm] = useState<BreastStudyDraft>(value);
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     setForm(value);
@@ -144,20 +141,6 @@ export function useBreastDraft(
         },
       };
     });
-  };
-
-  const openEditor = (config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => {
-      setEditorState(config);
-    }, 0);
-  };
-
-  const closeEditor = () => setEditorState(null);
-
-  const saveEditor = (nextValue: string) => {
-    editorState?.onSave(nextValue);
-    closeEditor();
   };
 
   return {

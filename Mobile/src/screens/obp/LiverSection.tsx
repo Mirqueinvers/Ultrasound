@@ -6,7 +6,7 @@ import type { LiverDraft } from "../../shared/obpDraft";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { LIVER_FIELDS } from "./obpFieldConfigs";
-import { isFieldVisible } from "./isFieldVisible";
+import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
 
 // Ключи полей, перед которыми нужно показать заголовок группы

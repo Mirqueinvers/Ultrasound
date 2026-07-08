@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
 import { FieldEditorModal } from "../../components/FieldEditorModal";
+import { ConclusionSamples } from "../../components/ConclusionSamples";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import type { KidneyStudyDraft } from "../../shared/kidneyDraft";
@@ -21,56 +22,6 @@ type KidneysProtocolBlockProps = {
   onChange: (value: KidneyStudyDraft) => void;
   activeSectionId?: string | null;
 };
-
-function ConclusionSamples({
-  currentValue,
-  setValue,
-  close,
-  styles,
-}: {
-  currentValue: string;
-  setValue: (v: string) => void;
-  close: () => void;
-  styles: AppStyles;
-}) {
-  return (
-    <View style={styles.obpSampleList}>
-      {KIDNEY_CONCLUSION_SAMPLES.map((sample) => (
-        <Pressable
-          key={sample.title}
-          onPress={() => {
-            const nextValue = currentValue
-              ? `${currentValue}${currentValue.endsWith("\n") ? "" : "\n"}${sample.value}`
-              : sample.value;
-            setValue(nextValue);
-          }}
-          style={({ pressed }) => [
-            styles.obpSampleButton,
-            pressed && styles.obpSampleButtonPressed,
-          ]}
-        >
-          <Text style={styles.obpSampleButtonTitle}>{sample.title}</Text>
-          <Text style={styles.obpSampleButtonText}>{sample.value}</Text>
-        </Pressable>
-      ))}
-
-      <Pressable
-        onPress={close}
-        style={({ pressed }) => [
-          styles.secondaryButton,
-          {
-            alignSelf: "flex-start",
-            paddingVertical: 10,
-            paddingHorizontal: 14,
-          },
-          pressed && styles.buttonPressed,
-        ]}
-      >
-        <Text style={styles.secondaryButtonText}>Закрыть</Text>
-      </Pressable>
-    </View>
-  );
-}
 
 export function KidneysProtocolBlock({
   styles,
@@ -101,6 +52,7 @@ export function KidneysProtocolBlock({
                   setValue={setValue}
                   close={close}
                   styles={styles}
+                  samples={KIDNEY_CONCLUSION_SAMPLES}
                 />
               )
             : undefined

@@ -1,14 +1,6 @@
 import type { FieldEditorOption } from "../../components/FieldEditorModal";
 
-export type EditorState = {
-  title: string;
-  mode: "number" | "select" | "text";
-  value: string;
-  placeholder?: string;
-  multiline?: boolean;
-  options?: FieldEditorOption[];
-  onSave: (value: string) => void;
-} | null;
+export type { EditorState } from "../../hooks/useFieldEditor";
 
 export type ConclusionSample = { title: string; value: string };
 
@@ -140,14 +132,8 @@ export function resolveActiveOmtFemaleSection(activeSectionId: string | null | u
   }
 }
 
-export function splitPairSize(value: string): [string, string] {
-  const [first = "", second = ""] = value.split("x");
-  return [first, second];
-}
-
-export function joinPairSize(first: string, second: string): string {
-  return `${first}${second ? `x${second}` : ""}`;
-}
+export { splitPairSize, joinPairSize } from "../../utils/stringUtils";
+export { parseDateInput, getDateEditorValue, computeCycleDay } from "../../utils/dateUtils";
 
 export function formatDateDisplay(value: string): string {
   const trimmed = value.trim();
@@ -157,28 +143,6 @@ export function formatDateDisplay(value: string): string {
   const dotMatch = trimmed.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
   if (dotMatch) return trimmed;
   return trimmed;
-}
-
-export function parseDateInput(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  if (digits.length !== 8) return value.trim();
-  return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
-}
-
-export function getDateEditorValue(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (isoMatch) return `${isoMatch[3]}${isoMatch[2]}${isoMatch[1]}`;
-  return trimmed.replace(/\D/g, "").slice(0, 8);
-}
-
-export function computeCycleDay(dateValue: string): string {
-  if (!dateValue.trim()) return "";
-  const parsed = new Date(dateValue);
-  if (Number.isNaN(parsed.getTime())) return "";
-  const diffDays = Math.ceil((Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24));
-  return diffDays > 0 ? String(diffDays) : "";
 }
 
 export function ensurePeriod(text: string): string {

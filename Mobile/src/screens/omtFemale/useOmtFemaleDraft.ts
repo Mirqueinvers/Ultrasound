@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyOvaryCystDraft,
@@ -15,8 +14,8 @@ import {
   type UrinaryBladderDraft,
 } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
 import {
-  type EditorState,
   computeCycleDay,
   computeVolume,
 } from "./omtFemaleFieldConfigs";
@@ -26,7 +25,7 @@ export function useOmtFemaleDraft(
   onChange: (value: OmtFemaleDraft) => void,
 ) {
   const [form, setForm] = useState<OmtFemaleDraft>(value);
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     setForm(value);
@@ -41,21 +40,6 @@ export function useOmtFemaleDraft(
       });
     },
     [onChange],
-  );
-
-  const openEditor = useCallback((config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => setEditorState(config), 0);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      editorState?.onSave(nextValue);
-      closeEditor();
-    },
-    [editorState, closeEditor],
   );
 
   const updateUterusField = useCallback(

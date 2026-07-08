@@ -6,7 +6,7 @@ import type { PancreasDraft } from "../../shared/obpDraft";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { PANCREAS_FIELDS } from "./obpFieldConfigs";
-import { isFieldVisible } from "./isFieldVisible";
+import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
 
 const PANCREAS_SECTION_HEADERS: Record<string, string> = {

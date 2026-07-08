@@ -1,19 +1,6 @@
 import type { FieldEditorOption } from "../../components/FieldEditorModal";
 
-export type EditorState = {
-  title: string;
-  mode: "number" | "select" | "text";
-  value: string;
-  placeholder?: string;
-  multiline?: boolean;
-  options?: FieldEditorOption[];
-  footerContent?: (context: {
-    value: string;
-    setValue: (nextValue: string) => void;
-    close: () => void;
-  }) => React.ReactNode;
-  onSave: (value: string) => void;
-} | null;
+export type { EditorState } from "../../hooks/useFieldEditor";
 
 export const REGION_FIELDS = [
   { key: "submandibular" as const, title: "Поднижнечелюстные" },

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyScrotumDraft,
@@ -7,14 +6,15 @@ import {
   type ScrotumDraft,
   type SingleTestisDraft,
 } from "../../shared/scrotumDraft";
-import { type EditorState, computeVolume } from "./scrotumFieldConfigs";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
+import { computeVolume } from "./scrotumFieldConfigs";
 
 export function useScrotumDraft(
   value: ScrotumDraft,
   onChange: (value: ScrotumDraft) => void,
 ) {
   const [form, setForm] = useState<ScrotumDraft>(value ?? createEmptyScrotumDraft());
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     setForm(value ?? createEmptyScrotumDraft());
@@ -29,21 +29,6 @@ export function useScrotumDraft(
       });
     },
     [onChange],
-  );
-
-  const openEditor = useCallback((config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => setEditorState(config), 0);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      editorState?.onSave(nextValue);
-      closeEditor();
-    },
-    [editorState, closeEditor],
   );
 
   const updateTestisField = useCallback(

@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyThyroidNodeDraft,
@@ -10,7 +9,8 @@ import {
   type ThyroidStudyDraft,
 } from "../../shared/thyroidDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
-import { type EditorState, computeVolume, computeNodeTiradsCategory } from "./thyroidFieldConfigs";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
+import { computeVolume, computeNodeTiradsCategory } from "./thyroidFieldConfigs";
 
 export function useThyroidDraft(
   value: ThyroidStudyDraft,
@@ -19,7 +19,7 @@ export function useThyroidDraft(
   const [form, setForm] = useState<ThyroidStudyDraft>(
     value ?? createEmptyThyroidStudyDraft(),
   );
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   const updateForm = useCallback(
     (updater: (current: ThyroidStudyDraft) => ThyroidStudyDraft) => {
@@ -30,23 +30,6 @@ export function useThyroidDraft(
       });
     },
     [onChange],
-  );
-
-  const openEditor = useCallback((config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => {
-      setEditorState(config);
-    }, 0);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      editorState?.onSave(nextValue);
-      closeEditor();
-    },
-    [editorState, closeEditor],
   );
 
   const updateThyroidField = useCallback(

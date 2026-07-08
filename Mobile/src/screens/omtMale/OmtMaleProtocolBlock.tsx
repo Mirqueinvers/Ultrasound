@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
 import { FieldEditorModal } from "../../components/FieldEditorModal";
+import { ConclusionSamples } from "../../components/ConclusionSamples";
 import type { OmtMaleDraft } from "../../shared/omtMaleDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -22,32 +23,6 @@ type OmtMaleProtocolBlockProps = {
   onChange: (value: OmtMaleDraft) => void;
 };
 
-function ConclusionSamples({
-  currentValue, setValue, close, styles,
-}: {
-  currentValue: string; setValue: (v: string) => void; close: () => void; styles: AppStyles;
-}) {
-  return (
-    <View style={styles.obpSampleList}>
-      {OMT_MALE_CONCLUSION_SAMPLES.map((sample) => (
-        <Pressable key={sample.title}
-          onPress={() => {
-            const nextValue = currentValue ? `${currentValue}${currentValue.endsWith("\n") ? "" : "\n"}${sample.value}` : sample.value;
-            setValue(nextValue);
-          }}
-          style={({ pressed }) => [styles.obpSampleButton, pressed && styles.obpSampleButtonPressed]}>
-          <Text style={styles.obpSampleButtonTitle}>{sample.title}</Text>
-          <Text style={styles.obpSampleButtonText}>{sample.value}</Text>
-        </Pressable>
-      ))}
-      <Pressable onPress={close}
-        style={({ pressed }) => [styles.secondaryButton, { alignSelf: "flex-start", paddingVertical: 10, paddingHorizontal: 14 }, pressed && styles.buttonPressed]}>
-        <Text style={styles.secondaryButtonText}>Закрыть</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 export function OmtMaleProtocolBlock({
   styles, fieldVisibility, value, onChange, activeSectionId,
 }: OmtMaleProtocolBlockProps) {
@@ -66,7 +41,7 @@ export function OmtMaleProtocolBlock({
         value={draftApi.editorState?.value ?? ""} options={draftApi.editorState?.options}
         placeholder={draftApi.editorState?.placeholder} multiline={draftApi.editorState?.multiline}
         footerContent={isConclusionEditor ? ({ value, setValue, close }) => (
-          <ConclusionSamples currentValue={value} setValue={setValue} close={close} styles={styles} />
+          <ConclusionSamples currentValue={value} setValue={setValue} close={close} styles={styles} samples={OMT_MALE_CONCLUSION_SAMPLES} />
         ) : undefined}
         onCancel={draftApi.closeEditor} onSave={draftApi.saveEditor}
       />

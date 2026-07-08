@@ -8,7 +8,7 @@ import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolCard } from "../../components/protocol/ProtocolCard";
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { GALLBLADDER_FIELDS, GALLBLADDER_CONCRETION_FIELDS, GALLBLADDER_POLYP_FIELDS } from "./obpFieldConfigs";
-import { isFieldVisible } from "./isFieldVisible";
+import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
 
 const GALLBLADDER_SECTION_HEADERS: Record<string, string> = {

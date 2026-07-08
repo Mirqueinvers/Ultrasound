@@ -1,6 +1,7 @@
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
 import { FieldEditorModal } from "../../components/FieldEditorModal";
+import { ConclusionSamples } from "../../components/ConclusionSamples";
 import type { ScrotumDraft } from "../../shared/scrotumDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -16,56 +17,6 @@ type ScrotumProtocolBlockProps = {
   onChange: (value: ScrotumDraft) => void;
   activeSectionId?: string | null;
 };
-
-function ConclusionSamples({
-  currentValue,
-  setValue,
-  close,
-  styles,
-}: {
-  currentValue: string;
-  setValue: (v: string) => void;
-  close: () => void;
-  styles: AppStyles;
-}) {
-  return (
-    <View style={styles.obpSampleList}>
-      {CONCLUSION_SAMPLES.map((sample) => (
-        <Pressable
-          key={sample.title}
-          onPress={() => {
-            const nextValue = currentValue
-              ? `${currentValue}${currentValue.endsWith("\n") ? "" : "\n"}${sample.value}`
-              : sample.value;
-            setValue(nextValue);
-          }}
-          style={({ pressed }) => [
-            styles.obpSampleButton,
-            pressed && styles.obpSampleButtonPressed,
-          ]}
-        >
-          <Text style={styles.obpSampleButtonTitle}>{sample.title}</Text>
-          <Text style={styles.obpSampleButtonText}>{sample.value}</Text>
-        </Pressable>
-      ))}
-
-      <Pressable
-        onPress={close}
-        style={({ pressed }) => [
-          styles.secondaryButton,
-          {
-            alignSelf: "flex-start",
-            paddingVertical: 10,
-            paddingHorizontal: 14,
-          },
-          pressed && styles.buttonPressed,
-        ]}
-      >
-        <Text style={styles.secondaryButtonText}>Закрыть</Text>
-      </Pressable>
-    </View>
-  );
-}
 
 export function ScrotumProtocolBlock({
   styles,
@@ -108,6 +59,7 @@ export function ScrotumProtocolBlock({
                   setValue={setValue}
                   close={close}
                   styles={styles}
+                  samples={CONCLUSION_SAMPLES}
                 />
               )
             : undefined

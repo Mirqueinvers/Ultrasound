@@ -4,17 +4,7 @@ import type {
   UrinaryBladderDraft,
 } from "../../shared/kidneyDraft";
 
-// ---- Типы ----
-
-export type EditorState = {
-  title: string;
-  mode: "number" | "select" | "text";
-  value: string;
-  placeholder?: string;
-  multiline?: boolean;
-  options?: FieldEditorOption[];
-  onSave: (value: string) => void;
-} | null;
+export type { EditorState } from "../../hooks/useFieldEditor";
 
 export type KidneyRenderableFieldKey =
   | "position"
@@ -206,15 +196,4 @@ export function resolveActiveKidneySection(activeSectionId: string | null | unde
   }
 }
 
-export function formatNumberInput(value: string): string {
-  return value.replace(/[^0-9.,]/g, "");
-}
-
-export function splitPairSize(value: string): [string, string] {
-  const [first = "", second = ""] = value.split("x");
-  return [first, second];
-}
-
-export function joinPairSize(first: string, second: string) {
-  return `${first}${second ? `x${second}` : ""}`;
-}
+export { splitPairSize, joinPairSize, formatNumberInput } from "../../utils/stringUtils";

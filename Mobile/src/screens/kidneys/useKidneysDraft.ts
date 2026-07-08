@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Keyboard } from "react-native";
 
 import {
   createEmptyKidneyConcrementDraft,
@@ -12,10 +11,10 @@ import {
   type KidneyStudyDraft,
   type UrinaryBladderDraft,
 } from "../../shared/kidneyDraft";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
 import {
   BLADDER_NUMERIC_FIELDS,
   KIDNEY_NUMERIC_FIELDS,
-  type EditorState,
   formatNumberInput,
 } from "./kidneysFieldConfigs";
 
@@ -26,8 +25,8 @@ export function useKidneysDraft(
   onChange: (value: KidneyStudyDraft) => void,
 ) {
   const [form, setForm] = useState<KidneyStudyDraft>(value);
-  const [editorState, setEditorState] = useState<EditorState>(null);
   const localDirtyRef = useRef(false);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     if (!localDirtyRef.current) {
@@ -333,25 +332,6 @@ export function useKidneysDraft(
       });
     },
     [updateStudy, ensureBladder],
-  );
-
-  const openEditor = useCallback((config: EditorState) => {
-    Keyboard.dismiss();
-    setEditorState(config);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      if (!editorState) {
-        return;
-      }
-
-      editorState.onSave(nextValue);
-      setEditorState(null);
-    },
-    [editorState],
   );
 
   return {

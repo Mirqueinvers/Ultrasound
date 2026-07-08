@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard } from "react-native";
 
 import { createEmptyOmtMaleDraft, type OmtMaleDraft, type ProstateDraft } from "../../shared/omtMaleDraft";
 import { type UrinaryBladderDraft } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
-import { type EditorState, computeProstateVolume } from "./omtMaleFieldConfigs";
+import { useFieldEditor } from "../../hooks/useFieldEditor";
+import { computeProstateVolume } from "./omtMaleFieldConfigs";
 
 export function useOmtMaleDraft(
   value: OmtMaleDraft,
   onChange: (value: OmtMaleDraft) => void,
 ) {
   const [form, setForm] = useState<OmtMaleDraft>(value ?? createEmptyOmtMaleDraft());
-  const [editorState, setEditorState] = useState<EditorState>(null);
+  const { editorState, openEditor, closeEditor, saveEditor } = useFieldEditor();
 
   useEffect(() => {
     setForm(value ?? createEmptyOmtMaleDraft());
@@ -26,21 +26,6 @@ export function useOmtMaleDraft(
       });
     },
     [onChange],
-  );
-
-  const openEditor = useCallback((config: NonNullable<EditorState>) => {
-    Keyboard.dismiss();
-    setTimeout(() => setEditorState(config), 0);
-  }, []);
-
-  const closeEditor = useCallback(() => setEditorState(null), []);
-
-  const saveEditor = useCallback(
-    (nextValue: string) => {
-      editorState?.onSave(nextValue);
-      closeEditor();
-    },
-    [editorState, closeEditor],
   );
 
   const updateProstateField = useCallback(
