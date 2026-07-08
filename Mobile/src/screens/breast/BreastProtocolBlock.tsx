@@ -24,6 +24,7 @@ type BreastProtocolBlockProps = {
   value: BreastStudyDraft;
   onChange: (value: BreastStudyDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function BreastProtocolBlock({
@@ -32,6 +33,7 @@ export function BreastProtocolBlock({
   value,
   onChange,
   activeSectionId,
+  isLandscape,
 }: BreastProtocolBlockProps) {
   const draftApi = useBreastDraft(value, onChange);
 
@@ -101,12 +103,13 @@ export function BreastProtocolBlock({
 
       {showLobeSections && (
         <>
-          {showRightSection && (
+            {showRightSection && (
             <BreastSidePanel
               styles={styles}
               side="right"
               breastSide={breast.rightBreast}
               fv={fv}
+              isLandscape={isLandscape}
               openEditor={draftApi.openEditor}
               onUpdateSideField={draftApi.updateSideField}
               onAddNode={draftApi.addNode}
@@ -120,6 +123,7 @@ export function BreastProtocolBlock({
               side="left"
               breastSide={breast.leftBreast}
               fv={fv}
+              isLandscape={isLandscape}
               openEditor={draftApi.openEditor}
               onUpdateSideField={draftApi.updateSideField}
               onAddNode={draftApi.addNode}
@@ -138,6 +142,7 @@ export function BreastProtocolBlock({
             value={breast.structure || "Нажмите для ввода"}
             typeLabel="select"
             filled={Boolean(breast.structure)}
+            compact={isLandscape}
             options={BREAST_STRUCTURE_OPTIONS}
             onSelectOption={(nextValue) =>
               draftApi.updateBreastField("structure", nextValue)
@@ -152,6 +157,7 @@ export function BreastProtocolBlock({
             styles={styles}
             conclusion={draftApi.form.conclusion}
             recommendations={draftApi.form.recommendations}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateConclusion={(value) =>
               draftApi.updateForm((current) => ({

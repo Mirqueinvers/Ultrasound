@@ -16,6 +16,7 @@ type LymphNodesProtocolBlockProps = {
   value: LymphNodesStudyDraft;
   onChange: (value: LymphNodesStudyDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function LymphNodesProtocolBlock({
@@ -24,6 +25,7 @@ export function LymphNodesProtocolBlock({
   value,
   onChange,
   activeSectionId,
+  isLandscape,
 }: LymphNodesProtocolBlockProps) {
   const draftApi = useLymphNodesDraft(value, onChange);
 

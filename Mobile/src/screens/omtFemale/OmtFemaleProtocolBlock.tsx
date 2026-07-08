@@ -22,10 +22,11 @@ type OmtFemaleProtocolBlockProps = {
   value: OmtFemaleDraft;
   onChange: (value: OmtFemaleDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function OmtFemaleProtocolBlock({
-  styles, fieldVisibility, value, onChange, activeSectionId,
+  styles, fieldVisibility, value, onChange, activeSectionId, isLandscape,
 }: OmtFemaleProtocolBlockProps) {
   const draftApi = useOmtFemaleDraft(value, onChange);
   const fv = fieldVisibility as Record<string, boolean>;

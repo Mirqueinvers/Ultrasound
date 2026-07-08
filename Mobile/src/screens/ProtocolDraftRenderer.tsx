@@ -12,6 +12,7 @@ import type { AppStyles } from "../styles/appStyles";
 import type { MobileStudiesDataMap } from "../protocols/types";
 import type { FieldVisibility } from "../settings/fieldVisibility";
 import { useActiveProtocolDrafts } from "../hooks/useActiveProtocolDrafts";
+import { useOrientation } from "../hooks/useOrientation";
 import { PROTOCOL_RENDERERS } from "./protocolRenderers";
 
 type ProtocolDraftRendererProps = {
@@ -65,10 +66,13 @@ export function ProtocolDraftRenderer({
       activeProtocolManifest.sections[0] ??
       null
     : null;
+  const { isLandscape } = useOrientation();
+
   const rendererContext = {
     styles,
     activeSectionId,
     fieldVisibility,
+    isLandscape,
     obpActions,
     protocolUpdateHandlers,
     activeObpDraft,

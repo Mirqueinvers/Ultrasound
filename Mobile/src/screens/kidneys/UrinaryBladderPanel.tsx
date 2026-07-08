@@ -23,6 +23,7 @@ type UrinaryBladderPanelProps = {
   bladder: UrinaryBladderDraft | null;
   resolvedActiveSectionId: string | null;
   fv: Record<string, boolean>;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateBladderField: (field: keyof UrinaryBladderDraft, value: string) => void;
   onUpdateStudy: (producer: KidneysProducer) => void;
@@ -54,6 +55,7 @@ export function UrinaryBladderPanel({
   bladder: rawBladder,
   resolvedActiveSectionId,
   fv,
+  isLandscape,
   openEditor,
   onUpdateBladderField,
   onUpdateStudy,
@@ -170,6 +172,7 @@ export function UrinaryBladderPanel({
                 value={currentDisplay}
                 typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
                 filled={filled}
+                compact={isLandscape}
                 onPress={
                   field.kind === "select"
                     ? undefined

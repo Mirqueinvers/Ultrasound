@@ -10,6 +10,7 @@ type KidneysConclusionPanelProps = {
   styles: AppStyles;
   conclusion: string;
   recommendations: string;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateStudy: (producer: KidneysProducer) => void;
 };
@@ -18,6 +19,7 @@ export function KidneysConclusionPanel({
   styles,
   conclusion,
   recommendations,
+  isLandscape,
   openEditor,
   onUpdateStudy,
 }: KidneysConclusionPanelProps) {
@@ -30,6 +32,7 @@ export function KidneysConclusionPanel({
         value={conclusion || "Нажмите для ввода"}
         typeLabel="text"
         filled={conclusion.trim().length > 0}
+        compact={isLandscape}
         onPress={() =>
           openEditor({
             title: "Заключение почек",
@@ -51,6 +54,7 @@ export function KidneysConclusionPanel({
         value={recommendations || "Нажмите для ввода"}
         typeLabel="text"
         filled={recommendations.trim().length > 0}
+        compact={isLandscape}
         onPress={() =>
           openEditor({
             title: "Рекомендации почек",

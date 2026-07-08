@@ -9,6 +9,7 @@ type BreastConclusionPanelProps = {
   styles: AppStyles;
   conclusion: string;
   recommendations: string;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateConclusion: (value: string) => void;
   onUpdateRecommendations: (value: string) => void;
@@ -18,6 +19,7 @@ export function BreastConclusionPanel({
   styles,
   conclusion,
   recommendations,
+  isLandscape,
   openEditor,
   onUpdateConclusion,
   onUpdateRecommendations,
@@ -31,6 +33,7 @@ export function BreastConclusionPanel({
           value={conclusion || "Нажмите для ввода"}
           typeLabel="text"
           filled={Boolean(conclusion?.trim())}
+          compact={isLandscape}
           onPress={() =>
             openEditor({
               title: "Заключение молочных желез",
@@ -47,6 +50,7 @@ export function BreastConclusionPanel({
           value={recommendations || "Нажмите для ввода"}
           typeLabel="text"
           filled={Boolean(recommendations?.trim())}
+          compact={isLandscape}
           onPress={() =>
             openEditor({
               title: "Рекомендации молочных желез",

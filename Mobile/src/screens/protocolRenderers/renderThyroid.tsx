@@ -8,6 +8,7 @@ type RenderThyroidProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeThyroidDraft: ThyroidStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderThyroid({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeThyroidDraft,
   protocolUpdateHandlers,
 }: RenderThyroidProps) {
@@ -25,6 +27,7 @@ export function renderThyroid({
       styles={styles}
       value={activeThyroidDraft}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
       onChange={protocolUpdateHandlers.updateThyroidStudy}
     />
   );

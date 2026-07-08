@@ -42,6 +42,7 @@ type KidneySidePanelProps = {
   kidney: KidneyDraft | null;
   resolvedActiveSectionId: string | null;
   fv: Record<string, boolean>;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateKidneyField: (side: "rightKidney" | "leftKidney", field: keyof KidneyDraft, value: string) => void;
   onUpdateKidneyListItem: (
@@ -82,6 +83,7 @@ export function KidneySidePanel({
   kidney: rawKidney,
   resolvedActiveSectionId,
   fv,
+  isLandscape,
   openEditor,
   onUpdateKidneyField,
   onUpdateKidneyListItem,
@@ -148,6 +150,7 @@ export function KidneySidePanel({
                 value={currentDisplay}
                 typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
                 filled={filled}
+                compact={isLandscape}
                 onPress={
                   field.kind === "select"
                     ? undefined

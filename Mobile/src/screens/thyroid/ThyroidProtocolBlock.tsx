@@ -28,6 +28,7 @@ type ThyroidProtocolBlockProps = {
   value: ThyroidStudyDraft;
   onChange: (value: ThyroidStudyDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function ThyroidProtocolBlock({
@@ -36,6 +37,7 @@ export function ThyroidProtocolBlock({
   value,
   onChange,
   activeSectionId,
+  isLandscape,
 }: ThyroidProtocolBlockProps) {
   const draftApi = useThyroidDraft(value, onChange);
   const thyroid = draftApi.form.thyroid;
@@ -80,6 +82,7 @@ export function ThyroidProtocolBlock({
             lobe={thyroid.rightLobe}
             isVisible={showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.rightLobe}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateLobeField={draftApi.updateLobeField}
             onAddNode={draftApi.addNode}
@@ -92,6 +95,7 @@ export function ThyroidProtocolBlock({
             lobe={thyroid.leftLobe}
             isVisible={showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.leftLobe}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateLobeField={draftApi.updateLobeField}
             onAddNode={draftApi.addNode}
@@ -107,6 +111,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.isthmusSize || "Нажмите для ввода"}
                 typeLabel="numpad"
                 filled={Boolean(thyroid.isthmusSize)}
+                compact={isLandscape}
                 onPress={() =>
                   draftApi.openEditor({
                     title: "Перешеек: размер",
@@ -137,6 +142,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.echogenicity || "Нажмите для ввода"}
                 typeLabel="select"
                 filled={Boolean(thyroid.echogenicity)}
+                compact={isLandscape}
                 options={THYROID_ECHOGENICITY_OPTIONS}
                 onSelectOption={(nextValue) => draftApi.updateThyroidField("echogenicity", nextValue)}
               />
@@ -147,6 +153,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.echostructure || "Нажмите для ввода"}
                 typeLabel="select"
                 filled={Boolean(thyroid.echostructure)}
+                compact={isLandscape}
                 options={THYROID_ECHOSTRUCTURE_OPTIONS}
                 onSelectOption={(nextValue) => draftApi.updateThyroidField("echostructure", nextValue)}
               />
@@ -157,6 +164,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.contour || "Нажмите для ввода"}
                 typeLabel="select"
                 filled={Boolean(thyroid.contour)}
+                compact={isLandscape}
                 options={THYROID_CONTOUR_OPTIONS}
                 onSelectOption={(nextValue) => draftApi.updateThyroidField("contour", nextValue)}
               />
@@ -167,6 +175,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.symmetry || "Нажмите для ввода"}
                 typeLabel="select"
                 filled={Boolean(thyroid.symmetry)}
+                compact={isLandscape}
                 options={THYROID_SYMMETRY_OPTIONS}
                 onSelectOption={(nextValue) => draftApi.updateThyroidField("symmetry", nextValue)}
               />
@@ -177,6 +186,7 @@ export function ThyroidProtocolBlock({
                 value={thyroid.position || "Нажмите для ввода"}
                 typeLabel="select"
                 filled={Boolean(thyroid.position)}
+                compact={isLandscape}
                 options={THYROID_POSITION_OPTIONS}
                 onSelectOption={(nextValue) => draftApi.updateThyroidField("position", nextValue)}
               />
@@ -191,6 +201,7 @@ export function ThyroidProtocolBlock({
             styles={styles}
             conclusion={draftApi.form.conclusion}
             recommendations={draftApi.form.recommendations}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateForm={draftApi.updateForm}
           />

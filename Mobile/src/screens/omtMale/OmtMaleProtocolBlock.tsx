@@ -19,12 +19,13 @@ type OmtMaleProtocolBlockProps = {
   styles: AppStyles;
   fieldVisibility: FieldVisibility;
   value: OmtMaleDraft;
-  activeSectionId?: string | null;
   onChange: (value: OmtMaleDraft) => void;
+  activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function OmtMaleProtocolBlock({
-  styles, fieldVisibility, value, onChange, activeSectionId,
+  styles, fieldVisibility, value, onChange, activeSectionId, isLandscape,
 }: OmtMaleProtocolBlockProps) {
   const draftApi = useOmtMaleDraft(value, onChange);
   const fv = fieldVisibility as Record<string, boolean>;

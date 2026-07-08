@@ -8,6 +8,7 @@ type RenderOmtFemaleProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeOmtFemaleDraft: OmtFemaleDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderOmtFemale({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeOmtFemaleDraft,
   protocolUpdateHandlers,
 }: RenderOmtFemaleProps) {
@@ -26,6 +28,7 @@ export function renderOmtFemale({
       value={activeOmtFemaleDraft}
       onChange={protocolUpdateHandlers.updateOmtFemaleStudy}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
     />
   );
 }

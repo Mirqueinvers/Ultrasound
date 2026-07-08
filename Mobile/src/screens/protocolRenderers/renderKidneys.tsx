@@ -8,6 +8,7 @@ type RenderKidneysProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeKidneyDraft: KidneyStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderKidneys({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeKidneyDraft,
   protocolUpdateHandlers,
 }: RenderKidneysProps) {
@@ -26,6 +28,7 @@ export function renderKidneys({
       value={activeKidneyDraft}
       onChange={protocolUpdateHandlers.updateKidneyStudy}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
     />
   );
 }

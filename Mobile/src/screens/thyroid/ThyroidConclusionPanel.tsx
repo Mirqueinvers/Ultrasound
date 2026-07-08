@@ -10,6 +10,7 @@ type ThyroidConclusionPanelProps = {
   styles: AppStyles;
   conclusion: string;
   recommendations: string;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateForm: (updater: (current: ThyroidStudyDraft) => ThyroidStudyDraft) => void;
 };
@@ -18,6 +19,7 @@ export function ThyroidConclusionPanel({
   styles,
   conclusion,
   recommendations,
+  isLandscape,
   openEditor,
   onUpdateForm,
 }: ThyroidConclusionPanelProps) {
@@ -30,6 +32,7 @@ export function ThyroidConclusionPanel({
           value={conclusion || "Нажмите для ввода"}
           typeLabel="text"
           filled={Boolean(conclusion)}
+          compact={isLandscape}
           onPress={() =>
             openEditor({
               title: "Заключение щитовидной железы",
@@ -50,6 +53,7 @@ export function ThyroidConclusionPanel({
           value={recommendations || "Нажмите для ввода"}
           typeLabel="text"
           filled={Boolean(recommendations)}
+          compact={isLandscape}
           onPress={() =>
             openEditor({
               title: "Рекомендации щитовидной железы",

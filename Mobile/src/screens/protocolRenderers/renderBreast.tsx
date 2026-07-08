@@ -8,6 +8,7 @@ type RenderBreastProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeBreastDraft: BreastStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderBreast({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeBreastDraft,
   protocolUpdateHandlers,
 }: RenderBreastProps) {
@@ -25,6 +27,7 @@ export function renderBreast({
       styles={styles}
       value={activeBreastDraft}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
       onChange={protocolUpdateHandlers.updateBreastStudy}
     />
   );

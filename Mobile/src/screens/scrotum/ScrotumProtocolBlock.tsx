@@ -16,6 +16,7 @@ type ScrotumProtocolBlockProps = {
   value: ScrotumDraft;
   onChange: (value: ScrotumDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function ScrotumProtocolBlock({
@@ -24,6 +25,7 @@ export function ScrotumProtocolBlock({
   value,
   onChange,
   activeSectionId,
+  isLandscape,
 }: ScrotumProtocolBlockProps) {
   const draftApi = useScrotumDraft(value, onChange);
   const fv = fieldVisibility as Record<string, boolean>;

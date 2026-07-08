@@ -8,6 +8,7 @@ type RenderScrotumProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeScrotumDraft: ScrotumDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderScrotum({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeScrotumDraft,
   protocolUpdateHandlers,
 }: RenderScrotumProps) {
@@ -25,6 +27,7 @@ export function renderScrotum({
       styles={styles}
       value={activeScrotumDraft}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
       onChange={protocolUpdateHandlers.updateScrotumStudy}
     />
   );

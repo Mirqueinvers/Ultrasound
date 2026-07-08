@@ -21,6 +21,7 @@ type KidneysProtocolBlockProps = {
   value: KidneyStudyDraft;
   onChange: (value: KidneyStudyDraft) => void;
   activeSectionId?: string | null;
+  isLandscape?: boolean;
 };
 
 export function KidneysProtocolBlock({
@@ -29,6 +30,7 @@ export function KidneysProtocolBlock({
   value,
   onChange,
   activeSectionId,
+  isLandscape,
 }: KidneysProtocolBlockProps) {
   const draftApi = useKidneysDraft(value, onChange);
   const resolvedActiveSectionId = resolveActiveKidneySection(activeSectionId);
@@ -69,6 +71,7 @@ export function KidneysProtocolBlock({
         kidney={draftApi.form.rightKidney}
         resolvedActiveSectionId={resolvedActiveSectionId}
         fv={fv}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateKidneyField={draftApi.updateKidneyField}
         onUpdateKidneyListItem={draftApi.updateKidneyListItem}
@@ -87,6 +90,7 @@ export function KidneysProtocolBlock({
         kidney={draftApi.form.leftKidney}
         resolvedActiveSectionId={resolvedActiveSectionId}
         fv={fv}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateKidneyField={draftApi.updateKidneyField}
         onUpdateKidneyListItem={draftApi.updateKidneyListItem}
@@ -103,6 +107,7 @@ export function KidneysProtocolBlock({
         bladder={draftApi.form.urinaryBladder}
         resolvedActiveSectionId={resolvedActiveSectionId}
         fv={fv}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateBladderField={draftApi.updateBladderField}
         onUpdateStudy={draftApi.updateStudy}
@@ -113,6 +118,7 @@ export function KidneysProtocolBlock({
           styles={styles}
           conclusion={draftApi.form.conclusion}
           recommendations={draftApi.form.recommendations}
+          isLandscape={isLandscape}
           openEditor={draftApi.openEditor}
           onUpdateStudy={draftApi.updateStudy}
         />

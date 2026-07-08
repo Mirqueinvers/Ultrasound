@@ -8,6 +8,7 @@ type RenderLymphNodesProps = {
   styles: AppStyles;
   activeSectionId: string | null;
   fieldVisibility: FieldVisibility;
+  isLandscape?: boolean;
   activeLymphNodesDraft: LymphNodesStudyDraft;
   protocolUpdateHandlers: ProtocolUpdateHandlers;
 };
@@ -16,6 +17,7 @@ export function renderLymphNodes({
   styles,
   activeSectionId,
   fieldVisibility,
+  isLandscape,
   activeLymphNodesDraft,
   protocolUpdateHandlers,
 }: RenderLymphNodesProps) {
@@ -25,6 +27,7 @@ export function renderLymphNodes({
       styles={styles}
       value={activeLymphNodesDraft}
       activeSectionId={activeSectionId}
+      isLandscape={isLandscape}
       onChange={protocolUpdateHandlers.updateLymphNodesStudy}
     />
   );

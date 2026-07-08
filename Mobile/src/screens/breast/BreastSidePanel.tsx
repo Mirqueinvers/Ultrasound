@@ -20,6 +20,7 @@ type BreastSidePanelProps = {
   side: "right" | "left";
   breastSide: BreastSideDraft;
   fv: Record<string, boolean>;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateSideField: (side: "right" | "left", field: keyof BreastSideDraft, value: string) => void;
   onAddNode: (side: "right" | "left") => void;
@@ -34,6 +35,7 @@ function renderRow(
   filled: boolean,
   onPress?: () => void,
   readonly?: boolean,
+  compact?: boolean,
   options?: { value: string; label: string }[],
   onSelectOption?: (value: string) => void,
 ) {
@@ -44,6 +46,7 @@ function renderRow(
       typeLabel={typeLabel}
       filled={filled}
       readonly={readonly}
+      compact={compact}
       onPress={onPress}
       options={options}
       onSelectOption={onSelectOption}
@@ -61,6 +64,7 @@ export function BreastSidePanel({
   onAddNode,
   onUpdateNodeField,
   onRemoveNode,
+  isLandscape,
 }: BreastSidePanelProps) {
   const title = side === "right" ? "Правая молочная железа" : "Левая молочная железа";
   const showNodeList = isNormalizedMatch(breastSide.volumeFormations, "определяются");
@@ -84,6 +88,7 @@ export function BreastSidePanel({
               Boolean(breastSide.skin),
               undefined,
               undefined,
+              isLandscape,
               BREAST_SKIN_OPTIONS,
               (nextValue) => onUpdateSideField(side, "skin", nextValue),
             )}
@@ -102,6 +107,8 @@ export function BreastSidePanel({
                   multiline: true,
                   onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue),
                 }),
+              undefined,
+              isLandscape,
             )}
 
           {fv[`breast.${sideKey}.nipples`] !== false &&
@@ -112,6 +119,7 @@ export function BreastSidePanel({
               Boolean(breastSide.nipples),
               undefined,
               undefined,
+              isLandscape,
               BREAST_NIPPLES_OPTIONS,
               (nextValue) => onUpdateSideField(side, "nipples", nextValue),
             )}
@@ -130,6 +138,8 @@ export function BreastSidePanel({
                   multiline: true,
                   onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue),
                 }),
+              undefined,
+              isLandscape,
             )}
 
           {fv[`breast.${sideKey}.milkDucts`] !== false &&
@@ -140,6 +150,7 @@ export function BreastSidePanel({
               Boolean(breastSide.milkDucts),
               undefined,
               undefined,
+              isLandscape,
               BREAST_MILK_DUCTS_OPTIONS,
               (nextValue) => onUpdateSideField(side, "milkDucts", nextValue),
             )}
@@ -155,6 +166,7 @@ export function BreastSidePanel({
               Boolean(breastSide.volumeFormations),
               undefined,
               undefined,
+              isLandscape,
               BREAST_VOLUME_FORMATIONS_OPTIONS,
               (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue),
             )}
@@ -205,6 +217,8 @@ export function BreastSidePanel({
                   multiline: true,
                   onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue),
                 }),
+              undefined,
+              isLandscape,
             )}
           </>
         )}

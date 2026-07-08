@@ -19,6 +19,7 @@ type ThyroidLobePanelProps = {
   lobe: ThyroidLobeDraft;
   isVisible: boolean;
   fv: Record<string, boolean>;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateLobeField: (side: "right" | "left", field: keyof ThyroidLobeDraft, value: string) => void;
   onAddNode: (side: "right" | "left") => void;
@@ -32,6 +33,7 @@ export function ThyroidLobePanel({
   lobe,
   isVisible,
   fv,
+  isLandscape,
   openEditor,
   onUpdateLobeField,
   onAddNode,
@@ -58,6 +60,7 @@ export function ThyroidLobePanel({
               value={lobe.length || "Нажмите для ввода"}
               typeLabel="numpad"
               filled={Boolean(lobe.length)}
+              compact={isLandscape}
               onPress={() =>
                 openEditor({
                   title: `${title}: длина`,
@@ -75,6 +78,7 @@ export function ThyroidLobePanel({
               value={lobe.width || "Нажмите для ввода"}
               typeLabel="numpad"
               filled={Boolean(lobe.width)}
+              compact={isLandscape}
               onPress={() =>
                 openEditor({
                   title: `${title}: ширина`,
@@ -92,6 +96,7 @@ export function ThyroidLobePanel({
               value={lobe.depth || "Нажмите для ввода"}
               typeLabel="numpad"
               filled={Boolean(lobe.depth)}
+              compact={isLandscape}
               onPress={() =>
                 openEditor({
                   title: `${title}: глубина`,
@@ -110,6 +115,7 @@ export function ThyroidLobePanel({
               typeLabel="auto"
               filled={Boolean(lobe.volume)}
               readonly
+              compact={isLandscape}
             />
           )}
         </>
@@ -122,6 +128,7 @@ export function ThyroidLobePanel({
               value={lobe.volumeFormations || "Нажмите для ввода"}
               typeLabel="select"
               filled={Boolean(lobe.volumeFormations)}
+              compact={isLandscape}
               options={THYROID_VOLUME_FORMATIONS_OPTIONS}
               onSelectOption={(nextValue) => onUpdateLobeField(side, "volumeFormations", nextValue)}
             />
@@ -162,6 +169,7 @@ export function ThyroidLobePanel({
               value={lobe.additional || "Нажмите для ввода"}
               typeLabel="text"
               filled={Boolean(lobe.additional)}
+              compact={isLandscape}
               onPress={() =>
                 openEditor({
                   title: `${title}: дополнительно`,
