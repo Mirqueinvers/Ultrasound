@@ -17,7 +17,7 @@ type ThyroidLobePanelProps = {
   styles: AppStyles;
   side: "right" | "left";
   lobe: ThyroidLobeDraft;
-  activeSectionId: string | null | undefined;
+  isVisible: boolean;
   fv: Record<string, boolean>;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateLobeField: (side: "right" | "left", field: keyof ThyroidLobeDraft, value: string) => void;
@@ -30,7 +30,7 @@ export function ThyroidLobePanel({
   styles,
   side,
   lobe,
-  activeSectionId,
+  isVisible,
   fv,
   openEditor,
   onUpdateLobeField,
@@ -40,11 +40,8 @@ export function ThyroidLobePanel({
 }: ThyroidLobePanelProps) {
   const title = side === "right" ? "Правая доля" : "Левая доля";
   const showNodes = isNormalizedMatch(lobe.volumeFormations, "определяются");
-  const sectionId = side === "right" ? "thyroid.right_lobe" : "thyroid.left_lobe";
 
-  if (activeSectionId && activeSectionId !== sectionId) {
-    return null;
-  }
+  if (!isVisible) return null;
 
   return (
     <View style={styles.kidneyPlainSection} key={side}>

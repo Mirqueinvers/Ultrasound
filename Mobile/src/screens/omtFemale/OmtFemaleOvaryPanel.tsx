@@ -20,6 +20,7 @@ type OmtFemaleOvaryPanelProps = {
   side: "left" | "right";
   ovary: OvaryDraft;
   fv: Record<string, boolean>;
+  isVisible: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateOvaryField: (side: "left" | "right", field: keyof OvaryDraft, value: string) => void;
   onAddCyst: (side: "left" | "right") => void;
@@ -28,10 +29,11 @@ type OmtFemaleOvaryPanelProps = {
 };
 
 export function OmtFemaleOvaryPanel({
-  styles, side, ovary, fv, openEditor, onUpdateOvaryField, onAddCyst, onUpdateCyst, onRemoveCyst,
+  styles, side, ovary, fv, isVisible, openEditor, onUpdateOvaryField, onAddCyst, onUpdateCyst, onRemoveCyst,
 }: OmtFemaleOvaryPanelProps) {
+  if (!isVisible) return null;
   const title = side === "right" ? "Правый яичник" : "Левый яичник";
-  const isVisible = isNormalizedMatch(ovary.position, "обычное");
+  const isOvaryVisible = isNormalizedMatch(ovary.position, "обычное");
   const showCysts = isNormalizedMatch(ovary.cysts, "определяются");
   const showFormations = isNormalizedMatch(ovary.formations, "определяются");
 
@@ -45,7 +47,7 @@ export function OmtFemaleOvaryPanel({
             onSelectOption={(v) => onUpdateOvaryField(side, "position", v)} />
         )}
 
-        {isVisible && (
+        {isOvaryVisible && (
           <>
             {(fv["omt_female.ovaryLength"] !== false || fv["omt_female.ovaryWidth"] !== false || fv["omt_female.ovaryThickness"] !== false || fv["omt_female.ovaryVolume"] !== false) && (
               <>

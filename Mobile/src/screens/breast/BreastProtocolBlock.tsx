@@ -10,9 +10,9 @@ import type { FieldVisibility } from "../../settings/fieldVisibility";
 import {
   BREAST_SECTION_IDS,
   BREAST_STRUCTURE_OPTIONS,
-  formatDateInput,
   parseDateInput,
   getDateEditorValue,
+  resolveActiveBreastSection,
 } from "./breastFieldConfigs";
 import { useBreastDraft } from "./useBreastDraft";
 import { BreastSidePanel } from "./BreastSidePanel";
@@ -36,13 +36,19 @@ export function BreastProtocolBlock({
   const draftApi = useBreastDraft(value, onChange);
 
   const breast = draftApi.form.breast;
-  const activeBreastSide =
-    activeSectionId === "breast.right"
-      ? "right"
-      : activeSectionId === "breast.left"
-        ? "left"
-        : null;
   const fv = fieldVisibility as Record<string, boolean>;
+  const resolvedActiveSectionId = resolveActiveBreastSection(activeSectionId);
+  const showAllSections = resolvedActiveSectionId === null;
+
+  const showLobeSections =
+    showAllSections ||
+    resolvedActiveSectionId === BREAST_SECTION_IDS.right ||
+    resolvedActiveSectionId === BREAST_SECTION_IDS.left;
+
+  const showRightSection =
+    showAllSections || resolvedActiveSectionId === BREAST_SECTION_IDS.right;
+  const showLeftSection =
+    showAllSections || resolvedActiveSectionId === BREAST_SECTION_IDS.left;
 
   return (
     <>
@@ -59,93 +65,72 @@ export function BreastProtocolBlock({
         onSave={draftApi.saveEditor}
       />
 
-      {(fv["breast.lastMenstruationDate"] !== false || fv["breast.cycleDay"] !== false) && (
-        <View style={styles.kidneyPlainSection}>
-          <ProtocolSectionHeader title="Общая информация" />
-          {fv["breast.lastMenstruationDate"] !== false && (
-            <ProtocolFieldRow
-              label="Дата последней менструации"
-              value={formatDateForMobileDisplay(breast.lastMenstruationDate) || "Нажмите для ввода"}
-              typeLabel="numpad"
-              filled={Boolean(breast.lastMenstruationDate)}
-              onPress={() =>
-                draftApi.openEditor({
-                  title: "Дата последней менструации",
-                  mode: "number",
-                  value: getDateEditorValue(breast.lastMenstruationDate),
-                  placeholder: "дд.мм.гггг",
-                  onSave: (nextValue) =>
-                    draftApi.updateBreastField("lastMenstruationDate", parseDateInput(nextValue)),
-                })
-              }
-            />
-          )}
-          {fv["breast.cycleDay"] !== false && (
-            <ProtocolFieldRow
-              label="День цикла"
-              value={breast.cycleDay || "Рассчитывается автоматически"}
-              typeLabel="auto"
-              filled={Boolean(breast.cycleDay)}
-              readonly
-            />
-          )}
-        </View>
-      )}
+      {(showAllSections || resolvedActiveSectionId === BREAST_SECTION_IDS.commonInfo) &&
+        (fv["breast.lastMenstruationDate"] !== false || fv["breast.cycleDay"] !== false) && (
+          <View style={styles.kidneyPlainSection}>
+            <ProtocolSectionHeader title="Общая информация" />
+            {fv["breast.lastMenstruationDate"] !== false && (
+              <ProtocolFieldRow
+                label="Дата последней менструации"
+                value={formatDateForMobileDisplay(breast.lastMenstruationDate) || "Нажмите для ввода"}
+                typeLabel="numpad"
+                filled={Boolean(breast.lastMenstruationDate)}
+                onPress={() =>
+                  draftApi.openEditor({
+                    title: "Дата последней менструации",
+                    mode: "number",
+                    value: getDateEditorValue(breast.lastMenstruationDate),
+                    placeholder: "дд.мм.гггг",
+                    onSave: (nextValue) =>
+                      draftApi.updateBreastField("lastMenstruationDate", parseDateInput(nextValue)),
+                  })
+                }
+              />
+            )}
+            {fv["breast.cycleDay"] !== false && (
+              <ProtocolFieldRow
+                label="День цикла"
+                value={breast.cycleDay || "Рассчитывается автоматически"}
+                typeLabel="auto"
+                filled={Boolean(breast.cycleDay)}
+                readonly
+              />
+            )}
+          </View>
+        )}
 
-      {activeSectionId === "breast.conclusion" ? null : activeBreastSide ? (
-        <BreastSidePanel
-          styles={styles}
-          side={activeBreastSide}
-          breastSide={
-            activeBreastSide === "right" ? breast.rightBreast : breast.leftBreast
-          }
-          fv={fv}
-          openEditor={draftApi.openEditor}
-          onUpdateSideField={draftApi.updateSideField}
-          onAddNode={draftApi.addNode}
-          onUpdateNodeField={draftApi.updateNodeField}
-          onRemoveNode={draftApi.removeNode}
-        />
-      ) : activeSectionId ? (
-        <BreastSidePanel
-          styles={styles}
-          side="right"
-          breastSide={breast.rightBreast}
-          fv={fv}
-          openEditor={draftApi.openEditor}
-          onUpdateSideField={draftApi.updateSideField}
-          onAddNode={draftApi.addNode}
-          onUpdateNodeField={draftApi.updateNodeField}
-          onRemoveNode={draftApi.removeNode}
-        />
-      ) : (
+      {showLobeSections && (
         <>
-          <BreastSidePanel
-            styles={styles}
-            side="right"
-            breastSide={breast.rightBreast}
-            fv={fv}
-            openEditor={draftApi.openEditor}
-            onUpdateSideField={draftApi.updateSideField}
-            onAddNode={draftApi.addNode}
-            onUpdateNodeField={draftApi.updateNodeField}
-            onRemoveNode={draftApi.removeNode}
-          />
-          <BreastSidePanel
-            styles={styles}
-            side="left"
-            breastSide={breast.leftBreast}
-            fv={fv}
-            openEditor={draftApi.openEditor}
-            onUpdateSideField={draftApi.updateSideField}
-            onAddNode={draftApi.addNode}
-            onUpdateNodeField={draftApi.updateNodeField}
-            onRemoveNode={draftApi.removeNode}
-          />
+          {showRightSection && (
+            <BreastSidePanel
+              styles={styles}
+              side="right"
+              breastSide={breast.rightBreast}
+              fv={fv}
+              openEditor={draftApi.openEditor}
+              onUpdateSideField={draftApi.updateSideField}
+              onAddNode={draftApi.addNode}
+              onUpdateNodeField={draftApi.updateNodeField}
+              onRemoveNode={draftApi.removeNode}
+            />
+          )}
+          {showLeftSection && (
+            <BreastSidePanel
+              styles={styles}
+              side="left"
+              breastSide={breast.leftBreast}
+              fv={fv}
+              openEditor={draftApi.openEditor}
+              onUpdateSideField={draftApi.updateSideField}
+              onAddNode={draftApi.addNode}
+              onUpdateNodeField={draftApi.updateNodeField}
+              onRemoveNode={draftApi.removeNode}
+            />
+          )}
         </>
       )}
 
-      {activeSectionId === "breast.conclusion" ? null : fv["breast.structure"] !== false && (
+      {showLobeSections && fv["breast.structure"] !== false && (
         <View style={styles.kidneyPlainSection}>
           <ProtocolSectionHeader title="Структура молочных желез" />
           <ProtocolFieldRow
@@ -161,7 +146,7 @@ export function BreastProtocolBlock({
         </View>
       )}
 
-      {(!activeSectionId || activeSectionId === BREAST_SECTION_IDS.conclusion) &&
+      {(showAllSections || resolvedActiveSectionId === BREAST_SECTION_IDS.conclusion) &&
         fv["breast.conclusion"] !== false && (
           <BreastConclusionPanel
             styles={styles}

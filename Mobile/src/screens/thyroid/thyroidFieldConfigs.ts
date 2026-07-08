@@ -127,6 +127,24 @@ export const ORIENTATION_POINTS: Record<string, number> = {
   "вертикальная": 3,
 };
 
+export const THYROID_SECTION_IDS = {
+  rightLobe: "thyroid.right_lobe",
+  leftLobe: "thyroid.left_lobe",
+  commonIndicators: "thyroid.common_indicators",
+  conclusion: "thyroid.conclusion",
+} as const;
+
+export function resolveActiveThyroidSection(activeSectionId: string | null | undefined) {
+  if (!activeSectionId) return null;
+  switch (activeSectionId) {
+    case THYROID_SECTION_IDS.rightLobe: return THYROID_SECTION_IDS.rightLobe;
+    case THYROID_SECTION_IDS.leftLobe: return THYROID_SECTION_IDS.leftLobe;
+    case THYROID_SECTION_IDS.commonIndicators: return THYROID_SECTION_IDS.commonIndicators;
+    case THYROID_SECTION_IDS.conclusion: return THYROID_SECTION_IDS.conclusion;
+    default: return THYROID_SECTION_IDS.rightLobe;
+  }
+}
+
 export function computeVolume(length: string, width: string, depth: string): string {
   const l = parseFloat(length);
   const w = parseFloat(width);

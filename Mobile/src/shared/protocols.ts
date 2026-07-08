@@ -50,6 +50,7 @@ export type ProtocolSectionId =
   | 'omt_male.bladder'
   | 'thyroid.right_lobe'
   | 'thyroid.left_lobe'
+  | 'thyroid.common_indicators'
   | 'pleural.right'
   | 'pleural.left'
   | 'salivary_glands.right_parotid'
@@ -80,6 +81,7 @@ export type ProtocolSectionId =
   | 'lower_extremity_veins.left_mv'
   | 'breast.right'
   | 'breast.left'
+  | 'breast.common_info'
   | 'soft_tissue.main'
   | 'lymph_nodes.submandibular'
   | 'lymph_nodes.cervical'
@@ -151,6 +153,7 @@ export const SECTION_DEFINITIONS = [
   { id: 'omt_male.bladder', protocolId: 'omt_male', desktopKey: 'ОМТ (М):мочевой пузырь', label: 'Мочевой пузырь', order: 2 },
   { id: 'thyroid.right_lobe', protocolId: 'thyroid', desktopKey: 'Щитовидная железа:правая доля', label: 'Правая доля', order: 1 },
   { id: 'thyroid.left_lobe', protocolId: 'thyroid', desktopKey: 'Щитовидная железа:левая доля', label: 'Левая доля', order: 2 },
+  { id: 'thyroid.common_indicators', protocolId: 'thyroid', desktopKey: 'Щитовидная железа:общие показатели', label: 'Общие показатели', order: 3 },
   { id: 'pleural.right', protocolId: 'pleural', desktopKey: 'Плевральная полость:правая', label: 'Правая плевральная полость', order: 1 },
   { id: 'pleural.left', protocolId: 'pleural', desktopKey: 'Плевральная полость:левая', label: 'Левая плевральная полость', order: 2 },
   { id: 'salivary_glands.right_parotid', protocolId: 'salivary_glands', desktopKey: 'Слюнные железы:околоушная правая', label: 'Околоушная правая', order: 1 },
@@ -181,6 +184,7 @@ export const SECTION_DEFINITIONS = [
   { id: 'lower_extremity_veins.left_mv', protocolId: 'lower_extremity_veins', desktopKey: 'Вены НК:МПВ левая', label: 'МПВ левая', order: 10 },
   { id: 'breast.right', protocolId: 'breast', desktopKey: 'Молочные железы:правая железа', label: 'Правая молочная железа', order: 1 },
   { id: 'breast.left', protocolId: 'breast', desktopKey: 'Молочные железы:левая железа', label: 'Левая молочная железа', order: 2 },
+  { id: 'breast.common_info', protocolId: 'breast', desktopKey: 'Молочные железы:общая информация', label: 'Общая информация', order: 3 },
   { id: 'soft_tissue.main', protocolId: 'soft_tissue', desktopKey: 'Мягкие ткани:основной блок', label: 'Основной блок', order: 1 },
   { id: 'lymph_nodes.submandibular', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:Поднижнечелюстные', label: 'Поднижнечелюстные', order: 1 },
   { id: 'lymph_nodes.cervical', protocolId: 'lymph_nodes', desktopKey: 'Лимфатические узлы:Шейные', label: 'Шейные', order: 2 },
@@ -244,7 +248,7 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'Щитовидная железа',
     title: 'УЗИ щитовидной железы',
     description: 'Правая и левая доля.',
-    sectionIds: ['thyroid.right_lobe', 'thyroid.left_lobe', 'thyroid.conclusion'],
+    sectionIds: ['thyroid.right_lobe', 'thyroid.left_lobe', 'thyroid.common_indicators', 'thyroid.conclusion'],
   },
   {
     id: 'salivary_glands',
@@ -304,7 +308,7 @@ export const PROTOCOL_DEFINITIONS = [
     selectionLabel: 'Молочные железы',
     title: 'УЗИ молочных желёз',
     description: 'Правая и левая молочная железа.',
-    sectionIds: ['breast.right', 'breast.left', 'breast.conclusion'],
+    sectionIds: ['breast.right', 'breast.left', 'breast.common_info', 'breast.conclusion'],
   },
   {
     id: 'child_dispensary',

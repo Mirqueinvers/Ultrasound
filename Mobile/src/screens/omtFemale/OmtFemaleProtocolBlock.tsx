@@ -65,12 +65,14 @@ export function OmtFemaleProtocolBlock({
 
       {activeOvarySides.map((side) => {
         const ovaryData = side === "right" ? draftApi.form.rightOvary : draftApi.form.leftOvary;
+        const sectionId = side === "right" ? OMT_FEMALE_SECTION_IDS.rightOvary : OMT_FEMALE_SECTION_IDS.leftOvary;
         return (
           <OmtFemaleOvaryPanel
             key={side}
             styles={styles} side={side}
             ovary={ovaryData ?? { position: "", length: "", width: "", thickness: "", volume: "", shape: "", contour: "", cysts: "", cystsList: [], formations: "", formationsText: "", additional: "" }}
             fv={fv}
+            isVisible={showAllSections || resolvedActiveSectionId === sectionId}
             openEditor={draftApi.openEditor}
             onUpdateOvaryField={draftApi.updateOvaryField}
             onAddCyst={draftApi.addOvaryCyst}

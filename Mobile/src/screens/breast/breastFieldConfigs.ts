@@ -10,8 +10,20 @@ export type BreastUpdateStudy = (updater: (current: BreastStudyDraft) => BreastS
 export const BREAST_SECTION_IDS = {
   right: "breast.right",
   left: "breast.left",
+  commonInfo: "breast.common_info",
   conclusion: "breast.conclusion",
 } as const;
+
+export function resolveActiveBreastSection(activeSectionId: string | null | undefined) {
+  if (!activeSectionId) return null;
+  switch (activeSectionId) {
+    case BREAST_SECTION_IDS.right: return BREAST_SECTION_IDS.right;
+    case BREAST_SECTION_IDS.left: return BREAST_SECTION_IDS.left;
+    case BREAST_SECTION_IDS.commonInfo: return BREAST_SECTION_IDS.commonInfo;
+    case BREAST_SECTION_IDS.conclusion: return BREAST_SECTION_IDS.conclusion;
+    default: return BREAST_SECTION_IDS.right;
+  }
+}
 
 // ---- Option arrays ----
 

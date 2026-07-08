@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { FieldEditorModal } from "../../components/FieldEditorModal";
 import { ConclusionSamples } from "../../components/ConclusionSamples";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
-import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
+import { ProtocolOrganHeader } from "../../components/protocol/ProtocolHeaders";
 import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -13,7 +13,9 @@ import {
   THYROID_ECHOGENICITY_OPTIONS,
   THYROID_ECHOSTRUCTURE_OPTIONS,
   THYROID_POSITION_OPTIONS,
+  THYROID_SECTION_IDS,
   THYROID_SYMMETRY_OPTIONS,
+  resolveActiveThyroidSection,
 } from "./thyroidFieldConfigs";
 import { useThyroidDraft } from "./useThyroidDraft";
 import { ThyroidLobePanel } from "./ThyroidLobePanel";
@@ -38,6 +40,8 @@ export function ThyroidProtocolBlock({
   const draftApi = useThyroidDraft(value, onChange);
   const thyroid = draftApi.form.thyroid;
   const fv = fieldVisibility as Record<string, boolean>;
+  const resolvedActiveSectionId = resolveActiveThyroidSection(activeSectionId);
+  const showAllSections = resolvedActiveSectionId === null;
 
   const isConclusionEditor = draftApi.editorState?.title === "Заключение щитовидной железы";
 
@@ -68,118 +72,120 @@ export function ThyroidProtocolBlock({
         onSave={draftApi.saveEditor}
       />
 
-      <View style={styles.kidneyPlainSection}>
-        <ThyroidLobePanel
-          styles={styles}
-          side="right"
-          lobe={thyroid.rightLobe}
-          activeSectionId={activeSectionId}
-          fv={fv}
-          openEditor={draftApi.openEditor}
-          onUpdateLobeField={draftApi.updateLobeField}
-          onAddNode={draftApi.addNode}
-          onUpdateNodeField={draftApi.updateNodeField}
-          onRemoveNode={draftApi.removeNode}
-        />
-        <ThyroidLobePanel
-          styles={styles}
-          side="left"
-          lobe={thyroid.leftLobe}
-          activeSectionId={activeSectionId}
-          fv={fv}
-          openEditor={draftApi.openEditor}
-          onUpdateLobeField={draftApi.updateLobeField}
-          onAddNode={draftApi.addNode}
-          onUpdateNodeField={draftApi.updateNodeField}
-          onRemoveNode={draftApi.removeNode}
-        />
-      </View>
-
-      {fv["thyroid.isthmusSize"] !== false && (
+      {(showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.rightLobe || resolvedActiveSectionId === THYROID_SECTION_IDS.leftLobe) && (
         <View style={styles.kidneyPlainSection}>
-          <ProtocolOrganHeader title="Перешеек" />
+          <ThyroidLobePanel
+            styles={styles}
+            side="right"
+            lobe={thyroid.rightLobe}
+            isVisible={showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.rightLobe}
+            fv={fv}
+            openEditor={draftApi.openEditor}
+            onUpdateLobeField={draftApi.updateLobeField}
+            onAddNode={draftApi.addNode}
+            onUpdateNodeField={draftApi.updateNodeField}
+            onRemoveNode={draftApi.removeNode}
+          />
+          <ThyroidLobePanel
+            styles={styles}
+            side="left"
+            lobe={thyroid.leftLobe}
+            isVisible={showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.leftLobe}
+            fv={fv}
+            openEditor={draftApi.openEditor}
+            onUpdateLobeField={draftApi.updateLobeField}
+            onAddNode={draftApi.addNode}
+            onUpdateNodeField={draftApi.updateNodeField}
+            onRemoveNode={draftApi.removeNode}
+          />
+
+          {fv["thyroid.isthmusSize"] !== false && (
+            <View style={styles.obpFieldList}>
+              <ProtocolOrganHeader title="Перешеек" />
+              <ProtocolFieldRow
+                label="Размер перешейка (мм)"
+                value={thyroid.isthmusSize || "Нажмите для ввода"}
+                typeLabel="numpad"
+                filled={Boolean(thyroid.isthmusSize)}
+                onPress={() =>
+                  draftApi.openEditor({
+                    title: "Перешеек: размер",
+                    mode: "number",
+                    value: thyroid.isthmusSize,
+                    placeholder: "мм",
+                    onSave: (nextValue) => draftApi.updateThyroidField("isthmusSize", nextValue),
+                  })
+                }
+              />
+            </View>
+          )}
+        </View>
+      )}
+
+      {(showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.commonIndicators) && (
+        <View style={styles.kidneyPlainSection}>
+          <ProtocolOrganHeader title="Общие показатели" />
           <View style={styles.obpFieldList}>
-            <ProtocolFieldRow
-              label="Размер перешейка (мм)"
-              value={thyroid.isthmusSize || "Нажмите для ввода"}
-              typeLabel="numpad"
-              filled={Boolean(thyroid.isthmusSize)}
-              onPress={() =>
-                draftApi.openEditor({
-                  title: "Перешеек: размер",
-                  mode: "number",
-                  value: thyroid.isthmusSize,
-                  placeholder: "мм",
-                  onSave: (nextValue) => draftApi.updateThyroidField("isthmusSize", nextValue),
-                })
-              }
+            <ThyroidAutoIndicators
+              styles={styles}
+              totalVolume={thyroid.totalVolume}
+              rightToLeftRatio={thyroid.rightToLeftRatio}
             />
+            {fv["thyroid.echogenicity"] !== false && (
+              <ProtocolFieldRow
+                label="Эхогенность железы"
+                value={thyroid.echogenicity || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(thyroid.echogenicity)}
+                options={THYROID_ECHOGENICITY_OPTIONS}
+                onSelectOption={(nextValue) => draftApi.updateThyroidField("echogenicity", nextValue)}
+              />
+            )}
+            {fv["thyroid.echostructure"] !== false && (
+              <ProtocolFieldRow
+                label="Эхоструктура"
+                value={thyroid.echostructure || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(thyroid.echostructure)}
+                options={THYROID_ECHOSTRUCTURE_OPTIONS}
+                onSelectOption={(nextValue) => draftApi.updateThyroidField("echostructure", nextValue)}
+              />
+            )}
+            {fv["thyroid.contour"] !== false && (
+              <ProtocolFieldRow
+                label="Контур"
+                value={thyroid.contour || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(thyroid.contour)}
+                options={THYROID_CONTOUR_OPTIONS}
+                onSelectOption={(nextValue) => draftApi.updateThyroidField("contour", nextValue)}
+              />
+            )}
+            {fv["thyroid.symmetry"] !== false && (
+              <ProtocolFieldRow
+                label="Симметричность"
+                value={thyroid.symmetry || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(thyroid.symmetry)}
+                options={THYROID_SYMMETRY_OPTIONS}
+                onSelectOption={(nextValue) => draftApi.updateThyroidField("symmetry", nextValue)}
+              />
+            )}
+            {fv["thyroid.position"] !== false && (
+              <ProtocolFieldRow
+                label="Положение"
+                value={thyroid.position || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(thyroid.position)}
+                options={THYROID_POSITION_OPTIONS}
+                onSelectOption={(nextValue) => draftApi.updateThyroidField("position", nextValue)}
+              />
+            )}
           </View>
         </View>
       )}
 
-      <View style={styles.kidneyPlainSection}>
-        <ProtocolOrganHeader title="Общие показатели" />
-        <View style={styles.obpFieldList}>
-          <ThyroidAutoIndicators
-            styles={styles}
-            totalVolume={thyroid.totalVolume}
-            rightToLeftRatio={thyroid.rightToLeftRatio}
-          />
-          {fv["thyroid.echogenicity"] !== false && (
-            <ProtocolFieldRow
-              label="Эхогенность железы"
-              value={thyroid.echogenicity || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={Boolean(thyroid.echogenicity)}
-              options={THYROID_ECHOGENICITY_OPTIONS}
-              onSelectOption={(nextValue) => draftApi.updateThyroidField("echogenicity", nextValue)}
-            />
-          )}
-          {fv["thyroid.echostructure"] !== false && (
-            <ProtocolFieldRow
-              label="Эхоструктура"
-              value={thyroid.echostructure || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={Boolean(thyroid.echostructure)}
-              options={THYROID_ECHOSTRUCTURE_OPTIONS}
-              onSelectOption={(nextValue) => draftApi.updateThyroidField("echostructure", nextValue)}
-            />
-          )}
-          {fv["thyroid.contour"] !== false && (
-            <ProtocolFieldRow
-              label="Контур"
-              value={thyroid.contour || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={Boolean(thyroid.contour)}
-              options={THYROID_CONTOUR_OPTIONS}
-              onSelectOption={(nextValue) => draftApi.updateThyroidField("contour", nextValue)}
-            />
-          )}
-          {fv["thyroid.symmetry"] !== false && (
-            <ProtocolFieldRow
-              label="Симметричность"
-              value={thyroid.symmetry || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={Boolean(thyroid.symmetry)}
-              options={THYROID_SYMMETRY_OPTIONS}
-              onSelectOption={(nextValue) => draftApi.updateThyroidField("symmetry", nextValue)}
-            />
-          )}
-          {fv["thyroid.position"] !== false && (
-            <ProtocolFieldRow
-              label="Положение"
-              value={thyroid.position || "Нажмите для ввода"}
-              typeLabel="select"
-              filled={Boolean(thyroid.position)}
-              options={THYROID_POSITION_OPTIONS}
-              onSelectOption={(nextValue) => draftApi.updateThyroidField("position", nextValue)}
-            />
-          )}
-        </View>
-      </View>
-
-      {(!activeSectionId || activeSectionId === "thyroid.conclusion") &&
+      {(showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.conclusion) &&
         fv["thyroid.conclusion"] !== false && (
           <ThyroidConclusionPanel
             styles={styles}
