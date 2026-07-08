@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { type TabKey } from "./src/components/TabBar";
 import { BottomNav } from "./src/components/BottomNav";
+import { LandscapeBottomNav } from "./src/components/LandscapeBottomNav";
 import { AppHeader } from "./src/components/AppHeader";
 import { ScannerOverlay } from "./src/components/ScannerOverlay";
 import { ProtocolNav } from "./src/components/ProtocolNav";
@@ -258,6 +259,10 @@ export default function App() {
         {isLandscape ? (
           <View style={{ flex: 1 }}>
             {draftContent || contentArea}
+            <LandscapeBottomNav
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
           </View>
         ) : (
           <>
