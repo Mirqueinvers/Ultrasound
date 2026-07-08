@@ -135,16 +135,17 @@ export function ThyroidLobePanel({
                     <Text style={styles.helperText}>Добавьте хотя бы один узел.</Text>
                   ) : (
                     lobe.nodesList.map((node, index) => (
-                      <ThyroidNodeCard
-                        key={`${side}-thyroid-node-${index}`}
-                        styles={styles}
-                        node={node}
-                        index={index}
-                        side={side}
-                        openEditor={openEditor}
-                        onUpdateNodeField={onUpdateNodeField}
-                        onRemoveNode={onRemoveNode}
-                      />
+                    <ThyroidNodeCard
+                      key={`${side}-thyroid-node-${index}`}
+                      styles={styles}
+                      node={node}
+                      index={index}
+                      side={side}
+                      isLandscape={isLandscape}
+                      openEditor={openEditor}
+                      onUpdateNodeField={onUpdateNodeField}
+                      onRemoveNode={onRemoveNode}
+                    />
                     ))
                   )}
                   <ProtocolActionButton label="+ Узел" onPress={() => onAddNode(side)} />

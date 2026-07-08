@@ -18,10 +18,20 @@ type BreastNodeCardProps = {
   node: BreastNodeDraft;
   index: number;
   side: "right" | "left";
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateNodeField: (side: "right" | "left", index: number, field: keyof BreastNodeDraft, value: string) => void;
   onRemoveNode: (side: "right" | "left", index: number) => void;
 };
+
+// Селекты для расположения в 2 колонки
+const SELECT_FIELDS: Array<{ key: keyof BreastNodeDraft; label: string; options: any[] }> = [
+  { key: "echogenicity", label: "Эхогенность", options: BREAST_NODE_ECHOGENICITY_OPTIONS },
+  { key: "echostructure", label: "Эхоструктура", options: BREAST_NODE_ECHOSTRUCTURE_OPTIONS },
+  { key: "contour", label: "Контур", options: BREAST_NODE_CONTOUR_OPTIONS },
+  { key: "orientation", label: "Ориентация", options: BREAST_NODE_ORIENTATION_OPTIONS },
+  { key: "bloodFlow", label: "Кровоток", options: BREAST_NODE_BLOOD_FLOW_OPTIONS },
+];
 
 function renderRow(
   label: string,
@@ -30,6 +40,7 @@ function renderRow(
   filled: boolean,
   onPress?: () => void,
   readonly?: boolean,
+  compact?: boolean,
   options?: { value: string; label: string }[],
   onSelectOption?: (value: string) => void,
 ) {
@@ -40,6 +51,7 @@ function renderRow(
       typeLabel={typeLabel}
       filled={filled}
       readonly={readonly}
+      compact={compact}
       onPress={onPress}
       options={options}
       onSelectOption={onSelectOption}
@@ -52,6 +64,7 @@ export function BreastNodeCard({
   node,
   index,
   side,
+  isLandscape,
   openEditor,
   onUpdateNodeField,
   onRemoveNode,
@@ -65,56 +78,23 @@ export function BreastNodeCard({
       onActionPress={() => onRemoveNode(side, index)}
       variant="item"
     >
-      <View style={styles.obpFieldList}>
+      <View style={{ gap: 8 }}>
         <View style={styles.dualRow}>
           <View style={styles.dualCol}>
-            {renderRow(
-              "Размер 1 (мм)",
-              node.size1 || "Нажмите для ввода",
-              "numpad",
-              Boolean(node.size1),
-              () =>
-                openEditor({
-                  title: `Узел #${index + 1}: размер 1`,
-                  mode: "number",
-                  value: node.size1,
-                  placeholder: "мм",
-                  onSave: (nextValue) => onUpdateNodeField(side, index, "size1", nextValue),
-                }),
-            )}
+            {renderRow("Размер 1 (мм)", node.size1 || "Нажмите для ввода", "numpad", Boolean(node.size1),
+              () => openEditor({ title: `Узел #${index + 1}: размер 1`, mode: "number", value: node.size1, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size1", nextValue) }),
+              undefined, isLandscape)}
           </View>
           <View style={styles.dualCol}>
-            {renderRow(
-              "Размер 2 (мм)",
-              node.size2 || "Нажмите для ввода",
-              "numpad",
-              Boolean(node.size2),
-              () =>
-                openEditor({
-                  title: `Узел #${index + 1}: размер 2`,
-                  mode: "number",
-                  value: node.size2,
-                  placeholder: "мм",
-                  onSave: (nextValue) => onUpdateNodeField(side, index, "size2", nextValue),
-                }),
-            )}
+            {renderRow("Размер 2 (мм)", node.size2 || "Нажмите для ввода", "numpad", Boolean(node.size2),
+              () => openEditor({ title: `Узел #${index + 1}: размер 2`, mode: "number", value: node.size2, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size2", nextValue) }),
+              undefined, isLandscape)}
           </View>
         </View>
 
-        {renderRow(
-          "Размер 3 (мм)",
-          node.size3 || "Нажмите для ввода",
-          "numpad",
-          Boolean(node.size3),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: размер 3`,
-              mode: "number",
-              value: node.size3,
-              placeholder: "мм",
-              onSave: (nextValue) => onUpdateNodeField(side, index, "size3", nextValue),
-            }),
-        )}
+        {renderRow("Размер 3 (мм)", node.size3 || "Нажмите для ввода", "numpad", Boolean(node.size3),
+          () => openEditor({ title: `Узел #${index + 1}: размер 3`, mode: "number", value: node.size3, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size3", nextValue) }),
+          undefined, isLandscape)}
 
         {(() => {
           const a = parseFloat(node.size1);
@@ -124,118 +104,35 @@ export function BreastNodeCard({
             const vol = ((Math.PI * a * b * c) / 6 / 1000).toFixed(2);
             return (
               <View style={styles.obpFieldRow}>
-                <Text style={[styles.obpFieldLabel, { fontWeight: "600" }]}>
-                  Объём
-                </Text>
-                <Text style={[styles.obpFieldValue, { fontWeight: "600" }]}>
-                  {vol} см³
-                </Text>
+                <Text style={[styles.obpFieldLabel, { fontWeight: "600" }]}>Объём</Text>
+                <Text style={[styles.obpFieldValue, { fontWeight: "600" }]}>{vol} см³</Text>
               </View>
             );
           }
           return null;
         })()}
 
-        {renderRow(
-          "Глубина (мм)",
-          node.depth || "Нажмите для ввода",
-          "numpad",
-          Boolean(node.depth),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: глубина`,
-              mode: "number",
-              value: node.depth,
-              placeholder: "мм",
-              onSave: (nextValue) => onUpdateNodeField(side, index, "depth", nextValue),
-            }),
-        )}
+        {renderRow("Глубина (мм)", node.depth || "Нажмите для ввода", "numpad", Boolean(node.depth),
+          () => openEditor({ title: `Узел #${index + 1}: глубина`, mode: "number", value: node.depth, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "depth", nextValue) }),
+          undefined, isLandscape)}
 
-        {renderRow(
-          "Направление узла (часы)",
-          node.direction || "Нажмите для ввода",
-          "numpad",
-          Boolean(node.direction),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: направление`,
-              mode: "number",
-              value: node.direction,
-              placeholder: "1-12",
-              onSave: (nextValue) => onUpdateNodeField(side, index, "direction", nextValue),
-            }),
-        )}
+        {renderRow("Направление узла (часы)", node.direction || "Нажмите для ввода", "numpad", Boolean(node.direction),
+          () => openEditor({ title: `Узел #${index + 1}: направление`, mode: "number", value: node.direction, placeholder: "1-12", onSave: (nextValue) => onUpdateNodeField(side, index, "direction", nextValue) }),
+          undefined, isLandscape)}
 
-        {renderRow(
-          "Эхогенность",
-          node.echogenicity || "Нажмите для ввода",
-          "select",
-          Boolean(node.echogenicity),
-          undefined,
-          undefined,
-          BREAST_NODE_ECHOGENICITY_OPTIONS,
-          (nextValue) => onUpdateNodeField(side, index, "echogenicity", nextValue),
-        )}
+        {/* Селекты в 2 колонки */}
+        <View style={{ flexDirection: isLandscape ? "row" : "column", flexWrap: "wrap", gap: 6 }}>
+          {SELECT_FIELDS.map((field) => (
+            <View key={field.key} style={isLandscape ? { width: "48.5%" } : {}}>
+              {renderRow(field.label, (node[field.key] as string) || "Нажмите для ввода", "select", Boolean(node[field.key]),
+                undefined, undefined, isLandscape, field.options, (nextValue) => onUpdateNodeField(side, index, field.key, nextValue))}
+            </View>
+          ))}
+        </View>
 
-        {renderRow(
-          "Эхоструктура",
-          node.echostructure || "Нажмите для ввода",
-          "select",
-          Boolean(node.echostructure),
-          undefined,
-          undefined,
-          BREAST_NODE_ECHOSTRUCTURE_OPTIONS,
-          (nextValue) => onUpdateNodeField(side, index, "echostructure", nextValue),
-        )}
-
-        {renderRow(
-          "Контур",
-          node.contour || "Нажмите для ввода",
-          "select",
-          Boolean(node.contour),
-          undefined,
-          undefined,
-          BREAST_NODE_CONTOUR_OPTIONS,
-          (nextValue) => onUpdateNodeField(side, index, "contour", nextValue),
-        )}
-
-        {renderRow(
-          "Ориентация",
-          node.orientation || "Нажмите для ввода",
-          "select",
-          Boolean(node.orientation),
-          undefined,
-          undefined,
-          BREAST_NODE_ORIENTATION_OPTIONS,
-          (nextValue) => onUpdateNodeField(side, index, "orientation", nextValue),
-        )}
-
-        {renderRow(
-          "Кровоток",
-          node.bloodFlow || "Нажмите для ввода",
-          "select",
-          Boolean(node.bloodFlow),
-          undefined,
-          undefined,
-          BREAST_NODE_BLOOD_FLOW_OPTIONS,
-          (nextValue) => onUpdateNodeField(side, index, "bloodFlow", nextValue),
-        )}
-
-        {renderRow(
-          "Комментарий",
-          node.comment || "Нажмите для ввода",
-          "text",
-          Boolean(node.comment),
-          () =>
-            openEditor({
-              title: `Узел #${index + 1}: комментарий`,
-              mode: "text",
-              value: node.comment,
-              placeholder: "Введите комментарий",
-              multiline: true,
-              onSave: (nextValue) => onUpdateNodeField(side, index, "comment", nextValue),
-            }),
-        )}
+        {renderRow("Комментарий", node.comment || "Нажмите для ввода", "text", Boolean(node.comment),
+          () => openEditor({ title: `Узел #${index + 1}: комментарий`, mode: "text", value: node.comment, placeholder: "Введите комментарий", multiline: true, onSave: (nextValue) => onUpdateNodeField(side, index, "comment", nextValue) }),
+          undefined, isLandscape)}
       </View>
     </ProtocolCard>
   );

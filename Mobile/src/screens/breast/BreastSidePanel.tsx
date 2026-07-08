@@ -130,6 +130,7 @@ export function BreastSidePanel({
                         node={node}
                         index={index}
                         side={side}
+                        isLandscape={isLandscape}
                         openEditor={openEditor}
                         onUpdateNodeField={onUpdateNodeField}
                         onRemoveNode={onRemoveNode}
