@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
@@ -69,47 +69,106 @@ export function UrinaryBladderPanel({
   const showResidualFields = isNormalizedMatch(bladder.residualStatus, "определяется");
   const showContentsText = isNormalizedMatch(bladder.contents, "неоднородное");
 
+  // Группируем поля по заголовкам для сетки
+  const groupedFields = useMemo(() => {
+    const groups: Array<{ header?: string; fields: typeof bladderFields }> = [];
+    let currentGroup: typeof bladderFields = [];
+
+    bladderFields.forEach((field) => {
+      if (!isFieldVisible(field, fieldVisibility)) return;
+
+      if (BLADDER_SECTION_HEADERS[field.key]) {
+        if (currentGroup.length > 0) {
+          groups.push({ fields: currentGroup });
+        }
+        groups.push({ header: BLADDER_SECTION_HEADERS[field.key]!, fields: [] });
+        currentGroup = [];
+      }
+      currentGroup.push(field);
+    });
+    if (currentGroup.length > 0) {
+      groups.push({ fields: currentGroup });
+    }
+    return groups;
+  }, [fieldVisibility]);
+
+  const renderFieldRow = (field: typeof bladderFields[0]) => {
+    const currentValue = bladder[field.key];
+    const filled = Boolean(currentValue && currentValue.trim().length > 0);
+    const currentDisplay = currentValue || "Нажмите для ввода";
+
+    return (
+      <ProtocolFieldRow
+        label={field.label}
+        value={currentDisplay}
+        typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+        filled={filled}
+        compact={isLandscape}
+        onPress={
+          field.kind === "select"
+            ? undefined
+            : () => {
+                openEditor({
+                  title: `Мочевой пузырь: ${field.label}`,
+                  mode: field.kind,
+                  value: currentValue,
+                  placeholder: field.placeholder,
+                  multiline: field.multiline,
+                  options: field.options,
+                  onSave: (nextValue) => onUpdateBladderField(field.key, nextValue),
+                });
+              }
+        }
+        options={field.kind === "select" ? field.options : undefined}
+        onSelectOption={
+          field.kind === "select"
+            ? (nextValue) => onUpdateBladderField(field.key, nextValue)
+            : undefined
+        }
+      />
+    );
+  };
+
   return (
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title="Мочевой пузырь" />
 
-      <View style={styles.obpFieldList}>
-        {bladderFields.map((field) => {
-          if (!isFieldVisible(field, fieldVisibility)) {
-            return null;
-          }
+      {isLandscape ? (
+        <View style={{ gap: 8 }}>
+          {groupedFields.map((group, gi) => (
+            <Fragment key={gi}>
+              {group.header && <ProtocolSectionHeader title={group.header} />}
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                {group.fields.map((field) => (
+                  <View key={field.key} style={{ width: "48.5%" }}>
+                    {renderFieldRow(field)}
+                  </View>
+                ))}
+              </View>
+            </Fragment>
+          ))}
 
-          const currentValue = bladder[field.key];
-          const filled = Boolean(currentValue && currentValue.trim().length > 0);
-          const currentDisplay = currentValue || "Нажмите для ввода";
+          {/* Остаточная моча */}
+          {showResidualFields && (
+            <Fragment>
+              <ProtocolSectionHeader title="Объем остаточной мочи" />
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                {(["residualLength", "residualWidth", "residualDepth", "residualVolume"] as const).map(
+                  (fieldKey, index) => {
+                    const labels = ["Длина", "Ширина", "Передне-задний", "Объём"];
+                    const values = [
+                      bladder.residualLength,
+                      bladder.residualWidth,
+                      bladder.residualDepth,
+                      bladder.residualVolume,
+                    ];
+                    const readOnly = fieldKey === "residualVolume";
 
-          return (
-            <Fragment key={field.key}>
-              {BLADDER_SECTION_HEADERS[field.key] && (
-                <ProtocolSectionHeader title={BLADDER_SECTION_HEADERS[field.key]!} />
-              )}
-
-              {field.key === "residualStatus" && showResidualFields && (
-                <View style={styles.obpFieldList}>
-                  {(["residualLength", "residualWidth", "residualDepth", "residualVolume"] as const).map(
-                    (fieldKey, index) => {
-                      const labels = ["Длина", "Ширина", "Передне-задний", "Объём"];
-                      const values = [
-                        bladder.residualLength,
-                        bladder.residualWidth,
-                        bladder.residualDepth,
-                        bladder.residualVolume,
-                      ];
-                      const readOnly = fieldKey === "residualVolume";
-
-                      return (
+                    return (
+                      <View key={fieldKey} style={{ width: "48.5%" }}>
                         <Pressable
-                          key={fieldKey}
                           onPress={() => {
-                            if (readOnly) {
-                              return;
-                            }
-
+                            if (readOnly) return;
                             openEditor({
                               title: `Мочевой пузырь: ${labels[index]}`,
                               mode: "number",
@@ -133,72 +192,154 @@ export function UrinaryBladderPanel({
                           </View>
                           <Text style={styles.obpFieldType}>{readOnly ? "auto" : "numpad"}</Text>
                         </Pressable>
-                      );
-                    },
-                  )}
-                </View>
-              )}
-
-              {field.key === "contents" && showContentsText && (
-                <Pressable
-                  onPress={() =>
-                    openEditor({
-                      title: "Мочевой пузырь: Описание содержимого",
-                      mode: "text",
-                      value: bladder.contentsText,
-                      placeholder: "Введите описание",
-                      multiline: true,
-                      onSave: (nextValue) => onUpdateBladderField("contentsText", nextValue),
-                    })
-                  }
-                  style={({ pressed }) => [
-                    styles.obpFieldRow,
-                    bladder.contentsText.trim().length > 0 && styles.obpFieldRowFilled,
-                    pressed && styles.obpFieldRowPressed,
-                  ]}
-                >
-                  <View style={styles.obpFieldRowContent}>
-                    <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
-                    <Text style={styles.obpFieldValue}>
-                      {bladder.contentsText || "Нажмите для ввода"}
-                    </Text>
-                  </View>
-                  <Text style={styles.obpFieldType}>text</Text>
-                </Pressable>
-              )}
-
-              <ProtocolFieldRow
-                label={field.label}
-                value={currentDisplay}
-                typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-                filled={filled}
-                compact={isLandscape}
-                onPress={
-                  field.kind === "select"
-                    ? undefined
-                    : () => {
-                        openEditor({
-                          title: `Мочевой пузырь: ${field.label}`,
-                          mode: field.kind,
-                          value: currentValue,
-                          placeholder: field.placeholder,
-                          multiline: field.multiline,
-                          options: field.options,
-                          onSave: (nextValue) => onUpdateBladderField(field.key, nextValue),
-                        });
-                      }
-                }
-                options={field.kind === "select" ? field.options : undefined}
-                onSelectOption={
-                  field.kind === "select"
-                    ? (nextValue) => onUpdateBladderField(field.key, nextValue)
-                    : undefined
-                }
-              />
+                      </View>
+                    );
+                  },
+                )}
+              </View>
             </Fragment>
-          );
-        })}
-      </View>
+          )}
+
+          {showContentsText && (
+            <Pressable
+              onPress={() =>
+                openEditor({
+                  title: "Мочевой пузырь: Описание содержимого",
+                  mode: "text",
+                  value: bladder.contentsText,
+                  placeholder: "Введите описание",
+                  multiline: true,
+                  onSave: (nextValue) => onUpdateBladderField("contentsText", nextValue),
+                })
+              }
+              style={({ pressed }) => [
+                styles.obpFieldRow,
+                bladder.contentsText.trim().length > 0 && styles.obpFieldRowFilled,
+                pressed && styles.obpFieldRowPressed,
+              ]}
+            >
+              <View style={styles.obpFieldRowContent}>
+                <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
+                <Text style={styles.obpFieldValue}>
+                  {bladder.contentsText || "Нажмите для ввода"}
+                </Text>
+              </View>
+              <Text style={styles.obpFieldType}>text</Text>
+            </Pressable>
+          )}
+        </View>
+      ) : (
+        <View style={styles.obpFieldList}>
+          {bladderFields.map((field) => {
+            if (!isFieldVisible(field, fieldVisibility)) return null;
+            const currentValue = bladder[field.key];
+            const filled = Boolean(currentValue && currentValue.trim().length > 0);
+            const currentDisplay = currentValue || "Нажмите для ввода";
+
+            return (
+              <Fragment key={field.key}>
+                {BLADDER_SECTION_HEADERS[field.key] && (
+                  <ProtocolSectionHeader title={BLADDER_SECTION_HEADERS[field.key]!} />
+                )}
+
+                {field.key === "residualStatus" && showResidualFields && (
+                  <View style={styles.obpFieldList}>
+                    {(["residualLength", "residualWidth", "residualDepth", "residualVolume"] as const).map(
+                      (fieldKey, index) => {
+                        const labels = ["Длина", "Ширина", "Передне-задний", "Объём"];
+                        const values = [bladder.residualLength, bladder.residualWidth, bladder.residualDepth, bladder.residualVolume];
+                        const readOnly = fieldKey === "residualVolume";
+                        return (
+                          <Pressable
+                            key={fieldKey}
+                            onPress={() => {
+                              if (readOnly) return;
+                              openEditor({
+                                title: `Мочевой пузырь: ${labels[index]}`,
+                                mode: "number",
+                                value: values[index],
+                                placeholder: "мм",
+                                onSave: (nextValue) => onUpdateBladderField(fieldKey, nextValue),
+                              });
+                            }}
+                            style={({ pressed }) => [
+                              styles.obpFieldRow,
+                              values[index].trim().length > 0 && styles.obpFieldRowFilled,
+                              pressed && styles.obpFieldRowPressed,
+                              readOnly && styles.obpFieldRowReadonly,
+                            ]}
+                          >
+                            <View style={styles.obpFieldRowContent}>
+                              <Text style={styles.obpFieldLabel}>{labels[index]}</Text>
+                              <Text style={styles.obpFieldValue}>{values[index] || "Нажмите для ввода"}</Text>
+                            </View>
+                            <Text style={styles.obpFieldType}>{readOnly ? "auto" : "numpad"}</Text>
+                          </Pressable>
+                        );
+                      },
+                    )}
+                  </View>
+                )}
+
+                {field.key === "contents" && showContentsText && (
+                  <Pressable
+                    onPress={() =>
+                      openEditor({
+                        title: "Мочевой пузырь: Описание содержимого",
+                        mode: "text",
+                        value: bladder.contentsText,
+                        placeholder: "Введите описание",
+                        multiline: true,
+                        onSave: (nextValue) => onUpdateBladderField("contentsText", nextValue),
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.obpFieldRow,
+                      bladder.contentsText.trim().length > 0 && styles.obpFieldRowFilled,
+                      pressed && styles.obpFieldRowPressed,
+                    ]}
+                  >
+                    <View style={styles.obpFieldRowContent}>
+                      <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
+                      <Text style={styles.obpFieldValue}>{bladder.contentsText || "Нажмите для ввода"}</Text>
+                    </View>
+                    <Text style={styles.obpFieldType}>text</Text>
+                  </Pressable>
+                )}
+
+                <ProtocolFieldRow
+                  label={field.label}
+                  value={currentDisplay}
+                  typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+                  filled={filled}
+                  compact={isLandscape}
+                  onPress={
+                    field.kind === "select"
+                      ? undefined
+                      : () => {
+                          openEditor({
+                            title: `Мочевой пузырь: ${field.label}`,
+                            mode: field.kind,
+                            value: currentValue,
+                            placeholder: field.placeholder,
+                            multiline: field.multiline,
+                            options: field.options,
+                            onSave: (nextValue) => onUpdateBladderField(field.key, nextValue),
+                          });
+                        }
+                  }
+                  options={field.kind === "select" ? field.options : undefined}
+                  onSelectOption={
+                    field.kind === "select"
+                      ? (nextValue) => onUpdateBladderField(field.key, nextValue)
+                      : undefined
+                  }
+                />
+              </Fragment>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }

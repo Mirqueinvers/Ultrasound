@@ -57,6 +57,7 @@ export function OmtFemaleProtocolBlock({
       <OmtFemaleUterusPanel
         styles={styles} uterus={draftApi.form.uterus} fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.uterus}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateUterusField={draftApi.updateUterusField}
         onAddMyomaNode={draftApi.addMyomaNode}
@@ -74,6 +75,7 @@ export function OmtFemaleProtocolBlock({
             ovary={ovaryData ?? { position: "", length: "", width: "", thickness: "", volume: "", shape: "", contour: "", cysts: "", cystsList: [], formations: "", formationsText: "", additional: "" }}
             fv={fv}
             isVisible={showAllSections || resolvedActiveSectionId === sectionId}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateOvaryField={draftApi.updateOvaryField}
             onAddCyst={draftApi.addOvaryCyst}
@@ -88,6 +90,7 @@ export function OmtFemaleProtocolBlock({
         bladder={draftApi.form.urinaryBladder ?? { length: "", width: "", depth: "", volume: "", wallThickness: "", residualStatus: "", residualLength: "", residualWidth: "", residualDepth: "", residualVolume: "", contents: "", contentsText: "", additional: "" }}
         fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_FEMALE_SECTION_IDS.bladder}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateBladderField={draftApi.updateBladderField}
       />
@@ -97,6 +100,7 @@ export function OmtFemaleProtocolBlock({
           <OmtFemaleConclusionPanel
             styles={styles}
             conclusion={draftApi.form.conclusion} recommendations={draftApi.form.recommendations}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor} onUpdateForm={draftApi.updateForm}
           />
         )}

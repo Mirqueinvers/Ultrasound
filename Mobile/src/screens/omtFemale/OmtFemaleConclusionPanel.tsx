@@ -10,20 +10,21 @@ type OmtFemaleConclusionPanelProps = {
   styles: AppStyles;
   conclusion: string;
   recommendations: string;
+  isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateForm: (updater: (current: OmtFemaleDraft) => OmtFemaleDraft) => void;
 };
 
 export function OmtFemaleConclusionPanel({
-  styles, conclusion, recommendations, openEditor, onUpdateForm,
+  styles, conclusion, recommendations, isLandscape, openEditor, onUpdateForm,
 }: OmtFemaleConclusionPanelProps) {
   return (
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title="Заключение" />
       <View style={styles.obpFieldList}>
-        <ProtocolFieldRow label="Заключение" value={conclusion || "Нажмите для ввода"} typeLabel="text" filled={Boolean(conclusion)}
+        <ProtocolFieldRow label="Заключение" value={conclusion || "Нажмите для ввода"} typeLabel="text" filled={Boolean(conclusion)} compact={isLandscape}
           onPress={() => openEditor({ title: "Заключение ОМТ (Ж)", mode: "text", value: conclusion, placeholder: "Введите заключение", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, conclusion: v })) })} />
-        <ProtocolFieldRow label="Рекомендации" value={recommendations || "Нажмите для ввода"} typeLabel="text" filled={Boolean(recommendations)}
+        <ProtocolFieldRow label="Рекомендации" value={recommendations || "Нажмите для ввода"} typeLabel="text" filled={Boolean(recommendations)} compact={isLandscape}
           onPress={() => openEditor({ title: "Рекомендации ОМТ (Ж)", mode: "text", value: recommendations, placeholder: "Введите рекомендации", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, recommendations: v })) })} />
       </View>
     </View>
