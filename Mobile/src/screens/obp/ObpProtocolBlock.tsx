@@ -15,6 +15,7 @@ import type {
 import { OBP_SECTION_IDS } from "./obpFieldConfigs";
 import { useObpEditor } from "./useObpEditor";
 import { useObpDraft } from "./useObpDraft";
+import { useOrientation } from "../../hooks/useOrientation";
 import { LiverSection } from "./LiverSection";
 import { GallbladderSection } from "./GallbladderSection";
 import { PancreasSection } from "./PancreasSection";
@@ -82,6 +83,7 @@ export function ObpProtocolBlock({
   onUpdateConclusionField,
   onUpdateRecommendationsField,
 }: ObpProtocolBlockProps) {
+  const { isLandscape } = useOrientation();
   const { editorState, openEditor, saveEditor, cancelEditor } = useObpEditor();
 
   const draftApi = useObpDraft(
@@ -133,6 +135,7 @@ export function ObpProtocolBlock({
           liver={draftApi.draft.liver}
           hasFocalLesions={draftApi.hasLiverFocalLesions}
           isReadOnlyField={isReadOnlyField}
+          isLandscape={isLandscape}
           openEditor={openEditor}
           onUpdateField={draftApi.updateLiverFieldValue}
         />
@@ -146,6 +149,7 @@ export function ObpProtocolBlock({
           isCholecystectomy={draftApi.isCholecystectomy}
           hasConcretions={draftApi.hasGallbladderConcretions}
           hasPolyps={draftApi.hasGallbladderPolyps}
+          isLandscape={isLandscape}
           openEditor={openEditor}
           onUpdateField={draftApi.updateGallbladderFieldValue}
           onUpdateConcretionItem={draftApi.updateGallbladderConcretionItem}
@@ -171,6 +175,7 @@ export function ObpProtocolBlock({
           fieldVisibility={fieldVisibility}
           pancreas={draftApi.activePancreas}
           hasPathologicalFormations={draftApi.hasPancreasPathologicalFormations}
+          isLandscape={isLandscape}
           openEditor={openEditor}
           onUpdateField={draftApi.updatePancreasFieldValue}
         />
@@ -182,6 +187,7 @@ export function ObpProtocolBlock({
           fieldVisibility={fieldVisibility}
           spleen={draftApi.activeSpleen}
           hasPathologicalFormations={draftApi.hasSpleenPathologicalFormations}
+          isLandscape={isLandscape}
           openEditor={openEditor}
           onUpdateField={draftApi.updateSpleenFieldValue}
         />
