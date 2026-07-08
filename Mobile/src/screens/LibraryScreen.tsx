@@ -1,6 +1,7 @@
 ﻿import { Pressable, Text, View } from "react-native";
 
 import { SectionPanel } from "../components/SectionPanel";
+import { useOrientation } from "../hooks/useOrientation";
 import type { ProtocolManifest } from "../shared/protocols";
 import type { AppStyles } from "../styles/appStyles";
 
@@ -19,13 +20,20 @@ export function LibraryScreen({
   focusedProtocolId,
   onToggleProtocol,
 }: LibraryScreenProps) {
+  const { isLandscape } = useOrientation();
+
   return (
     <SectionPanel
       styles={styles}
       title="Протоколы"
       subtitle="Выберите исследование, которое хотите редактировать на телефоне."
     >
-      <View style={styles.libraryGrid}>
+      <View
+        style={[
+          styles.libraryGrid,
+          isLandscape && { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+        ]}
+      >
         {manifests.map((manifest) => {
           const selected = selectedStudies.includes(manifest.selectionLabel);
           const focus = focusedProtocolId === manifest.id;
@@ -39,6 +47,7 @@ export function LibraryScreen({
                 selected && styles.protocolCardSelected,
                 focus && styles.protocolCardFocused,
                 pressed && styles.protocolCardPressed,
+                isLandscape && { width: "48.5%" },
               ]}
             >
               <View style={styles.protocolCardHeader}>
