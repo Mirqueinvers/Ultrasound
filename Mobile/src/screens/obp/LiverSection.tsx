@@ -1,5 +1,5 @@
-import { Fragment, useCallback, useMemo, useState } from "react";
-import { View } from "react-native";
+import { Fragment, useCallback, useMemo, useRef, useState } from "react";
+import { LayoutChangeEvent, View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import type { LiverDraft } from "../../shared/obpDraft";
@@ -40,6 +40,9 @@ export function LiverSection({
   onUpdateField,
 }: LiverSectionProps) {
   const [activeNumpadField, setActiveNumpadField] = useState<keyof LiverDraft | null>(null);
+  const [numpadPosition, setNumpadPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const landscapeRef = useRef<View>(null);
+  const fieldLayoutsRef = useRef<Record<string, { top: number; left: number; width: number }>>({});
   const hasValue = (v: string) => v.trim().length > 0;
 
   // Group visible fields by headers for 2-column grid in landscape
@@ -82,6 +85,10 @@ export function LiverSection({
       if (isReadOnlyField(field.key)) return;
       if (isLandscape && field.kind === "number") {
         setActiveNumpadField(field.key);
+        const storedLayout = fieldLayoutsRef.current[field.key as string];
+        if (storedLayout) {
+          setNumpadPosition(storedLayout);
+        }
       } else {
         openEditor({
           title: field.label,
@@ -97,14 +104,24 @@ export function LiverSection({
     [isLandscape, isReadOnlyField, openEditor, liver, onUpdateField],
   );
 
+  const handleFieldLayout = useCallback(
+    (fieldKey: string, event: LayoutChangeEvent) => {
+      const { y, height, x, width } = event.nativeEvent.layout;
+      fieldLayoutsRef.current[fieldKey] = { top: y + height, left: x, width };
+    },
+    [],
+  );
+
   const renderFieldRow = (field: typeof LIVER_FIELDS[0]) => {
     const readonly = isReadOnlyField(field.key);
     const currentValue = liver[field.key];
     const displayValue = currentValue || "Нажмите для ввода";
-    const isNumpadActive = activeNumpadField === field.key;
 
     return (
-      <View key={field.key}>
+      <View
+        key={field.key}
+        onLayout={(event) => handleFieldLayout(field.key as string, event)}
+      >
         <ProtocolFieldRow
           label={field.label}
           value={displayValue}
@@ -116,15 +133,6 @@ export function LiverSection({
           options={field.kind === "select" ? field.options : undefined}
           onSelectOption={field.kind === "select" ? (nextValue) => onUpdateField(field.key, nextValue) : undefined}
         />
-        {isLandscape && isNumpadActive && (
-          <View style={{ marginTop: 6 }}>
-            <InlineNumpad
-              value={currentValue}
-              onValueChange={(nextValue) => handleNumpadChange(field.key, nextValue)}
-              onClose={handleCloseNumpad}
-            />
-          </View>
-        )}
       </View>
     );
   };
@@ -133,7 +141,7 @@ export function LiverSection({
     <>
       <ProtocolOrganHeader title="Печень" />
       {isLandscape ? (
-        <View style={{ gap: 8 }}>
+        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}
@@ -146,6 +154,27 @@ export function LiverSection({
               </View>
             </Fragment>
           ))}
+          {activeNumpadField != null && numpadPosition && (() => {
+            const activeField = LIVER_FIELDS.find((f) => f.key === activeNumpadField);
+            if (!activeField) return null;
+            return (
+              <View
+                style={{
+                  position: "absolute",
+                  top: numpadPosition.top,
+                  left: numpadPosition.left,
+                  width: numpadPosition.width,
+                  zIndex: 100,
+                }}
+              >
+                <InlineNumpad
+                  value={liver[activeField.key]}
+                  onValueChange={(nextValue) => handleNumpadChange(activeField.key, nextValue)}
+                  onClose={handleCloseNumpad}
+                />
+              </View>
+            );
+          })()}
         </View>
       ) : (
         <View style={styles.obpFieldList}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type InlineNumpadProps = {
@@ -32,7 +32,6 @@ const NUMPAD_KEYS: Array<Array<{ label: string; key: string }>> = [
 
 export function InlineNumpad({ value, onValueChange, onClose }: InlineNumpadProps) {
   const [draftValue, setDraftValue] = useState(value);
-  const padRef = useRef<View>(null);
 
   useEffect(() => {
     setDraftValue(value);
@@ -52,13 +51,17 @@ export function InlineNumpad({ value, onValueChange, onClose }: InlineNumpadProp
         next = `${draftValue}${key}`;
       }
       setDraftValue(next);
-      onValueChange(next);
     },
-    [draftValue, onValueChange],
+    [draftValue],
   );
 
+  const handleDone = useCallback(() => {
+    onValueChange(draftValue);
+    onClose();
+  }, [draftValue, onValueChange, onClose]);
+
   return (
-    <View ref={padRef} style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.displayRow}>
         <Text style={styles.displayValue} numberOfLines={1}>
           {draftValue || "—"}
@@ -82,6 +85,12 @@ export function InlineNumpad({ value, onValueChange, onClose }: InlineNumpadProp
           </View>
         ))}
       </View>
+      <Pressable
+        onPress={handleDone}
+        style={({ pressed }) => [styles.doneButton, pressed && styles.doneButtonPressed]}
+      >
+        <Text style={styles.doneButtonText}>Готово</Text>
+      </Pressable>
     </View>
   );
 }
@@ -157,5 +166,22 @@ const styles = StyleSheet.create({
     color: "#f8fafc",
     fontSize: 18,
     fontWeight: "700",
+  },
+  doneButton: {
+    backgroundColor: "#22c55e",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  doneButtonPressed: {
+    backgroundColor: "#16a34a",
+    transform: [{ scale: 0.97 }],
+  },
+  doneButtonText: {
+    color: "#04110a",
+    fontSize: 14,
+    fontWeight: "800",
   },
 });
