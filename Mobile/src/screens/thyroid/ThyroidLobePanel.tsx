@@ -200,8 +200,6 @@ export function ThyroidLobePanel({
                       openEditor={openEditor}
                       onUpdateNodeField={onUpdateNodeField}
                       onRemoveNode={onRemoveNode}
-                      landscapeRef={landscapeRef}
-                      numpad={numpad}
                     />
                     ))
                   )}
