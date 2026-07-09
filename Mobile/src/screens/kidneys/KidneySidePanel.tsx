@@ -1,8 +1,10 @@
-import React, { Fragment, useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
+import { ProtocolCard } from "../../components/protocol/ProtocolCard";
+import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { createEmptyKidneyDraft, type KidneyConcrementDraft, type KidneyCystDraft, type KidneyDraft, type KidneyStudyDraft } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import { isFieldVisible } from "../../shared/isFieldVisible";
@@ -20,6 +22,8 @@ import {
   type EditorState,
   kidneyFields,
   type KidneyFieldSpec,
+  splitPairSize,
+  joinPairSize,
 } from "./kidneysFieldConfigs";
 import { KidneyConcrementSection } from "./KidneyConcrementSection";
 import { KidneyCystPanel } from "./KidneyCystPanel";
@@ -33,6 +37,16 @@ const KIDNEY_SECTION_HEADERS: Partial<Record<string, string>> = {
   adrenalArea: "Область надпочечников",
   additional: "Дополнительно",
 };
+
+/** Ключи полей-селектов, после которых идёт зависимое содержимое */
+const KIDNEY_TRIGGER_FIELDS = new Set([
+  "parenchymaConcrements",
+  "parenchymaCysts",
+  "parenchymaPathologicalFormations",
+  "pcsConcrements",
+  "pcsCysts",
+  "pcsPathologicalFormations",
+]);
 
 type KidneySidePanelProps = {
   styles: AppStyles;
@@ -74,6 +88,70 @@ type KidneySidePanelProps = {
   ) => void;
   onUpdateStudy: (producer: (current: KidneyStudyDraft) => KidneyStudyDraft) => void;
 };
+
+function renderKidneyFieldRow(
+  field: KidneyFieldSpec,
+  kidney: KidneyDraft,
+  styles: AppStyles,
+  title: string,
+  side: "rightKidney" | "leftKidney",
+  isLandscape: boolean | undefined,
+  openEditor: (config: NonNullable<EditorState>) => void,
+  onUpdateKidneyField: (side: "rightKidney" | "leftKidney", field: keyof KidneyDraft, value: string) => void,
+  compact?: boolean,
+) {
+  const currentValue = kidney[field.key];
+  const filled = Boolean(currentValue && currentValue.trim().length > 0);
+  const currentDisplay = currentValue || "Нажмите для ввода";
+
+  return (
+    <ProtocolFieldRow
+      label={field.label}
+      value={currentDisplay}
+      typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+      filled={filled}
+      compact={compact ?? isLandscape}
+      onPress={
+        field.kind === "select"
+          ? undefined
+          : () => {
+              openEditor({
+                title: `${title}: ${field.label}`,
+                mode: field.kind,
+                value: currentValue,
+                placeholder: field.placeholder,
+                multiline: field.multiline,
+                options: field.options,
+                onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
+              });
+            }
+      }
+      options={field.kind === "select" ? field.options : undefined}
+      onSelectOption={
+        field.kind === "select"
+          ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
+          : undefined
+      }
+    />
+  );
+}
+
+/** Фильтрует поля, пропуская те, что не видны или скрыты при нефрэктомии */
+function filterFields(
+  fields: typeof kidneyFields,
+  isNephrectomy: boolean,
+  showPcsMicrolithsSize: boolean,
+  fieldVisibility: FieldVisibility,
+) {
+  return fields.filter((field) => {
+    if (field.key === "length" || field.key === "width" || field.key === "thickness") {
+      if (isNephrectomy) return false;
+    }
+    if (field.key === "pcsMicrolithsSize" && !showPcsMicrolithsSize) return false;
+    if (!isFieldVisible(field, fieldVisibility)) return false;
+    return true;
+  });
+}
 
 export function KidneySidePanel({
   styles,
@@ -118,65 +196,46 @@ export function KidneySidePanel({
   const showPcsPathology = isNormalizedMatch(kidney.pcsPathologicalFormations, "определяются");
   const showAdrenalText = isNormalizedMatch(kidney.adrenalArea, "изменена");
 
-  /** Вспомогательная функция: отрендерить поля, вставляя секции кист/конкрементов сразу после соответствующих полей */
-  const renderFieldsWithSections = () => {
-    const result: React.ReactNode[] = [];
-    let currentHeader: string | null = null;
+  const visibleFields = useMemo(
+    () => filterFields(kidneyFields, isNephrectomy, showPcsMicrolithsSize, fieldVisibility),
+    [isNephrectomy, showPcsMicrolithsSize, fieldVisibility],
+  );
 
-    kidneyFields.forEach((field) => {
-      if (field.key === "length" || field.key === "width" || field.key === "thickness") {
-        if (isNephrectomy) return;
+  // Group main fields (excluding trigger fields) by headers for 2-column grid (landscape only)
+  const groupedFields = useMemo(() => {
+    const groups: Array<{ header?: string; fields: typeof kidneyFields }> = [];
+    let currentGroup: typeof kidneyFields = [];
+
+    visibleFields.forEach((field) => {
+      // Пропускаем триггер-поля — они будут выведены отдельно
+      if (KIDNEY_TRIGGER_FIELDS.has(field.key)) {
+        if (currentGroup.length > 0) {
+          groups.push({ fields: currentGroup });
+          currentGroup = [];
+        }
+        return;
       }
-      if (field.key === "pcsMicrolithsSize" && !showPcsMicrolithsSize) return;
-      if (!isFieldVisible(field, fieldVisibility)) return;
 
-      // Заголовок секции, если есть
-      const header = KIDNEY_SECTION_HEADERS[field.key];
-      if (header && header !== currentHeader) {
-        currentHeader = header;
-        result.push(<ProtocolSectionHeader key={`header-${header}`} title={header} />);
+      if (KIDNEY_SECTION_HEADERS[field.key]) {
+        if (currentGroup.length > 0) {
+          groups.push({ fields: currentGroup });
+        }
+        groups.push({ header: KIDNEY_SECTION_HEADERS[field.key], fields: [] });
+        currentGroup = [];
       }
+      currentGroup.push(field);
+    });
+    if (currentGroup.length > 0) {
+      groups.push({ fields: currentGroup });
+    }
+    return groups;
+  }, [visibleFields]);
 
-      // Само поле
-      const currentValue = kidney[field.key];
-      const filled = Boolean(currentValue && currentValue.trim().length > 0);
-      const currentDisplay = currentValue || "Нажмите для ввода";
-
-      result.push(
-        <ProtocolFieldRow
-          key={field.key}
-          label={field.label}
-          value={currentDisplay}
-          typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-          filled={filled}
-          compact={isLandscape}
-          onPress={
-            field.kind === "select"
-              ? undefined
-              : () => {
-                  openEditor({
-                    title: `${title}: ${field.label}`,
-                    mode: field.kind,
-                    value: currentValue,
-                    placeholder: field.placeholder,
-                    multiline: field.multiline,
-                    options: field.options,
-                    onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
-                  });
-                }
-          }
-          options={field.kind === "select" ? field.options : undefined}
-          onSelectOption={
-            field.kind === "select"
-              ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
-              : undefined
-          }
-        />
-      );
-
-      // После соответствующего поля — добавляем секции конкрементов/кист/патологии
-      if (field.key === "parenchymaConcrements" && showParenchymaConcrements) {
-        result.push(
+  /** Рендерит зависимое содержимое после поля-селекта (портретный режим) */
+  const renderDependentContent = (fieldKey: string) => {
+    switch (fieldKey) {
+      case "parenchymaConcrements":
+        return showParenchymaConcrements ? (
           <View key="parenchymaConcrementsSection" style={styles.obpFieldList}>
             <KidneyConcrementSection
               styles={styles}
@@ -191,10 +250,9 @@ export function KidneySidePanel({
               onUpdateItem={onUpdateKidneyListItem}
             />
           </View>
-        );
-      }
-      if (field.key === "parenchymaCysts" && showParenchymaCysts) {
-        result.push(
+        ) : null;
+      case "parenchymaCysts":
+        return showParenchymaCysts ? (
           <KidneyCystPanel
             key="parenchymaCystsSection"
             styles={styles}
@@ -215,10 +273,9 @@ export function KidneySidePanel({
             }
             onUpdateListItem={onUpdateKidneyListItem}
           />
-        );
-      }
-      if (field.key === "parenchymaPathologicalFormations" && showParenchymaPathology) {
-        result.push(
+        ) : null;
+      case "parenchymaPathologicalFormations":
+        return showParenchymaPathology ? (
           <Pressable
             key="parenchymaPathologyText"
             onPress={() =>
@@ -245,10 +302,9 @@ export function KidneySidePanel({
             </View>
             <Text style={styles.obpFieldType}>text</Text>
           </Pressable>
-        );
-      }
-      if (field.key === "pcsConcrements" && showPcsConcrements) {
-        result.push(
+        ) : null;
+      case "pcsConcrements":
+        return showPcsConcrements ? (
           <View key="pcsConcrementsSection" style={styles.obpFieldList}>
             <KidneyConcrementSection
               styles={styles}
@@ -263,10 +319,9 @@ export function KidneySidePanel({
               onUpdateItem={onUpdateKidneyListItem}
             />
           </View>
-        );
-      }
-      if (field.key === "pcsCysts" && showPcsCysts) {
-        result.push(
+        ) : null;
+      case "pcsCysts":
+        return showPcsCysts ? (
           <KidneyCystPanel
             key="pcsCystsSection"
             styles={styles}
@@ -287,10 +342,9 @@ export function KidneySidePanel({
             }
             onUpdateListItem={onUpdateKidneyListItem}
           />
-        );
-      }
-      if (field.key === "pcsPathologicalFormations" && showPcsPathology) {
-        result.push(
+        ) : null;
+      case "pcsPathologicalFormations":
+        return showPcsPathology ? (
           <Pressable
             key="pcsPathologyText"
             onPress={() =>
@@ -318,14 +372,42 @@ export function KidneySidePanel({
             </View>
             <Text style={styles.obpFieldType}>text</Text>
           </Pressable>
-        );
-      }
-    });
+        ) : null;
+      default:
+        return null;
+    }
+  };
 
-    // Поля, которые не привязаны к определённому kidneyFields, но зависят от других значений
+  /** Рендерит триггер-поля с их содержимым в одну колонку (портретный режим) */
+  const renderTriggerSections = () => {
+    return visibleFields
+      .filter((f) => KIDNEY_TRIGGER_FIELDS.has(f.key))
+      .map((field) => (
+        <Fragment key={field.key}>
+          {renderKidneyFieldRow(field, kidney, styles, title, side, isLandscape, openEditor, onUpdateKidneyField)}
+          {renderDependentContent(field.key)}
+        </Fragment>
+      ));
+  };
+
+  /** Рендерит триггер-поля с их содержимым для ландшафтного режима (за пределами сетки) */
+  const renderLandscapeTriggerSections = () => {
+    return visibleFields
+      .filter((f) => KIDNEY_TRIGGER_FIELDS.has(f.key))
+      .map((field) => (
+        <Fragment key={field.key}>
+          {renderKidneyFieldRow(field, kidney, styles, title, side, isLandscape, openEditor, onUpdateKidneyField, false)}
+          {renderDependentContent(field.key)}
+        </Fragment>
+      ));
+  };
+
+  /** Рендерит остаточные поля (надпочечники, позиция), которые зависят от значений, а не от kidneyFields */
+  const renderRemainingFields = () => {
+    const remaining: React.ReactNode[] = [];
 
     if (showAdrenalText) {
-      result.push(
+      remaining.push(
         <Pressable
           key="adrenalAreaText"
           onPress={() =>
@@ -351,12 +433,12 @@ export function KidneySidePanel({
             </Text>
           </View>
           <Text style={styles.obpFieldType}>text</Text>
-        </Pressable>
+        </Pressable>,
       );
     }
 
     if (fv["kidneys.position"] !== false && showPositionText) {
-      result.push(
+      remaining.push(
         <Pressable
           key="positionText"
           onPress={() =>
@@ -382,11 +464,11 @@ export function KidneySidePanel({
             </Text>
           </View>
           <Text style={styles.obpFieldType}>text</Text>
-        </Pressable>
+        </Pressable>,
       );
     }
 
-    return result;
+    return remaining;
   };
 
   return (
@@ -395,31 +477,52 @@ export function KidneySidePanel({
 
       {isLandscape ? (
         <View style={{ gap: 8 }}>
-          {renderFieldsWithSections().map((node, index) => {
-            // Определяем, является ли узел заголовком секции
-            if (React.isValidElement<{ title?: string }>(node) && node.type === ProtocolSectionHeader) {
-              return <Fragment key={index}>{node}</Fragment>;
-            }
-            // Проверяем, является ли узел блоком из obpFieldList (кисты/конкременты) — показываем на всю ширину
-            if (
-              React.isValidElement(node) &&
-              (node.type === KidneyConcrementSection ||
-                node.type === KidneyCystPanel ||
-                node.type === Pressable)
-            ) {
-              return <Fragment key={index}>{node}</Fragment>;
-            }
-            // Обычные поля — в сетку 2 колонки
-            return (
-              <View key={index} style={{ width: "48.5%" }}>
-                {node}
+          {groupedFields.map((group, gi) => (
+            <Fragment key={gi}>
+              {group.header && <ProtocolSectionHeader title={group.header} />}
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                {group.fields.map((field) => (
+                  <View key={field.key} style={{ width: "48.5%" }}>
+                    {renderKidneyFieldRow(field, kidney, styles, title, side, isLandscape, openEditor, onUpdateKidneyField, true)}
+                  </View>
+                ))}
               </View>
-            );
-          })}
+            </Fragment>
+          ))}
+
+          {/* Триггер-поля (конкременты, кисты, патологии) — за пределами сетки */}
+          {renderLandscapeTriggerSections()}
+
+          {/* Остаточные поля */}
+          {renderRemainingFields()}
         </View>
       ) : (
         <View style={styles.obpFieldList}>
-          {renderFieldsWithSections()}
+          {visibleFields.map((field) => {
+            // Если это триггер-поле — рендерим его с содержимым в одном Fragment
+            if (KIDNEY_TRIGGER_FIELDS.has(field.key)) {
+              return (
+                <Fragment key={field.key}>
+                  {KIDNEY_SECTION_HEADERS[field.key] && (
+                    <ProtocolSectionHeader title={KIDNEY_SECTION_HEADERS[field.key]!} />
+                  )}
+                  {renderKidneyFieldRow(field, kidney, styles, title, side, isLandscape, openEditor, onUpdateKidneyField)}
+                  {renderDependentContent(field.key)}
+                </Fragment>
+              );
+            }
+
+            return (
+              <Fragment key={field.key}>
+                {KIDNEY_SECTION_HEADERS[field.key] && (
+                  <ProtocolSectionHeader title={KIDNEY_SECTION_HEADERS[field.key]!} />
+                )}
+                {renderKidneyFieldRow(field, kidney, styles, title, side, isLandscape, openEditor, onUpdateKidneyField)}
+              </Fragment>
+            );
+          })}
+
+          {renderRemainingFields()}
         </View>
       )}
     </View>
