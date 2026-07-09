@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import type { LayoutChangeEvent, View } from "react-native";
+import { useWindowDimensions } from "react-native";
 
 export type NumpadPosition = {
   top: number;
@@ -7,9 +8,13 @@ export type NumpadPosition = {
   width: number;
 };
 
+const NUMPAD_HEIGHT = 280; // примерная высота нампада (4 строки кнопок + кнопка Готово + дисплей + отступы)
+
 export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
+  const { height: windowHeight } = useWindowDimensions();
   const [activeNumpadField, setActiveNumpadField] = useState<string | null>(null);
   const [numpadPosition, setNumpadPosition] = useState<NumpadPosition | null>(null);
+  const [showAbove, setShowAbove] = useState(false);
   const fieldWidthsRef = useRef<Record<string, number>>({});
 
   const handleCloseNumpad = useCallback(() => {
@@ -26,14 +31,20 @@ export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
         containerRef.current,
         (left, top) => {
           const width = fieldWidthsRef.current[fieldKey] ?? 200;
-          setNumpadPosition({ top: top + 4, left, width });
+
+          // Определяем, помещается ли нампад снизу
+          const fitsBelow = top + NUMPAD_HEIGHT < windowHeight - 16;
+          const adjustedTop = fitsBelow ? top + 4 : Math.max(top - NUMPAD_HEIGHT - 4, 4);
+
+          setShowAbove(!fitsBelow);
+          setNumpadPosition({ top: adjustedTop, left, width });
         },
         () => {
-          // fallback: оставляем предыдущую позицию
+          // fallback
         },
       );
     },
-    [containerRef],
+    [containerRef, windowHeight],
   );
 
   const handleFieldLayout = useCallback(
@@ -47,6 +58,7 @@ export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
   return {
     activeNumpadField,
     numpadPosition,
+    showAbove,
     openNumpad,
     closeNumpad: handleCloseNumpad,
     handleFieldLayout,
