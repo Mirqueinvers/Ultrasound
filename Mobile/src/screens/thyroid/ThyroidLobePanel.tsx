@@ -1,12 +1,14 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useCallback, useMemo, useRef } from "react";
 import { Text, View } from "react-native";
 
+import { InlineNumpad } from "../../components/InlineNumpad";
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import type { ThyroidLobeDraft } from "../../shared/thyroidDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
+import { useInlineNumpad } from "../obp/useInlineNumpad";
 import {
   THYROID_VOLUME_FORMATIONS_OPTIONS,
   type EditorState,
@@ -44,49 +46,100 @@ export function ThyroidLobePanel({
   const title = side === "right" ? "Правая доля" : "Левая доля";
   const showNodes = isNormalizedMatch(lobe.volumeFormations, "определяются");
 
+  // ---- Landscape: numpad ----
+  const landscapeRef = useRef<View>(null);
+  const fieldRefs = useRef<Record<string, View | null>>({});
+  const numpad = useInlineNumpad(landscapeRef);
+  const hasValue = (v: string) => v.trim().length > 0;
+
+  const handleNumpadChange = useCallback(
+    (fieldKey: keyof ThyroidLobeDraft, nextValue: string) => {
+      onUpdateLobeField(side, fieldKey, nextValue);
+    },
+    [onUpdateLobeField, side],
+  );
+
+  const openFieldEditor = useCallback(
+    (fieldKey: keyof ThyroidLobeDraft, label: string, placeholder: string) => {
+      const currentValue = lobe[fieldKey];
+      const stringValue = typeof currentValue === "string" ? currentValue : "";
+      openEditor({
+        title: `${title}: ${label}`,
+        mode: "number",
+        value: stringValue,
+        placeholder,
+        onSave: (nextValue) => onUpdateLobeField(side, fieldKey, nextValue),
+      });
+    },
+    [lobe, title, openEditor, onUpdateLobeField, side],
+  );
+
+  const openLandscapeNumpad = useCallback(
+    (fieldKey: keyof ThyroidLobeDraft) => {
+      const fieldView = fieldRefs.current[fieldKey] ?? null;
+      numpad.openNumpad(fieldKey, fieldView);
+    },
+    [numpad],
+  );
+
   if (!isVisible) return null;
 
   // Размерные поля для сетки
   const sizeFields = useMemo(() => {
-    const fields: Array<{ label: string; value: string; filled: boolean; onPress: () => void; readonly?: boolean }> = [];
+    const fields: Array<{ key: keyof ThyroidLobeDraft; label: string; value: string; filled: boolean; readonly?: boolean; onPress?: () => void }> = [];
     if (fv["thyroid.length"] !== false) {
       fields.push({
+        key: "length",
         label: "Длина (мм)",
         value: lobe.length || "Нажмите для ввода",
         filled: Boolean(lobe.length),
-        onPress: () => openEditor({ title: `${title}: длина`, mode: "number", value: lobe.length, placeholder: "мм", onSave: (nextValue) => onUpdateLobeField(side, "length", nextValue) }),
+        onPress: () => isLandscape ? openLandscapeNumpad("length") : openFieldEditor("length", "длина", "мм"),
       });
     }
     if (fv["thyroid.width"] !== false) {
       fields.push({
+        key: "width",
         label: "Ширина (мм)",
         value: lobe.width || "Нажмите для ввода",
         filled: Boolean(lobe.width),
-        onPress: () => openEditor({ title: `${title}: ширина`, mode: "number", value: lobe.width, placeholder: "мм", onSave: (nextValue) => onUpdateLobeField(side, "width", nextValue) }),
+        onPress: () => isLandscape ? openLandscapeNumpad("width") : openFieldEditor("width", "ширина", "мм"),
       });
     }
     if (fv["thyroid.depth"] !== false) {
       fields.push({
+        key: "depth",
         label: "Глубина (мм)",
         value: lobe.depth || "Нажмите для ввода",
         filled: Boolean(lobe.depth),
-        onPress: () => openEditor({ title: `${title}: глубина`, mode: "number", value: lobe.depth, placeholder: "мм", onSave: (nextValue) => onUpdateLobeField(side, "depth", nextValue) }),
+        onPress: () => isLandscape ? openLandscapeNumpad("depth") : openFieldEditor("depth", "глубина", "мм"),
       });
     }
     if (fv["thyroid.volume"] !== false) {
       fields.push({
+        key: "volume" as keyof ThyroidLobeDraft,
         label: "Объем (мл)",
         value: lobe.volume || "Рассчитывается автоматически",
         filled: Boolean(lobe.volume),
-        onPress: () => {},
         readonly: true,
       });
     }
     return fields;
-  }, [lobe, fv, title, side, openEditor, onUpdateLobeField]);
+  }, [lobe, fv, isLandscape, openLandscapeNumpad, openFieldEditor]);
 
-  const renderCompactRow = (label: string, value: string, filled: boolean, onPress: () => void, readonly?: boolean) => (
-    <View style={{ width: "48.5%" }}>
+  const renderCompactRow = (
+    fieldKey: keyof ThyroidLobeDraft,
+    label: string,
+    value: string,
+    filled: boolean,
+    readonly?: boolean,
+    onPress?: () => void,
+  ) => (
+    <View
+      key={fieldKey}
+      ref={(el) => { fieldRefs.current[fieldKey] = el; }}
+      onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      style={{ width: "48.5%" }}
+    >
       <ProtocolFieldRow
         label={label}
         value={value}
@@ -94,7 +147,7 @@ export function ThyroidLobePanel({
         filled={filled}
         readonly={readonly}
         compact={isLandscape}
-        onPress={onPress}
+        onPress={readonly ? undefined : onPress}
       />
     </View>
   );
@@ -104,12 +157,14 @@ export function ThyroidLobePanel({
       <ProtocolOrganHeader title={title} />
 
       {isLandscape ? (
-        <View style={{ gap: 8 }}>
+        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {(fv["thyroid.length"] !== false || fv["thyroid.width"] !== false || fv["thyroid.depth"] !== false || fv["thyroid.volume"] !== false) && (
             <ProtocolSectionHeader title="Размеры" />
           )}
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-            {sizeFields.map((f, i) => renderCompactRow(f.label, f.value, f.filled, f.onPress, f.readonly))}
+            {sizeFields.map((f) =>
+              renderCompactRow(f.key, f.label, f.value, f.filled, f.readonly, f.onPress),
+            )}
           </View>
 
           {fv["thyroid.volumeFormations"] !== false && (
@@ -145,6 +200,8 @@ export function ThyroidLobePanel({
                       openEditor={openEditor}
                       onUpdateNodeField={onUpdateNodeField}
                       onRemoveNode={onRemoveNode}
+                      landscapeRef={landscapeRef}
+                      numpad={numpad}
                     />
                     ))
                   )}
@@ -180,6 +237,29 @@ export function ThyroidLobePanel({
               </View>
             </>
           )}
+
+          {/* InlineNumpad */}
+          {numpad.activeNumpadField != null && numpad.numpadPosition && (() => {
+            const activeFieldKey = numpad.activeNumpadField as keyof ThyroidLobeDraft;
+            const activeValue = typeof lobe[activeFieldKey] === "string" ? lobe[activeFieldKey] as string : "";
+            return (
+              <View
+                style={{
+                  position: "absolute",
+                  top: numpad.numpadPosition.top,
+                  left: numpad.numpadPosition.left,
+                  width: numpad.numpadPosition.width,
+                  zIndex: 100,
+                }}
+              >
+                <InlineNumpad
+                  value={activeValue}
+                  onValueChange={(nextValue) => handleNumpadChange(activeFieldKey, nextValue)}
+                  onClose={numpad.closeNumpad}
+                />
+              </View>
+            );
+          })()}
         </View>
       ) : (
         <View style={styles.obpFieldList}>
