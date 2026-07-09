@@ -82,8 +82,6 @@ export function ThyroidLobePanel({
     [numpad],
   );
 
-  if (!isVisible) return null;
-
   // Размерные поля для сетки
   const sizeFields = useMemo(() => {
     const fields: Array<{ key: keyof ThyroidLobeDraft; label: string; value: string; filled: boolean; readonly?: boolean; onPress?: () => void }> = [];
@@ -125,6 +123,8 @@ export function ThyroidLobePanel({
     }
     return fields;
   }, [lobe, fv, isLandscape, openLandscapeNumpad, openFieldEditor]);
+
+  if (!isVisible) return null;
 
   const renderCompactRow = (
     fieldKey: keyof ThyroidLobeDraft,
