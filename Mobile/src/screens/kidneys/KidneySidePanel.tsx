@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
@@ -118,10 +118,10 @@ export function KidneySidePanel({
   const showPcsPathology = isNormalizedMatch(kidney.pcsPathologicalFormations, "определяются");
   const showAdrenalText = isNormalizedMatch(kidney.adrenalArea, "изменена");
 
-  // Группируем поля по заголовкам для сетки 2 колонки
-  const groupedFields = useMemo(() => {
-    const groups: Array<{ header?: string; fields: typeof kidneyFields }> = [];
-    let currentGroup: typeof kidneyFields = [];
+  /** Вспомогательная функция: отрендерить поля, вставляя секции кист/конкрементов сразу после соответствующих полей */
+  const renderFieldsWithSections = () => {
+    const result: React.ReactNode[] = [];
+    let currentHeader: string | null = null;
 
     kidneyFields.forEach((field) => {
       if (field.key === "length" || field.key === "width" || field.key === "thickness") {
@@ -130,56 +130,263 @@ export function KidneySidePanel({
       if (field.key === "pcsMicrolithsSize" && !showPcsMicrolithsSize) return;
       if (!isFieldVisible(field, fieldVisibility)) return;
 
-      if (KIDNEY_SECTION_HEADERS[field.key]) {
-        if (currentGroup.length > 0) {
-          groups.push({ fields: currentGroup });
-        }
-        groups.push({ header: KIDNEY_SECTION_HEADERS[field.key]!, fields: [] });
-        currentGroup = [];
+      // Заголовок секции, если есть
+      const header = KIDNEY_SECTION_HEADERS[field.key];
+      if (header && header !== currentHeader) {
+        currentHeader = header;
+        result.push(<ProtocolSectionHeader key={`header-${header}`} title={header} />);
       }
-      currentGroup.push(field);
+
+      // Само поле
+      const currentValue = kidney[field.key];
+      const filled = Boolean(currentValue && currentValue.trim().length > 0);
+      const currentDisplay = currentValue || "Нажмите для ввода";
+
+      result.push(
+        <ProtocolFieldRow
+          key={field.key}
+          label={field.label}
+          value={currentDisplay}
+          typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
+          filled={filled}
+          compact={isLandscape}
+          onPress={
+            field.kind === "select"
+              ? undefined
+              : () => {
+                  openEditor({
+                    title: `${title}: ${field.label}`,
+                    mode: field.kind,
+                    value: currentValue,
+                    placeholder: field.placeholder,
+                    multiline: field.multiline,
+                    options: field.options,
+                    onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
+                  });
+                }
+          }
+          options={field.kind === "select" ? field.options : undefined}
+          onSelectOption={
+            field.kind === "select"
+              ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
+              : undefined
+          }
+        />
+      );
+
+      // После соответствующего поля — добавляем секции конкрементов/кист/патологии
+      if (field.key === "parenchymaConcrements" && showParenchymaConcrements) {
+        result.push(
+          <View key="parenchymaConcrementsSection" style={styles.obpFieldList}>
+            <KidneyConcrementSection
+              styles={styles}
+              sectionTitle="Конкременты паренхимы"
+              items={kidney.parenchymaConcrementslist}
+              listKey="parenchymaConcrementslist"
+              emptyText="Добавьте хотя бы один конкремент."
+              side={side}
+              openEditor={openEditor}
+              onAdd={onAddKidneyListItem}
+              onRemove={onRemoveKidneyListItem}
+              onUpdateItem={onUpdateKidneyListItem}
+            />
+          </View>
+        );
+      }
+      if (field.key === "parenchymaCysts" && showParenchymaCysts) {
+        result.push(
+          <KidneyCystPanel
+            key="parenchymaCystsSection"
+            styles={styles}
+            title="Кисты паренхимы"
+            cysts={kidney.parenchymaCystslist}
+            multiple={kidney.parenchymaMultipleCysts}
+            multipleSize={kidney.parenchymaMultipleCystsSize}
+            side={side}
+            cystListKey="parenchymaCystslist"
+            multipleKey="parenchymaMultipleCysts"
+            openEditor={openEditor}
+            onToggleMultiple={onToggleMultipleCysts}
+            onAdd={onAddKidneyListItem}
+            onRemove={onRemoveKidneyListItem}
+            onUpdateCystSize={onUpdateKidneyCystSize}
+            onUpdateField={(_, field, value) =>
+              onUpdateKidneyField(side, field as keyof KidneyDraft, value)
+            }
+            onUpdateListItem={onUpdateKidneyListItem}
+          />
+        );
+      }
+      if (field.key === "parenchymaPathologicalFormations" && showParenchymaPathology) {
+        result.push(
+          <Pressable
+            key="parenchymaPathologyText"
+            onPress={() =>
+              openEditor({
+                title: `${title}: Описание патологических образований паренхимы`,
+                mode: "text",
+                value: kidney.parenchymaPathologicalFormationsText,
+                placeholder: "Введите описание",
+                multiline: true,
+                onSave: (nextValue) => onUpdateKidneyField(side, "parenchymaPathologicalFormationsText", nextValue),
+              })
+            }
+            style={({ pressed }) => [
+              styles.obpFieldRow,
+              kidney.parenchymaPathologicalFormationsText.trim().length > 0 && styles.obpFieldRowFilled,
+              pressed && styles.obpFieldRowPressed,
+            ]}
+          >
+            <View style={styles.obpFieldRowContent}>
+              <Text style={styles.obpFieldLabel}>Описание патологических образований паренхимы</Text>
+              <Text style={styles.obpFieldValue}>
+                {kidney.parenchymaPathologicalFormationsText || "Нажмите для ввода"}
+              </Text>
+            </View>
+            <Text style={styles.obpFieldType}>text</Text>
+          </Pressable>
+        );
+      }
+      if (field.key === "pcsConcrements" && showPcsConcrements) {
+        result.push(
+          <View key="pcsConcrementsSection" style={styles.obpFieldList}>
+            <KidneyConcrementSection
+              styles={styles}
+              sectionTitle="Конкременты ЧЛС"
+              items={kidney.pcsConcrementslist}
+              listKey="pcsConcrementslist"
+              emptyText="Добавьте хотя бы один конкремент."
+              side={side}
+              openEditor={openEditor}
+              onAdd={onAddKidneyListItem}
+              onRemove={onRemoveKidneyListItem}
+              onUpdateItem={onUpdateKidneyListItem}
+            />
+          </View>
+        );
+      }
+      if (field.key === "pcsCysts" && showPcsCysts) {
+        result.push(
+          <KidneyCystPanel
+            key="pcsCystsSection"
+            styles={styles}
+            title="Кисты ЧЛС"
+            cysts={kidney.pcsCystslist}
+            multiple={kidney.pcsMultipleCysts}
+            multipleSize={kidney.pcsMultipleCystsSize}
+            side={side}
+            cystListKey="pcsCystslist"
+            multipleKey="pcsMultipleCysts"
+            openEditor={openEditor}
+            onToggleMultiple={onToggleMultipleCysts}
+            onAdd={onAddKidneyListItem}
+            onRemove={onRemoveKidneyListItem}
+            onUpdateCystSize={onUpdateKidneyCystSize}
+            onUpdateField={(_, field, value) =>
+              onUpdateKidneyField(side, field as keyof KidneyDraft, value)
+            }
+            onUpdateListItem={onUpdateKidneyListItem}
+          />
+        );
+      }
+      if (field.key === "pcsPathologicalFormations" && showPcsPathology) {
+        result.push(
+          <Pressable
+            key="pcsPathologyText"
+            onPress={() =>
+              openEditor({
+                title: "Описание патологических образований ЧЛС",
+                mode: "text",
+                value: kidney.pcsPathologicalFormationsText,
+                placeholder: "Введите описание",
+                multiline: true,
+                onSave: (nextValue) =>
+                  onUpdateKidneyField(side, "pcsPathologicalFormationsText", nextValue),
+              })
+            }
+            style={({ pressed }) => [
+              styles.obpFieldRow,
+              kidney.pcsPathologicalFormationsText.trim().length > 0 && styles.obpFieldRowFilled,
+              pressed && styles.obpFieldRowPressed,
+            ]}
+          >
+            <View style={styles.obpFieldRowContent}>
+              <Text style={styles.obpFieldLabel}>Описание патологических образований ЧЛС</Text>
+              <Text style={styles.obpFieldValue}>
+                {kidney.pcsPathologicalFormationsText || "Нажмите для ввода"}
+              </Text>
+            </View>
+            <Text style={styles.obpFieldType}>text</Text>
+          </Pressable>
+        );
+      }
     });
-    if (currentGroup.length > 0) {
-      groups.push({ fields: currentGroup });
+
+    // Поля, которые не привязаны к определённому kidneyFields, но зависят от других значений
+
+    if (showAdrenalText) {
+      result.push(
+        <Pressable
+          key="adrenalAreaText"
+          onPress={() =>
+            openEditor({
+              title: "Область надпочечников: Описание изменений",
+              mode: "text",
+              value: kidney.adrenalAreaText,
+              placeholder: "Введите описание",
+              multiline: true,
+              onSave: (nextValue) => onUpdateKidneyField(side, "adrenalAreaText", nextValue),
+            })
+          }
+          style={({ pressed }) => [
+            styles.obpFieldRow,
+            kidney.adrenalAreaText.trim().length > 0 && styles.obpFieldRowFilled,
+            pressed && styles.obpFieldRowPressed,
+          ]}
+        >
+          <View style={styles.obpFieldRowContent}>
+            <Text style={styles.obpFieldLabel}>Описание изменений</Text>
+            <Text style={styles.obpFieldValue}>
+              {kidney.adrenalAreaText || "Нажмите для ввода"}
+            </Text>
+          </View>
+          <Text style={styles.obpFieldType}>text</Text>
+        </Pressable>
+      );
     }
-    return groups;
-  }, [isNephrectomy, showPcsMicrolithsSize, fieldVisibility]);
 
-  const renderFieldRow = (field: typeof kidneyFields[0]) => {
-    const currentValue = kidney[field.key];
-    const filled = Boolean(currentValue && currentValue.trim().length > 0);
-    const currentDisplay = currentValue || "Нажмите для ввода";
+    if (fv["kidneys.position"] !== false && showPositionText) {
+      result.push(
+        <Pressable
+          key="positionText"
+          onPress={() =>
+            openEditor({
+              title: `${title}: Описание положения`,
+              mode: "text",
+              value: kidney.positionText,
+              placeholder: "Введите описание",
+              multiline: true,
+              onSave: (nextValue) => onUpdateKidneyField(side, "positionText", nextValue),
+            })
+          }
+          style={({ pressed }) => [
+            styles.obpFieldRow,
+            kidney.positionText.trim().length > 0 && styles.obpFieldRowFilled,
+            pressed && styles.obpFieldRowPressed,
+          ]}
+        >
+          <View style={styles.obpFieldRowContent}>
+            <Text style={styles.obpFieldLabel}>Описание положения</Text>
+            <Text style={styles.obpFieldValue}>
+              {kidney.positionText || "Нажмите для ввода"}
+            </Text>
+          </View>
+          <Text style={styles.obpFieldType}>text</Text>
+        </Pressable>
+      );
+    }
 
-    return (
-      <ProtocolFieldRow
-        label={field.label}
-        value={currentDisplay}
-        typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-        filled={filled}
-        compact={isLandscape}
-        onPress={
-          field.kind === "select"
-            ? undefined
-            : () => {
-                openEditor({
-                  title: `${title}: ${field.label}`,
-                  mode: field.kind,
-                  value: currentValue,
-                  placeholder: field.placeholder,
-                  multiline: field.multiline,
-                  options: field.options,
-                  onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
-                });
-              }
-        }
-        options={field.kind === "select" ? field.options : undefined}
-        onSelectOption={
-          field.kind === "select"
-            ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
-            : undefined
-        }
-      />
-    );
+    return result;
   };
 
   return (
@@ -188,252 +395,31 @@ export function KidneySidePanel({
 
       {isLandscape ? (
         <View style={{ gap: 8 }}>
-          {groupedFields.map((group, gi) => (
-            <Fragment key={gi}>
-              {group.header && <ProtocolSectionHeader title={group.header} />}
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {group.fields.map((field) => (
-                  <View key={field.key} style={{ width: "48.5%" }}>
-                    {renderFieldRow(field)}
-                  </View>
-                ))}
+          {renderFieldsWithSections().map((node, index) => {
+            // Определяем, является ли узел заголовком секции
+            if (React.isValidElement<{ title?: string }>(node) && node.type === ProtocolSectionHeader) {
+              return <Fragment key={index}>{node}</Fragment>;
+            }
+            // Проверяем, является ли узел блоком из obpFieldList (кисты/конкременты) — показываем на всю ширину
+            if (
+              React.isValidElement(node) &&
+              (node.type === KidneyConcrementSection ||
+                node.type === KidneyCystPanel ||
+                node.type === Pressable)
+            ) {
+              return <Fragment key={index}>{node}</Fragment>;
+            }
+            // Обычные поля — в сетку 2 колонки
+            return (
+              <View key={index} style={{ width: "48.5%" }}>
+                {node}
               </View>
-            </Fragment>
-          ))}
+            );
+          })}
         </View>
       ) : (
         <View style={styles.obpFieldList}>
-          {kidneyFields.map((field) => {
-            if (field.key === "length" || field.key === "width" || field.key === "thickness") {
-              if (isNephrectomy) return null;
-            }
-            if (field.key === "pcsMicrolithsSize" && !showPcsMicrolithsSize) return null;
-            if (!isFieldVisible(field, fieldVisibility)) return null;
-
-            const currentValue = kidney[field.key];
-            const filled = Boolean(currentValue && currentValue.trim().length > 0);
-            const currentDisplay = currentValue || "Нажмите для ввода";
-
-            return (
-              <Fragment key={field.key}>
-                {KIDNEY_SECTION_HEADERS[field.key] && (
-                  <ProtocolSectionHeader title={KIDNEY_SECTION_HEADERS[field.key]!} />
-                )}
-                <ProtocolFieldRow
-                  label={field.label}
-                  value={currentDisplay}
-                  typeLabel={field.kind === "number" ? "numpad" : field.kind === "select" ? "select" : "text"}
-                  filled={filled}
-                  compact={isLandscape}
-                  onPress={
-                    field.kind === "select"
-                      ? undefined
-                      : () => {
-                          openEditor({
-                            title: `${title}: ${field.label}`,
-                            mode: field.kind,
-                            value: currentValue,
-                            placeholder: field.placeholder,
-                            multiline: field.multiline,
-                            options: field.options,
-                            onSave: (nextValue) => onUpdateKidneyField(side, field.key, nextValue),
-                          });
-                        }
-                  }
-                  options={field.kind === "select" ? field.options : undefined}
-                  onSelectOption={
-                    field.kind === "select"
-                      ? (nextValue) => onUpdateKidneyField(side, field.key, nextValue)
-                      : undefined
-                  }
-                />
-              </Fragment>
-            );
-          })}
-
-          {showParenchymaConcrements && (
-            <View style={styles.obpFieldList}>
-              <KidneyConcrementSection
-                styles={styles}
-                sectionTitle="Конкременты паренхимы"
-                items={kidney.parenchymaConcrementslist}
-                listKey="parenchymaConcrementslist"
-                emptyText="Добавьте хотя бы один конкремент."
-                side={side}
-                openEditor={openEditor}
-                onAdd={onAddKidneyListItem}
-                onRemove={onRemoveKidneyListItem}
-                onUpdateItem={onUpdateKidneyListItem}
-              />
-            </View>
-          )}
-          {showParenchymaPathology && (
-            <Pressable
-              onPress={() =>
-                openEditor({
-                  title: `${title}: Описание патологических образований паренхимы`,
-                  mode: "text",
-                  value: kidney.parenchymaPathologicalFormationsText,
-                  placeholder: "Введите описание",
-                  multiline: true,
-                  onSave: (nextValue) => onUpdateKidneyField(side, "parenchymaPathologicalFormationsText", nextValue),
-                })
-              }
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                kidney.parenchymaPathologicalFormationsText.trim().length > 0 && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>Описание патологических образований паренхимы</Text>
-                <Text style={styles.obpFieldValue}>
-                  {kidney.parenchymaPathologicalFormationsText || "Нажмите для ввода"}
-                </Text>
-              </View>
-              <Text style={styles.obpFieldType}>text</Text>
-            </Pressable>
-          )}
-          {showPcsConcrements && (
-            <View style={styles.obpFieldList}>
-              <KidneyConcrementSection
-                styles={styles}
-                sectionTitle="Конкременты ЧЛС"
-                items={kidney.pcsConcrementslist}
-                listKey="pcsConcrementslist"
-                emptyText="Добавьте хотя бы один конкремент."
-                side={side}
-                openEditor={openEditor}
-                onAdd={onAddKidneyListItem}
-                onRemove={onRemoveKidneyListItem}
-                onUpdateItem={onUpdateKidneyListItem}
-              />
-            </View>
-          )}
-          {showPcsCysts && (
-            <KidneyCystPanel
-              styles={styles}
-              title="Кисты ЧЛС"
-              cysts={kidney.pcsCystslist}
-              multiple={kidney.pcsMultipleCysts}
-              multipleSize={kidney.pcsMultipleCystsSize}
-              side={side}
-              cystListKey="pcsCystslist"
-              multipleKey="pcsMultipleCysts"
-              openEditor={openEditor}
-              onToggleMultiple={onToggleMultipleCysts}
-              onAdd={onAddKidneyListItem}
-              onRemove={onRemoveKidneyListItem}
-              onUpdateCystSize={onUpdateKidneyCystSize}
-              onUpdateField={(_, field, value) =>
-                onUpdateKidneyField(side, field as keyof KidneyDraft, value)
-              }
-              onUpdateListItem={onUpdateKidneyListItem}
-            />
-          )}
-          {showParenchymaCysts && (
-            <KidneyCystPanel
-              styles={styles}
-              title="Кисты паренхимы"
-              cysts={kidney.parenchymaCystslist}
-              multiple={kidney.parenchymaMultipleCysts}
-              multipleSize={kidney.parenchymaMultipleCystsSize}
-              side={side}
-              cystListKey="parenchymaCystslist"
-              multipleKey="parenchymaMultipleCysts"
-              openEditor={openEditor}
-              onToggleMultiple={onToggleMultipleCysts}
-              onAdd={onAddKidneyListItem}
-              onRemove={onRemoveKidneyListItem}
-              onUpdateCystSize={onUpdateKidneyCystSize}
-              onUpdateField={(_, field, value) =>
-                onUpdateKidneyField(side, field as keyof KidneyDraft, value)
-              }
-              onUpdateListItem={onUpdateKidneyListItem}
-            />
-          )}
-          {showAdrenalText && (
-            <Pressable
-              onPress={() =>
-                openEditor({
-                  title: "Область надпочечников: Описание изменений",
-                  mode: "text",
-                  value: kidney.adrenalAreaText,
-                  placeholder: "Введите описание",
-                  multiline: true,
-                  onSave: (nextValue) => onUpdateKidneyField(side, "adrenalAreaText", nextValue),
-                })
-              }
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                kidney.adrenalAreaText.trim().length > 0 && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>Описание изменений</Text>
-                <Text style={styles.obpFieldValue}>
-                  {kidney.adrenalAreaText || "Нажмите для ввода"}
-                </Text>
-              </View>
-              <Text style={styles.obpFieldType}>text</Text>
-            </Pressable>
-          )}
-          {showPcsPathology && (
-            <Pressable
-              onPress={() =>
-                openEditor({
-                  title: "Описание патологических образований ЧЛС",
-                  mode: "text",
-                  value: kidney.pcsPathologicalFormationsText,
-                  placeholder: "Введите описание",
-                  multiline: true,
-                  onSave: (nextValue) =>
-                    onUpdateKidneyField(side, "pcsPathologicalFormationsText", nextValue),
-                })
-              }
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                kidney.pcsPathologicalFormationsText.trim().length > 0 && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>Описание патологических образований ЧЛС</Text>
-                <Text style={styles.obpFieldValue}>
-                  {kidney.pcsPathologicalFormationsText || "Нажмите для ввода"}
-                </Text>
-              </View>
-              <Text style={styles.obpFieldType}>text</Text>
-            </Pressable>
-          )}
-          {fv["kidneys.position"] !== false && showPositionText && (
-            <Pressable
-              onPress={() =>
-                openEditor({
-                  title: `${title}: Описание положения`,
-                  mode: "text",
-                  value: kidney.positionText,
-                  placeholder: "Введите описание",
-                  multiline: true,
-                  onSave: (nextValue) => onUpdateKidneyField(side, "positionText", nextValue),
-                })
-              }
-              style={({ pressed }) => [
-                styles.obpFieldRow,
-                kidney.positionText.trim().length > 0 && styles.obpFieldRowFilled,
-                pressed && styles.obpFieldRowPressed,
-              ]}
-            >
-              <View style={styles.obpFieldRowContent}>
-                <Text style={styles.obpFieldLabel}>Описание положения</Text>
-                <Text style={styles.obpFieldValue}>
-                  {kidney.positionText || "Нажмите для ввода"}
-                </Text>
-              </View>
-              <Text style={styles.obpFieldType}>text</Text>
-            </Pressable>
-          )}
+          {renderFieldsWithSections()}
         </View>
       )}
     </View>
