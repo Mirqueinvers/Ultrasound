@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import type { LayoutChangeEvent } from "react-native";
+import type { LayoutChangeEvent, View } from "react-native";
 
 export type NumpadPosition = {
   top: number;
@@ -7,34 +7,41 @@ export type NumpadPosition = {
   width: number;
 };
 
-export function useInlineNumpad() {
+export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
   const [activeNumpadField, setActiveNumpadField] = useState<string | null>(null);
   const [numpadPosition, setNumpadPosition] = useState<NumpadPosition | null>(null);
-  const fieldLayoutsRef = useRef<Record<string, NumpadPosition>>({});
+  const fieldWidthsRef = useRef<Record<string, number>>({});
 
   const handleCloseNumpad = useCallback(() => {
     setActiveNumpadField(null);
   }, []);
 
-  const openNumpad = useCallback((fieldKey: string) => {
-    setActiveNumpadField(fieldKey);
-    const storedLayout = fieldLayoutsRef.current[fieldKey];
-    if (storedLayout) {
-      setNumpadPosition(storedLayout);
-    }
-  }, []);
+  const openNumpad = useCallback(
+    (fieldKey: string, fieldView: View | null) => {
+      setActiveNumpadField(fieldKey);
+
+      if (!fieldView || !containerRef.current) return;
+
+      fieldView.measureLayout(
+        containerRef.current,
+        (left, top) => {
+          const width = fieldWidthsRef.current[fieldKey] ?? 200;
+          setNumpadPosition({ top: top + 4, left, width });
+        },
+        () => {
+          // fallback: оставляем предыдущую позицию
+        },
+      );
+    },
+    [containerRef],
+  );
 
   const handleFieldLayout = useCallback(
     (fieldKey: string, event: LayoutChangeEvent) => {
-      const { y, height, x, width } = event.nativeEvent.layout;
-      fieldLayoutsRef.current[fieldKey] = { top: y + height, left: x, width };
+      const { width } = event.nativeEvent.layout;
+      fieldWidthsRef.current[fieldKey] = width;
     },
     [],
-  );
-
-  const isNumpadActiveFor = useCallback(
-    (fieldKey: string) => activeNumpadField === fieldKey,
-    [activeNumpadField],
   );
 
   return {
@@ -43,6 +50,5 @@ export function useInlineNumpad() {
     openNumpad,
     closeNumpad: handleCloseNumpad,
     handleFieldLayout,
-    isNumpadActiveFor,
   };
 }

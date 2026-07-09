@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo } from "react";
+import { Fragment, useCallback, useMemo, useRef } from "react";
 import { Text, View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -55,7 +55,9 @@ export function GallbladderSection({
   onAddConcretion,
   onAddPolyp,
 }: GallbladderSectionProps) {
-  const numpad = useInlineNumpad();
+  const landscapeRef = useRef<View>(null);
+  const fieldRefs = useRef<Record<string, View | null>>({});
+  const numpad = useInlineNumpad(landscapeRef);
   const hasValue = (v: string) => v.trim().length > 0;
 
   // Group main fields (excluding concretions/polyps) by headers for 2-column grid
@@ -99,7 +101,8 @@ export function GallbladderSection({
   const handleFieldPress = useCallback(
     (field: typeof GALLBLADDER_FIELDS[0]) => {
       if (isLandscape && field.kind === "number") {
-        numpad.openNumpad(field.key as string);
+        const fieldView = fieldRefs.current[field.key as string] ?? null;
+        numpad.openNumpad(field.key as string, fieldView);
       } else {
         openEditor({
           title: field.label,
@@ -123,6 +126,7 @@ export function GallbladderSection({
     return (
       <View
         key={fieldKey}
+        ref={(el) => { fieldRefs.current[fieldKey] = el; }}
         onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
@@ -141,8 +145,10 @@ export function GallbladderSection({
 
   const handleConcretionFieldPress = useCallback(
     (item: GallbladderConcretionDraft, field: typeof GALLBLADDER_CONCRETION_FIELDS[0], index: number) => {
+      const fieldKey = `concretion-${index}-${field.key}`;
       if (isLandscape && field.kind === "number") {
-        numpad.openNumpad(`concretion-${index}-${field.key}`);
+        const fieldView = fieldRefs.current[fieldKey] ?? null;
+        numpad.openNumpad(fieldKey, fieldView);
       } else {
         openEditor({
           title: `${field.label} #${index + 1}`,
@@ -165,6 +171,7 @@ export function GallbladderSection({
     return (
       <View
         key={fieldKey}
+        ref={(el) => { fieldRefs.current[fieldKey] = el; }}
         onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
@@ -185,8 +192,10 @@ export function GallbladderSection({
 
   const handlePolypFieldPress = useCallback(
     (item: GallbladderPolypDraft, field: typeof GALLBLADDER_POLYP_FIELDS[0], index: number) => {
+      const fieldKey = `polyp-${index}-${field.key}`;
       if (isLandscape && field.kind === "number") {
-        numpad.openNumpad(`polyp-${index}-${field.key}`);
+        const fieldView = fieldRefs.current[fieldKey] ?? null;
+        numpad.openNumpad(fieldKey, fieldView);
       } else {
         openEditor({
           title: `${field.label} #${index + 1}`,
@@ -209,6 +218,7 @@ export function GallbladderSection({
     return (
       <View
         key={fieldKey}
+        ref={(el) => { fieldRefs.current[fieldKey] = el; }}
         onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
@@ -319,7 +329,7 @@ export function GallbladderSection({
     <>
       <ProtocolOrganHeader title="Желчный пузырь" />
       {isLandscape ? (
-        <View style={{ gap: 8, position: "relative" }}>
+        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}

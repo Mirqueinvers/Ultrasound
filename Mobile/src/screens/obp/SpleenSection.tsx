@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo } from "react";
+import { Fragment, useCallback, useMemo, useRef } from "react";
 import { View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -38,7 +38,9 @@ export function SpleenSection({
   openEditor,
   onUpdateField,
 }: SpleenSectionProps) {
-  const numpad = useInlineNumpad();
+  const landscapeRef = useRef<View>(null);
+  const fieldRefs = useRef<Record<string, View | null>>({});
+  const numpad = useInlineNumpad(landscapeRef);
   const hasValue = (v: string) => v.trim().length > 0;
 
   const groupedFields = useMemo(() => {
@@ -74,7 +76,8 @@ export function SpleenSection({
   const handleFieldPress = useCallback(
     (field: typeof SPLEEN_FIELDS[0]) => {
       if (isLandscape && field.kind === "number") {
-        numpad.openNumpad(field.key as string);
+        const fieldView = fieldRefs.current[field.key as string] ?? null;
+        numpad.openNumpad(field.key as string, fieldView);
       } else {
         openEditor({
           title: field.label,
@@ -98,6 +101,7 @@ export function SpleenSection({
     return (
       <View
         key={fieldKey}
+        ref={(el) => { fieldRefs.current[fieldKey] = el; }}
         onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
@@ -118,7 +122,7 @@ export function SpleenSection({
     <>
       <ProtocolOrganHeader title="Селезёнка" />
       {isLandscape ? (
-        <View style={{ gap: 8, position: "relative" }}>
+        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}

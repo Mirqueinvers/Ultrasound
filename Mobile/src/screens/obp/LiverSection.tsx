@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo } from "react";
+import { Fragment, useCallback, useMemo, useRef } from "react";
 import { View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -40,7 +40,9 @@ export function LiverSection({
   openEditor,
   onUpdateField,
 }: LiverSectionProps) {
-  const numpad = useInlineNumpad();
+  const landscapeRef = useRef<View>(null);
+  const fieldRefs = useRef<Record<string, View | null>>({});
+  const numpad = useInlineNumpad(landscapeRef);
   const hasValue = (v: string) => v.trim().length > 0;
 
   // Group visible fields by headers for 2-column grid in landscape
@@ -78,7 +80,8 @@ export function LiverSection({
     (field: typeof LIVER_FIELDS[0]) => {
       if (isReadOnlyField(field.key)) return;
       if (isLandscape && field.kind === "number") {
-        numpad.openNumpad(field.key as string);
+        const fieldView = fieldRefs.current[field.key as string] ?? null;
+        numpad.openNumpad(field.key as string, fieldView);
       } else {
         openEditor({
           title: field.label,
@@ -103,6 +106,7 @@ export function LiverSection({
     return (
       <View
         key={fieldKey}
+        ref={(el) => { fieldRefs.current[fieldKey] = el; }}
         onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
@@ -124,7 +128,7 @@ export function LiverSection({
     <>
       <ProtocolOrganHeader title="Печень" />
       {isLandscape ? (
-        <View style={{ gap: 8, position: "relative" }}>
+        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}
