@@ -1,5 +1,5 @@
-import { Fragment, useCallback, useMemo, useRef, useState } from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { Fragment, useCallback, useMemo } from "react";
+import { View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import type { LiverDraft } from "../../shared/obpDraft";
@@ -9,6 +9,7 @@ import { InlineNumpad } from "../../components/InlineNumpad";
 import { LIVER_FIELDS } from "./obpFieldConfigs";
 import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
+import { useInlineNumpad } from "./useInlineNumpad";
 
 // Ключи полей, перед которыми нужно показать заголовок группы
 const LIVER_SECTION_HEADERS: Record<string, string> = {
@@ -39,10 +40,7 @@ export function LiverSection({
   openEditor,
   onUpdateField,
 }: LiverSectionProps) {
-  const [activeNumpadField, setActiveNumpadField] = useState<keyof LiverDraft | null>(null);
-  const [numpadPosition, setNumpadPosition] = useState<{ top: number; left: number; width: number } | null>(null);
-  const landscapeRef = useRef<View>(null);
-  const fieldLayoutsRef = useRef<Record<string, { top: number; left: number; width: number }>>({});
+  const numpad = useInlineNumpad();
   const hasValue = (v: string) => v.trim().length > 0;
 
   // Group visible fields by headers for 2-column grid in landscape
@@ -76,19 +74,11 @@ export function LiverSection({
     [onUpdateField],
   );
 
-  const handleCloseNumpad = useCallback(() => {
-    setActiveNumpadField(null);
-  }, []);
-
   const handleFieldPress = useCallback(
     (field: typeof LIVER_FIELDS[0]) => {
       if (isReadOnlyField(field.key)) return;
       if (isLandscape && field.kind === "number") {
-        setActiveNumpadField(field.key);
-        const storedLayout = fieldLayoutsRef.current[field.key as string];
-        if (storedLayout) {
-          setNumpadPosition(storedLayout);
-        }
+        numpad.openNumpad(field.key as string);
       } else {
         openEditor({
           title: field.label,
@@ -101,26 +91,19 @@ export function LiverSection({
         });
       }
     },
-    [isLandscape, isReadOnlyField, openEditor, liver, onUpdateField],
-  );
-
-  const handleFieldLayout = useCallback(
-    (fieldKey: string, event: LayoutChangeEvent) => {
-      const { y, height, x, width } = event.nativeEvent.layout;
-      fieldLayoutsRef.current[fieldKey] = { top: y + height, left: x, width };
-    },
-    [],
+    [isLandscape, isReadOnlyField, openEditor, liver, onUpdateField, numpad],
   );
 
   const renderFieldRow = (field: typeof LIVER_FIELDS[0]) => {
     const readonly = isReadOnlyField(field.key);
     const currentValue = liver[field.key];
     const displayValue = currentValue || "Нажмите для ввода";
+    const fieldKey = field.key as string;
 
     return (
       <View
-        key={field.key}
-        onLayout={(event) => handleFieldLayout(field.key as string, event)}
+        key={fieldKey}
+        onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
       >
         <ProtocolFieldRow
           label={field.label}
@@ -141,7 +124,7 @@ export function LiverSection({
     <>
       <ProtocolOrganHeader title="Печень" />
       {isLandscape ? (
-        <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
+        <View style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}
@@ -154,23 +137,23 @@ export function LiverSection({
               </View>
             </Fragment>
           ))}
-          {activeNumpadField != null && numpadPosition && (() => {
-            const activeField = LIVER_FIELDS.find((f) => f.key === activeNumpadField);
+          {numpad.activeNumpadField != null && numpad.numpadPosition && (() => {
+            const activeField = LIVER_FIELDS.find((f) => f.key === numpad.activeNumpadField);
             if (!activeField) return null;
             return (
               <View
                 style={{
                   position: "absolute",
-                  top: numpadPosition.top,
-                  left: numpadPosition.left,
-                  width: numpadPosition.width,
+                  top: numpad.numpadPosition.top,
+                  left: numpad.numpadPosition.left,
+                  width: numpad.numpadPosition.width,
                   zIndex: 100,
                 }}
               >
                 <InlineNumpad
                   value={liver[activeField.key]}
                   onValueChange={(nextValue) => handleNumpadChange(activeField.key, nextValue)}
-                  onClose={handleCloseNumpad}
+                  onClose={numpad.closeNumpad}
                 />
               </View>
             );

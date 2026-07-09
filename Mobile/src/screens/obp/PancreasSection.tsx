@@ -1,13 +1,15 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useCallback, useMemo } from "react";
 import { View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
 import type { PancreasDraft } from "../../shared/obpDraft";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
+import { InlineNumpad } from "../../components/InlineNumpad";
 import { PANCREAS_FIELDS } from "./obpFieldConfigs";
 import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
+import { useInlineNumpad } from "./useInlineNumpad";
 
 const PANCREAS_SECTION_HEADERS: Record<string, string> = {
   head: "Размеры",
@@ -35,6 +37,7 @@ export function PancreasSection({
   openEditor,
   onUpdateField,
 }: PancreasSectionProps) {
+  const numpad = useInlineNumpad();
   const hasValue = (v: string) => v.trim().length > 0;
 
   const groupedFields = useMemo(() => {
@@ -60,32 +63,53 @@ export function PancreasSection({
     return groups;
   }, [hasPathologicalFormations, fieldVisibility]);
 
+  const handleNumpadChange = useCallback(
+    (fieldKey: keyof PancreasDraft, nextValue: string) => {
+      onUpdateField(fieldKey, nextValue);
+    },
+    [onUpdateField],
+  );
+
+  const handleFieldPress = useCallback(
+    (field: typeof PANCREAS_FIELDS[0]) => {
+      if (isLandscape && field.kind === "number") {
+        numpad.openNumpad(field.key as string);
+      } else {
+        openEditor({
+          title: field.label,
+          mode: field.kind,
+          value: pancreas[field.key],
+          placeholder: field.placeholder,
+          multiline: field.multiline,
+          options: field.options,
+          onSave: (nextValue) => onUpdateField(field.key, nextValue),
+        });
+      }
+    },
+    [isLandscape, openEditor, pancreas, onUpdateField, numpad],
+  );
+
   const renderFieldRow = (field: typeof PANCREAS_FIELDS[0]) => {
     const currentValue = pancreas[field.key];
     const displayValue = currentValue || "Нажмите для ввода";
+    const fieldKey = field.key as string;
 
     return (
-      <ProtocolFieldRow
-        key={field.key}
-        label={field.label}
-        value={displayValue}
-        typeLabel={field.kind === "number" ? "numpad" : field.kind}
-        filled={hasValue(currentValue)}
-        compact={isLandscape}
-        onPress={field.kind === "select" ? undefined : () => {
-          openEditor({
-            title: field.label,
-            mode: field.kind,
-            value: currentValue,
-            placeholder: field.placeholder,
-            multiline: field.multiline,
-            options: field.options,
-            onSave: (nextValue) => onUpdateField(field.key, nextValue),
-          });
-        }}
-        options={field.kind === "select" ? field.options : undefined}
-        onSelectOption={field.kind === "select" ? (nextValue) => onUpdateField(field.key, nextValue) : undefined}
-      />
+      <View
+        key={fieldKey}
+        onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      >
+        <ProtocolFieldRow
+          label={field.label}
+          value={displayValue}
+          typeLabel={field.kind === "number" ? "numpad" : field.kind}
+          filled={hasValue(currentValue)}
+          compact={isLandscape}
+          onPress={field.kind === "select" ? undefined : () => handleFieldPress(field)}
+          options={field.kind === "select" ? field.options : undefined}
+          onSelectOption={field.kind === "select" ? (nextValue) => onUpdateField(field.key, nextValue) : undefined}
+        />
+      </View>
     );
   };
 
@@ -93,7 +117,7 @@ export function PancreasSection({
     <>
       <ProtocolOrganHeader title="Поджелудочная железа" />
       {isLandscape ? (
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}
@@ -106,6 +130,27 @@ export function PancreasSection({
               </View>
             </Fragment>
           ))}
+          {numpad.activeNumpadField != null && numpad.numpadPosition && (() => {
+            const activeField = PANCREAS_FIELDS.find((f) => f.key === numpad.activeNumpadField);
+            if (!activeField) return null;
+            return (
+              <View
+                style={{
+                  position: "absolute",
+                  top: numpad.numpadPosition.top,
+                  left: numpad.numpadPosition.left,
+                  width: numpad.numpadPosition.width,
+                  zIndex: 100,
+                }}
+              >
+                <InlineNumpad
+                  value={pancreas[activeField.key]}
+                  onValueChange={(nextValue) => handleNumpadChange(activeField.key, nextValue)}
+                  onClose={numpad.closeNumpad}
+                />
+              </View>
+            );
+          })()}
         </View>
       ) : (
         <View style={styles.obpFieldList}>

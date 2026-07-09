@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useCallback, useMemo } from "react";
 import { Text, View } from "react-native";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
@@ -7,9 +7,11 @@ import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/pro
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolCard } from "../../components/protocol/ProtocolCard";
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
+import { InlineNumpad } from "../../components/InlineNumpad";
 import { GALLBLADDER_FIELDS, GALLBLADDER_CONCRETION_FIELDS, GALLBLADDER_POLYP_FIELDS } from "./obpFieldConfigs";
 import { isFieldVisible } from "../../shared/isFieldVisible";
 import type { EditorState } from "./useObpEditor";
+import { useInlineNumpad } from "./useInlineNumpad";
 
 const GALLBLADDER_SECTION_HEADERS: Record<string, string> = {
   position: "Положение",
@@ -53,6 +55,7 @@ export function GallbladderSection({
   onAddConcretion,
   onAddPolyp,
 }: GallbladderSectionProps) {
+  const numpad = useInlineNumpad();
   const hasValue = (v: string) => v.trim().length > 0;
 
   // Group main fields (excluding concretions/polyps) by headers for 2-column grid
@@ -64,12 +67,10 @@ export function GallbladderSection({
       if (field.hiddenWhenCholecystectomy && isCholecystectomy) return;
       if (!isFieldVisible(field, fieldVisibility)) return;
       if (field.key === "concretions" || field.key === "polyps") {
-        // flush current group before special fields
         if (currentGroup.length > 0) {
           groups.push({ fields: currentGroup });
           currentGroup = [];
         }
-        // add concretions/polyps as special groups later
         return;
       }
 
@@ -88,93 +89,226 @@ export function GallbladderSection({
     return groups;
   }, [isCholecystectomy, fieldVisibility]);
 
+  const handleNumpadChange = useCallback(
+    (fieldKey: keyof GallbladderDraft, nextValue: string) => {
+      onUpdateField(fieldKey, nextValue);
+    },
+    [onUpdateField],
+  );
+
+  const handleFieldPress = useCallback(
+    (field: typeof GALLBLADDER_FIELDS[0]) => {
+      if (isLandscape && field.kind === "number") {
+        numpad.openNumpad(field.key as string);
+      } else {
+        openEditor({
+          title: field.label,
+          mode: field.kind,
+          value: gallbladder[field.key],
+          placeholder: field.placeholder,
+          multiline: field.multiline,
+          options: field.options,
+          onSave: (nextValue) => onUpdateField(field.key, nextValue),
+        });
+      }
+    },
+    [isLandscape, openEditor, gallbladder, onUpdateField, numpad],
+  );
+
   const renderFieldRow = (field: typeof GALLBLADDER_FIELDS[0], compact = false) => {
     const currentValue = gallbladder[field.key];
     const displayValue = currentValue || "Нажмите для ввода";
+    const fieldKey = field.key as string;
 
     return (
-      <ProtocolFieldRow
-        key={field.key}
-        label={field.label}
-        value={displayValue}
-        typeLabel={field.kind === "number" ? "numpad" : field.kind}
-        filled={hasValue(currentValue)}
-        compact={compact}
-        onPress={field.kind === "select" ? undefined : () => {
-          openEditor({
-            title: field.label,
-            mode: field.kind,
-            value: currentValue,
-            placeholder: field.placeholder,
-            multiline: field.multiline,
-            options: field.options,
-            onSave: (nextValue) => onUpdateField(field.key, nextValue),
-          });
-        }}
-        options={field.kind === "select" ? field.options : undefined}
-        onSelectOption={field.kind === "select" ? (nextValue) => onUpdateField(field.key, nextValue) : undefined}
-      />
+      <View
+        key={fieldKey}
+        onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      >
+        <ProtocolFieldRow
+          label={field.label}
+          value={displayValue}
+          typeLabel={field.kind === "number" ? "numpad" : field.kind}
+          filled={hasValue(currentValue)}
+          compact={compact}
+          onPress={field.kind === "select" ? undefined : () => handleFieldPress(field)}
+          options={field.kind === "select" ? field.options : undefined}
+          onSelectOption={field.kind === "select" ? (nextValue) => onUpdateField(field.key, nextValue) : undefined}
+        />
+      </View>
     );
   };
+
+  const handleConcretionFieldPress = useCallback(
+    (item: GallbladderConcretionDraft, field: typeof GALLBLADDER_CONCRETION_FIELDS[0], index: number) => {
+      if (isLandscape && field.kind === "number") {
+        numpad.openNumpad(`concretion-${index}-${field.key}`);
+      } else {
+        openEditor({
+          title: `${field.label} #${index + 1}`,
+          mode: field.kind,
+          value: item[field.key],
+          placeholder: field.placeholder,
+          options: field.options,
+          onSave: (nextValue) => onUpdateConcretionItem(index, field.key, nextValue),
+        });
+      }
+    },
+    [isLandscape, openEditor, onUpdateConcretionItem, numpad],
+  );
 
   const renderConcretionField = (item: GallbladderConcretionDraft, field: typeof GALLBLADDER_CONCRETION_FIELDS[0], index: number) => {
     const currentItemValue = item[field.key];
     const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+    const fieldKey = `concretion-${index}-${field.key}`;
+
     return (
-      <ProtocolFieldRow
-        key={field.key}
-        label={field.label}
-        value={itemDisplayValue}
-        typeLabel={field.kind === "number" ? "numpad" : field.kind}
-        filled={hasValue(currentItemValue)}
-        compact={isLandscape}
-        onPress={field.kind === "select" ? undefined : () => {
-          openEditor({
-            title: `${field.label} #${index + 1}`,
-            mode: field.kind,
-            value: currentItemValue,
-            placeholder: field.placeholder,
-            options: field.options,
-            onSave: (nextValue) =>
-              onUpdateConcretionItem(index, field.key, nextValue),
-          });
-        }}
-        options={field.kind === "select" ? field.options : undefined}
-        onSelectOption={field.kind === "select"
-          ? (nextValue) => onUpdateConcretionItem(index, field.key, nextValue)
-          : undefined}
-      />
+      <View
+        key={fieldKey}
+        onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      >
+        <ProtocolFieldRow
+          label={field.label}
+          value={itemDisplayValue}
+          typeLabel={field.kind === "number" ? "numpad" : field.kind}
+          filled={hasValue(currentItemValue)}
+          compact={isLandscape}
+          onPress={field.kind === "select" ? undefined : () => handleConcretionFieldPress(item, field, index)}
+          options={field.kind === "select" ? field.options : undefined}
+          onSelectOption={field.kind === "select"
+            ? (nextValue) => onUpdateConcretionItem(index, field.key, nextValue)
+            : undefined}
+        />
+      </View>
     );
   };
+
+  const handlePolypFieldPress = useCallback(
+    (item: GallbladderPolypDraft, field: typeof GALLBLADDER_POLYP_FIELDS[0], index: number) => {
+      if (isLandscape && field.kind === "number") {
+        numpad.openNumpad(`polyp-${index}-${field.key}`);
+      } else {
+        openEditor({
+          title: `${field.label} #${index + 1}`,
+          mode: field.kind,
+          value: item[field.key],
+          placeholder: field.placeholder,
+          options: field.options,
+          onSave: (nextValue) => onUpdatePolypItem(index, field.key, nextValue),
+        });
+      }
+    },
+    [isLandscape, openEditor, onUpdatePolypItem, numpad],
+  );
 
   const renderPolypField = (item: GallbladderPolypDraft, field: typeof GALLBLADDER_POLYP_FIELDS[0], index: number) => {
     const currentItemValue = item[field.key];
     const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+    const fieldKey = `polyp-${index}-${field.key}`;
+
     return (
-      <ProtocolFieldRow
-        key={field.key}
-        label={field.label}
-        value={itemDisplayValue}
-        typeLabel={field.kind === "number" ? "numpad" : field.kind}
-        filled={hasValue(currentItemValue)}
-        compact={isLandscape}
-        onPress={field.kind === "select" ? undefined : () => {
-          openEditor({
-            title: `${field.label} #${index + 1}`,
-            mode: field.kind,
-            value: currentItemValue,
-            placeholder: field.placeholder,
-            options: field.options,
-            onSave: (nextValue) =>
-              onUpdatePolypItem(index, field.key, nextValue),
-          });
-        }}
-        options={field.kind === "select" ? field.options : undefined}
-        onSelectOption={field.kind === "select"
-          ? (nextValue) => onUpdatePolypItem(index, field.key, nextValue)
-          : undefined}
-      />
+      <View
+        key={fieldKey}
+        onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      >
+        <ProtocolFieldRow
+          label={field.label}
+          value={itemDisplayValue}
+          typeLabel={field.kind === "number" ? "numpad" : field.kind}
+          filled={hasValue(currentItemValue)}
+          compact={isLandscape}
+          onPress={field.kind === "select" ? undefined : () => handlePolypFieldPress(item, field, index)}
+          options={field.kind === "select" ? field.options : undefined}
+          onSelectOption={field.kind === "select"
+            ? (nextValue) => onUpdatePolypItem(index, field.key, nextValue)
+            : undefined}
+        />
+      </View>
     );
+  };
+
+  const renderNumpadOverlay = () => {
+    if (numpad.activeNumpadField == null || !numpad.numpadPosition) return null;
+
+    const activeKey = numpad.activeNumpadField;
+
+    // Main gallbladder field
+    const mainField = GALLBLADDER_FIELDS.find((f) => f.key === activeKey);
+    if (mainField && mainField.kind === "number") {
+      return (
+        <View
+          style={{
+            position: "absolute",
+            top: numpad.numpadPosition.top,
+            left: numpad.numpadPosition.left,
+            width: numpad.numpadPosition.width,
+            zIndex: 100,
+          }}
+        >
+          <InlineNumpad
+            value={gallbladder[mainField.key]}
+            onValueChange={(nextValue) => handleNumpadChange(mainField.key, nextValue)}
+            onClose={numpad.closeNumpad}
+          />
+        </View>
+      );
+    }
+
+    // Concretion sub-field
+    const concretionMatch = activeKey.match(/^concretion-(\d+)-(.+)$/);
+    if (concretionMatch) {
+      const index = parseInt(concretionMatch[1], 10);
+      const subKey = concretionMatch[2] as keyof GallbladderConcretionDraft;
+      const item = gallbladder.concretionsList[index];
+      if (item) {
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: numpad.numpadPosition.top,
+              left: numpad.numpadPosition.left,
+              width: numpad.numpadPosition.width,
+              zIndex: 100,
+            }}
+          >
+            <InlineNumpad
+              value={item[subKey]}
+              onValueChange={(nextValue) => onUpdateConcretionItem(index, subKey, nextValue)}
+              onClose={numpad.closeNumpad}
+            />
+          </View>
+        );
+      }
+    }
+
+    // Polyp sub-field
+    const polypMatch = activeKey.match(/^polyp-(\d+)-(.+)$/);
+    if (polypMatch) {
+      const index = parseInt(polypMatch[1], 10);
+      const subKey = polypMatch[2] as keyof GallbladderPolypDraft;
+      const item = gallbladder.polypsList[index];
+      if (item) {
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: numpad.numpadPosition.top,
+              left: numpad.numpadPosition.left,
+              width: numpad.numpadPosition.width,
+              zIndex: 100,
+            }}
+          >
+            <InlineNumpad
+              value={item[subKey]}
+              onValueChange={(nextValue) => onUpdatePolypItem(index, subKey, nextValue)}
+              onClose={numpad.closeNumpad}
+            />
+          </View>
+        );
+      }
+    }
+
+    return null;
   };
 
   // Find concretions field config
@@ -185,7 +319,7 @@ export function GallbladderSection({
     <>
       <ProtocolOrganHeader title="Желчный пузырь" />
       {isLandscape ? (
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
             <Fragment key={gi}>
               {group.header && <ProtocolSectionHeader title={group.header} />}
@@ -280,6 +414,8 @@ export function GallbladderSection({
               )}
             </Fragment>
           )}
+
+          {renderNumpadOverlay()}
         </View>
       ) : (
         <View style={styles.obpFieldList}>
