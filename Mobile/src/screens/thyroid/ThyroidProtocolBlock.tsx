@@ -1,5 +1,8 @@
+import { useCallback, useRef } from "react";
+import type { LayoutChangeEvent } from "react-native";
 import { View } from "react-native";
 
+import { InlineNumpad } from "../../components/InlineNumpad";
 import { FieldEditorModal } from "../../components/FieldEditorModal";
 import { ConclusionSamples } from "../../components/ConclusionSamples";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
@@ -7,6 +10,7 @@ import { ProtocolOrganHeader } from "../../components/protocol/ProtocolHeaders";
 import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
+import { useInlineNumpad } from "../obp/useInlineNumpad";
 import {
   THYROID_CONCLUSION_SAMPLES,
   THYROID_CONTOUR_OPTIONS,
@@ -47,6 +51,33 @@ export function ThyroidProtocolBlock({
 
   const isConclusionEditor = draftApi.editorState?.title === "Заключение щитовидной железы";
 
+  // ---- Landscape: numpad для перешейка ----
+  const isthmusRef = useRef<View>(null);
+  const isthmusFieldRefs = useRef<Record<string, View | null>>({});
+  const isthmusNumpad = useInlineNumpad(isthmusRef);
+
+  const handleIsthmusNumpadChange = useCallback(
+    (nextValue: string) => {
+      draftApi.updateThyroidField("isthmusSize", nextValue);
+    },
+    [draftApi],
+  );
+
+  const openIsthmusNumpad = useCallback(() => {
+    if (isLandscape) {
+      const fieldView = isthmusFieldRefs.current["isthmusSize"] ?? null;
+      isthmusNumpad.openNumpad("isthmusSize", fieldView);
+    } else {
+      draftApi.openEditor({
+        title: "Перешеек: размер",
+        mode: "number",
+        value: thyroid.isthmusSize,
+        placeholder: "мм",
+        onSave: (nextValue) => draftApi.updateThyroidField("isthmusSize", nextValue),
+      });
+    }
+  }, [isLandscape, isthmusNumpad, draftApi, thyroid.isthmusSize]);
+
   return (
     <>
       <FieldEditorModal
@@ -75,7 +106,7 @@ export function ThyroidProtocolBlock({
       />
 
       {(showAllSections || resolvedActiveSectionId === THYROID_SECTION_IDS.rightLobe || resolvedActiveSectionId === THYROID_SECTION_IDS.leftLobe) && (
-        <View style={styles.kidneyPlainSection}>
+        <View style={styles.kidneyPlainSection} ref={isthmusRef}>
           <ThyroidLobePanel
             styles={styles}
             side="right"
@@ -106,21 +137,37 @@ export function ThyroidProtocolBlock({
           {fv["thyroid.isthmusSize"] !== false && (
             <View style={styles.obpFieldList}>
               <ProtocolOrganHeader title="Перешеек" />
-              <ProtocolFieldRow
-                label="Размер перешейка (мм)"
-                value={thyroid.isthmusSize || "Нажмите для ввода"}
-                typeLabel="numpad"
-                filled={Boolean(thyroid.isthmusSize)}
-                compact={isLandscape}
-                onPress={() =>
-                  draftApi.openEditor({
-                    title: "Перешеек: размер",
-                    mode: "number",
-                    value: thyroid.isthmusSize,
-                    placeholder: "мм",
-                    onSave: (nextValue) => draftApi.updateThyroidField("isthmusSize", nextValue),
-                  })
-                }
+              <View
+                ref={(el) => { isthmusFieldRefs.current["isthmusSize"] = el; }}
+                onLayout={(event) => isthmusNumpad.handleFieldLayout("isthmusSize", event)}
+              >
+                <ProtocolFieldRow
+                  label="Размер перешейка (мм)"
+                  value={thyroid.isthmusSize || "Нажмите для ввода"}
+                  typeLabel="numpad"
+                  filled={Boolean(thyroid.isthmusSize)}
+                  compact={isLandscape}
+                  onPress={openIsthmusNumpad}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* InlineNumpad для перешейка */}
+          {isthmusNumpad.activeNumpadField != null && isthmusNumpad.numpadPosition && (
+            <View
+              style={{
+                position: "absolute",
+                top: isthmusNumpad.numpadPosition.top,
+                left: isthmusNumpad.numpadPosition.left,
+                width: isthmusNumpad.numpadPosition.width,
+                zIndex: 100,
+              }}
+            >
+              <InlineNumpad
+                value={thyroid.isthmusSize}
+                onValueChange={handleIsthmusNumpadChange}
+                onClose={isthmusNumpad.closeNumpad}
               />
             </View>
           )}
