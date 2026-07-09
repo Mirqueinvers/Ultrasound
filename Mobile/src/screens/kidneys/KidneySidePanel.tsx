@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useMemo, useRef } from "react";
+import type { LayoutChangeEvent } from "react-native";
 import { Pressable, Text, View } from "react-native";
 
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
@@ -202,6 +203,8 @@ export function KidneySidePanel({
   const landscapeRef = useRef<View>(null);
   const fieldRefs = useRef<Record<string, View | null>>({});
   const numpad = useInlineNumpad(landscapeRef);
+  const nestedNumpadValue = useRef<string>("");
+  const nestedNumpadOnChange = useRef<((value: string) => void) | null>(null);
   const hasValue = (v: string) => v.trim().length > 0;
 
   const handleNumpadChange = useCallback(
@@ -215,6 +218,8 @@ export function KidneySidePanel({
     (field: KidneyFieldSpec) => {
       if (isLandscape && field.kind === "number") {
         const fieldView = fieldRefs.current[field.key] ?? null;
+        nestedNumpadValue.current = kidney[field.key];
+        nestedNumpadOnChange.current = null;
         numpad.openNumpad(field.key, fieldView);
       } else if (field.kind !== "select") {
         const currentValue = kidney[field.key];
@@ -232,6 +237,22 @@ export function KidneySidePanel({
     [isLandscape, kidney, title, openEditor, onUpdateKidneyField, side, numpad],
   );
 
+  const numpadApi = useMemo(
+    () => ({
+      isLandscape: isLandscape ?? false,
+      fieldRefs,
+      openNumpad: (fieldKey: string, fieldView: View | null, initialValue?: string, onChange?: (value: string) => void) => {
+        nestedNumpadValue.current = initialValue ?? "";
+        nestedNumpadOnChange.current = onChange ?? null;
+        numpad.openNumpad(fieldKey, fieldView);
+      },
+      handleFieldLayout: (fieldKey: string, event: LayoutChangeEvent) => {
+        numpad.handleFieldLayout(fieldKey, event);
+      },
+    }),
+    [isLandscape, numpad],
+  );
+
   // ---- Landscape: группировка полей по заголовкам для сетки ----
   const groupedFields = useMemo(() => {
     const groups: Array<{ header?: string; fields: KidneyFieldSpec[] }> = [];
@@ -239,7 +260,6 @@ export function KidneySidePanel({
 
     visibleFields.forEach((field) => {
       if (KIDNEY_TRIGGER_FIELDS.has(field.key)) {
-        // Триггер-поля всегда отдельно
         if (currentGroup.length > 0) {
           groups.push({ fields: currentGroup });
           currentGroup = [];
@@ -303,6 +323,7 @@ export function KidneySidePanel({
             onAdd={onAddKidneyListItem}
             onRemove={onRemoveKidneyListItem}
             onUpdateItem={onUpdateKidneyListItem}
+            numpadApi={numpadApi}
           />
         </View>
       );
@@ -327,6 +348,7 @@ export function KidneySidePanel({
             onUpdateKidneyField(side, field as keyof KidneyDraft, value)
           }
           onUpdateListItem={onUpdateKidneyListItem}
+          numpadApi={numpadApi}
         />
       );
     }
@@ -373,6 +395,7 @@ export function KidneySidePanel({
             onAdd={onAddKidneyListItem}
             onRemove={onRemoveKidneyListItem}
             onUpdateItem={onUpdateKidneyListItem}
+            numpadApi={numpadApi}
           />
         </View>
       );
@@ -397,6 +420,7 @@ export function KidneySidePanel({
             onUpdateKidneyField(side, field as keyof KidneyDraft, value)
           }
           onUpdateListItem={onUpdateKidneyListItem}
+          numpadApi={numpadApi}
         />
       );
     }
@@ -524,7 +548,26 @@ export function KidneySidePanel({
           {/* InlineNumpad */}
           {numpad.activeNumpadField != null && numpad.numpadPosition && (() => {
             const activeField = kidneyFields.find((f) => f.key === numpad.activeNumpadField);
-            if (!activeField) return null;
+            if (activeField) {
+              return (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: numpad.numpadPosition.top,
+                    left: numpad.numpadPosition.left,
+                    width: numpad.numpadPosition.width,
+                    zIndex: 100,
+                  }}
+                >
+                  <InlineNumpad
+                    value={kidney[activeField.key]}
+                    onValueChange={(nextValue) => handleNumpadChange(activeField.key, nextValue)}
+                    onClose={numpad.closeNumpad}
+                  />
+                </View>
+              );
+            }
+            // nested fields (concrements, cysts)
             return (
               <View
                 style={{
@@ -536,8 +579,12 @@ export function KidneySidePanel({
                 }}
               >
                 <InlineNumpad
-                  value={kidney[activeField.key]}
-                  onValueChange={(nextValue) => handleNumpadChange(activeField.key, nextValue)}
+                  value={nestedNumpadValue.current}
+                  onValueChange={(nextValue) => {
+                    if (nestedNumpadOnChange.current) {
+                      nestedNumpadOnChange.current(nextValue);
+                    }
+                  }}
                   onClose={numpad.closeNumpad}
                 />
               </View>

@@ -1,4 +1,6 @@
 import { Pressable, Text, View } from "react-native";
+import type { LayoutChangeEvent } from "react-native";
+import type { NumpadApi } from "./KidneyConcrementSection";
 
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { ProtocolCard } from "../../components/protocol/ProtocolCard";
@@ -54,6 +56,7 @@ type KidneyCystPanelProps = {
     field: keyof KidneyCystDraft,
     value: string,
   ) => void;
+  numpadApi?: NumpadApi;
 };
 
 export function KidneyCystPanel({
@@ -72,9 +75,69 @@ export function KidneyCystPanel({
   onUpdateCystSize,
   onUpdateField,
   onUpdateListItem,
+  numpadApi,
 }: KidneyCystPanelProps) {
   const multipleSizeField =
     multipleKey === "pcsMultipleCysts" ? "pcsMultipleCystsSize" : "parenchymaMultipleCystsSize";
+  const isLandscape = numpadApi?.isLandscape ?? false;
+
+  const renderNumpadField = (
+    fieldKey: string,
+    label: string,
+    currentValue: string,
+    onPress: () => void,
+    onChange?: (nextValue: string) => void,
+  ) => {
+    if (isLandscape && numpadApi) {
+      return (
+        <View
+          key={fieldKey}
+          ref={(el) => { numpadApi.fieldRefs.current[fieldKey] = el; }}
+          onLayout={(event) => numpadApi.handleFieldLayout(fieldKey, event)}
+        >
+          <Pressable
+            onPress={() => {
+              const fieldView = numpadApi.fieldRefs.current[fieldKey] ?? null;
+              numpadApi.openNumpad(fieldKey, fieldView, currentValue, onChange);
+            }}
+            style={({ pressed }) => [
+              styles.obpFieldRow,
+              currentValue.trim().length > 0 && styles.obpFieldRowFilled,
+              pressed && styles.obpFieldRowPressed,
+            ]}
+          >
+            <View style={styles.obpFieldRowContent}>
+              <Text style={styles.obpFieldLabel}>{label}</Text>
+              <Text style={styles.obpFieldValue}>
+                {currentValue || "Нажмите для ввода"}
+              </Text>
+            </View>
+            <Text style={styles.obpFieldType}>numpad</Text>
+          </Pressable>
+        </View>
+      );
+    }
+
+    return (
+      <Pressable
+        key={fieldKey}
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.obpFieldRow,
+          currentValue.trim().length > 0 && styles.obpFieldRowFilled,
+          pressed && styles.obpFieldRowPressed,
+        ]}
+      >
+        <View style={styles.obpFieldRowContent}>
+          <Text style={styles.obpFieldLabel}>{label}</Text>
+          <Text style={styles.obpFieldValue}>
+            {currentValue || "Нажмите для ввода"}
+          </Text>
+        </View>
+        <Text style={styles.obpFieldType}>numpad</Text>
+      </Pressable>
+    );
+  };
 
   return (
     <ProtocolCard title={title} countText={`${cysts.length} items`}>
@@ -88,11 +151,16 @@ export function KidneyCystPanel({
 
         {multiple && (() => {
           const [multipleSize1 = "", multipleSize2 = ""] = splitPairSize(multipleSize);
+          const multipleSize1Key = `${multipleKey}-multipleSize1`;
+          const multipleSize2Key = `${multipleKey}-multipleSize2`;
 
           return (
             <View style={styles.obpFieldList}>
-              <Pressable
-                onPress={() =>
+              {renderNumpadField(
+                multipleSize1Key,
+                "Размер 1",
+                multipleSize1,
+                () =>
                   openEditor({
                     title: `Размер 1 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
                     mode: "number",
@@ -104,25 +172,20 @@ export function KidneyCystPanel({
                         multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
                         joinPairSize(nextValue, multipleSize2),
                       ),
-                  })
-                }
-                style={({ pressed }) => [
-                  styles.obpFieldRow,
-                  multipleSize1.trim().length > 0 && styles.obpFieldRowFilled,
-                  pressed && styles.obpFieldRowPressed,
-                ]}
-              >
-                <View style={styles.obpFieldRowContent}>
-                  <Text style={styles.obpFieldLabel}>Размер 1</Text>
-                  <Text style={styles.obpFieldValue}>
-                    {multipleSize1 || "Нажмите для ввода"}
-                  </Text>
-                </View>
-                <Text style={styles.obpFieldType}>numpad</Text>
-              </Pressable>
+                  }),
+                (nextValue) =>
+                  onUpdateField(
+                    side,
+                    multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                    joinPairSize(nextValue, multipleSize2),
+                  ),
+              )}
 
-              <Pressable
-                onPress={() =>
+              {renderNumpadField(
+                multipleSize2Key,
+                "Размер 2",
+                multipleSize2,
+                () =>
                   openEditor({
                     title: `Размер 2 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
                     mode: "number",
@@ -134,22 +197,14 @@ export function KidneyCystPanel({
                         multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
                         joinPairSize(multipleSize1, nextValue),
                       ),
-                  })
-                }
-                style={({ pressed }) => [
-                  styles.obpFieldRow,
-                  multipleSize2.trim().length > 0 && styles.obpFieldRowFilled,
-                  pressed && styles.obpFieldRowPressed,
-                ]}
-              >
-                <View style={styles.obpFieldRowContent}>
-                  <Text style={styles.obpFieldLabel}>Размер 2</Text>
-                  <Text style={styles.obpFieldValue}>
-                    {multipleSize2 || "Нажмите для ввода"}
-                  </Text>
-                </View>
-                <Text style={styles.obpFieldType}>numpad</Text>
-              </Pressable>
+                  }),
+                (nextValue) =>
+                  onUpdateField(
+                    side,
+                    multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                    joinPairSize(multipleSize1, nextValue),
+                  ),
+              )}
             </View>
           );
         })()}
@@ -159,6 +214,8 @@ export function KidneyCystPanel({
         ) : (
           cysts.map((item, index) => {
             const [size1 = "", size2 = ""] = splitPairSize(item.size);
+            const size1Key = `${cystListKey}-${index}-size1`;
+            const size2Key = `${cystListKey}-${index}-size2`;
 
             return (
               <ProtocolCard
@@ -171,8 +228,11 @@ export function KidneyCystPanel({
                 variant="item"
               >
                 <View style={styles.obpFieldList}>
-                  <Pressable
-                    onPress={() =>
+                  {renderNumpadField(
+                    size1Key,
+                    "Размер 1",
+                    size1,
+                    () =>
                       openEditor({
                         title: `Размер 1 #${index + 1}`,
                         mode: "number",
@@ -180,25 +240,16 @@ export function KidneyCystPanel({
                         placeholder: "мм",
                         onSave: (nextValue) =>
                           onUpdateCystSize(side, cystListKey, index, nextValue),
-                      })
-                    }
-                    style={({ pressed }) => [
-                      styles.obpFieldRow,
-                      size1.trim().length > 0 && styles.obpFieldRowFilled,
-                      pressed && styles.obpFieldRowPressed,
-                    ]}
-                  >
-                    <View style={styles.obpFieldRowContent}>
-                      <Text style={styles.obpFieldLabel}>Размер 1</Text>
-                      <Text style={styles.obpFieldValue}>
-                        {size1 || "Нажмите для ввода"}
-                      </Text>
-                    </View>
-                    <Text style={styles.obpFieldType}>numpad</Text>
-                  </Pressable>
+                      }),
+                    (nextValue) =>
+                      onUpdateCystSize(side, cystListKey, index, nextValue),
+                  )}
 
-                  <Pressable
-                    onPress={() =>
+                  {renderNumpadField(
+                    size2Key,
+                    "Размер 2",
+                    size2,
+                    () =>
                       openEditor({
                         title: `Размер 2 #${index + 1}`,
                         mode: "number",
@@ -206,22 +257,10 @@ export function KidneyCystPanel({
                         placeholder: "мм",
                         onSave: (nextValue) =>
                           onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
-                      })
-                    }
-                    style={({ pressed }) => [
-                      styles.obpFieldRow,
-                      size2.trim().length > 0 && styles.obpFieldRowFilled,
-                      pressed && styles.obpFieldRowPressed,
-                    ]}
-                  >
-                    <View style={styles.obpFieldRowContent}>
-                      <Text style={styles.obpFieldLabel}>Размер 2</Text>
-                      <Text style={styles.obpFieldValue}>
-                        {size2 || "Нажмите для ввода"}
-                      </Text>
-                    </View>
-                    <Text style={styles.obpFieldType}>numpad</Text>
-                  </Pressable>
+                      }),
+                    (nextValue) =>
+                      onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
+                  )}
 
                   <ProtocolFieldRow
                     label="Локализация"
