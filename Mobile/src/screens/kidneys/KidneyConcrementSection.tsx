@@ -3,6 +3,7 @@ import type { LayoutChangeEvent } from "react-native";
 
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { ProtocolCard } from "../../components/protocol/ProtocolCard";
+import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import type { KidneyConcrementDraft } from "../../shared/kidneyDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import { KIDNEY_LOCATION_OPTIONS, type EditorState } from "./kidneysFieldConfigs";
@@ -113,17 +114,31 @@ export function KidneyConcrementSection({
                     );
                   }
 
+                  if (itemField === "location") {
+                    return (
+                      <ProtocolFieldRow
+                        key={fieldKey}
+                        label="Локализация"
+                        value={item[itemField] || "Нажмите для ввода"}
+                        typeLabel="select"
+                        filled={item[itemField].trim().length > 0}
+                        options={KIDNEY_LOCATION_OPTIONS}
+                        onSelectOption={(nextValue) =>
+                          onUpdateItem(side, listKey, index, itemField, nextValue)
+                        }
+                      />
+                    );
+                  }
+
                   return (
                     <Pressable
                       key={fieldKey}
                       onPress={() =>
                         openEditor({
-                          title: `${itemField === "size" ? "Размер" : "Локализация"} #${index + 1}`,
-                          mode: itemField === "size" ? "number" : "select",
+                          title: `Размер #${index + 1}`,
+                          mode: "number",
                           value: item[itemField],
-                          placeholder: itemField === "size" ? "мм" : undefined,
-                          options:
-                            itemField === "location" ? KIDNEY_LOCATION_OPTIONS : undefined,
+                          placeholder: "мм",
                           onSave: (nextValue) =>
                             onUpdateItem(side, listKey, index, itemField, nextValue),
                         })
@@ -135,16 +150,12 @@ export function KidneyConcrementSection({
                       ]}
                     >
                       <View style={styles.obpFieldRowContent}>
-                        <Text style={styles.obpFieldLabel}>
-                          {itemField === "size" ? "Размер" : "Локализация"}
-                        </Text>
+                        <Text style={styles.obpFieldLabel}>Размер</Text>
                         <Text style={styles.obpFieldValue}>
                           {item[itemField] || "Нажмите для ввода"}
                         </Text>
                       </View>
-                      <Text style={styles.obpFieldType}>
-                        {itemField === "size" ? "numpad" : "select"}
-                      </Text>
+                      <Text style={styles.obpFieldType}>numpad</Text>
                     </Pressable>
                   );
                 })}
