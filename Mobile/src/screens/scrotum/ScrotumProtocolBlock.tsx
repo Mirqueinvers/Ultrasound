@@ -80,6 +80,7 @@ export function ScrotumProtocolBlock({
               : draftApi.form.testis.leftTestis
           }
           fv={fv}
+          isLandscape={isLandscape}
           openEditor={draftApi.openEditor}
           onUpdateTestisField={draftApi.updateTestisField}
         />
@@ -89,6 +90,7 @@ export function ScrotumProtocolBlock({
           side="right"
           testis={draftApi.form.testis.rightTestis}
           fv={fv}
+          isLandscape={isLandscape}
           openEditor={draftApi.openEditor}
           onUpdateTestisField={draftApi.updateTestisField}
         />
@@ -99,6 +101,7 @@ export function ScrotumProtocolBlock({
             side="right"
             testis={draftApi.form.testis.rightTestis}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateTestisField={draftApi.updateTestisField}
           />
@@ -107,6 +110,7 @@ export function ScrotumProtocolBlock({
             side="left"
             testis={draftApi.form.testis.leftTestis}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateTestisField={draftApi.updateTestisField}
           />
