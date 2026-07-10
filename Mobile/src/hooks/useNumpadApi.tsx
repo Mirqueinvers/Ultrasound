@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from "react";
-import type { LayoutChangeEvent } from "react-native";
+import type { LayoutChangeEvent, View as RNView } from "react-native";
 import { View } from "react-native";
 
 import type { NumpadApi } from "../components/InlineNumpad";
@@ -10,6 +10,12 @@ type UseNumpadApiOptions = {
   isLandscape: boolean;
 };
 
+export type UseNumpadApiReturn = {
+  numpadApi: NumpadApi;
+  renderInlineNumpad: () => React.ReactNode;
+  landscapeRef: React.RefObject<RNView | null>;
+};
+
 /**
  * Централизованный хук для управления InlineNumpad в landscape-режиме.
  * Заменяет дублирующийся boilerplate в каждом ProtocolBlock.
@@ -17,7 +23,7 @@ type UseNumpadApiOptions = {
  * Использование:
  *   const { numpadApi, renderInlineNumpad, landscapeRef } = useNumpadApi({ isLandscape });
  */
-export function useNumpadApi({ isLandscape }: UseNumpadApiOptions) {
+export function useNumpadApi({ isLandscape }: UseNumpadApiOptions): UseNumpadApiReturn {
   const landscapeRef = useRef<View>(null);
   const fieldRefs = useRef<Record<string, View | null>>({});
   const numpad = useInlineNumpad(landscapeRef);
