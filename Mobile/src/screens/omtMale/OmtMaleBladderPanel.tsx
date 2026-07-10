@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { View } from "react-native";
 
 import { InlineNumpad } from "../../components/InlineNumpad";
@@ -58,30 +58,96 @@ export function OmtMaleBladderPanel({
     [numpad],
   );
 
-  const renderCompactRow = (
+  const renderCompactField = (
     fieldKey: keyof UrinaryBladderDraft,
     label: string,
     value: string,
     filled: boolean,
+    typeLabel: "numpad" | "select" | "text" | "auto",
+    options?: { value: string; label: string }[],
+    onSelectOption?: (v: string) => void,
+    onPress?: () => void,
     readonly?: boolean,
   ) => (
     <View
       key={fieldKey}
-      ref={(el) => { fieldRefs.current[fieldKey] = el; }}
-      onLayout={(event) => numpad.handleFieldLayout(fieldKey, event)}
+      ref={(el) => {
+        if (typeLabel === "numpad") {
+          fieldRefs.current[fieldKey] = el;
+        }
+      }}
+      onLayout={typeLabel === "numpad" ? (event) => numpad.handleFieldLayout(fieldKey, event) : undefined}
       style={{ width: "48.5%" }}
     >
       <ProtocolFieldRow
         label={label}
         value={value || "Нажмите для ввода"}
-        typeLabel={readonly ? "auto" : "numpad"}
+        typeLabel={typeLabel}
         filled={filled}
         readonly={readonly}
         compact={isLandscape}
-        onPress={readonly ? undefined : () => openLandscapeNumpad(fieldKey)}
+        onPress={onPress}
+        options={options}
+        onSelectOption={onSelectOption}
       />
     </View>
   );
+
+  // Собираем все поля в один плоский массив для landscape
+  const landscapeFields = useMemo(() => {
+    const fields: React.ReactNode[] = [];
+
+    // Размеры
+    if (fv["omt_male.bladderLength"] !== false) {
+      fields.push(renderCompactField("length", "Длина", bladder.length, Boolean(bladder.length), "numpad", undefined, undefined, () => openLandscapeNumpad("length")));
+    }
+    if (fv["omt_male.bladderWidth"] !== false) {
+      fields.push(renderCompactField("width", "Ширина", bladder.width, Boolean(bladder.width), "numpad", undefined, undefined, () => openLandscapeNumpad("width")));
+    }
+    if (fv["omt_male.bladderDepth"] !== false) {
+      fields.push(renderCompactField("depth", "Передне-задний", bladder.depth, Boolean(bladder.depth), "numpad", undefined, undefined, () => openLandscapeNumpad("depth")));
+    }
+    if (fv["omt_male.bladderVolume"] !== false) {
+      fields.push(renderCompactField("volume", "Объем", bladder.volume || "Рассчитывается автоматически", Boolean(bladder.volume), "auto", undefined, undefined, undefined, true));
+    }
+    if (fv["omt_male.bladderWallThickness"] !== false) {
+      fields.push(renderCompactField("wallThickness", "Толщина стенки", bladder.wallThickness, Boolean(bladder.wallThickness), "numpad", undefined, undefined, () => openLandscapeNumpad("wallThickness")));
+    }
+
+    // Объем остаточной мочи
+    if (fv["omt_male.bladderResidualStatus"] !== false) {
+      fields.push(renderCompactField("residualStatus", "Ост. моча: определение", bladder.residualStatus, Boolean(bladder.residualStatus), "select", BLADDER_RESIDUAL_OPTIONS, (v) => onUpdateBladderField("residualStatus", v)));
+    }
+    if (showResidualBlock) {
+      if (fv["omt_male.bladderResidualLength"] !== false) {
+        fields.push(renderCompactField("residualLength", "Ост. моча: длина", bladder.residualLength, Boolean(bladder.residualLength), "numpad", undefined, undefined, () => openLandscapeNumpad("residualLength")));
+      }
+      if (fv["omt_male.bladderResidualWidth"] !== false) {
+        fields.push(renderCompactField("residualWidth", "Ост. моча: ширина", bladder.residualWidth, Boolean(bladder.residualWidth), "numpad", undefined, undefined, () => openLandscapeNumpad("residualWidth")));
+      }
+      if (fv["omt_male.bladderResidualDepth"] !== false) {
+        fields.push(renderCompactField("residualDepth", "Ост. моча: ПЗ", bladder.residualDepth, Boolean(bladder.residualDepth), "numpad", undefined, undefined, () => openLandscapeNumpad("residualDepth")));
+      }
+      if (fv["omt_male.bladderResidualVolume"] !== false) {
+        fields.push(renderCompactField("residualVolume", "Ост. моча: объем", bladder.residualVolume || "Рассчитывается автоматически", Boolean(bladder.residualVolume), "auto", undefined, undefined, undefined, true));
+      }
+    }
+
+    // Содержимое
+    if (fv["omt_male.bladderContents"] !== false) {
+      fields.push(renderCompactField("contents", "Характер содержимого", bladder.contents, Boolean(bladder.contents), "select", BLADDER_CONTENT_OPTIONS, (v) => onUpdateBladderField("contents", v)));
+    }
+    if (showContentsText && fv["omt_male.bladderContentsText"] !== false) {
+      fields.push(renderCompactField("contentsText", "Описание содержимого", bladder.contentsText, Boolean(bladder.contentsText), "text", undefined, undefined, () => openEditor({ title: "Описание содержимого", mode: "text", value: bladder.contentsText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateBladderField("contentsText", v) })));
+    }
+
+    // Дополнительно
+    if (fv["omt_male.bladderAdditional"] !== false) {
+      fields.push(renderCompactField("additional", "Дополнительно", bladder.additional, Boolean(bladder.additional), "text", undefined, undefined, () => openEditor({ title: "Мочевой пузырь: дополнительно", mode: "text", value: bladder.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (v) => onUpdateBladderField("additional", v) })));
+    }
+
+    return fields;
+  }, [bladder, fv, showResidualBlock, showContentsText, openLandscapeNumpad, openEditor, onUpdateBladderField]);
 
   return (
     <View style={styles.kidneyPlainSection}>
@@ -89,98 +155,9 @@ export function OmtMaleBladderPanel({
 
       {isLandscape ? (
         <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
-          {/* Размеры */}
-          {(fv["omt_male.bladderLength"] !== false || fv["omt_male.bladderWidth"] !== false || fv["omt_male.bladderDepth"] !== false || fv["omt_male.bladderVolume"] !== false || fv["omt_male.bladderWallThickness"] !== false) && (
-            <>
-              <ProtocolSectionHeader title="Размеры" />
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {fv["omt_male.bladderLength"] !== false && renderCompactRow("length", "Длина", bladder.length, Boolean(bladder.length))}
-                {fv["omt_male.bladderWidth"] !== false && renderCompactRow("width", "Ширина", bladder.width, Boolean(bladder.width))}
-                {fv["omt_male.bladderDepth"] !== false && renderCompactRow("depth", "Передне-задний", bladder.depth, Boolean(bladder.depth))}
-                {fv["omt_male.bladderVolume"] !== false && (
-                  <View style={{ width: "48.5%" }}>
-                    <ProtocolFieldRow label="Объем" value={bladder.volume || "Рассчитывается автоматически"}
-                      typeLabel="auto" filled={Boolean(bladder.volume)} readonly compact={isLandscape}
-                    />
-                  </View>
-                )}
-                {fv["omt_male.bladderWallThickness"] !== false && renderCompactRow("wallThickness", "Толщина стенки", bladder.wallThickness, Boolean(bladder.wallThickness))}
-              </View>
-            </>
-          )}
-
-          {/* Объем остаточной мочи */}
-          {(fv["omt_male.bladderResidualStatus"] !== false || fv["omt_male.bladderResidualLength"] !== false || fv["omt_male.bladderResidualWidth"] !== false || fv["omt_male.bladderResidualDepth"] !== false || fv["omt_male.bladderResidualVolume"] !== false) && (
-            <>
-              <ProtocolSectionHeader title="Объем остаточной мочи" />
-              {fv["omt_male.bladderResidualStatus"] !== false && (
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                  <View style={{ width: "48.5%" }}>
-                    <ProtocolFieldRow label="Определение" value={bladder.residualStatus || "Нажмите для ввода"}
-                      typeLabel="select" filled={Boolean(bladder.residualStatus)} compact={isLandscape} options={BLADDER_RESIDUAL_OPTIONS}
-                      onSelectOption={(v) => onUpdateBladderField("residualStatus", v)}
-                    />
-                  </View>
-                </View>
-              )}
-              {showResidualBlock && (
-                <>
-                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                    {fv["omt_male.bladderResidualLength"] !== false && renderCompactRow("residualLength", "Длина", bladder.residualLength, Boolean(bladder.residualLength))}
-                    {fv["omt_male.bladderResidualWidth"] !== false && renderCompactRow("residualWidth", "Ширина", bladder.residualWidth, Boolean(bladder.residualWidth))}
-                    {fv["omt_male.bladderResidualDepth"] !== false && renderCompactRow("residualDepth", "Передне-задний", bladder.residualDepth, Boolean(bladder.residualDepth))}
-                    {fv["omt_male.bladderResidualVolume"] !== false && (
-                      <View style={{ width: "48.5%" }}>
-                        <ProtocolFieldRow label="Объем остаточной мочи" value={bladder.residualVolume || "Рассчитывается автоматически"}
-                          typeLabel="auto" filled={Boolean(bladder.residualVolume)} readonly compact={isLandscape}
-                        />
-                      </View>
-                    )}
-                  </View>
-                </>
-              )}
-            </>
-          )}
-
-          {/* Содержимое */}
-          {(fv["omt_male.bladderContents"] !== false || fv["omt_male.bladderContentsText"] !== false) && (
-            <>
-              <ProtocolSectionHeader title="Содержимое" />
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {fv["omt_male.bladderContents"] !== false && (
-                  <View style={{ width: "48.5%" }}>
-                    <ProtocolFieldRow label="Характер содержимого" value={bladder.contents || "Нажмите для ввода"}
-                      typeLabel="select" filled={Boolean(bladder.contents)} compact={isLandscape} options={BLADDER_CONTENT_OPTIONS}
-                      onSelectOption={(v) => onUpdateBladderField("contents", v)}
-                    />
-                  </View>
-                )}
-                {showContentsText && fv["omt_male.bladderContentsText"] !== false && (
-                  <View style={{ width: "48.5%" }}>
-                    <ProtocolFieldRow label="Описание содержимого" value={bladder.contentsText || "Нажмите для ввода"}
-                      typeLabel="text" filled={Boolean(bladder.contentsText)} compact={isLandscape}
-                      onPress={() => openEditor({ title: "Описание содержимого", mode: "text", value: bladder.contentsText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateBladderField("contentsText", v) })}
-                    />
-                  </View>
-                )}
-              </View>
-            </>
-          )}
-
-          {/* Дополнительно */}
-          {fv["omt_male.bladderAdditional"] !== false && (
-            <>
-              <ProtocolSectionHeader title="Дополнительно" />
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                <View style={{ width: "48.5%" }}>
-                  <ProtocolFieldRow label="Дополнительно" value={bladder.additional || "Нажмите для ввода"}
-                    typeLabel="text" filled={Boolean(bladder.additional)} compact={isLandscape}
-                    onPress={() => openEditor({ title: "Мочевой пузырь: дополнительно", mode: "text", value: bladder.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (v) => onUpdateBladderField("additional", v) })}
-                  />
-                </View>
-              </View>
-            </>
-          )}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+            {landscapeFields}
+          </View>
 
           {/* InlineNumpad */}
           {numpad.activeNumpadField != null && numpad.numpadPosition && (() => {
