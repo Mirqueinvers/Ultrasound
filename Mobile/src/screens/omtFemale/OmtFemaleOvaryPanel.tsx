@@ -1,9 +1,11 @@
+import { useCallback } from "react";
+import type { LayoutChangeEvent } from "react-native";
 import { Text, View } from "react-native";
 
 import { ProtocolActionButton } from "../../components/protocol/ProtocolActionButton";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
-import type { OvaryDraft } from "../../shared/omtFemaleDraft";
+import type { OvaryDraft, OvaryCystDraft } from "../../shared/omtFemaleDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
 import {
@@ -14,6 +16,13 @@ import {
   type EditorState,
 } from "./omtFemaleFieldConfigs";
 import { OmtFemaleOvaryCystCard } from "./OmtFemaleOvaryCystCard";
+
+type NumpadApi = {
+  isLandscape: boolean;
+  fieldRefs: React.MutableRefObject<Record<string, View | null>>;
+  openNumpad: (fieldKey: string, fieldView: View | null, initialValue?: string, onChange?: (value: string) => void) => void;
+  handleFieldLayout: (fieldKey: string, event: LayoutChangeEvent) => void;
+};
 
 type OmtFemaleOvaryPanelProps = {
   styles: AppStyles;
@@ -27,16 +36,70 @@ type OmtFemaleOvaryPanelProps = {
   onAddCyst: (side: "left" | "right") => void;
   onUpdateCyst: (side: "left" | "right", index: number, first?: string, second?: string) => void;
   onRemoveCyst: (side: "left" | "right", index: number) => void;
+  numpadApi: NumpadApi;
 };
 
+const NUMBER_FIELDS = new Set(["length", "width", "thickness"]);
+
 export function OmtFemaleOvaryPanel({
-  styles, side, ovary, fv, isVisible, isLandscape, openEditor, onUpdateOvaryField, onAddCyst, onUpdateCyst, onRemoveCyst,
+  styles, side, ovary, fv, isVisible, isLandscape, openEditor, onUpdateOvaryField, onAddCyst, onUpdateCyst, onRemoveCyst, numpadApi,
 }: OmtFemaleOvaryPanelProps) {
   if (!isVisible) return null;
   const title = side === "right" ? "Правый яичник" : "Левый яичник";
   const isOvaryVisible = isNormalizedMatch(ovary.position, "обычное");
   const showCysts = isNormalizedMatch(ovary.cysts, "определяются");
   const showFormations = isNormalizedMatch(ovary.formations, "определяются");
+
+  const getNumberFieldPress = useCallback(
+    (fieldKey: string) => {
+      if (!isLandscape) return undefined;
+      return () => {
+        const fieldView = numpadApi.fieldRefs.current[`ovary-${side}-${fieldKey}`] ?? null;
+        numpadApi.openNumpad(
+          `ovary-${side}-${fieldKey}`,
+          fieldView,
+          ovary[fieldKey as keyof OvaryDraft] as string,
+          (nextValue) => onUpdateOvaryField(side, fieldKey as keyof OvaryDraft, nextValue),
+        );
+      };
+    },
+    [isLandscape, numpadApi, ovary, side, onUpdateOvaryField],
+  );
+
+  const getNumberFieldLayout = useCallback(
+    (fieldKey: string) => {
+      if (!isLandscape) return undefined;
+      return (event: LayoutChangeEvent) => numpadApi.handleFieldLayout(`ovary-${side}-${fieldKey}`, event);
+    },
+    [isLandscape, numpadApi, side],
+  );
+
+  const renderNumberField = (label: string, fieldKey: string, value: string, filled: boolean) => {
+    if (isLandscape) {
+      return (
+        <View
+          key={fieldKey}
+          ref={(el) => { numpadApi.fieldRefs.current[`ovary-${side}-${fieldKey}`] = el; }}
+          onLayout={getNumberFieldLayout(fieldKey)}
+          style={{ width: "48.5%" }}
+        >
+          <ProtocolFieldRow
+            label={label}
+            value={value || "Нажмите для ввода"}
+            typeLabel="numpad"
+            filled={filled}
+            compact={true}
+            onPress={getNumberFieldPress(fieldKey)}
+          />
+        </View>
+      );
+    }
+    return (
+      <ProtocolFieldRow key={fieldKey} label={label} value={value || "Нажмите для ввода"}
+        typeLabel="numpad" filled={filled}
+        onPress={() => openEditor({ title: `${title}: ${label}`, mode: "number", value, placeholder: "мм", onSave: (v) => onUpdateOvaryField(side, fieldKey as keyof OvaryDraft, v) })} />
+    );
+  };
 
   return (
     <View style={styles.kidneyPlainSection}>
@@ -53,21 +116,9 @@ export function OmtFemaleOvaryPanel({
             {(fv["omt_female.ovaryLength"] !== false || fv["omt_female.ovaryWidth"] !== false || fv["omt_female.ovaryThickness"] !== false || fv["omt_female.ovaryVolume"] !== false) && (
               <>
                 <ProtocolSectionHeader title="Размеры" />
-                {fv["omt_female.ovaryLength"] !== false && (
-                  <ProtocolFieldRow label="Длина (мм)" value={ovary.length || "Нажмите для ввода"}
-                    typeLabel="numpad" filled={Boolean(ovary.length)} compact={isLandscape}
-                    onPress={() => openEditor({ title: `${title}: длина`, mode: "number", value: ovary.length, placeholder: "мм", onSave: (v) => onUpdateOvaryField(side, "length", v) })} />
-                )}
-                {fv["omt_female.ovaryWidth"] !== false && (
-                  <ProtocolFieldRow label="Ширина (мм)" value={ovary.width || "Нажмите для ввода"}
-                    typeLabel="numpad" filled={Boolean(ovary.width)} compact={isLandscape}
-                    onPress={() => openEditor({ title: `${title}: ширина`, mode: "number", value: ovary.width, placeholder: "мм", onSave: (v) => onUpdateOvaryField(side, "width", v) })} />
-                )}
-                {fv["omt_female.ovaryThickness"] !== false && (
-                  <ProtocolFieldRow label="Толщина (мм)" value={ovary.thickness || "Нажмите для ввода"}
-                    typeLabel="numpad" filled={Boolean(ovary.thickness)} compact={isLandscape}
-                    onPress={() => openEditor({ title: `${title}: толщина`, mode: "number", value: ovary.thickness, placeholder: "мм", onSave: (v) => onUpdateOvaryField(side, "thickness", v) })} />
-                )}
+                {fv["omt_female.ovaryLength"] !== false && renderNumberField("Длина (мм)", "length", ovary.length, Boolean(ovary.length))}
+                {fv["omt_female.ovaryWidth"] !== false && renderNumberField("Ширина (мм)", "width", ovary.width, Boolean(ovary.width))}
+                {fv["omt_female.ovaryThickness"] !== false && renderNumberField("Толщина (мм)", "thickness", ovary.thickness, Boolean(ovary.thickness))}
                 {fv["omt_female.ovaryVolume"] !== false && (
                   <ProtocolFieldRow label="Объем (см³)" value={ovary.volume || "Рассчитывается автоматически"}
                     typeLabel="auto" filled={Boolean(ovary.volume)} readonly compact={isLandscape} />
@@ -105,8 +156,15 @@ export function OmtFemaleOvaryPanel({
                   <Text style={styles.helperText}>Добавьте хотя бы одну кисту.</Text>
                 ) : (
                   ovary.cystsList.map((cyst, i) => (
-                    <OmtFemaleOvaryCystCard key={`cyst-${i}`} styles={styles} cyst={cyst} index={i}
-                      side={side} openEditor={openEditor} onUpdateCyst={onUpdateCyst} onRemoveCyst={onRemoveCyst} />
+                    <View
+                      key={`cyst-${i}`}
+                      ref={(el) => { if (isLandscape) numpadApi.fieldRefs.current[`ovary-${side}-cyst-${i}`] = el; }}
+                      onLayout={isLandscape ? (e) => numpadApi.handleFieldLayout(`ovary-${side}-cyst-${i}`, e) : undefined}
+                    >
+                      <OmtFemaleOvaryCystCard styles={styles} cyst={cyst} index={i}
+                        side={side} openEditor={openEditor} onUpdateCyst={onUpdateCyst} onRemoveCyst={onRemoveCyst}
+                        numpadApi={numpadApi} />
+                    </View>
                   ))
                 )}
                 <ProtocolActionButton label="+ Киста" onPress={() => onAddCyst(side)} />
