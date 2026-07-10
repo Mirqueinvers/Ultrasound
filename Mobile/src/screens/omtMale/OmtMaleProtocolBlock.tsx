@@ -50,6 +50,7 @@ export function OmtMaleProtocolBlock({
       <OmtMaleProstatePanel
         styles={styles} prostate={draftApi.form.prostate} fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_MALE_SECTION_IDS.prostate}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateProstateField={draftApi.updateProstateField}
       />
@@ -58,6 +59,7 @@ export function OmtMaleProtocolBlock({
         styles={styles} bladder={draftApi.form.urinaryBladder}
         fv={fv}
         isVisible={showAllSections || resolvedActiveSectionId === OMT_MALE_SECTION_IDS.bladder}
+        isLandscape={isLandscape}
         openEditor={draftApi.openEditor}
         onUpdateBladderField={draftApi.updateBladderField}
       />
