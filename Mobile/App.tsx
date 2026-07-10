@@ -22,6 +22,7 @@ import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
 import { useFieldVisibility } from "./src/settings/useFieldVisibility";
 import { FieldVisibilitySettings } from "./src/components/FieldVisibilitySettings";
+import { SettingsHeader } from "./src/components/SettingsHeader";
 import { useOrientation } from "./src/hooks/useOrientation";
 
 const BOTTOM_SPACER_HEIGHT = 110;
@@ -30,7 +31,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
   const [, setSessionId] = useState<string | null>(null);
-  const [connectSubTab, setConnectSubTab] = useState<"connect" | "fields">("connect");
+  const [connectSubTab, setConnectSubTab] = useState<"connect" | "fields" | null>(null);
   const contentScrollRef = useRef<ScrollView>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
   const { visibility, toggleGroup } = useFieldVisibility();
@@ -116,41 +117,13 @@ export default function App() {
     }
   }, [visibility, activeDraftMode, snapshot.selection.selectedStudies]);
 
-  const contentArea = (
+  // Контент для вкладок, кроме connect (там своя структура)
+  const otherContent = activeTab !== "connect" && (
     <ScrollView
       ref={contentScrollRef}
       contentContainerStyle={[styles.content, isLandscape && { paddingHorizontal: 10, paddingTop: 2, paddingBottom: 10, gap: 8 }]}
       showsVerticalScrollIndicator={false}
     >
-      {activeTab === "connect" && connectSubTab === "fields" && (
-        <FieldVisibilitySettings
-          styles={styles}
-          visibility={visibility}
-          onToggle={(id) => toggleGroup(id as any)}
-          onClose={() => setConnectSubTab("connect")}
-        />
-      )}
-      {activeTab === "connect" && connectSubTab !== "fields" && (
-        <ConnectScreen
-          styles={styles}
-          connected={connected}
-          connectionState={connectionState}
-          connectionError={connectionError}
-          hostUrl={hostUrl}
-          pairingCode={pairingCode}
-          setHostUrl={setHostUrlInput}
-          setPairingCode={setPairingCode}
-          connectToHost={connectToHost}
-          disconnect={disconnect}
-          openScanner={openScanner}
-          resetDraft={resetDraft}
-          toWsUrl={toWsUrl}
-          socketStatus={socketStatus}
-          snapshot={snapshot}
-          saveState={saveState}
-        />
-      )}
-
       {activeTab === "library" && (
         <LibraryScreen
           styles={styles}
@@ -194,6 +167,103 @@ export default function App() {
     </ScrollView>
   );
 
+  // Экран "connect" с меню (connectSubTab === null)
+  const connectMenu = activeTab === "connect" && connectSubTab === null && (
+    <ScrollView
+      ref={contentScrollRef}
+      contentContainerStyle={[styles.content, isLandscape && { paddingHorizontal: 10, paddingTop: 2, paddingBottom: 10, gap: 8 }]}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 40, gap: 14 }}>
+        <Text style={{ color: "#f8fafc", fontSize: 26, fontWeight: "800", textAlign: "center", marginBottom: 8 }}>
+          Настройки
+        </Text>
+        <Pressable
+          onPress={() => setConnectSubTab("connect")}
+          style={({ pressed }) => ({
+            backgroundColor: "rgba(15, 23, 42, 0.7)",
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: "rgba(148, 163, 184, 0.16)",
+            padding: 18,
+            alignItems: "center",
+            gap: 4,
+            opacity: pressed ? 0.85 : 1,
+          })}
+        >
+          <Text style={{ color: "#f8fafc", fontSize: 17, fontWeight: "800" }}>Подключение</Text>
+          <Text style={{ color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+            QR-сканер, ручной ввод адреса, статус соединения
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setConnectSubTab("fields")}
+          style={({ pressed }) => ({
+            backgroundColor: "rgba(15, 23, 42, 0.7)",
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: "rgba(148, 163, 184, 0.16)",
+            padding: 18,
+            alignItems: "center",
+            gap: 4,
+            opacity: pressed ? 0.85 : 1,
+          })}
+        >
+          <Text style={{ color: "#f8fafc", fontSize: 17, fontWeight: "800" }}>Видимость полей</Text>
+          <Text style={{ color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+            Настройка отображения полей для каждого протокола
+          </Text>
+        </Pressable>
+        <View style={{ flex: 1 }} />
+      </View>
+      <View style={{ height: isLandscape ? 10 : BOTTOM_SPACER_HEIGHT }} />
+    </ScrollView>
+  );
+
+  // Подраздел connect с фиксированным хедером
+  const connectSubContent = activeTab === "connect" && connectSubTab !== null && (
+    <View style={{ flex: 1 }}>
+      <SettingsHeader
+        title={connectSubTab === "connect" ? "Подключение" : "Видимость полей"}
+        onBack={() => setConnectSubTab(null)}
+      />
+      <ScrollView
+        ref={contentScrollRef}
+        contentContainerStyle={[styles.content, isLandscape && { paddingHorizontal: 10, paddingTop: 2, paddingBottom: 10, gap: 8 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {connectSubTab === "connect" && (
+          <ConnectScreen
+            styles={styles}
+            connected={connected}
+            connectionState={connectionState}
+            connectionError={connectionError}
+            hostUrl={hostUrl}
+            pairingCode={pairingCode}
+            setHostUrl={setHostUrlInput}
+            setPairingCode={setPairingCode}
+            connectToHost={connectToHost}
+            disconnect={disconnect}
+            openScanner={openScanner}
+            resetDraft={resetDraft}
+            toWsUrl={toWsUrl}
+            socketStatus={socketStatus}
+            snapshot={snapshot}
+            saveState={saveState}
+          />
+        )}
+        {connectSubTab === "fields" && (
+          <FieldVisibilitySettings
+            styles={styles}
+            visibility={visibility}
+            onToggle={(id) => toggleGroup(id as any)}
+          />
+        )}
+        <View style={{ height: isLandscape ? 10 : BOTTOM_SPACER_HEIGHT }} />
+      </ScrollView>
+    </View>
+  );
+
   const draftContent = activeTab === "draft" && isLandscape && activeDraftMode === "protocol" ? (
     <SwipeableDraftArea
       activeProtocolManifest={activeProtocolManifest}
@@ -205,7 +275,7 @@ export default function App() {
         setActiveDraftMode("protocol");
       }}
     >
-      {contentArea}
+      {otherContent}
     </SwipeableDraftArea>
   ) : null;
 
@@ -242,39 +312,9 @@ export default function App() {
           />
         )}
 
-        {activeTab === "connect" && (
-          <View style={[styles.tabBar, { marginHorizontal: 16, marginBottom: 0, marginTop: 2 }]}>
-            <Pressable
-              onPress={() => setConnectSubTab("connect")}
-              style={({ pressed }) => [
-                styles.tabButton,
-                connectSubTab === "connect" && styles.tabButtonActive,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={[styles.tabButtonText, connectSubTab === "connect" && styles.tabButtonTextActive]}>
-                Подключение
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setConnectSubTab("fields")}
-              style={({ pressed }) => [
-                styles.tabBar,
-                styles.tabButton,
-                connectSubTab === "fields" && styles.tabButtonActive,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={[styles.tabButtonText, connectSubTab === "fields" && styles.tabButtonTextActive]}>
-                Видимость полей
-              </Text>
-            </Pressable>
-          </View>
-        )}
-
         {isLandscape ? (
           <View style={{ flex: 1 }}>
-            {draftContent || contentArea}
+            {draftContent || connectMenu || connectSubContent || otherContent}
             <LandscapeBottomNav
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -282,7 +322,7 @@ export default function App() {
           </View>
         ) : (
           <>
-            {contentArea}
+            {connectMenu || connectSubContent || otherContent}
             <BottomNav
               styles={styles}
               activeTab={activeTab}

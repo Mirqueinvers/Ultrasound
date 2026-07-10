@@ -14,7 +14,6 @@ type FieldVisibilitySettingsProps = {
   styles: AppStyles;
   visibility: Record<string, boolean>;
   onToggle: (groupId: string) => void;
-  onClose: () => void;
 };
 
 const PROTOCOL_LABELS: Record<string, string> = {
@@ -35,7 +34,6 @@ export function FieldVisibilitySettings({
   styles,
   visibility,
   onToggle,
-  onClose,
 }: FieldVisibilitySettingsProps) {
   const [expandedProtocols, setExpandedProtocols] = useState<Record<string, boolean>>({});
 
@@ -48,32 +46,6 @@ export function FieldVisibilitySettings({
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 8 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
-        <Text style={{ color: "#f8fafc", fontSize: 18, fontWeight: "800" }}>
-          Настройка полей
-        </Text>
-        <Pressable
-          onPress={onClose}
-          style={({ pressed }) => [
-            {
-              backgroundColor: "rgba(148, 163, 184, 0.14)",
-              paddingHorizontal: 14,
-              paddingVertical: 8,
-              borderRadius: 16,
-            },
-            pressed && { opacity: 0.82 },
-          ]}
-        >
-          <Text style={{ color: "#e2e8f0", fontWeight: "700", fontSize: 13 }}>Готово</Text>
-        </Pressable>
-      </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
         {Object.entries(VISIBILITY_GROUPS_BY_PROTOCOL).map(([protocolKey, groups]) => {
