@@ -1,5 +1,13 @@
+import type { LayoutChangeEvent } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+
+export type NumpadApi = {
+  isLandscape: boolean;
+  fieldRefs: React.MutableRefObject<Record<string, View | null>>;
+  openNumpad: (fieldKey: string, fieldView: View | null, initialValue?: string, onChange?: (value: string) => void) => void;
+  handleFieldLayout: (fieldKey: string, event: LayoutChangeEvent) => void;
+};
 
 type InlineNumpadProps = {
   value: string;

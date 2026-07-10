@@ -10,7 +10,7 @@ import { ProtocolOrganHeader } from "../../components/protocol/ProtocolHeaders";
 import type { ThyroidStudyDraft } from "../../shared/thyroidDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import type { FieldVisibility } from "../../settings/fieldVisibility";
-import { useInlineNumpad } from "../obp/useInlineNumpad";
+import { useInlineNumpad } from "../../hooks/useInlineNumpad";
 import {
   THYROID_CONCLUSION_SAMPLES,
   THYROID_CONTOUR_OPTIONS,

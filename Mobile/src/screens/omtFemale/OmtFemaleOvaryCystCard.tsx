@@ -5,12 +5,7 @@ import type { OvaryCystDraft } from "../../shared/omtFemaleDraft";
 import type { AppStyles } from "../../styles/appStyles";
 import { type EditorState, splitPairSize } from "./omtFemaleFieldConfigs";
 
-type NumpadApi = {
-  isLandscape: boolean;
-  fieldRefs: React.MutableRefObject<Record<string, View | null>>;
-  openNumpad: (fieldKey: string, fieldView: View | null, initialValue?: string, onChange?: (value: string) => void) => void;
-  handleFieldLayout: (fieldKey: string, event: LayoutChangeEvent) => void;
-};
+import type { NumpadApi } from "../../components/InlineNumpad";
 
 type OmtFemaleOvaryCystCardProps = {
   styles: AppStyles;

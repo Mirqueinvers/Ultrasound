@@ -5,7 +5,7 @@ import { Pressable, Text, View } from "react-native";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/protocol/ProtocolHeaders";
 import { InlineNumpad } from "../../components/InlineNumpad";
-import { useInlineNumpad } from "../obp/useInlineNumpad";
+import { useInlineNumpad } from "../../hooks/useInlineNumpad";
 import { createEmptyKidneyDraft, type KidneyConcrementDraft, type KidneyCystDraft, type KidneyDraft, type KidneyStudyDraft } from "../../shared/kidneyDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import { isFieldVisible } from "../../shared/isFieldVisible";

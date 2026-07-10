@@ -17,12 +17,7 @@ import {
 } from "./omtFemaleFieldConfigs";
 import { OmtFemaleOvaryCystCard } from "./OmtFemaleOvaryCystCard";
 
-type NumpadApi = {
-  isLandscape: boolean;
-  fieldRefs: React.MutableRefObject<Record<string, View | null>>;
-  openNumpad: (fieldKey: string, fieldView: View | null, initialValue?: string, onChange?: (value: string) => void) => void;
-  handleFieldLayout: (fieldKey: string, event: LayoutChangeEvent) => void;
-};
+import type { NumpadApi } from "../../components/InlineNumpad";
 
 type OmtFemaleOvaryPanelProps = {
   styles: AppStyles;

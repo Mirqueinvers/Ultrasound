@@ -8,7 +8,7 @@ import { ProtocolOrganHeader, ProtocolSectionHeader } from "../../components/pro
 import type { ThyroidLobeDraft } from "../../shared/thyroidDraft";
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
 import type { AppStyles } from "../../styles/appStyles";
-import { useInlineNumpad } from "../obp/useInlineNumpad";
+import { useInlineNumpad } from "../../hooks/useInlineNumpad";
 import {
   THYROID_VOLUME_FORMATIONS_OPTIONS,
   type EditorState,

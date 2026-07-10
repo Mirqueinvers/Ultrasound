@@ -7,7 +7,7 @@ import { ProtocolCard } from "../../components/protocol/ProtocolCard";
 import { ProtocolFieldRow } from "../../components/protocol/ProtocolFieldRow";
 import type { ThyroidNodeDraft } from "../../shared/thyroidDraft";
 import type { AppStyles } from "../../styles/appStyles";
-import { useInlineNumpad } from "../obp/useInlineNumpad";
+import { useInlineNumpad } from "../../hooks/useInlineNumpad";
 import {
   THYROID_NODE_BLOOD_FLOW_OPTIONS,
   THYROID_NODE_CONTOUR_OPTIONS,
