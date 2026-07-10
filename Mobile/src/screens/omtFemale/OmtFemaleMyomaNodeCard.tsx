@@ -48,6 +48,11 @@ const ECHOGENICITY_OPTIONS = [
   { value: "пониженная", label: "пониженная" },
 ];
 
+const STRUCTURE_OPTIONS = [
+  { value: "однородная", label: "однородная" },
+  { value: "неоднородная", label: "неоднородная" },
+];
+
 const CAVITY_OPTIONS = [
   { value: "не деформирует", label: "не деформирует" },
   { value: "деформирует", label: "деформирует" },
@@ -56,6 +61,18 @@ const CAVITY_OPTIONS = [
 const BLOOD_FLOW_OPTIONS = [
   { value: "не изменен", label: "не изменен" },
   { value: "усилен", label: "усилен" },
+];
+
+// Поля-селекты, которые нужно отобразить в 2 колонки
+const SELECT_FIELDS: Array<{ key: keyof UterusNodeDraft; label: string; options: { value: string; label: string }[] }> = [
+  { key: "wallLocation", label: "Локализация по стенке", options: WALL_OPTIONS },
+  { key: "layerType", label: "Слой залегания", options: LAYER_OPTIONS },
+  { key: "contourClarity", label: "Четкость контура", options: CLARITY_OPTIONS },
+  { key: "contourEvenness", label: "Ровность контура", options: EVENNESS_OPTIONS },
+  { key: "echogenicity", label: "Эхогенность", options: ECHOGENICITY_OPTIONS },
+  { key: "structure", label: "Структура", options: STRUCTURE_OPTIONS },
+  { key: "cavityImpact", label: "Деформация полости", options: CAVITY_OPTIONS },
+  { key: "bloodFlow", label: "Кровоток", options: BLOOD_FLOW_OPTIONS },
 ];
 
 export function OmtFemaleMyomaNodeCard({
@@ -83,7 +100,8 @@ export function OmtFemaleMyomaNodeCard({
   return (
     <ProtocolCard title={`Миоматозный узел #${index + 1}`}
       actionLabel="Удалить" actionVariant="danger" onActionPress={() => onRemoveNode(index)} variant="item">
-      <View style={styles.obpFieldList}>
+      <View style={{ gap: 8 }}>
+        {/* Размеры — 2 колонки */}
         <View style={styles.dualRow}>
           <View style={styles.dualCol}>
             <View
@@ -107,30 +125,23 @@ export function OmtFemaleMyomaNodeCard({
           </View>
         </View>
 
-        <ProtocolFieldRow label="Локализация по стенке" value={node.wallLocation || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.wallLocation)} options={WALL_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "wallLocation", v)} />
-        <ProtocolFieldRow label="Слой залегания" value={node.layerType || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.layerType)} options={LAYER_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "layerType", v)} />
-        <ProtocolFieldRow label="Четкость контура" value={node.contourClarity || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.contourClarity)} options={CLARITY_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "contourClarity", v)} />
-        <ProtocolFieldRow label="Ровность контура" value={node.contourEvenness || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.contourEvenness)} options={EVENNESS_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "contourEvenness", v)} />
-        <ProtocolFieldRow label="Эхогенность" value={node.echogenicity || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.echogenicity)} options={ECHOGENICITY_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "echogenicity", v)} />
-        <ProtocolFieldRow label="Структура" value={node.structure || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.structure)} options={[{ value: "однородная", label: "однородная" }, { value: "неоднородная", label: "неоднородная" }]}
-          onSelectOption={(v) => onUpdateNode(index, "structure", v)} />
-        <ProtocolFieldRow label="Деформация полости" value={node.cavityImpact || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.cavityImpact)} options={CAVITY_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "cavityImpact", v)} />
-        <ProtocolFieldRow label="Кровоток" value={node.bloodFlow || "Нажмите для ввода"}
-          typeLabel="select" filled={Boolean(node.bloodFlow)} options={BLOOD_FLOW_OPTIONS}
-          onSelectOption={(v) => onUpdateNode(index, "bloodFlow", v)} />
+        {/* Селекты — 2 колонки */}
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+          {SELECT_FIELDS.map((field) => (
+            <View key={field.key} style={{ width: "48%" }}>
+              <ProtocolFieldRow
+                label={field.label}
+                value={(node[field.key] as string) || "Нажмите для ввода"}
+                typeLabel="select"
+                filled={Boolean(node[field.key])}
+                options={field.options}
+                onSelectOption={(v) => onUpdateNode(index, field.key, v)}
+              />
+            </View>
+          ))}
+        </View>
+
+        {/* Комментарий — на всю ширину */}
         <ProtocolFieldRow label="Комментарий" value={node.comment || "Нажмите для ввода"}
           typeLabel="text" filled={Boolean(node.comment)}
           onPress={() => openEditor({ title: `Узел #${index + 1}: комментарий`, mode: "text", value: node.comment, placeholder: "Введите комментарий", multiline: true, onSave: (v) => onUpdateNode(index, "comment", v) })} />
