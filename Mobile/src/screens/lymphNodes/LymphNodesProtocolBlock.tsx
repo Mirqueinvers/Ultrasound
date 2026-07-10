@@ -73,6 +73,7 @@ export function LymphNodesProtocolBlock({
             title={REGION_FIELDS.find((item) => item.key === activeRegionKey)?.title ?? ""}
             region={lymphNodes[activeRegionKey]}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateRegionField={draftApi.updateRegionField}
             onAddNode={draftApi.addNode}
@@ -88,6 +89,7 @@ export function LymphNodesProtocolBlock({
             title={REGION_FIELDS[0].title}
             region={lymphNodes.submandibular}
             fv={fv}
+            isLandscape={isLandscape}
             openEditor={draftApi.openEditor}
             onUpdateRegionField={draftApi.updateRegionField}
             onAddNode={draftApi.addNode}
@@ -104,6 +106,7 @@ export function LymphNodesProtocolBlock({
               title={title}
               region={lymphNodes[key]}
               fv={fv}
+              isLandscape={isLandscape}
               openEditor={draftApi.openEditor}
               onUpdateRegionField={draftApi.updateRegionField}
               onAddNode={draftApi.addNode}
