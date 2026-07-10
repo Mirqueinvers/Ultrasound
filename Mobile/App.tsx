@@ -6,22 +6,23 @@ import { StatusBar } from "expo-status-bar";
 import { type TabKey } from "./src/components/TabBar";
 import { BottomNav } from "./src/components/BottomNav";
 import { LandscapeBottomNav } from "./src/components/LandscapeBottomNav";
-import { AppHeader } from "./src/components/AppHeader";
-import { ScannerOverlay } from "./src/components/ScannerOverlay";
 import { ProtocolNav } from "./src/components/ProtocolNav";
+import { ScannerOverlay } from "./src/components/ScannerOverlay";
 import { SwipeableDraftArea } from "./src/components/SwipeableDraftArea";
 import { ConnectScreen } from "./src/screens/ConnectScreen";
 import { DraftScreen } from "./src/screens/DraftScreen";
 import { LibraryScreen } from "./src/screens/LibraryScreen";
 import { SummaryScreen } from "./src/screens/SummaryScreen";
 import { styles } from "./src/styles/appStyles";
-import { PROTOCOL_MANIFESTS, getProtocolManifestByLabel } from "./src/shared/protocols";
+import { PROTOCOL_MANIFESTS, PROTOCOL_MANIFEST_BY_ID, getProtocolManifestByLabel } from "./src/shared/protocols";
 import { type MobileSyncWireMessage } from "./src/shared/mobileSync";
 import { useMobileConnection } from "./src/hooks/useMobileConnection";
 import { useProtocolUpdateHandlers } from "./src/hooks/useProtocolUpdateHandlers";
 import { useMobileSnapshot } from "./src/hooks/useMobileSnapshot";
 import { useFieldVisibility } from "./src/settings/useFieldVisibility";
+import { useProtocolOrder } from "./src/settings/useProtocolOrder";
 import { FieldVisibilitySettings } from "./src/components/FieldVisibilitySettings";
+import { ProtocolOrderSettings } from "./src/components/ProtocolOrderSettings";
 import { SettingsHeader } from "./src/components/SettingsHeader";
 import { useOrientation } from "./src/hooks/useOrientation";
 
@@ -31,10 +32,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("connect");
   const [saveState, setSaveState] = useState<"idle" | "requested" | "saved">("idle");
   const [, setSessionId] = useState<string | null>(null);
-  const [connectSubTab, setConnectSubTab] = useState<"connect" | "fields" | null>(null);
+  const [connectSubTab, setConnectSubTab] = useState<"connect" | "fields" | "protocols" | null>(null);
   const contentScrollRef = useRef<ScrollView>(null);
   const wireMessageHandlerRef = useRef<((message: MobileSyncWireMessage) => void) | null>(null);
   const { visibility, toggleGroup } = useFieldVisibility();
+  const { order: protocolOrder, loaded: protocolOrderLoaded, moveUp: moveProtocolUp, moveDown: moveProtocolDown } = useProtocolOrder();
   const { isLandscape } = useOrientation();
 
   const {
@@ -117,6 +119,11 @@ export default function App() {
     }
   }, [visibility, activeDraftMode, snapshot.selection.selectedStudies]);
 
+  // Сортируем манифесты согласно сохранённому порядку
+  const sortedManifests = protocolOrderLoaded
+    ? protocolOrder.map((id) => PROTOCOL_MANIFEST_BY_ID[id]).filter(Boolean)
+    : PROTOCOL_MANIFESTS;
+
   // Контент для вкладок, кроме connect (там своя структура)
   const otherContent = activeTab !== "connect" && (
     <ScrollView
@@ -127,7 +134,7 @@ export default function App() {
       {activeTab === "library" && (
         <LibraryScreen
           styles={styles}
-          manifests={PROTOCOL_MANIFESTS}
+          manifests={sortedManifests}
           selectedStudies={snapshot.selection.selectedStudies}
           focusedProtocolId={focusedProtocolId}
           onToggleProtocol={toggleProtocol}
@@ -214,6 +221,24 @@ export default function App() {
             Настройка отображения полей для каждого протокола
           </Text>
         </Pressable>
+        <Pressable
+          onPress={() => setConnectSubTab("protocols")}
+          style={({ pressed }) => ({
+            backgroundColor: "rgba(15, 23, 42, 0.7)",
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: "rgba(148, 163, 184, 0.16)",
+            padding: 18,
+            alignItems: "center",
+            gap: 4,
+            opacity: pressed ? 0.85 : 1,
+          })}
+        >
+          <Text style={{ color: "#f8fafc", fontSize: 17, fontWeight: "800" }}>Протоколы</Text>
+          <Text style={{ color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+            Изменение порядка отображения протоколов
+          </Text>
+        </Pressable>
         <View style={{ flex: 1 }} />
       </View>
       <View style={{ height: isLandscape ? 10 : BOTTOM_SPACER_HEIGHT }} />
@@ -224,7 +249,13 @@ export default function App() {
   const connectSubContent = activeTab === "connect" && connectSubTab !== null && (
     <View style={{ flex: 1 }}>
       <SettingsHeader
-        title={connectSubTab === "connect" ? "Подключение" : "Видимость полей"}
+        title={
+          connectSubTab === "connect"
+            ? "Подключение"
+            : connectSubTab === "fields"
+              ? "Видимость полей"
+              : "Порядок протоколов"
+        }
         onBack={() => setConnectSubTab(null)}
       />
       <ScrollView
@@ -257,6 +288,13 @@ export default function App() {
             styles={styles}
             visibility={visibility}
             onToggle={(id) => toggleGroup(id as any)}
+          />
+        )}
+        {connectSubTab === "protocols" && (
+          <ProtocolOrderSettings
+            order={protocolOrder}
+            onMoveUp={moveProtocolUp}
+            onMoveDown={moveProtocolDown}
           />
         )}
         <View style={{ height: isLandscape ? 10 : BOTTOM_SPACER_HEIGHT }} />
