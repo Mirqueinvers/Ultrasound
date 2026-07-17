@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, BookOpen, Search, BarChart3, BookMarked, CalendarClock } from "lucide-react";
+import { FileText, BookOpen, Search, BarChart3, BookMarked, CalendarClock, Wrench } from "lucide-react";
 import UserMenu from "@/components/common/UserMenu";
 
 interface HeaderProps {
@@ -13,6 +13,11 @@ const menuItems = [
     id: "uzi-protocols",
     label: "УЗИ протоколы",
     icon: FileText,
+  },
+  {
+    id: "constructor",
+    label: "Конструктор",
+    icon: Wrench,
   },
   {
     id: "journal",

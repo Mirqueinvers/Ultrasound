@@ -13,6 +13,8 @@ import Statistics from "@/components/statistics/Statistics";
 import RegistryPanel from "@/components/registry/RegistryPanel";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 import MedisonAutoImport from "@/components/registry/MedisonAutoImport";
+import ConstructorPage from "@/constructor/components/ConstructorPage";
+import { useCustomProtocolRegistry } from "@/constructor/hooks/useCustomProtocolRegistry";
 
 export function AppTitlebar() {
   const handleMinimize = () => {
@@ -78,6 +80,7 @@ const AppShell: React.FC = () => {
     handleDirectoryItemSelect,
   } = useDesktopAppSelection();
   const sectionRefs = useSectionRefs();
+  useCustomProtocolRegistry();
 
   const mainLayout = (children: ReactNode) => (
     <MainLayout
@@ -126,7 +129,12 @@ const AppShell: React.FC = () => {
           </div>
         </main>
       )}
-      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && (
+      {activeSection === "constructor" && (
+        <main className="min-h-screen bg-slate-50 pt-20">
+          <ConstructorPage />
+        </main>
+      )}
+      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && activeSection !== "constructor" && (
         <ResearchProvider>
           <MedisonAutoImport />
           <RightPanelProvider>

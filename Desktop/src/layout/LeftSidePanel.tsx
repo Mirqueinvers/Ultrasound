@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Search, X, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 import { PROTOCOL_SELECTIONS } from "@/protocols";
+import { subscribeToCustomSchemas, getCustomSchemas } from "@/constructor/utils/protocolRegistry";
+import type { ProtocolSchema } from "@/constructor/schema";
 
 interface LeftSidePanelProps {
   activeSection: string;
@@ -38,7 +40,11 @@ const obpNormsLabels: Record<string, string> = {
   "Нормы ОБП:Селезенка": "Селезенка",
 };
 
-const studiesList = PROTOCOL_SELECTIONS.map((protocol) => protocol.label);
+function getStudiesList(customSchemas: ProtocolSchema[]): string[] {
+  const builtIn = PROTOCOL_SELECTIONS.map((protocol) => protocol.label);
+  const custom = customSchemas.map((s) => s.selectionLabel);
+  return [...builtIn, ...custom];
+}
 
 const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
   activeSection,
@@ -52,6 +58,15 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isObpNormsExpanded, setIsObpNormsExpanded] = useState(false);
+  const [studiesList, setStudiesList] = useState<string[]>(() =>
+    getStudiesList(getCustomSchemas())
+  );
+
+  useEffect(() => {
+    return subscribeToCustomSchemas((schemas) => {
+      setStudiesList(getStudiesList(schemas));
+    });
+  }, []);
 
   const handleStudyClick = (study: string) => {
     if (isMultiSelectMode && onToggleStudy) {

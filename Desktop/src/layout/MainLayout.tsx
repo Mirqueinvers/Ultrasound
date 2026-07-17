@@ -30,7 +30,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   onDirectoryItemSelect,
   sectionRefs,
 }) => {
-  const hidePanels = ["journal", "search", "statistics"].includes(activeSection);
+  const hidePanels = ["journal", "search", "statistics", "constructor"].includes(activeSection);
 
   return (
     <div className="min-h-screen bg-slate-50">
