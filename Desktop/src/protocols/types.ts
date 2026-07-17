@@ -54,6 +54,7 @@ export interface ProtocolManifest {
 
 export type ProtocolId =
   | 'obp'
+  | 'obp_v2'
   | 'kidneys'
   | 'scrotum'
   | 'omt_female'
@@ -71,6 +72,7 @@ export type ProtocolId =
 
 export type ProtocolSelectionLabel =
   | 'ОБП'
+  | 'ОБП (v2)'
   | 'Почки'
   | 'Органы мошонки'
   | 'ОМТ (Ж)'

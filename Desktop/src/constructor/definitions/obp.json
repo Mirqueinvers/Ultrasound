@@ -1,0 +1,185 @@
+{
+  "id": "obp",
+  "selectionLabel": "ОБП",
+  "title": "Ультразвуковое исследование органов брюшной полости",
+  "description": "Печень, желчный пузырь, поджелудочная железа и селезёнка.",
+  "sections": [
+    {
+      "id": "obp.liver",
+      "label": "Печень",
+      "desktopKey": "ОБП:печень",
+      "order": 1,
+      "fieldsets": [
+        {
+          "id": "liver.sizes",
+          "title": "Размеры",
+          "fields": [
+            {
+              "id": "rightLobeAP",
+              "label": "Правая доля, ПЗР (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 90, "max": 125 }
+            },
+            {
+              "id": "leftLobeAP",
+              "label": "Левая доля, ПЗР (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 50, "max": 90 }
+            },
+            {
+              "id": "rightLobeAdditional",
+              "label": "Дополнительные измерения правой доли",
+              "type": "fieldset",
+              "visibleWhen": [
+                { "field": "rightLobeAP", "operator": ">", "value": 125 }
+              ],
+              "fields": [
+                {
+                  "id": "rightLobeCCR",
+                  "label": "Правая доля, ККР (мм)",
+                  "type": "sizeRow",
+                  "normalRange": { "min": 90, "max": 140 }
+                },
+                {
+                  "id": "rightLobeCVR",
+                  "label": "Правая доля, КВР (мм)",
+                  "type": "sizeRow",
+                  "normalRange": { "min": 90, "max": 150 }
+                },
+                {
+                  "id": "rightLobeTotal",
+                  "label": "Правая доля, ККР + ПЗР (мм)",
+                  "type": "sizeRow",
+                  "normalRange": { "min": 0, "max": 260 },
+                  "readOnly": true,
+                  "autoCalculated": true
+                }
+              ]
+            },
+            {
+              "id": "leftLobeAdditional",
+              "label": "Дополнительные измерения левой доли",
+              "type": "fieldset",
+              "visibleWhen": [
+                { "field": "leftLobeAP", "operator": ">", "value": 90 }
+              ],
+              "fields": [
+                {
+                  "id": "leftLobeCCR",
+                  "label": "Левая доля, ККР (мм)",
+                  "type": "sizeRow",
+                  "normalRange": { "min": 0, "max": 100 }
+                },
+                {
+                  "id": "leftLobeTotal",
+                  "label": "Левая доля, ККР + ПЗР (мм)",
+                  "type": "sizeRow",
+                  "normalRange": { "min": 0, "max": 160 },
+                  "readOnly": true,
+                  "autoCalculated": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "liver.structure",
+          "title": "Структура",
+          "fields": [
+            {
+              "id": "echogenicity",
+              "label": "Эхогенность",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "средняя", "label": "средняя" },
+                { "value": "повышена", "label": "повышена" },
+                { "value": "снижена", "label": "снижена" }
+              ]
+            },
+            {
+              "id": "homogeneity",
+              "label": "Эхоструктура",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "однородная", "label": "однородная" },
+                { "value": "неоднородная", "label": "неоднородная" },
+                { "value": "диффузно-неоднородная", "label": "диффузно-неоднородная" }
+              ]
+            },
+            {
+              "id": "contours",
+              "label": "Контур",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "четкий, ровный", "label": "четкий, ровный" },
+                { "value": "четкий, неровный", "label": "четкий, неровный" },
+                { "value": "бугристый", "label": "бугристый" }
+              ]
+            },
+            {
+              "id": "lowerEdgeAngle",
+              "label": "Угол нижнего края",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "заострён", "label": "заострён" },
+                { "value": "закруглён", "label": "закруглён" }
+              ]
+            },
+            {
+              "id": "focalLesionsPresence",
+              "label": "Патологические образования",
+              "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "focalLesions"
+            }
+          ]
+        },
+        {
+          "id": "liver.vessels",
+          "title": "Сосуды",
+          "fields": [
+            {
+              "id": "vascularPattern",
+              "label": "Сосудистый рисунок",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "не изменен", "label": "не изменен" },
+                { "value": "обеднен", "label": "обеднен" },
+                { "value": "усилен", "label": "усилен" }
+              ]
+            },
+            {
+              "id": "portalVeinDiameter",
+              "label": "Воротная вена, диаметр (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 7, "max": 13 }
+            },
+            {
+              "id": "ivc",
+              "label": "Нижняя полая вена, диаметр (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 15, "max": 25 }
+            }
+          ]
+        },
+        {
+          "id": "liver.additional",
+          "title": "Дополнительно",
+          "fields": [
+            {
+              "id": "additional",
+              "label": "Дополнительно",
+              "type": "textarea",
+              "rows": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

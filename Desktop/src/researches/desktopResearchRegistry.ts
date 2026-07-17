@@ -17,6 +17,7 @@ import {
   UrinaryBladderResearch,
   LymphNodes,
 } from "@components/researches";
+import { ObpV2 } from "@/constructor/components/ObpV2Wrapper";
 
 export interface DesktopResearchRegistryItem {
   studyKey: string;
@@ -37,6 +38,12 @@ export const desktopResearchRegistry: DesktopResearchRegistryItem[] = [
     studyKey: "ОБП",
     title: "ОБП",
     component: Obp,
+    supportsSectionRefs: true,
+  },
+  {
+    studyKey: "ОБП (v2)",
+    title: "ОБП (v2)",
+    component: ObpV2,
     supportsSectionRefs: true,
   },
   {
