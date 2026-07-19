@@ -180,6 +180,206 @@
           ]
         }
       ]
+    },
+    {
+      "id": "obp.gallbladder",
+      "label": "Желчный пузырь",
+      "desktopKey": "ОБП:желчный",
+      "order": 2,
+      "fieldsets": [
+        {
+          "id": "gallbladder.position",
+          "title": "Положение",
+          "fields": [
+            {
+              "id": "position",
+              "label": "Положение желчного пузыря",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "обычное", "label": "Обычное" },
+                { "value": "холецистэктомия", "label": "Холецистэктомия" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.sizes",
+          "title": "Размеры",
+          "fields": [
+            {
+              "id": "length",
+              "label": "Длина (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 50, "max": 100 }
+            },
+            {
+              "id": "width",
+              "label": "Ширина (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 20, "max": 40 }
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.wall",
+          "title": "Размеры стенки",
+          "fields": [
+            {
+              "id": "wallThickness",
+              "label": "Толщина стенки (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 1, "max": 4 }
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.shape",
+          "title": "Форма",
+          "fields": [
+            {
+              "id": "shape",
+              "label": "Форма желчного пузыря",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "Правильная", "label": "Правильная" },
+                { "value": "S-образная", "label": "S-образная" },
+                { "value": "С загибом", "label": "С загибом" }
+              ]
+            },
+            {
+              "id": "constriction",
+              "label": "Перетяжка",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "шейки", "label": "шейка" },
+                { "value": "тела", "label": "тело" },
+                { "value": "дна", "label": "дно" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.content",
+          "title": "Содержимое",
+          "fields": [
+            {
+              "id": "contentType",
+              "label": "Тип содержимого",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "Однородное", "label": "Однородное" },
+                { "value": "Взвесь", "label": "Взвесь" },
+                { "value": "Сладж", "label": "Сладж" }
+              ]
+            },
+            {
+              "id": "concretions",
+              "label": "Конкременты",
+              "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Конкремент #{index}",
+                "addButtonLabel": "Добавить конкремент",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  {
+                    "id": "size",
+                    "label": "Размеры (мм)",
+                    "type": "sizeRow"
+                  },
+                  {
+                    "id": "position",
+                    "label": "Положение",
+                    "type": "buttonSelect",
+                    "options": [
+                      { "value": "шейки", "label": "шейка" },
+                      { "value": "тела", "label": "тело" },
+                      { "value": "дна", "label": "дно" }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "polyps",
+              "label": "Полипы",
+              "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Полип #{index}",
+                "addButtonLabel": "Добавить полип",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  {
+                    "id": "size",
+                    "label": "Размеры (мм)",
+                    "type": "sizeRow"
+                  },
+                  {
+                    "id": "position",
+                    "label": "Положение",
+                    "type": "buttonSelect",
+                    "options": [
+                      { "value": "шейке", "label": "шейка" },
+                      { "value": "теле", "label": "тело" },
+                      { "value": "дне", "label": "дно" }
+                    ]
+                  },
+                  {
+                    "id": "wall",
+                    "label": "Стенка",
+                    "type": "buttonSelect",
+                    "options": [
+                      { "value": "по передней", "label": "передняя" },
+                      { "value": "по задней", "label": "задняя" }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "contentAdditional",
+              "label": "Дополнительно",
+              "type": "textarea",
+              "rows": 2
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.ducts",
+          "title": "Протоки",
+          "fields": [
+            {
+              "id": "cysticDuct",
+              "label": "Пузырный проток (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 2, "max": 4 }
+            },
+            {
+              "id": "commonBileDuct",
+              "label": "Общий желчный проток (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 4, "max": 8 }
+            }
+          ]
+        },
+        {
+          "id": "gallbladder.additional",
+          "title": "Дополнительно",
+          "fields": [
+            {
+              "id": "additional",
+              "label": "Дополнительно",
+              "type": "textarea",
+              "rows": 3
+            }
+          ]
+        }
+      ]
     }
   ]
 }

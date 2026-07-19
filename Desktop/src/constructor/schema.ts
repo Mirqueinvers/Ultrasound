@@ -1,6 +1,6 @@
 // Типы JSON-схемы протокола
 
-export type FieldType = 'sizeRow' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'fieldset'
+export type FieldType = 'sizeRow' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'fieldset' | 'repeatingGroup'
 
 export interface ButtonSelectOption {
   value: string
@@ -19,6 +19,13 @@ export interface VisibleWhenCondition {
   value: number | string
 }
 
+export interface RepeatingGroupTemplate {
+  itemLabel?: string         // шаблон заголовка карточки, например "Конкремент #{index}"
+  addButtonLabel?: string    // "Добавить конкремент"
+  triggerOptions?: ButtonSelectOption[] // опции селекта для показа/скрытия (по умолчанию "не определяются"/"определяются")
+  fields: FieldDefinition[]  // поля одного элемента
+}
+
 export interface FieldDefinition {
   id: string
   label: string
@@ -33,6 +40,7 @@ export interface FieldDefinition {
   autoCalculated?: boolean
   visibleWhen?: VisibleWhenCondition[]
   fields?: FieldDefinition[]
+  repeatingGroup?: RepeatingGroupTemplate
 }
 
 export interface SectionDefinition {

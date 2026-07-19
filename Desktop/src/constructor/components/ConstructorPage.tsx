@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { Save, Eye, Edit3, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
-import type { ProtocolSchema, SectionDefinition, FieldsetDefinition, FieldDefinition, FieldType } from '../schema'
+import type { ProtocolSchema, SectionDefinition, FieldsetDefinition, FieldDefinition, FieldType, RepeatingGroupTemplate } from '../schema'
 import { DynamicProtocolForm } from './DynamicProtocolForm'
 import { loadCustomProtocols, saveCustomProtocols } from '../utils/storage'
 
@@ -37,6 +37,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
     { value: 'selectWithTextarea', label: 'Выбор + текст' },
     { value: 'textarea', label: 'Текст (многострочный)' },
     { value: 'text', label: 'Текст (однострочный)' },
+    { value: 'repeatingGroup', label: 'Повторяющаяся группа' },
   ]
 
   return (
@@ -199,6 +200,92 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
             value={field.rows ?? 3}
             onChange={(e) => update({ rows: Number(e.target.value) || 3 })}
           />
+        </div>
+      )}
+
+      {/* Редактор для repeatingGroup */}
+      {field.type === 'repeatingGroup' && (
+        <div className="border-t border-slate-200 pt-2 space-y-2">
+          <div className="text-xs font-semibold text-slate-600">Настройки повторяющейся группы</div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs text-slate-500">Шаблон заголовка (itemLabel)</label>
+              <input
+                type="text"
+                className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                value={field.repeatingGroup?.itemLabel ?? ''}
+                onChange={(e) =>
+                  update({
+                    repeatingGroup: {
+                      ...(field.repeatingGroup ?? { fields: [] }),
+                      itemLabel: e.target.value,
+                    },
+                  })
+                }
+                placeholder="Конкремент #{index}"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Текст кнопки (addButtonLabel)</label>
+              <input
+                type="text"
+                className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                value={field.repeatingGroup?.addButtonLabel ?? ''}
+                onChange={(e) =>
+                  update({
+                    repeatingGroup: {
+                      ...(field.repeatingGroup ?? { fields: [] }),
+                      addButtonLabel: e.target.value,
+                    },
+                  })
+                }
+                placeholder="Добавить конкремент"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-slate-500">Опции триггера (JSON)</label>
+            <textarea
+              className="w-full text-xs border border-slate-200 rounded px-2 py-1 font-mono"
+              rows={2}
+              value={JSON.stringify(field.repeatingGroup?.triggerOptions ?? [
+                { value: 'не определяются', label: 'не определяются' },
+                { value: 'определяются', label: 'определяются' },
+              ], null, 2)}
+              onChange={(e) => {
+                try {
+                  const parsed = JSON.parse(e.target.value)
+                  if (Array.isArray(parsed))
+                    update({
+                      repeatingGroup: {
+                        ...(field.repeatingGroup ?? { fields: [] }),
+                        triggerOptions: parsed,
+                      },
+                    })
+                } catch { /* ignore invalid JSON */ }
+              }}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-500">Поля шаблона (JSON): [{'"id":"","label":"","type":"sizeRow"}'}]</label>
+            <textarea
+              className="w-full text-xs border border-slate-200 rounded px-2 py-1 font-mono"
+              rows={4}
+              value={JSON.stringify(field.repeatingGroup?.fields ?? [], null, 2)}
+              onChange={(e) => {
+                try {
+                  const parsed = JSON.parse(e.target.value)
+                  if (Array.isArray(parsed))
+                    update({
+                      repeatingGroup: {
+                        ...(field.repeatingGroup ?? { fields: [] }),
+                        fields: parsed,
+                      },
+                    })
+                } catch { /* ignore invalid JSON */ }
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

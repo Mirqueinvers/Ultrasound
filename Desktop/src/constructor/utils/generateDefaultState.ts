@@ -15,13 +15,22 @@ export function generateDefaultState(schema: ProtocolSchema): Record<string, any
         if (field.textareaId) {
           state[field.textareaId] = ''
         }
+      } else if (field.type === 'repeatingGroup') {
+        // Повторяющаяся группа: триггер — строка, список — пустой массив
+        state[field.id] = ''
+        state[field.id + 'List'] = []
       } else {
         state[field.id] = ''
       }
 
-      // Если есть вложенные поля (например, условный блок)
+      // Если есть вложенные поля (например, условный блок или repeatingGroup template)
       if (field.fields && field.fields.length > 0) {
         processFields(field.fields)
+      }
+
+      // Также обрабатываем поля шаблона repeatingGroup
+      if (field.repeatingGroup?.fields) {
+        processFields(field.repeatingGroup.fields)
       }
     }
   }
