@@ -78,8 +78,8 @@ export const PROTOCOL_DEFINITIONS = [
     id: 'obp_v2',
     selectionLabel: 'ОБП (v2)',
     title: 'УЗИ органов брюшной полости (v2)',
-    description: 'Печень (динамическая форма из JSON).',
-    sectionIds: ['obp.liver'],
+    description: 'Печень, желчный пузырь (динамическая форма из JSON).',
+    sectionIds: ['obp.liver', 'obp.gallbladder'],
   },
   {
     id: 'kidneys',

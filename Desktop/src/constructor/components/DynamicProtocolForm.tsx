@@ -2,11 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react'
 import type { ProtocolSchema } from '../schema'
 import { DynamicSection } from './DynamicSection'
 import { generateDefaultState } from '../utils/generateDefaultState'
+import type { SectionKey } from "@components/common/OrgNavigation";
 
 interface DynamicProtocolFormProps {
   schema: ProtocolSchema
   value?: Record<string, any>
   onChange?: (data: Record<string, any>) => void
+  sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
   className?: string
 }
 
@@ -18,6 +20,7 @@ export const DynamicProtocolForm: React.FC<DynamicProtocolFormProps> = ({
   schema,
   value,
   onChange,
+  sectionRefs,
   className = '',
 }) => {
   const defaultState = useCallback(
@@ -51,7 +54,10 @@ export const DynamicProtocolForm: React.FC<DynamicProtocolFormProps> = ({
 
       {/* Секции */}
       {schema.sections.map((section) => (
-        <div key={section.id}>
+        <div
+          key={section.id}
+          ref={sectionRefs?.[section.desktopKey as SectionKey]}
+        >
           <DynamicSection
             section={section}
             value={form}
