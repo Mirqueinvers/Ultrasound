@@ -2,15 +2,22 @@ import { type ProtocolSchema } from '../schema'
 
 const STORAGE_KEY = 'custom-protocols'
 
-// Определяем, запущены ли мы в Electron
-const isElectron = typeof window !== 'undefined' && window.process?.type === 'renderer'
+// Проверяем, запущены ли мы в Electron (лениво, т.к. protocolFileAPI может быть ещё не инициализирован)
+function isElectron(): boolean {
+  return typeof (window as any).protocolFileAPI !== 'undefined'
+}
 
 // Получаем API протоколов (Electron) или fallback
 function getFileAPI(): any {
-  if (isElectron && (window as any).protocolFileAPI) {
+  if (isElectron()) {
     return (window as any).protocolFileAPI
   }
   return null
+}
+
+// Принудительная очистка localStorage от старых протоколов (для миграции с localStorage на файлы)
+export function clearLegacyLocalStorage(): void {
+  try { localStorage.removeItem('custom-protocols') } catch { /* ignore */ }
 }
 
 export async function loadCustomProtocols(): Promise<ProtocolSchema[]> {
@@ -27,6 +34,16 @@ export async function loadCustomProtocols(): Promise<ProtocolSchema[]> {
           }
         } catch { /* skip */ }
       }
+      // Синхронизируем localStorage: удаляем протоколы, которых нет на диске
+      try {
+        const oldRaw = localStorage.getItem(STORAGE_KEY)
+        if (oldRaw) {
+          const oldList = JSON.parse(oldRaw) as ProtocolSchema[]
+          const diskIds = new Set(results.map((p) => p.id))
+          const filtered = oldList.filter((p) => diskIds.has(p.id))
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
+        }
+      } catch { /* ignore */ }
       return results
     } catch {
       // fallback на localStorage
@@ -40,6 +57,29 @@ export async function loadCustomProtocols(): Promise<ProtocolSchema[]> {
     return JSON.parse(raw) as ProtocolSchema[]
   } catch {
     return []
+  }
+}
+
+export async function deleteCustomProtocol(id: string): Promise<boolean> {
+  const api = getFileAPI()
+  if (api) {
+    try {
+      const result = await api.delete(id)
+      if (result.success) return true
+      // Если файл не найден на диске — пробуем localStorage (старые данные)
+    } catch {
+      // fallback на localStorage
+    }
+  }
+
+  // Fallback: localStorage
+  try {
+    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as ProtocolSchema[]
+    const filtered = existing.filter((p) => p.id !== id)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -138,6 +178,8 @@ export async function importProtocolFromFile(): Promise<{ success: boolean; canc
 
 // Синхронная версия для обратной совместимости
 export function loadCustomProtocolsSync(): ProtocolSchema[] {
+  // В Electron не используем localStorage — данные на диске, подгружаются асинхронно
+  if (isElectron()) return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []

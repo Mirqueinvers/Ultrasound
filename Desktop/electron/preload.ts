@@ -263,6 +263,7 @@ export interface ProtocolFileAPI {
   list: () => Promise<ProtocolFileEntry[]>
   load: (id: string) => Promise<any>
   save: (data: { id: string; selectionLabel: string; data: any }) => Promise<{ success: boolean; message?: string }>
+  delete: (id: string) => Promise<{ success: boolean; message?: string }>
   exportDialog: (data: { id: string; data: any }) => Promise<{ success: boolean; canceled?: boolean; filePath?: string }>
   importDialog: () => Promise<{ success: boolean; canceled?: boolean; data?: any }>
 }
@@ -463,6 +464,7 @@ const protocolFileAPI: ProtocolFileAPI = {
   list: () => ipcRenderer.invoke("protocolFile:list"),
   load: (id) => ipcRenderer.invoke("protocolFile:load", id),
   save: (data) => ipcRenderer.invoke("protocolFile:save", data),
+  delete: (id) => ipcRenderer.invoke("protocolFile:delete", id),
   exportDialog: (data) => ipcRenderer.invoke("protocolFile:exportDialog", data),
   importDialog: () => ipcRenderer.invoke("protocolFile:importDialog"),
 };

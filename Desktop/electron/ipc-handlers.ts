@@ -456,8 +456,8 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
 
   // ==================== PROTOCOL FILE HANDLERS (конструктор) ====================
 
-  const BUILTIN_PROTOCOLS_DIR = path.join(__dirname, '..', 'src', 'constructor', 'definitions')
-  const CUSTOM_PROTOCOLS_DIR = path.join(BUILTIN_PROTOCOLS_DIR, 'custom')
+  const BUILTIN_PROTOCOLS_DIR = path.join(app.getAppPath(), 'src', 'constructor', 'definitions')
+  const CUSTOM_PROTOCOLS_DIR = path.join(app.getAppPath(), 'src', 'constructor', 'definitions', 'custom')
 
   // Создаём папку custom если нет
   ;(async () => {
@@ -576,6 +576,27 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     } catch (error) {
       console.error('Export protocol error:', error)
       return { success: false, message: 'Не удалось экспортировать протокол' }
+    }
+  })
+
+  ipcMain.handle('protocolFile:delete', async (_, id: string) => {
+    try {
+      const files = await fs.readdir(CUSTOM_PROTOCOLS_DIR)
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue
+        const filePath = path.join(CUSTOM_PROTOCOLS_DIR, file)
+        try {
+          const content = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          if (content.id === id) {
+            await fs.unlink(filePath)
+            return { success: true }
+          }
+        } catch { /* skip */ }
+      }
+      return { success: false, message: 'Протокол не найден' }
+    } catch (error) {
+      console.error('Delete protocol error:', error)
+      return { success: false, message: 'Не удалось удалить протокол' }
     }
   })
 

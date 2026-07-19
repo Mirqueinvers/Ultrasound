@@ -4,7 +4,7 @@ import type { ProtocolSchema, PrintTemplate } from '../schema'
 import { DynamicProtocolForm } from './DynamicProtocolForm'
 import { PrintTemplateVisualEditor } from './PrintTemplateVisualEditor'
 import { ProtocolTreeEditor } from './ProtocolTreeEditor'
-import { loadCustomProtocols, saveCustomProtocol, exportProtocolToFile, importProtocolFromFile, loadCustomProtocolsSync } from '../utils/storage'
+import { loadCustomProtocols, saveCustomProtocol, deleteCustomProtocol, exportProtocolToFile, importProtocolFromFile, clearLegacyLocalStorage } from '../utils/storage'
 
 // =============== Главный компонент конструктора ===============
 
@@ -18,7 +18,7 @@ export const ConstructorPage: React.FC = () => {
     description: 'Описание протокола',
     sections: [],
   })
-  const [customProtocols, setCustomProtocols] = useState<ProtocolSchema[]>(loadCustomProtocolsSync())
+  const [customProtocols, setCustomProtocols] = useState<ProtocolSchema[]>([])
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [showSavedList, setShowSavedList] = useState(false)
   const protocolsLoadedRef = useRef(false)
@@ -27,6 +27,8 @@ export const ConstructorPage: React.FC = () => {
   useEffect(() => {
     if (!protocolsLoadedRef.current) {
       protocolsLoadedRef.current = true
+      // Очищаем localStorage от старых протоколов (миграция на файлы)
+      clearLegacyLocalStorage()
       loadCustomProtocols().then((list) => {
         if (list.length > 0) setCustomProtocols(list)
       })
@@ -76,6 +78,19 @@ export const ConstructorPage: React.FC = () => {
       setSaveMessage(`✅ Загружен протокол "${result.data.selectionLabel}"`)
       setTimeout(() => setSaveMessage(null), 3000)
     }
+  }, [])
+
+  const handleDelete = useCallback(async (id: string, label: string) => {
+    if (!window.confirm(`Удалить протокол "${label}"?`)) return
+    const success = await deleteCustomProtocol(id)
+    if (success) {
+      setSaveMessage(`✅ Протокол "${label}" удалён`)
+      const updatedList = await loadCustomProtocols()
+      setCustomProtocols(updatedList)
+    } else {
+      setSaveMessage('❌ Ошибка удаления')
+    }
+    setTimeout(() => setSaveMessage(null), 3000)
   }, [])
 
   const refreshProtocols = useCallback(async () => {
@@ -160,6 +175,13 @@ export const ConstructorPage: React.FC = () => {
                   className="text-xs text-sky-600 hover:text-sky-800"
                 >
                   Загрузить
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(p.id, p.selectionLabel)}
+                  className="text-xs text-red-500 hover:text-red-700"
+                >
+                  Удалить
                 </button>
               </div>
             </div>
