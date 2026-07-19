@@ -93,6 +93,7 @@ export type ProtocolSectionId =
   | 'obp.gallbladder'
   | 'obp.pancreas'
   | 'obp.spleen'
+  | 'obp.freeFluid'
   | 'kidneys.right'
   | 'kidneys.left'
   | 'kidneys.bladder'

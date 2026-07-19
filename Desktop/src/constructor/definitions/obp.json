@@ -613,6 +613,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "obp.freeFluid",
+      "label": "Свободная жидкость",
+      "desktopKey": "ОБП:свободная жидкость",
+      "order": 5,
+      "fieldsets": [
+        {
+          "id": "freeFluid.main",
+          "title": "Свободная жидкость в брюшной полости",
+          "fields": [
+            {
+              "id": "freeFluid",
+              "label": "Свободная жидкость в брюшной полости",
+              "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяется", "label": "не определяется" },
+                { "value": "определяется", "label": "определяется" }
+              ],
+              "triggerValue": "определяется",
+              "textareaLabel": "Описание свободной жидкости",
+              "textareaId": "freeFluidDetails"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
