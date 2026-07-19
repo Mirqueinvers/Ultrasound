@@ -12,8 +12,8 @@ export function getCustomSchemas(): ProtocolSchema[] {
   return customSchemas
 }
 
-export function refreshCustomSchemas(): ProtocolSchema[] {
-  customSchemas = loadCustomProtocols()
+export async function refreshCustomSchemas(): Promise<ProtocolSchema[]> {
+  customSchemas = await loadCustomProtocols()
   listeners.forEach((fn) => fn(customSchemas))
   return customSchemas
 }
@@ -27,8 +27,8 @@ export function subscribeToCustomSchemas(fn: (schemas: ProtocolSchema[]) => void
 
 // Слушаем CustomEvent для автоматического обновления
 if (typeof window !== 'undefined') {
-  window.addEventListener('protocol-register-custom', () => {
-    refreshCustomSchemas()
+window.addEventListener('protocol-register-custom', () => {
+    refreshCustomSchemas().catch(console.error)
   })
 
   window.addEventListener('protocol-registry-sync', ((e: CustomEvent) => {

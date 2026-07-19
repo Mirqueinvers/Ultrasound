@@ -454,6 +454,154 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   });
 
+  // ==================== PROTOCOL FILE HANDLERS (конструктор) ====================
+
+  const BUILTIN_PROTOCOLS_DIR = path.join(__dirname, '..', 'src', 'constructor', 'definitions')
+  const CUSTOM_PROTOCOLS_DIR = path.join(BUILTIN_PROTOCOLS_DIR, 'custom')
+
+  // Создаём папку custom если нет
+  ;(async () => {
+    try { await fs.mkdir(CUSTOM_PROTOCOLS_DIR, { recursive: true }) } catch { /* ignore */ }
+  })()
+
+  ipcMain.handle('protocolFile:list', async () => {
+    const result: Array<{ id: string; selectionLabel: string; isBuiltin: boolean }> = []
+    
+    // Читаем builtin протоколы (obp.json и другие в корне definitions/)
+    try {
+      const files = await fs.readdir(BUILTIN_PROTOCOLS_DIR)
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue
+        if (file === 'custom' || file.startsWith('.')) continue
+        const filePath = path.join(BUILTIN_PROTOCOLS_DIR, file)
+        const stat = await fs.stat(filePath)
+        if (stat.isDirectory()) continue
+        try {
+          const content = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          if (content.id && content.selectionLabel) {
+            result.push({
+              id: content.id,
+              selectionLabel: content.selectionLabel,
+              isBuiltin: true,
+            })
+          }
+        } catch { /* skip invalid json */ }
+      }
+    } catch { /* ignore */ }
+
+    // Читаем кастомные протоколы из custom/
+    try {
+      const files = await fs.readdir(CUSTOM_PROTOCOLS_DIR)
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue
+        const filePath = path.join(CUSTOM_PROTOCOLS_DIR, file)
+        try {
+          const content = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          if (content.id && content.selectionLabel) {
+            result.push({
+              id: content.id,
+              selectionLabel: content.selectionLabel,
+              isBuiltin: false,
+            })
+          }
+        } catch { /* skip invalid json */ }
+      }
+    } catch { /* ignore */ }
+
+    return result
+  })
+
+  ipcMain.handle('protocolFile:load', async (_, id: string) => {
+    // Сначала ищем в builtin
+    try {
+      const files = await fs.readdir(BUILTIN_PROTOCOLS_DIR)
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue
+        if (file === 'custom' || file.startsWith('.')) continue
+        const filePath = path.join(BUILTIN_PROTOCOLS_DIR, file)
+        const stat = await fs.stat(filePath)
+        if (stat.isDirectory()) continue
+        try {
+          const content = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          if (content.id === id) return content
+        } catch { /* skip */ }
+      }
+    } catch { /* ignore */ }
+
+    // Ищем в custom
+    try {
+      const files = await fs.readdir(CUSTOM_PROTOCOLS_DIR)
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue
+        const filePath = path.join(CUSTOM_PROTOCOLS_DIR, file)
+        try {
+          const content = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          if (content.id === id) return content
+        } catch { /* skip */ }
+      }
+    } catch { /* ignore */ }
+
+    return null
+  })
+
+  ipcMain.handle('protocolFile:save', async (_, data: { id: string; selectionLabel: string; data: any }) => {
+    try {
+      const fileName = `${data.id.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`
+      const filePath = path.join(CUSTOM_PROTOCOLS_DIR, fileName)
+      await fs.writeFile(filePath, JSON.stringify(data.data, null, 2), 'utf8')
+      return { success: true }
+    } catch (error) {
+      console.error('Save protocol error:', error)
+      return { success: false, message: 'Не удалось сохранить протокол' }
+    }
+  })
+
+  ipcMain.handle('protocolFile:exportDialog', async (_, data: { id: string; data: any }) => {
+    try {
+      if (!mainWindow) {
+        return { success: false, message: 'Окно не инициализировано' }
+      }
+      const result = await dialog.showSaveDialog(mainWindow, {
+        title: 'Экспорт протокола',
+        defaultPath: `${data.id || 'protocol'}.json`,
+        filters: [{ name: 'JSON files', extensions: ['json'] }],
+      })
+
+      if (result.canceled || !result.filePath) {
+        return { success: false, canceled: true }
+      }
+
+      await fs.writeFile(result.filePath, JSON.stringify(data.data, null, 2), 'utf8')
+      return { success: true, filePath: result.filePath }
+    } catch (error) {
+      console.error('Export protocol error:', error)
+      return { success: false, message: 'Не удалось экспортировать протокол' }
+    }
+  })
+
+  ipcMain.handle('protocolFile:importDialog', async () => {
+    try {
+      if (!mainWindow) {
+        return { success: false, message: 'Окно не инициализировано' }
+      }
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Импорт протокола',
+        filters: [{ name: 'JSON files', extensions: ['json'] }],
+        properties: ['openFile'],
+      })
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, canceled: true }
+      }
+
+      const content = JSON.parse(await fs.readFile(result.filePaths[0], 'utf8'))
+      return { success: true, data: content }
+    } catch (error) {
+      console.error('Import protocol error:', error)
+      return { success: false, message: 'Не удалось импортировать протокол' }
+    }
+  })
+
   ipcMain.on("window:close", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.close();

@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react'
-import { Save, Eye, Edit3, Plus, Trash2, ChevronUp, ChevronDown, Printer } from 'lucide-react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { Save, Eye, Edit3, Plus, Trash2, ChevronUp, ChevronDown, Printer, Upload, Download } from 'lucide-react'
 import type { ProtocolSchema, SectionDefinition, FieldsetDefinition, FieldDefinition, FieldType, PrintTemplate } from '../schema'
 import { DynamicProtocolForm } from './DynamicProtocolForm'
 import { PrintTemplateEditor } from './PrintTemplateEditor'
-import { loadCustomProtocols, saveCustomProtocols } from '../utils/storage'
+import { loadCustomProtocols, saveCustomProtocol, exportProtocolToFile, importProtocolFromFile, loadCustomProtocolsSync } from '../utils/storage'
 
 // =============== Компонент редактирования поля ===============
 
@@ -487,9 +487,20 @@ export const ConstructorPage: React.FC = () => {
     description: 'Описание протокола',
     sections: [],
   })
-  const [customProtocols, setCustomProtocols] = useState<ProtocolSchema[]>(loadCustomProtocols)
+  const [customProtocols, setCustomProtocols] = useState<ProtocolSchema[]>(loadCustomProtocolsSync())
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [showSavedList, setShowSavedList] = useState(false)
+  const protocolsLoadedRef = useRef(false)
+
+  // Асинхронная загрузка протоколов при монтировании
+  useEffect(() => {
+    if (!protocolsLoadedRef.current) {
+      protocolsLoadedRef.current = true
+      loadCustomProtocols().then((list) => {
+        if (list.length > 0) setCustomProtocols(list)
+      })
+    }
+  }, [])
 
   const updateSchema = (partial: Partial<ProtocolSchema>) => {
     setSchema((prev) => ({ ...prev, ...partial }))
@@ -516,28 +527,25 @@ export const ConstructorPage: React.FC = () => {
     updateSchema({ sections: schema.sections.filter((_, i) => i !== index) })
   }
 
-  const handleSave = useCallback(() => {
-    // Проверка: нужен хотя бы один id
+  const handleSave = useCallback(async () => {
     if (!schema.id || !schema.selectionLabel) {
       setSaveMessage('❌ Укажите ID и название протокола')
       return
     }
 
-    const existing = loadCustomProtocols()
-    const idx = existing.findIndex((p) => p.id === schema.id)
-    if (idx >= 0) {
-      existing[idx] = schema
-    } else {
-      existing.push(schema)
-    }
-    saveCustomProtocols(existing)
-    setCustomProtocols(existing)
-    setSaveMessage(`✅ Протокол "${schema.selectionLabel}" сохранён!`)
+    const success = await saveCustomProtocol(schema)
+    if (success) {
+      // Обновляем список
+      const updatedList = await loadCustomProtocols()
+      setCustomProtocols(updatedList)
+      setSaveMessage(`✅ Протокол "${schema.selectionLabel}" сохранён!`)
 
-    // Динамически добавляем протокол в реестр через CustomEvent
-    window.dispatchEvent(
-      new CustomEvent('protocol-register-custom', { detail: schema })
-    )
+      window.dispatchEvent(
+        new CustomEvent('protocol-register-custom', { detail: schema })
+      )
+    } else {
+      setSaveMessage('❌ Ошибка сохранения')
+    }
 
     setTimeout(() => setSaveMessage(null), 3000)
   }, [schema])
@@ -547,15 +555,27 @@ export const ConstructorPage: React.FC = () => {
   }, [])
 
   const loadProtocol = useCallback((p: ProtocolSchema) => {
-    setSchema(JSON.parse(JSON.stringify(p))) // deep clone
+    setSchema(JSON.parse(JSON.stringify(p)))
     setShowSavedList(false)
   }, [])
 
-  const deleteProtocol = useCallback((id: string) => {
-    const updated = customProtocols.filter((p) => p.id !== id)
-    saveCustomProtocols(updated)
-    setCustomProtocols(updated)
-  }, [customProtocols])
+  const handleExport = useCallback(async () => {
+    await exportProtocolToFile(schema)
+  }, [schema])
+
+  const handleImport = useCallback(async () => {
+    const result = await importProtocolFromFile()
+    if (result.success && result.data) {
+      setSchema(result.data)
+      setSaveMessage(`✅ Загружен протокол "${result.data.selectionLabel}"`)
+      setTimeout(() => setSaveMessage(null), 3000)
+    }
+  }, [])
+
+  const refreshProtocols = useCallback(async () => {
+    const list = await loadCustomProtocols()
+    setCustomProtocols(list)
+  }, [])
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6">
@@ -565,10 +585,24 @@ export const ConstructorPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowSavedList(!showSavedList)}
+            onClick={() => { setShowSavedList(!showSavedList); if (!showSavedList) refreshProtocols() }}
             className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
           >
             Сохранённые ({customProtocols.length})
+          </button>
+          <button
+            type="button"
+            onClick={handleImport}
+            className="text-xs px-3 py-1.5 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 flex items-center gap-1"
+          >
+            <Upload size={14} /> Импорт
+          </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            className="text-xs px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 flex items-center gap-1"
+          >
+            <Download size={14} /> Экспорт
           </button>
           <button
             type="button"
@@ -597,12 +631,21 @@ export const ConstructorPage: React.FC = () => {
       {/* Список сохранённых протоколов */}
       {showSavedList && customProtocols.length > 0 && (
         <div className="mb-4 p-3 border border-slate-200 rounded-xl bg-white space-y-2">
-          <h3 className="text-sm font-semibold text-slate-700">Сохранённые протоколы</h3>
+          <h3 className="text-sm font-semibold text-slate-700">
+            Сохранённые протоколы
+            <button
+              type="button"
+              onClick={refreshProtocols}
+              className="ml-2 text-xs text-sky-500 hover:text-sky-700"
+            >
+              (обновить)
+            </button>
+          </h3>
           {customProtocols.map((p) => (
             <div key={p.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg">
-              <div>
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{p.selectionLabel}</span>
-                <span className="text-xs text-slate-400 ml-2">({p.sections.length} секций)</span>
+                <span className="text-xs text-slate-400">({p.sections.length} секций)</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -611,13 +654,6 @@ export const ConstructorPage: React.FC = () => {
                   className="text-xs text-sky-600 hover:text-sky-800"
                 >
                   Загрузить
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteProtocol(p.id)}
-                  className="text-xs text-red-500 hover:text-red-700"
-                >
-                  Удалить
                 </button>
               </div>
             </div>

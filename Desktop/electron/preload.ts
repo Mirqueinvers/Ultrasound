@@ -251,6 +251,22 @@ export interface FileAPI {
   }>;
 }
 
+// ========== PROTOCOL FILE API (конструктор) ==========
+
+export interface ProtocolFileEntry {
+  id: string
+  selectionLabel: string
+  isBuiltin: boolean
+}
+
+export interface ProtocolFileAPI {
+  list: () => Promise<ProtocolFileEntry[]>
+  load: (id: string) => Promise<any>
+  save: (data: { id: string; selectionLabel: string; data: any }) => Promise<{ success: boolean; message?: string }>
+  exportDialog: (data: { id: string; data: any }) => Promise<{ success: boolean; canceled?: boolean; filePath?: string }>
+  importDialog: () => Promise<{ success: boolean; canceled?: boolean; data?: any }>
+}
+
 // ========== PATIENT SEARCH API (для SearchSection) ==========
 
 export interface PatientSearchEntry {
@@ -443,6 +459,14 @@ const medisonAPI: MedisonAPI = {
   },
 };
 
+const protocolFileAPI: ProtocolFileAPI = {
+  list: () => ipcRenderer.invoke("protocolFile:list"),
+  load: (id) => ipcRenderer.invoke("protocolFile:load", id),
+  save: (data) => ipcRenderer.invoke("protocolFile:save", data),
+  exportDialog: (data) => ipcRenderer.invoke("protocolFile:exportDialog", data),
+  importDialog: () => ipcRenderer.invoke("protocolFile:importDialog"),
+};
+
 const databaseAPI: DatabaseAPI = {
   getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => 
     ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
@@ -460,5 +484,6 @@ contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 contextBridge.exposeInMainWorld("fileAPI", fileAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
+contextBridge.exposeInMainWorld("protocolFileAPI", protocolFileAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 
