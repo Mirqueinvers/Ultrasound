@@ -41,7 +41,7 @@ const obpNormsLabels: Record<string, string> = {
 };
 
 function getStudiesList(customSchemas: ProtocolSchema[]): string[] {
-  const builtIn = PROTOCOL_SELECTIONS.map((protocol) => protocol.label);
+  const builtIn = PROTOCOL_SELECTIONS.map((protocol) => protocol.label as string);
   const custom = customSchemas
     // Исключаем протоколы, которые уже есть во встроенном списке (чтобы не было дублей)
     .filter((s) => !builtIn.includes(s.selectionLabel))
