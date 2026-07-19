@@ -30,6 +30,7 @@ export interface FieldDefinition {
   id: string
   label: string
   type: FieldType
+  defaultValue?: string
   options?: ButtonSelectOption[]
   triggerValue?: string
   textareaLabel?: string

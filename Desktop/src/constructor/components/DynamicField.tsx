@@ -51,7 +51,15 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
   value,
   onChange,
 }) => {
-  const getValue = (fieldId: string): string => value[fieldId] ?? ''
+  const getValue = (fieldId: string): string => {
+    const rawValue = value[fieldId]
+    if (rawValue !== undefined && rawValue !== '') return rawValue
+    // Если значение пустое — проверяем defaultValue у самого поля
+    // Находим определение поля по fieldId среди всех полей схемы
+    // (упрощённо: проверяем только текущее поле)
+    if (fieldId === field.id && field.defaultValue) return field.defaultValue
+    return rawValue ?? ''
+  }
 
   // Проверка видимости
   if (!evaluateVisibleWhen(field, getValue)) {

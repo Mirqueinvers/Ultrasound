@@ -9,16 +9,18 @@ export function generateDefaultState(schema: ProtocolSchema): Record<string, any
 
   function processFields(fields: import('../schema').FieldDefinition[]) {
     for (const field of fields) {
-      if (field.type === 'selectWithTextarea') {
-        // У selectWithTextarea два связанных поля: селект и textarea
-        state[field.id] = ''
+      // Определяем дефолтное значение
+      const type = field.type
+      if (type === 'selectWithTextarea') {
+        state[field.id] = field.defaultValue ?? ''
         if (field.textareaId) {
           state[field.textareaId] = ''
         }
-      } else if (field.type === 'repeatingGroup') {
-        // Повторяющаяся группа: триггер — строка, список — пустой массив
-        state[field.id] = ''
+      } else if (type === 'repeatingGroup') {
+        state[field.id] = field.defaultValue ?? ''
         state[field.id + 'List'] = []
+      } else if (type === 'buttonSelect') {
+        state[field.id] = field.defaultValue ?? ''
       } else {
         state[field.id] = ''
       }

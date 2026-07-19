@@ -185,46 +185,71 @@ const FieldProperties: React.FC<FieldPropertiesProps> = ({ field, onChange }) =>
       )}
 
       {(field.type === 'buttonSelect' || field.type === 'selectWithTextarea') && (
-        <div>
-          <label className="text-xs text-slate-500 font-medium">Варианты выбора</label>
-          <div className="space-y-1.5 mt-1">
-            {(field.options ?? []).map((opt, i) => (
-              <div key={i} className="flex items-center gap-1">
-                <input
-                  type="text"
-                  className="flex-1 text-sm border border-slate-200 rounded-lg px-2 py-1"
-                  value={opt.value}
-                  onChange={(e) => {
-                    const updated = [...(field.options ?? [])]
-                    updated[i] = { ...updated[i], value: e.target.value, label: e.target.value }
-                    update({ options: updated })
-                  }}
-                  placeholder="Значение"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = (field.options ?? []).filter((_, j) => j !== i)
-                    update({ options: updated })
-                  }}
-                  className="p-1 text-red-400 hover:text-red-600"
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                const updated = [...(field.options ?? []), { value: '', label: '' }]
-                update({ options: updated })
-              }}
-              className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1 mt-1"
-            >
-              <Plus size={12} /> Добавить вариант
-            </button>
+        <>
+          <div>
+            <label className="text-xs text-slate-500 font-medium">Значение по умолчанию</label>
+            {(field.options ?? []).length > 0 ? (
+              <select
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={field.defaultValue ?? ''}
+                onChange={(e) => update({ defaultValue: e.target.value || undefined })}
+              >
+                <option value="">— Не задано —</option>
+                {field.options!.map((opt, i) => (
+                  <option key={i} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={field.defaultValue ?? ''}
+                onChange={(e) => update({ defaultValue: e.target.value || undefined })}
+                placeholder="Значение по умолчанию"
+              />
+            )}
           </div>
-        </div>
+          <div>
+            <label className="text-xs text-slate-500 font-medium">Варианты выбора</label>
+            <div className="space-y-1.5 mt-1">
+              {(field.options ?? []).map((opt, i) => (
+                <div key={i} className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    className="flex-1 text-sm border border-slate-200 rounded-lg px-2 py-1"
+                    value={opt.value}
+                    onChange={(e) => {
+                      const updated = [...(field.options ?? [])]
+                      updated[i] = { ...updated[i], value: e.target.value, label: e.target.value }
+                      update({ options: updated })
+                    }}
+                    placeholder="Значение"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = (field.options ?? []).filter((_, j) => j !== i)
+                      update({ options: updated })
+                    }}
+                    className="p-1 text-red-400 hover:text-red-600"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...(field.options ?? []), { value: '', label: '' }]
+                  update({ options: updated })
+                }}
+                className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1 mt-1"
+              >
+                <Plus size={12} /> Добавить вариант
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {field.type === 'selectWithTextarea' && (
