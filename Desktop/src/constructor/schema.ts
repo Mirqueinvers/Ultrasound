@@ -1,6 +1,6 @@
 // Типы JSON-схемы протокола
 
-export type FieldType = 'sizeRow' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'fieldset' | 'repeatingGroup'
+export type FieldType = 'sizeRow' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'textField' | 'fieldset' | 'repeatingGroup'
 
 export interface ButtonSelectOption {
   value: string
@@ -15,7 +15,7 @@ export interface NormalRange {
 
 export interface VisibleWhenCondition {
   field: string
-  operator: '>' | '<' | '>=' | '<=' | '=='
+  operator: '>' | '<' | '>=' | '<=' | '==' | '!='
   value: number | string
 }
 

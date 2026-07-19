@@ -120,9 +120,9 @@ const renderPancreasSizes = (block: PrintPancreasSizes, data: Record<string, any
 };
 
 const renderConcretionList = (block: PrintConcretionList, data: Record<string, any>): string | null => {
-  const trigger = getStr(data, block.trigger.field);
-  if (trigger === "Не определяются") return "конкременты не определяются";
-  if (trigger !== "Определяются") return null;
+  const trigger = getStr(data, block.trigger.field).toLowerCase();
+  if (trigger === "не определяются") return "конкременты не определяются";
+  if (trigger !== "определяются") return null;
 
   const rawList = data[block.list.field];
   if (!Array.isArray(rawList) || rawList.length === 0) return block.list.emptyText;
@@ -169,9 +169,9 @@ const renderConcretionList = (block: PrintConcretionList, data: Record<string, a
 };
 
 const renderPolypList = (block: PrintPolypList, data: Record<string, any>): string | null => {
-  const trigger = getStr(data, block.trigger.field);
-  if (trigger === "Не определяются") return "полипы не определяются";
-  if (trigger !== "Определяются") return null;
+  const trigger = getStr(data, block.trigger.field).toLowerCase();
+  if (trigger === "не определяются") return "полипы не определяются";
+  if (trigger !== "определяются") return null;
 
   const rawList = data[block.list.field];
   if (!Array.isArray(rawList) || rawList.length === 0) return block.list.emptyText;

@@ -34,6 +34,8 @@ function evaluateVisibleWhen(
         return numValue <= condValue
       case '==':
         return currentValue === String(condition.value)
+      case '!=':
+        return currentValue !== String(condition.value)
       default:
         return true
     }
@@ -180,6 +182,19 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
               onChange={(val) => updateItem(itemIndex, tplField.id, val)}
               options={tplField.options ?? []}
             />
+          )
+
+        case 'textField':
+          return (
+            <label className="block text-sm font-semibold text-slate-700">
+              {tplField.label}
+              <input
+                type="text"
+                className={inputClasses}
+                value={itemValue}
+                onChange={(e) => updateItem(itemIndex, tplField.id, e.target.value)}
+              />
+            </label>
           )
 
         default:

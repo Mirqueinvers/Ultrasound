@@ -18,6 +18,7 @@ import {
   LymphNodes,
 } from "@components/researches";
 import { ObpV2 } from "@/constructor/components/ObpV2Wrapper";
+import { KidneyV2 } from "@/constructor/components/KidneyV2Wrapper";
 
 export interface DesktopResearchRegistryItem {
   studyKey: string;
@@ -44,6 +45,12 @@ export const desktopResearchRegistry: DesktopResearchRegistryItem[] = [
     studyKey: "ОБП (v2)",
     title: "ОБП (v2)",
     component: ObpV2,
+    supportsSectionRefs: true,
+  },
+  {
+    studyKey: "Почки (v2)",
+    title: "Почки (v2)",
+    component: KidneyV2,
     supportsSectionRefs: true,
   },
   {

@@ -5,7 +5,9 @@ import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
 import ObpPrint from "@/components/print/researches/ObpPrint";
 import DynamicPrint from "@/components/print/researches/DynamicPrint";
 import obpSchema from "@/constructor/definitions/obp.json";
-import type { PrintTemplate } from "@/constructor/schema";
+import kidneySchema from "@/constructor/definitions/kidney.json";
+import type { PrintTemplate, ProtocolSchema } from "@/constructor/schema";
+import { getCustomSchemas } from "@/constructor/utils/protocolRegistry";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
 import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
 import ConclusionPrint from "@/components/print/ConclusionPrint";
@@ -142,8 +144,11 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     }
   }, [editMode]);
 
+  // Получаем все кастомные схемы для динамической печати
+  const customSchemas = React.useMemo(() => getCustomSchemas(), []);
+
   const obpData = studiesData["ОБП"] || studiesData["ОБП (v2)"];
-  const kidneysData = studiesData["Почки"];
+  const kidneysData = studiesData["Почки"] || studiesData["Почки (v2)"];
   const bladderStudyData = studiesData["Мочевой пузырь"];
   const omtFemaleData = studiesData["ОМТ (Ж)"];
   const omtMaleData = studiesData["ОМТ (М)"];
@@ -170,6 +175,12 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
 
   const obpIsDynamic = isDynamicObp(obpData);
   const dynamicObpData = obpIsDynamic ? (obpData as Record<string, any>) : undefined;
+  const isDynamicKidney = (data: any): boolean => {
+    return typeof data === "object" && data !== null && "right.position" in data;
+  };
+
+  const kidneysIsDynamic = isDynamicKidney(kidneysData);
+  const dynamicKidneyData = kidneysIsDynamic ? (kidneysData as Record<string, any>) : undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
   const bladderStudyProtocol = bladderStudyData as UrinaryBladderStudyProtocol | undefined;
   const omtFemaleProtocol = omtFemaleData as OmtFemaleProtocol | undefined;
@@ -204,10 +215,12 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           id: "kidneys",
           key: "kidneys",
           label: "Почки",
-          studyData: kidneysProtocol,
-          conclusion: kidneysProtocol?.conclusion || "",
-          recommendations: kidneysProtocol?.recommendations || "",
-          element: <KidneysPrint />,
+          studyData: kidneysIsDynamic ? dynamicKidneyData : kidneysProtocol,
+          conclusion: kidneysIsDynamic ? (dynamicKidneyData?.["conclusion.conclusion"] ?? "") : (kidneysProtocol?.conclusion || ""),
+          recommendations: kidneysIsDynamic ? (dynamicKidneyData?.["conclusion.recommendations"] ?? "") : (kidneysProtocol?.recommendations || ""),
+          element: kidneysIsDynamic
+            ? <DynamicPrint template={(kidneySchema as any).printTemplate as PrintTemplate} data={dynamicKidneyData ?? {}} />
+            : <KidneysPrint />,
         },
         {
           id: "bladder",
@@ -326,6 +339,42 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           recommendations: softTissueProtocol?.recommendations || "",
           element: <SoftTissuePrint />,
         },
+        // Определяем динамические протоколы из studiesData, которых нет в явном списке
+        ...(() => {
+          // Собираем ключи всех исследований, которые уже обработаны
+          const handledKeys = new Set([
+            "ОБП", "ОБП (v2)", "Почки", "Почки (v2)",
+            "Мочевой пузырь", "ОМТ (Ж)", "ОМТ (М)",
+            "Щитовидная железа", "Плевральные полости", "Слюнные железы",
+            "БЦА", "УВНК", "Лимфоузлы", "Лимфатические узлы", "lymphNodes",
+            "Молочные железы", "Органы мошонки", "Детская диспансеризация", "Мягких тканей",
+          ]);
+          const entries: StudyDefinition[] = [];
+          for (const studyKey of Object.keys(studiesData)) {
+            if (handledKeys.has(studyKey)) continue;
+            const studyData = studiesData[studyKey];
+            if (!studyData) continue;
+            // Пытаемся найти схему среди кастомных
+            const schema = customSchemas.find((s: ProtocolSchema) => s.selectionLabel === studyKey);
+            if (schema && schema.printTemplate) {
+              entries.push({
+                id: studyKey.replace(/[^a-zA-Z0-9_-]/g, '_') as any,
+                key: studyKey,
+                label: studyKey,
+                studyData,
+                conclusion: (studyData as Record<string, any>)?.["conclusion.conclusion"] ?? "",
+                recommendations: (studyData as Record<string, any>)?.["conclusion.recommendations"] ?? "",
+                element: (
+                  <DynamicPrint
+                    template={schema.printTemplate as PrintTemplate}
+                    data={studyData as Record<string, any>}
+                  />
+                ),
+              });
+            }
+          }
+          return entries;
+        })(),
       ].filter((definition) => Boolean(definition.studyData)) as StudyDefinition[],
     [
       obpData,
@@ -343,6 +392,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
       scrotumData,
       childDispensaryData,
       softTissueData,
+      studiesData,
+      customSchemas,
     ],
   );
 
