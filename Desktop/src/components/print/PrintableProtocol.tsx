@@ -3,6 +3,7 @@ import { useResearch } from "@contexts";
 import { useAuth } from "@/contexts/AuthContext";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
 import ObpPrint from "@/components/print/researches/ObpPrint";
+import DynamicObpPrint from "@/components/print/researches/DynamicObpPrint";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
 import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
 import ConclusionPrint from "@/components/print/ConclusionPrint";
@@ -139,7 +140,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     }
   }, [editMode]);
 
-  const obpData = studiesData["ОБП"];
+  const obpData = studiesData["ОБП"] || studiesData["ОБП (v2)"];
   const kidneysData = studiesData["Почки"];
   const bladderStudyData = studiesData["Мочевой пузырь"];
   const omtFemaleData = studiesData["ОМТ (Ж)"];
@@ -159,6 +160,14 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     studiesData["lymphNodes"];
 
   const obpProtocol = obpData as ObpProtocol | undefined;
+
+  // Определяем динамический формат OBP (v2) по наличию точечных ключей
+  const isDynamicObp = (data: any): boolean => {
+    return typeof data === "object" && data !== null && "liver.rightLobeAP" in data;
+  };
+
+  const obpIsDynamic = isDynamicObp(obpData);
+  const dynamicObpData = obpIsDynamic ? (obpData as Record<string, any>) : undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
   const bladderStudyProtocol = bladderStudyData as UrinaryBladderStudyProtocol | undefined;
   const omtFemaleProtocol = omtFemaleData as OmtFemaleProtocol | undefined;
@@ -182,10 +191,12 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           id: "obp",
           key: "obp",
           label: "ОБП",
-          studyData: obpProtocol,
-          conclusion: obpProtocol?.conclusion || "",
-          recommendations: obpProtocol?.recommendations || "",
-          element: <ObpPrint obpData={obpProtocol} />,
+          studyData: obpIsDynamic ? dynamicObpData : obpProtocol,
+          conclusion: obpIsDynamic ? (dynamicObpData?.["conclusion.conclusion"] ?? "") : (obpProtocol?.conclusion || ""),
+          recommendations: obpIsDynamic ? (dynamicObpData?.["conclusion.recommendations"] ?? "") : (obpProtocol?.recommendations || ""),
+          element: obpIsDynamic
+            ? <DynamicObpPrint data={dynamicObpData ?? {}} />
+            : <ObpPrint obpData={obpProtocol} />,
         },
         {
           id: "kidneys",
