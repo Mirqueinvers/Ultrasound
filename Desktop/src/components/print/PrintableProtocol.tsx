@@ -3,7 +3,9 @@ import { useResearch } from "@contexts";
 import { useAuth } from "@/contexts/AuthContext";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
 import ObpPrint from "@/components/print/researches/ObpPrint";
-import DynamicObpPrint from "@/components/print/researches/DynamicObpPrint";
+import DynamicPrint from "@/components/print/researches/DynamicPrint";
+import obpSchema from "@/constructor/definitions/obp.json";
+import type { PrintTemplate } from "@/constructor/schema";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
 import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
 import ConclusionPrint from "@/components/print/ConclusionPrint";
@@ -195,7 +197,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           conclusion: obpIsDynamic ? (dynamicObpData?.["conclusion.conclusion"] ?? "") : (obpProtocol?.conclusion || ""),
           recommendations: obpIsDynamic ? (dynamicObpData?.["conclusion.recommendations"] ?? "") : (obpProtocol?.recommendations || ""),
           element: obpIsDynamic
-            ? <DynamicObpPrint data={dynamicObpData ?? {}} />
+            ? <DynamicPrint template={(obpSchema as any).printTemplate as PrintTemplate} data={dynamicObpData ?? {}} />
             : <ObpPrint obpData={obpProtocol} />,
         },
         {
