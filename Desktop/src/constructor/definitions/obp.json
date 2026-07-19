@@ -380,6 +380,111 @@
           ]
         }
       ]
+    },
+    {
+      "id": "obp.pancreas",
+      "label": "Поджелудочная железа",
+      "desktopKey": "ОБП:поджелудочная",
+      "order": 3,
+      "fieldsets": [
+        {
+          "id": "pancreas.sizes",
+          "title": "Размеры",
+          "fields": [
+            {
+              "id": "head",
+              "label": "Головка (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 0, "max": 32 }
+            },
+            {
+              "id": "body",
+              "label": "Тело (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 0, "max": 21 }
+            },
+            {
+              "id": "tail",
+              "label": "Хвост (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 0, "max": 30 }
+            }
+          ]
+        },
+        {
+          "id": "pancreas.structure",
+          "title": "Структура",
+          "fields": [
+            {
+              "id": "echogenicity",
+              "label": "Эхогенность",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "средняя", "label": "средняя" },
+                { "value": "повышена", "label": "повышена" },
+                { "value": "снижена", "label": "снижена" }
+              ]
+            },
+            {
+              "id": "echostructure",
+              "label": "Эхоструктура",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "однородная", "label": "однородная" },
+                { "value": "неоднородная", "label": "неоднородная" },
+                { "value": "диффузно-неоднородная", "label": "диффузно-неоднородная" }
+              ]
+            },
+            {
+              "id": "contour",
+              "label": "Контур",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "четкий, ровный", "label": "четкий, ровный" },
+                { "value": "четкий, не ровный", "label": "четкий, не ровный" },
+                { "value": "не четкий", "label": "не четкий" },
+                { "value": "бугристый", "label": "бугристый" }
+              ]
+            },
+            {
+              "id": "pathologicalFormations",
+              "label": "Патологические образования",
+              "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "pathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "pancreas.wirsung",
+          "title": "Вирсунгов проток",
+          "fields": [
+            {
+              "id": "wirsungDuct",
+              "label": "Вирсунгов проток (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 0, "max": 3 }
+            }
+          ]
+        },
+        {
+          "id": "pancreas.additional",
+          "title": "Дополнительно",
+          "fields": [
+            {
+              "id": "additional",
+              "label": "Дополнительно",
+              "type": "textarea",
+              "rows": 3
+            }
+          ]
+        }
+      ]
     }
   ]
 }
