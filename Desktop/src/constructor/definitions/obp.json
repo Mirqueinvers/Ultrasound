@@ -622,11 +622,11 @@
       "fieldsets": [
         {
           "id": "freeFluid.main",
-          "title": "Свободная жидкость в брюшной полости",
+          
           "fields": [
             {
               "id": "freeFluid",
-              "label": "Свободная жидкость в брюшной полости",
+              
               "type": "selectWithTextarea",
               "options": [
                 { "value": "не определяется", "label": "не определяется" },
