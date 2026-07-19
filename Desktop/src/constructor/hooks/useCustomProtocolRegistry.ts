@@ -1,18 +1,15 @@
 import { useEffect } from 'react'
-import { loadCustomProtocols } from '@/constructor/utils/storage'
+import { refreshCustomSchemas } from '@/constructor/utils/protocolRegistry'
 
 /**
  * Хук для динамической регистрации кастомных протоколов.
- * Слушает CustomEvent 'protocol-register-custom' и dispatch'ит событие для реестра.
+ * Загрузка с диска запускается автоматически при импорте модуля protocolRegistry.
+ * Хук только слушает CustomEvent 'protocol-register-custom' для обновления после сохранения.
  */
 export function useCustomProtocolRegistry() {
   useEffect(() => {
     const handleRegister = () => {
-      window.dispatchEvent(
-        new CustomEvent('protocol-registry-sync', {
-          detail: loadCustomProtocols(),
-        })
-      )
+      refreshCustomSchemas().catch(console.error)
     }
 
     window.addEventListener('protocol-register-custom', handleRegister)

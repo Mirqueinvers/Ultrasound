@@ -42,7 +42,10 @@ const obpNormsLabels: Record<string, string> = {
 
 function getStudiesList(customSchemas: ProtocolSchema[]): string[] {
   const builtIn = PROTOCOL_SELECTIONS.map((protocol) => protocol.label);
-  const custom = customSchemas.map((s) => s.selectionLabel);
+  const custom = customSchemas
+    // Исключаем протоколы, которые уже есть во встроенном списке (чтобы не было дублей)
+    .filter((s) => !builtIn.includes(s.selectionLabel))
+    .map((s) => s.selectionLabel);
   return [...builtIn, ...custom];
 }
 
@@ -58,11 +61,14 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isObpNormsExpanded, setIsObpNormsExpanded] = useState(false);
-  const [studiesList, setStudiesList] = useState<string[]>(() =>
-    getStudiesList(getCustomSchemas())
-  );
+  const [studiesList, setStudiesList] = useState<string[]>(() => {
+    // sync-загрузка (если данные уже в памяти, будут показаны сразу; иначе сначала built-in)
+    return getStudiesList(getCustomSchemas());
+  });
 
   useEffect(() => {
+    // subscribeToCustomSchemas вызывает callback немедленно, если данные уже загружены,
+    // иначе ждёт завершения загрузки (которая стартовала при импорте модуля)
     return subscribeToCustomSchemas((schemas) => {
       setStudiesList(getStudiesList(schemas));
     });
@@ -104,7 +110,7 @@ const LeftSidePanel: React.FC<LeftSidePanelProps> = ({
     if (!searchQuery.trim()) return studiesList;
     const query = searchQuery.toLowerCase();
     return studiesList.filter((study) => study.toLowerCase().includes(query));
-  }, [searchQuery]);
+  }, [searchQuery, studiesList]);
 
   const filteredDirectoryItems = useMemo(() => {
     if (!searchQuery.trim()) return directoryItems;
