@@ -80,6 +80,13 @@ export type PrintBlock =
   | PrintConclusion
   | PrintRecommendations
 
+export const PRINT_BLOCK_LABELS: Record<string, string> = {
+  section: 'Секция органа',
+  freeFluid: 'Свободная жидкость',
+  conclusion: 'Заключение',
+  recommendations: 'Рекомендации',
+}
+
 export interface PrintSection {
   type: "section"
   label: string

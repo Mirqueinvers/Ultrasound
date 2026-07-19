@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react'
-import { Save, Eye, Edit3, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
-import type { ProtocolSchema, SectionDefinition, FieldsetDefinition, FieldDefinition, FieldType, RepeatingGroupTemplate } from '../schema'
+import { Save, Eye, Edit3, Plus, Trash2, ChevronUp, ChevronDown, Printer } from 'lucide-react'
+import type { ProtocolSchema, SectionDefinition, FieldsetDefinition, FieldDefinition, FieldType, PrintTemplate } from '../schema'
 import { DynamicProtocolForm } from './DynamicProtocolForm'
+import { PrintTemplateEditor } from './PrintTemplateEditor'
 import { loadCustomProtocols, saveCustomProtocols } from '../utils/storage'
 
 // =============== Компонент редактирования поля ===============
@@ -478,6 +479,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({ section, index, onChange,
 
 export const ConstructorPage: React.FC = () => {
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  const [activeTab, setActiveTab] = useState<'sections' | 'print'>('sections')
   const [schema, setSchema] = useState<ProtocolSchema>({
     id: 'custom-protocol',
     selectionLabel: 'Мой протокол',
@@ -539,6 +541,10 @@ export const ConstructorPage: React.FC = () => {
 
     setTimeout(() => setSaveMessage(null), 3000)
   }, [schema])
+
+  const handlePrintTemplateChange = useCallback((template: PrintTemplate | undefined) => {
+    setSchema((prev) => ({ ...prev, printTemplate: template }))
+  }, [])
 
   const loadProtocol = useCallback((p: ProtocolSchema) => {
     setSchema(JSON.parse(JSON.stringify(p))) // deep clone
@@ -619,81 +625,118 @@ export const ConstructorPage: React.FC = () => {
         </div>
       )}
 
+      {/* Вкладки: Секции / Печать */}
+      {mode === 'edit' && (
+        <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
+          <button
+            type="button"
+            onClick={() => setActiveTab('sections')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'sections'
+                ? 'border-sky-500 text-sky-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Edit3 size={14} className="inline mr-1" /> Секции
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('print')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'print'
+                ? 'border-sky-500 text-sky-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Printer size={14} className="inline mr-1" /> Печать
+          </button>
+        </div>
+      )}
+
       {mode === 'edit' ? (
         /* ===== РЕДАКТОР ===== */
         <div className="space-y-4">
-          {/* Основные настройки протокола */}
-          <div className="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
-            <h2 className="text-sm font-semibold text-slate-700">Основные настройки</h2>
-            <div className="grid grid-cols-4 gap-3">
-              <div>
-                <label className="text-xs text-slate-500">ID протокола</label>
-                <input
-                  type="text"
-                  className="w-full text-sm border border-slate-200 rounded px-2 py-1"
-                  value={schema.id}
-                  onChange={(e) => updateSchema({ id: e.target.value })}
-                />
+          {activeTab === 'print' ? (
+            <PrintTemplateEditor
+              template={schema.printTemplate}
+              onChange={handlePrintTemplateChange}
+            />
+          ) : (
+            <>
+              {/* Основные настройки протокола */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                <h2 className="text-sm font-semibold text-slate-700">Основные настройки</h2>
+                <div className="grid grid-cols-4 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500">ID протокола</label>
+                    <input
+                      type="text"
+                      className="w-full text-sm border border-slate-200 rounded px-2 py-1"
+                      value={schema.id}
+                      onChange={(e) => updateSchema({ id: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500">Название (selectionLabel)</label>
+                    <input
+                      type="text"
+                      className="w-full text-sm border border-slate-200 rounded px-2 py-1"
+                      value={schema.selectionLabel}
+                      onChange={(e) => updateSchema({ selectionLabel: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-slate-500">Заголовок (title)</label>
+                    <input
+                      type="text"
+                      className="w-full text-sm border border-slate-200 rounded px-2 py-1"
+                      value={schema.title}
+                      onChange={(e) => updateSchema({ title: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500">Описание</label>
+                  <input
+                    type="text"
+                    className="w-full text-sm border border-slate-200 rounded px-2 py-1"
+                    value={schema.description}
+                    onChange={(e) => updateSchema({ description: e.target.value })}
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-slate-500">Название (selectionLabel)</label>
-                <input
-                  type="text"
-                  className="w-full text-sm border border-slate-200 rounded px-2 py-1"
-                  value={schema.selectionLabel}
-                  onChange={(e) => updateSchema({ selectionLabel: e.target.value })}
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="text-xs text-slate-500">Заголовок (title)</label>
-                <input
-                  type="text"
-                  className="w-full text-sm border border-slate-200 rounded px-2 py-1"
-                  value={schema.title}
-                  onChange={(e) => updateSchema({ title: e.target.value })}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-slate-500">Описание</label>
-              <input
-                type="text"
-                className="w-full text-sm border border-slate-200 rounded px-2 py-1"
-                value={schema.description}
-                onChange={(e) => updateSchema({ description: e.target.value })}
-              />
-            </div>
-          </div>
 
-          {/* Секции */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-700">Секции ({schema.sections.length})</h2>
-              <button
-                type="button"
-                onClick={addSection}
-                className="text-xs px-3 py-1.5 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-1"
-              >
-                <Plus size={14} /> Добавить секцию
-              </button>
-            </div>
+              {/* Секции */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-slate-700">Секции ({schema.sections.length})</h2>
+                  <button
+                    type="button"
+                    onClick={addSection}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-1"
+                  >
+                    <Plus size={14} /> Добавить секцию
+                  </button>
+                </div>
 
-            {schema.sections.map((section, i) => (
-              <SectionEditor
-                key={section.id}
-                section={section}
-                index={i}
-                onChange={updateSection}
-                onDelete={deleteSection}
-              />
-            ))}
+                {schema.sections.map((section, i) => (
+                  <SectionEditor
+                    key={section.id}
+                    section={section}
+                    index={i}
+                    onChange={updateSection}
+                    onDelete={deleteSection}
+                  />
+                ))}
 
-            {schema.sections.length === 0 && (
-              <div className="text-center py-8 text-sm text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
-                Нажмите "Добавить секцию", чтобы начать собирать протокол
+                {schema.sections.length === 0 && (
+                  <div className="text-center py-8 text-sm text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
+                    Нажмите "Добавить секцию", чтобы начать собирать протокол
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       ) : (
         /* ===== ПРЕДПРОСМОТР ===== */
