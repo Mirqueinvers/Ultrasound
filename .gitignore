@@ -31,4 +31,4 @@ Registry/test-*.json
 *.sln
 *.sw?
 .aider*
-Desktop/src/constructor/definitions/custom/obp222.json
+Desktop/src/constructor/definitions/custom/
