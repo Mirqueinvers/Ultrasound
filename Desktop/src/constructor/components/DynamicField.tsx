@@ -62,22 +62,22 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
     // Сначала обновляем само поле
     onChange(fieldId, val)
 
-    // Авто-вычисление rightLobeTotal = rightLobeAP + rightLobeCCR
-    if (fieldId === 'rightLobeAP' || fieldId === 'rightLobeCCR') {
-      const ap = parseFloat(fieldId === 'rightLobeAP' ? val : getValue('rightLobeAP')) || 0
-      const ccr = parseFloat(fieldId === 'rightLobeCCR' ? val : getValue('rightLobeCCR')) || 0
+    // Авто-вычисление liver.rightLobeTotal = liver.rightLobeAP + liver.rightLobeCCR
+    if (fieldId === 'liver.rightLobeAP' || fieldId === 'liver.rightLobeCCR') {
+      const ap = parseFloat(fieldId === 'liver.rightLobeAP' ? val : getValue('liver.rightLobeAP')) || 0
+      const ccr = parseFloat(fieldId === 'liver.rightLobeCCR' ? val : getValue('liver.rightLobeCCR')) || 0
       if (ap > 0 && ccr > 0) {
-        onChange('rightLobeTotal', String(ccr + ap))
+        onChange('liver.rightLobeTotal', String(ccr + ap))
       }
       return
     }
 
-    // Авто-вычисление leftLobeTotal = leftLobeAP + leftLobeCCR
-    if (fieldId === 'leftLobeAP' || fieldId === 'leftLobeCCR') {
-      const ap = parseFloat(fieldId === 'leftLobeAP' ? val : getValue('leftLobeAP')) || 0
-      const ccr = parseFloat(fieldId === 'leftLobeCCR' ? val : getValue('leftLobeCCR')) || 0
+    // Авто-вычисление liver.leftLobeTotal = liver.leftLobeAP + liver.leftLobeCCR
+    if (fieldId === 'liver.leftLobeAP' || fieldId === 'liver.leftLobeCCR') {
+      const ap = parseFloat(fieldId === 'liver.leftLobeAP' ? val : getValue('liver.leftLobeAP')) || 0
+      const ccr = parseFloat(fieldId === 'liver.leftLobeCCR' ? val : getValue('liver.leftLobeCCR')) || 0
       if (ap > 0 && ccr > 0) {
-        onChange('leftLobeTotal', String(ccr + ap))
+        onChange('liver.leftLobeTotal', String(ccr + ap))
       }
       return
     }

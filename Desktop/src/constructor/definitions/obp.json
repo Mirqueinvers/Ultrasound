@@ -15,39 +15,39 @@
           "title": "Размеры",
           "fields": [
             {
-              "id": "rightLobeAP",
+              "id": "liver.rightLobeAP",
               "label": "Правая доля, ПЗР (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 90, "max": 125 }
             },
             {
-              "id": "leftLobeAP",
+              "id": "liver.leftLobeAP",
               "label": "Левая доля, ПЗР (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 50, "max": 90 }
             },
             {
-              "id": "rightLobeAdditional",
+              "id": "liver.rightLobeAdditional",
               "label": "Дополнительные измерения правой доли",
               "type": "fieldset",
               "visibleWhen": [
-                { "field": "rightLobeAP", "operator": ">", "value": 125 }
+                { "field": "liver.rightLobeAP", "operator": ">", "value": 125 }
               ],
               "fields": [
                 {
-                  "id": "rightLobeCCR",
+                  "id": "liver.rightLobeCCR",
                   "label": "Правая доля, ККР (мм)",
                   "type": "sizeRow",
                   "normalRange": { "min": 90, "max": 140 }
                 },
                 {
-                  "id": "rightLobeCVR",
+                  "id": "liver.rightLobeCVR",
                   "label": "Правая доля, КВР (мм)",
                   "type": "sizeRow",
                   "normalRange": { "min": 90, "max": 150 }
                 },
                 {
-                  "id": "rightLobeTotal",
+                  "id": "liver.rightLobeTotal",
                   "label": "Правая доля, ККР + ПЗР (мм)",
                   "type": "sizeRow",
                   "normalRange": { "min": 0, "max": 260 },
@@ -57,21 +57,21 @@
               ]
             },
             {
-              "id": "leftLobeAdditional",
+              "id": "liver.leftLobeAdditional",
               "label": "Дополнительные измерения левой доли",
               "type": "fieldset",
               "visibleWhen": [
-                { "field": "leftLobeAP", "operator": ">", "value": 90 }
+                { "field": "liver.leftLobeAP", "operator": ">", "value": 90 }
               ],
               "fields": [
                 {
-                  "id": "leftLobeCCR",
+                  "id": "liver.leftLobeCCR",
                   "label": "Левая доля, ККР (мм)",
                   "type": "sizeRow",
                   "normalRange": { "min": 0, "max": 100 }
                 },
                 {
-                  "id": "leftLobeTotal",
+                  "id": "liver.leftLobeTotal",
                   "label": "Левая доля, ККР + ПЗР (мм)",
                   "type": "sizeRow",
                   "normalRange": { "min": 0, "max": 160 },
@@ -87,7 +87,7 @@
           "title": "Структура",
           "fields": [
             {
-              "id": "echogenicity",
+              "id": "liver.echogenicity",
               "label": "Эхогенность",
               "type": "buttonSelect",
               "options": [
@@ -97,7 +97,7 @@
               ]
             },
             {
-              "id": "homogeneity",
+              "id": "liver.homogeneity",
               "label": "Эхоструктура",
               "type": "buttonSelect",
               "options": [
@@ -107,7 +107,7 @@
               ]
             },
             {
-              "id": "contours",
+              "id": "liver.contours",
               "label": "Контур",
               "type": "buttonSelect",
               "options": [
@@ -117,7 +117,7 @@
               ]
             },
             {
-              "id": "lowerEdgeAngle",
+              "id": "liver.lowerEdgeAngle",
               "label": "Угол нижнего края",
               "type": "buttonSelect",
               "options": [
@@ -126,7 +126,7 @@
               ]
             },
             {
-              "id": "focalLesionsPresence",
+              "id": "liver.focalLesionsPresence",
               "label": "Патологические образования",
               "type": "selectWithTextarea",
               "options": [
@@ -135,7 +135,7 @@
               ],
               "triggerValue": "определяются",
               "textareaLabel": "Описание патологических образований",
-              "textareaId": "focalLesions"
+              "textareaId": "liver.focalLesions"
             }
           ]
         },
@@ -144,7 +144,7 @@
           "title": "Сосуды",
           "fields": [
             {
-              "id": "vascularPattern",
+              "id": "liver.vascularPattern",
               "label": "Сосудистый рисунок",
               "type": "buttonSelect",
               "options": [
@@ -154,13 +154,13 @@
               ]
             },
             {
-              "id": "portalVeinDiameter",
+              "id": "liver.portalVeinDiameter",
               "label": "Воротная вена, диаметр (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 7, "max": 13 }
             },
             {
-              "id": "ivc",
+              "id": "liver.ivc",
               "label": "Нижняя полая вена, диаметр (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 15, "max": 25 }
@@ -172,7 +172,7 @@
           "title": "Дополнительно",
           "fields": [
             {
-              "id": "additional",
+              "id": "liver.additional",
               "label": "Дополнительно",
               "type": "textarea",
               "rows": 3
@@ -192,7 +192,7 @@
           "title": "Положение",
           "fields": [
             {
-              "id": "position",
+              "id": "gb.position",
               "label": "Положение желчного пузыря",
               "type": "buttonSelect",
               "options": [
@@ -207,13 +207,13 @@
           "title": "Размеры",
           "fields": [
             {
-              "id": "length",
+              "id": "gb.length",
               "label": "Длина (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 50, "max": 100 }
             },
             {
-              "id": "width",
+              "id": "gb.width",
               "label": "Ширина (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 20, "max": 40 }
@@ -225,7 +225,7 @@
           "title": "Размеры стенки",
           "fields": [
             {
-              "id": "wallThickness",
+              "id": "gb.wallThickness",
               "label": "Толщина стенки (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 1, "max": 4 }
@@ -237,7 +237,7 @@
           "title": "Форма",
           "fields": [
             {
-              "id": "shape",
+              "id": "gb.shape",
               "label": "Форма желчного пузыря",
               "type": "buttonSelect",
               "options": [
@@ -247,7 +247,7 @@
               ]
             },
             {
-              "id": "constriction",
+              "id": "gb.constriction",
               "label": "Перетяжка",
               "type": "buttonSelect",
               "options": [
@@ -263,7 +263,7 @@
           "title": "Содержимое",
           "fields": [
             {
-              "id": "contentType",
+              "id": "gb.contentType",
               "label": "Тип содержимого",
               "type": "buttonSelect",
               "options": [
@@ -273,7 +273,7 @@
               ]
             },
             {
-              "id": "concretions",
+              "id": "gb.concretions",
               "label": "Конкременты",
               "type": "repeatingGroup",
               "repeatingGroup": {
@@ -285,12 +285,12 @@
                 ],
                 "fields": [
                   {
-                    "id": "size",
+                    "id": "gb.concretionSize",
                     "label": "Размеры (мм)",
                     "type": "sizeRow"
                   },
                   {
-                    "id": "position",
+                    "id": "gb.concretionPosition",
                     "label": "Положение",
                     "type": "buttonSelect",
                     "options": [
@@ -303,7 +303,7 @@
               }
             },
             {
-              "id": "polyps",
+              "id": "gb.polyps",
               "label": "Полипы",
               "type": "repeatingGroup",
               "repeatingGroup": {
@@ -315,12 +315,12 @@
                 ],
                 "fields": [
                   {
-                    "id": "size",
+                    "id": "gb.polypSize",
                     "label": "Размеры (мм)",
                     "type": "sizeRow"
                   },
                   {
-                    "id": "position",
+                    "id": "gb.polypPosition",
                     "label": "Положение",
                     "type": "buttonSelect",
                     "options": [
@@ -330,7 +330,7 @@
                     ]
                   },
                   {
-                    "id": "wall",
+                    "id": "gb.polypWall",
                     "label": "Стенка",
                     "type": "buttonSelect",
                     "options": [
@@ -342,7 +342,7 @@
               }
             },
             {
-              "id": "contentAdditional",
+              "id": "gb.contentAdditional",
               "label": "Дополнительно",
               "type": "textarea",
               "rows": 2
@@ -354,13 +354,13 @@
           "title": "Протоки",
           "fields": [
             {
-              "id": "cysticDuct",
+              "id": "gb.cysticDuct",
               "label": "Пузырный проток (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 2, "max": 4 }
             },
             {
-              "id": "commonBileDuct",
+              "id": "gb.commonBileDuct",
               "label": "Общий желчный проток (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 4, "max": 8 }
@@ -372,7 +372,7 @@
           "title": "Дополнительно",
           "fields": [
             {
-              "id": "additional",
+              "id": "gb.additional",
               "label": "Дополнительно",
               "type": "textarea",
               "rows": 3
@@ -392,19 +392,19 @@
           "title": "Размеры",
           "fields": [
             {
-              "id": "head",
+              "id": "pancreas.head",
               "label": "Головка (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 0, "max": 32 }
             },
             {
-              "id": "body",
+              "id": "pancreas.body",
               "label": "Тело (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 0, "max": 21 }
             },
             {
-              "id": "tail",
+              "id": "pancreas.tail",
               "label": "Хвост (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 0, "max": 30 }
@@ -416,7 +416,7 @@
           "title": "Структура",
           "fields": [
             {
-              "id": "echogenicity",
+              "id": "pancreas.echogenicity",
               "label": "Эхогенность",
               "type": "buttonSelect",
               "options": [
@@ -426,7 +426,7 @@
               ]
             },
             {
-              "id": "echostructure",
+              "id": "pancreas.echostructure",
               "label": "Эхоструктура",
               "type": "buttonSelect",
               "options": [
@@ -436,7 +436,7 @@
               ]
             },
             {
-              "id": "contour",
+              "id": "pancreas.contour",
               "label": "Контур",
               "type": "buttonSelect",
               "options": [
@@ -447,7 +447,7 @@
               ]
             },
             {
-              "id": "pathologicalFormations",
+              "id": "pancreas.pathologicalFormations",
               "label": "Патологические образования",
               "type": "selectWithTextarea",
               "options": [
@@ -456,7 +456,7 @@
               ],
               "triggerValue": "определяются",
               "textareaLabel": "Описание патологических образований",
-              "textareaId": "pathologicalFormationsText"
+              "textareaId": "pancreas.pathologicalFormationsText"
             }
           ]
         },
@@ -465,7 +465,7 @@
           "title": "Вирсунгов проток",
           "fields": [
             {
-              "id": "wirsungDuct",
+              "id": "pancreas.wirsungDuct",
               "label": "Вирсунгов проток (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 0, "max": 3 }
@@ -477,7 +477,7 @@
           "title": "Дополнительно",
           "fields": [
             {
-              "id": "additional",
+              "id": "pancreas.additional",
               "label": "Дополнительно",
               "type": "textarea",
               "rows": 3
@@ -497,7 +497,7 @@
           "title": "Положение",
           "fields": [
             {
-              "id": "position",
+              "id": "spleen.position",
               "label": "Положение селезенки",
               "type": "buttonSelect",
               "options": [
@@ -511,17 +511,17 @@
           "id": "spleen.sizes",
           "title": "Размеры",
           "visibleWhen": [
-            { "field": "position", "operator": "==", "value": "обычное" }
+            { "field": "spleen.position", "operator": "==", "value": "обычное" }
           ],
           "fields": [
             {
-              "id": "length",
+              "id": "spleen.length",
               "label": "Длина (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 80, "max": 120 }
             },
             {
-              "id": "width",
+              "id": "spleen.width",
               "label": "Ширина (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 40, "max": 60 }
@@ -532,11 +532,11 @@
           "id": "spleen.structure",
           "title": "Структура",
           "visibleWhen": [
-            { "field": "position", "operator": "==", "value": "обычное" }
+            { "field": "spleen.position", "operator": "==", "value": "обычное" }
           ],
           "fields": [
             {
-              "id": "echogenicity",
+              "id": "spleen.echogenicity",
               "label": "Эхогенность",
               "type": "buttonSelect",
               "options": [
@@ -546,7 +546,7 @@
               ]
             },
             {
-              "id": "echostructure",
+              "id": "spleen.echostructure",
               "label": "Эхоструктура",
               "type": "buttonSelect",
               "options": [
@@ -556,7 +556,7 @@
               ]
             },
             {
-              "id": "contours",
+              "id": "spleen.contours",
               "label": "Контур",
               "type": "buttonSelect",
               "options": [
@@ -566,7 +566,7 @@
               ]
             },
             {
-              "id": "pathologicalFormations",
+              "id": "spleen.pathologicalFormations",
               "label": "Патологические образования",
               "type": "selectWithTextarea",
               "options": [
@@ -575,7 +575,7 @@
               ],
               "triggerValue": "определяются",
               "textareaLabel": "Описание патологических образований",
-              "textareaId": "pathologicalFormationsText"
+              "textareaId": "spleen.pathologicalFormationsText"
             }
           ]
         },
@@ -583,17 +583,17 @@
           "id": "spleen.vessels",
           "title": "Сосуды",
           "visibleWhen": [
-            { "field": "position", "operator": "==", "value": "обычное" }
+            { "field": "spleen.position", "operator": "==", "value": "обычное" }
           ],
           "fields": [
             {
-              "id": "splenicVein",
+              "id": "spleen.splenicVein",
               "label": "Селезеночная вена, диаметр (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 4, "max": 10 }
             },
             {
-              "id": "splenicArtery",
+              "id": "spleen.splenicArtery",
               "label": "Селезеночная артерия, диаметр (мм)",
               "type": "sizeRow",
               "normalRange": { "min": 3, "max": 6 }
@@ -605,7 +605,7 @@
           "title": "Дополнительно",
           "fields": [
             {
-              "id": "additional",
+              "id": "spleen.additional",
               "label": "Дополнительно",
               "type": "textarea",
               "rows": 3
@@ -622,11 +622,11 @@
       "fieldsets": [
         {
           "id": "freeFluid.main",
-          
+          "title": "Свободная жидкость в брюшной полости",
           "fields": [
             {
-              "id": "freeFluid",
-              
+              "id": "freeFluid.freeFluid",
+              "label": "Свободная жидкость в брюшной полости",
               "type": "selectWithTextarea",
               "options": [
                 { "value": "не определяется", "label": "не определяется" },
@@ -634,7 +634,39 @@
               ],
               "triggerValue": "определяется",
               "textareaLabel": "Описание свободной жидкости",
-              "textareaId": "freeFluidDetails"
+              "textareaId": "freeFluid.freeFluidDetails"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "obp.conclusion",
+      "label": "Заключение",
+      "desktopKey": "ОБП:заключение",
+      "order": 6,
+      "fieldsets": [
+        {
+          "id": "conclusion.main",
+          "title": "Заключение",
+          "fields": [
+            {
+              "id": "conclusion.conclusion",
+              "label": "Заключение",
+              "type": "textarea",
+              "rows": 4
+            }
+          ]
+        },
+        {
+          "id": "conclusion.recommendations",
+          "title": "Рекомендации",
+          "fields": [
+            {
+              "id": "conclusion.recommendations",
+              "label": "Рекомендации",
+              "type": "textarea",
+              "rows": 3
             }
           ]
         }
