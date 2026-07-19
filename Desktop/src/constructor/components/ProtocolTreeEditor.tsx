@@ -20,6 +20,14 @@ interface TreeNode {
   collapsed?: boolean
 }
 
+// Префиксы для id узлов дерева — гарантируют уникальность
+// даже если fieldset.id и field.id совпадают (например, "spleen.position")
+const NODE_PREFIX = {
+  section: 'sec:',
+  fieldset: 'fs:',
+  field: 'f:',
+}
+
 // Иконки для типов полей
 const FIELD_ICONS: Record<FieldType, string> = {
   sizeRow: '📏',
@@ -657,11 +665,12 @@ export const ProtocolTreeEditor: React.FC<ProtocolTreeEditorProps> = ({ schema, 
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set())
 
   // Сборка дерева из схемы
+  // Добавляем префиксы NODE_PREFIX к id узлов, чтобы гарантировать уникальность
   const buildTree = useCallback((): TreeNode[] => {
     return schema.sections.map((section) => {
       const sectionNode: TreeNode = {
         type: 'section',
-        id: section.id,
+        id: NODE_PREFIX.section + section.id,
         label: section.label || 'Секция',
         icon: '📋',
         data: section,
@@ -669,14 +678,14 @@ export const ProtocolTreeEditor: React.FC<ProtocolTreeEditorProps> = ({ schema, 
         children: (section.fieldsets ?? []).map((fieldset) => {
           const fieldsetNode: TreeNode = {
             type: 'fieldset',
-            id: fieldset.id ?? `fieldset-${fieldset.title}`,
+            id: NODE_PREFIX.fieldset + (fieldset.id ?? `fieldset-${fieldset.title}`),
             label: fieldset.title || 'Блок полей',
             icon: '📁',
             data: fieldset,
             collapsed: collapsedNodes.has(fieldset.id ?? `fieldset-${fieldset.title}`),
             children: fieldset.fields.map((field) => ({
               type: 'field' as const,
-              id: field.id,
+              id: NODE_PREFIX.field + field.id,
               label: field.label || 'Поле',
               icon: FIELD_ICONS[field.type] || '📄',
               data: field,

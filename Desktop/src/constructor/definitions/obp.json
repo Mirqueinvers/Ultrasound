@@ -97,7 +97,7 @@
     {
       "id": "obp.spleen", "label": "Селезёнка", "desktopKey": "ОБП:селезёнка", "order": 4,
       "fieldsets": [
-        { "id": "spleen.position", "title": "Положение", "fields": [{ "id": "spleen.position", "label": "Положение селезенки", "type": "buttonSelect", "options": [{ "value": "обычное", "label": "Обычное" }, { "value": "спленэктомия", "label": "Спленэктомия" }] }] },
+        { "id": "spleen.positionSection", "title": "Положение", "fields": [{ "id": "spleen.position", "label": "Положение селезенки", "type": "buttonSelect", "options": [{ "value": "обычное", "label": "Обычное" }, { "value": "спленэктомия", "label": "Спленэктомия" }] }] },
         { "id": "spleen.sizes", "title": "Размеры", "visibleWhen": [{ "field": "spleen.position", "operator": "==", "value": "обычное" }], "fields": [{ "id": "spleen.length", "label": "Длина (мм)", "type": "sizeRow", "normalRange": { "min": 80, "max": 120 } }, { "id": "spleen.width", "label": "Ширина (мм)", "type": "sizeRow", "normalRange": { "min": 40, "max": 60 } }] },
         {
           "id": "spleen.structure", "title": "Структура", "visibleWhen": [{ "field": "spleen.position", "operator": "==", "value": "обычное" }], "fields": [
