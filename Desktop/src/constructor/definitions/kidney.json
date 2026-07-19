@@ -1,0 +1,984 @@
+{
+  "id": "kidney",
+  "selectionLabel": "Почки",
+  "title": "Ультразвуковое исследование почек",
+  "description": "Правая почка, левая почка, мочевой пузырь.",
+  "sections": [
+    {
+      "id": "kidney.right",
+      "label": "Правая почка",
+      "desktopKey": "Почки:правая",
+      "order": 1,
+      "fieldsets": [
+        {
+          "id": "right.position",
+          "title": "Положение",
+          "fields": [
+            {
+              "id": "right.position", "label": "Положение почки", "type": "buttonSelect",
+              "options": [
+                { "value": "обычное", "label": "Обычное" },
+                { "value": "опущение", "label": "Опущение" },
+                { "value": "нефроптоз", "label": "Нефроптоз" },
+                { "value": "нефрэктомия", "label": "Нефрэктомия" }
+              ]
+            },
+            {
+              "id": "right.positionText", "label": "Описание положения", "type": "textarea", "rows": 2,
+              "visibleWhen": [
+                { "field": "right.position", "operator": "==", "value": "опущение" },
+                { "field": "right.position", "operator": "==", "value": "нефроптоз" },
+                { "field": "right.position", "operator": "==", "value": "нефрэктомия" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "right.sizes", "title": "Размеры",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "right.length", "label": "Длина (мм)", "type": "sizeRow", "normalRange": { "min": 80, "max": 120 } },
+            { "id": "right.width", "label": "Ширина (мм)", "type": "sizeRow", "normalRange": { "min": 30, "max": 60 } },
+            { "id": "right.thickness", "label": "Толщина (мм)", "type": "sizeRow", "normalRange": { "min": 30, "max": 50 } }
+          ]
+        },
+        {
+          "id": "right.contour", "title": "Контур почки",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "right.contour", "label": "", "type": "buttonSelect",
+              "options": [
+                { "value": "четкий ровный", "label": "четкий ровный" },
+                { "value": "четкий неровный", "label": "четкий неровный" },
+                { "value": "нечеткий", "label": "нечеткий" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "right.parenchyma", "title": "Паренхима",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "right.parenchymaSize", "label": "Размер паренхимы (мм)", "type": "sizeRow", "normalRange": { "min": 10, "max": 20 } },
+            {
+              "id": "right.parenchymaEchogenicity", "label": "Эхогенность", "type": "buttonSelect",
+              "options": [
+                { "value": "средняя", "label": "средняя" },
+                { "value": "повышена", "label": "повышена" },
+                { "value": "понижена", "label": "понижена" }
+              ]
+            },
+            {
+              "id": "right.parenchymaStructure", "label": "Структура", "type": "buttonSelect",
+              "options": [
+                { "value": "однородная", "label": "однородная" },
+                { "value": "диффузно-неоднородная", "label": "диффузно-неоднородная" }
+              ]
+            },
+            {
+              "id": "right.parenchymaConcrements", "label": "Конкременты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Конкремент #{index}", "addButtonLabel": "Добавить конкремент",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "right.parenchymaConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "right.parenchymaConcrementLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "right.parenchymaCysts", "label": "Кисты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Киста #{index}", "addButtonLabel": "Добавить кисту",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "right.parenchymaCystSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "right.parenchymaCystLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "right.parenchymaPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "right.parenchymaPathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "right.pcs", "title": "Чашечно-лоханочная система",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "right.pcsSize", "label": "Размер", "type": "buttonSelect",
+              "options": [
+                { "value": "не расширена", "label": "не расширена" },
+                { "value": "расширена", "label": "расширена" }
+              ]
+            },
+            {
+              "id": "right.pcsMicroliths", "label": "Микролиты", "type": "buttonSelect",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ]
+            },
+            {
+              "id": "right.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "textField",
+              "visibleWhen": [{ "field": "right.pcsMicroliths", "operator": "==", "value": "определяются" }]
+            },
+            {
+              "id": "right.pcsConcrements", "label": "Конкременты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Конкремент #{index}", "addButtonLabel": "Добавить конкремент",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "right.pcsConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "right.pcsConcrementLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "right.pcsCysts", "label": "Кисты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Киста #{index}", "addButtonLabel": "Добавить кисту",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "right.pcsCystSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "right.pcsCystLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "right.pcsPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "right.pcsPathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "right.sinus", "title": "Синус",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "right.sinus", "label": "", "type": "buttonSelect",
+              "options": [
+                { "value": "без включений", "label": "без включений" },
+                { "value": "с включениями", "label": "с включениями" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "right.adrenal", "title": "Область надпочечников",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "right.adrenalArea", "label": "", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не изменена", "label": "не изменена" },
+                { "value": "изменена", "label": "изменена" }
+              ],
+              "triggerValue": "изменена",
+              "textareaLabel": "Описание изменений",
+              "textareaId": "right.adrenalAreaText"
+            }
+          ]
+        },
+        {
+          "id": "right.additional", "title": "Дополнительно",
+          "visibleWhen": [{ "field": "right.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "right.additional", "label": "Дополнительно", "type": "textarea", "rows": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kidney.left",
+      "label": "Левая почка",
+      "desktopKey": "Почки:левая",
+      "order": 2,
+      "fieldsets": [
+        {
+          "id": "left.position",
+          "title": "Положение",
+          "fields": [
+            {
+              "id": "left.position", "label": "Положение почки", "type": "buttonSelect",
+              "options": [
+                { "value": "обычное", "label": "Обычное" },
+                { "value": "опущение", "label": "Опущение" },
+                { "value": "нефроптоз", "label": "Нефроптоз" },
+                { "value": "нефрэктомия", "label": "Нефрэктомия" }
+              ]
+            },
+            {
+              "id": "left.positionText", "label": "Описание положения", "type": "textarea", "rows": 2,
+              "visibleWhen": [
+                { "field": "left.position", "operator": "==", "value": "опущение" },
+                { "field": "left.position", "operator": "==", "value": "нефроптоз" },
+                { "field": "left.position", "operator": "==", "value": "нефрэктомия" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "left.sizes", "title": "Размеры",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "left.length", "label": "Длина (мм)", "type": "sizeRow", "normalRange": { "min": 80, "max": 120 } },
+            { "id": "left.width", "label": "Ширина (мм)", "type": "sizeRow", "normalRange": { "min": 30, "max": 60 } },
+            { "id": "left.thickness", "label": "Толщина (мм)", "type": "sizeRow", "normalRange": { "min": 30, "max": 50 } }
+          ]
+        },
+        {
+          "id": "left.contour", "title": "Контур почки",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "left.contour", "label": "", "type": "buttonSelect",
+              "options": [
+                { "value": "четкий ровный", "label": "четкий ровный" },
+                { "value": "четкий неровный", "label": "четкий неровный" },
+                { "value": "нечеткий", "label": "нечеткий" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "left.parenchyma", "title": "Паренхима",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "left.parenchymaSize", "label": "Размер паренхимы (мм)", "type": "sizeRow", "normalRange": { "min": 10, "max": 20 } },
+            {
+              "id": "left.parenchymaEchogenicity", "label": "Эхогенность", "type": "buttonSelect",
+              "options": [
+                { "value": "средняя", "label": "средняя" },
+                { "value": "повышена", "label": "повышена" },
+                { "value": "понижена", "label": "понижена" }
+              ]
+            },
+            {
+              "id": "left.parenchymaStructure", "label": "Структура", "type": "buttonSelect",
+              "options": [
+                { "value": "однородная", "label": "однородная" },
+                { "value": "диффузно-неоднородная", "label": "диффузно-неоднородная" }
+              ]
+            },
+            {
+              "id": "left.parenchymaConcrements", "label": "Конкременты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Конкремент #{index}", "addButtonLabel": "Добавить конкремент",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "left.parenchymaConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "left.parenchymaConcrementLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "left.parenchymaCysts", "label": "Кисты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Киста #{index}", "addButtonLabel": "Добавить кисту",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "left.parenchymaCystSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "left.parenchymaCystLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "left.parenchymaPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "left.parenchymaPathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "left.pcs", "title": "Чашечно-лоханочная система",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "left.pcsSize", "label": "Размер", "type": "buttonSelect",
+              "options": [
+                { "value": "не расширена", "label": "не расширена" },
+                { "value": "расширена", "label": "расширена" }
+              ]
+            },
+            {
+              "id": "left.pcsMicroliths", "label": "Микролиты", "type": "buttonSelect",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ]
+            },
+            {
+              "id": "left.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "textField",
+              "visibleWhen": [{ "field": "left.pcsMicroliths", "operator": "==", "value": "определяются" }]
+            },
+            {
+              "id": "left.pcsConcrements", "label": "Конкременты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Конкремент #{index}", "addButtonLabel": "Добавить конкремент",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "left.pcsConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "left.pcsConcrementLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "left.pcsCysts", "label": "Кисты", "type": "repeatingGroup",
+              "repeatingGroup": {
+                "itemLabel": "Киста #{index}", "addButtonLabel": "Добавить кисту",
+                "triggerOptions": [
+                  { "value": "не определяются", "label": "не определяются" },
+                  { "value": "определяются", "label": "определяются" }
+                ],
+                "fields": [
+                  { "id": "left.pcsCystSize", "label": "Размер (мм)", "type": "sizeRow" },
+                  { "id": "left.pcsCystLocation", "label": "Локализация", "type": "textField" }
+                ]
+              }
+            },
+            {
+              "id": "left.pcsPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "left.pcsPathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "left.sinus", "title": "Синус",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "left.sinus", "label": "", "type": "buttonSelect",
+              "options": [
+                { "value": "без включений", "label": "без включений" },
+                { "value": "с включениями", "label": "с включениями" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "left.adrenal", "title": "Область надпочечников",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            {
+              "id": "left.adrenalArea", "label": "", "type": "selectWithTextarea",
+              "options": [
+                { "value": "не изменена", "label": "не изменена" },
+                { "value": "изменена", "label": "изменена" }
+              ],
+              "triggerValue": "изменена",
+              "textareaLabel": "Описание изменений",
+              "textareaId": "left.adrenalAreaText"
+            }
+          ]
+        },
+        {
+          "id": "left.additional", "title": "Дополнительно",
+          "visibleWhen": [{ "field": "left.position", "operator": "!=", "value": "нефрэктомия" }],
+          "fields": [
+            { "id": "left.additional", "label": "Дополнительно", "type": "textarea", "rows": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kidney.urinaryBladder",
+      "label": "Мочевой пузырь",
+      "desktopKey": "Почки:мочевой пузырь",
+      "order": 3,
+      "fieldsets": [
+        {
+          "id": "urinaryBladder.sizes",
+          "title": "Размеры до мочеиспускания",
+          "fields": [
+            { "id": "urinaryBladder.length", "label": "Длина (мм)", "type": "sizeRow" },
+            { "id": "urinaryBladder.width", "label": "Ширина (мм)", "type": "sizeRow" },
+            { "id": "urinaryBladder.depth", "label": "Передне-задний (мм)", "type": "sizeRow" },
+            { "id": "urinaryBladder.volume", "label": "Объем (мл)", "type": "sizeRow", "readOnly": true, "autoCalculated": true },
+            { "id": "urinaryBladder.wallThickness", "label": "Толщина стенки (мм)", "type": "sizeRow", "normalRange": { "min": 2, "max": 5 } }
+          ]
+        },
+        {
+          "id": "urinaryBladder.residual",
+          "title": "Объем остаточной мочи",
+          "fields": [
+            {
+              "id": "urinaryBladder.residualStatus", "label": "Мочевой пузырь (после микции)", "type": "buttonSelect",
+              "options": [
+                { "value": "определяется", "label": "определяется" },
+                { "value": "не определяется", "label": "не определяется" }
+              ]
+            },
+            {
+              "id": "urinaryBladder.residualFields", "label": "", "type": "fieldset",
+              "visibleWhen": [{ "field": "urinaryBladder.residualStatus", "operator": "==", "value": "определяется" }],
+              "fields": [
+                { "id": "urinaryBladder.residualLength", "label": "Длина (мм)", "type": "sizeRow" },
+                { "id": "urinaryBladder.residualWidth", "label": "Ширина (мм)", "type": "sizeRow" },
+                { "id": "urinaryBladder.residualDepth", "label": "Передне-задний (мм)", "type": "sizeRow" },
+                { "id": "urinaryBladder.residualVolume", "label": "Объем остаточной мочи (мл)", "type": "sizeRow", "readOnly": true, "autoCalculated": true }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "urinaryBladder.contents",
+          "title": "Содержимое",
+          "fields": [
+            {
+              "id": "urinaryBladder.contents", "label": "Характер содержимого", "type": "buttonSelect",
+              "options": [
+                { "value": "однородное", "label": "однородное" },
+                { "value": "неоднородное", "label": "неоднородное" }
+              ]
+            },
+            {
+              "id": "urinaryBladder.contentsText", "label": "Описание содержимого", "type": "textarea", "rows": 3,
+              "visibleWhen": [{ "field": "urinaryBladder.contents", "operator": "==", "value": "неоднородное" }]
+            }
+          ]
+        },
+        {
+          "id": "urinaryBladder.additional",
+          "title": "Дополнительно",
+          "fields": [
+            { "id": "urinaryBladder.additional", "label": "Дополнительно", "type": "textarea", "rows": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kidney.conclusion",
+      "label": "Заключение",
+      "desktopKey": "Почки:заключение",
+      "order": 4,
+      "fieldsets": [
+        {
+          "id": "conclusion.main",
+          "title": "Заключение",
+          "fields": [
+            { "id": "conclusion.conclusion", "label": "Заключение", "type": "textarea", "rows": 4 }
+          ]
+        },
+        {
+          "id": "conclusion.recommendations",
+          "title": "Рекомендации",
+          "fields": [
+            { "id": "conclusion.recommendations", "label": "Рекомендации", "type": "textarea", "rows": 3 }
+          ]
+        }
+      ]
+    }
+  ],
+  "printTemplate": {
+    "title": "Ультразвуковое исследование почек",
+    "body": [
+      {
+        "type": "section",
+        "label": "Правая почка:",
+        "capitalize": true,
+        "specialConditionField": "right.position",
+        "specialConditionText": "нефрэктомия",
+        "specialConditionAdditionalField": "right.additional",
+        "fields": [
+          {
+            "type": "conditional",
+            "field": "right.position",
+            "values": { "обычное": "определяется в обычном положении" }
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.length", "template": "длина {value} мм", "optional": true },
+              { "field": "right.width", "template": "ширина {value} мм", "optional": true },
+              { "field": "right.thickness", "template": "толщина {value} мм", "optional": true }
+            ],
+            "separator": ", "
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.contour", "template": "контур {value}" }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.parenchymaSize", "template": "паренхима {value} мм" },
+              { "field": "right.parenchymaEchogenicity", "template": "эхогенность {value}" },
+              { "field": "right.parenchymaStructure", "template": "эхоструктура {value}" }
+            ]
+          },
+          {
+            "type": "concretionList",
+            "trigger": {
+              "field": "right.parenchymaConcrements",
+              "notSelectedText": "конкременты паренхимы не определяются"
+            },
+            "list": {
+              "field": "right.parenchymaConcrementsList",
+              "emptyText": "конкременты паренхимы определяются"
+            },
+            "item": {
+              "sizeField": "right.parenchymaConcrementSize",
+              "positionField": "right.parenchymaConcrementLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "с акустической тенью",
+              "labels": {
+                "one": "конкремент",
+                "few": "конкремента",
+                "many": "конкрементов"
+              }
+            }
+          },
+          {
+            "type": "polypList",
+            "trigger": {
+              "field": "right.parenchymaCysts",
+              "notSelectedText": "кисты паренхимы не определяются"
+            },
+            "list": {
+              "field": "right.parenchymaCystsList",
+              "emptyText": "кисты паренхимы определяются"
+            },
+            "item": {
+              "sizeField": "right.parenchymaCystSize",
+              "positionField": "right.parenchymaCystLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "без акустической тени",
+              "participleSingle": "",
+              "participleFew": "",
+              "labels": {
+                "one": "киста",
+                "few": "кисты",
+                "many": "кист"
+              }
+            }
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "right.parenchymaPathologicalFormations",
+            "notSelectedText": "",
+            "triggerValue": "определяются",
+            "textareaField": "right.parenchymaPathologicalFormationsText",
+            "selectedFallbackText": "патологические очаговые образования паренхимы определяются"
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.pcsSize", "template": "ЧЛС {value}" }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.pcsMicroliths", "template": "микролиты {value}" },
+              { "field": "right.pcsMicrolithsSize", "template": "до {value} мм" }
+            ]
+          },
+          {
+            "type": "concretionList",
+            "trigger": {
+              "field": "right.pcsConcrements",
+              "notSelectedText": "конкременты ЧЛС не определяются"
+            },
+            "list": {
+              "field": "right.pcsConcrementsList",
+              "emptyText": "конкременты ЧЛС определяются"
+            },
+            "item": {
+              "sizeField": "right.pcsConcrementSize",
+              "positionField": "right.pcsConcrementLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "с акустической тенью",
+              "labels": {
+                "one": "конкремент",
+                "few": "конкремента",
+                "many": "конкрементов"
+              }
+            }
+          },
+          {
+            "type": "polypList",
+            "trigger": {
+              "field": "right.pcsCysts",
+              "notSelectedText": "кисты ЧЛС не определяются"
+            },
+            "list": {
+              "field": "right.pcsCystsList",
+              "emptyText": "кисты ЧЛС определяются"
+            },
+            "item": {
+              "sizeField": "right.pcsCystSize",
+              "positionField": "right.pcsCystLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "без акустической тени",
+              "participleSingle": "",
+              "participleFew": "",
+              "labels": {
+                "one": "киста",
+                "few": "кисты",
+                "many": "кист"
+              }
+            }
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "right.pcsPathologicalFormations",
+            "notSelectedText": "",
+            "triggerValue": "определяются",
+            "textareaField": "right.pcsPathologicalFormationsText",
+            "selectedFallbackText": "патологические образования ЧЛС определяются"
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "right.sinus", "template": "синус {value}" }
+            ]
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "right.adrenalArea",
+            "notSelectedText": "область надпочечников не изменена",
+            "triggerValue": "изменена",
+            "textareaField": "right.adrenalAreaText",
+            "selectedFallbackText": "область правого надпочечника изменена"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Левая почка:",
+        "capitalize": true,
+        "specialConditionField": "left.position",
+        "specialConditionText": "нефрэктомия",
+        "specialConditionAdditionalField": "left.additional",
+        "fields": [
+          {
+            "type": "conditional",
+            "field": "left.position",
+            "values": { "обычное": "определяется в обычном положении" }
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.length", "template": "длина {value} мм", "optional": true },
+              { "field": "left.width", "template": "ширина {value} мм", "optional": true },
+              { "field": "left.thickness", "template": "толщина {value} мм", "optional": true }
+            ],
+            "separator": ", "
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.contour", "template": "контур {value}" }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.parenchymaSize", "template": "паренхима {value} мм" },
+              { "field": "left.parenchymaEchogenicity", "template": "эхогенность {value}" },
+              { "field": "left.parenchymaStructure", "template": "эхоструктура {value}" }
+            ]
+          },
+          {
+            "type": "concretionList",
+            "trigger": {
+              "field": "left.parenchymaConcrements",
+              "notSelectedText": "конкременты паренхимы не определяются"
+            },
+            "list": {
+              "field": "left.parenchymaConcrementsList",
+              "emptyText": "конкременты паренхимы определяются"
+            },
+            "item": {
+              "sizeField": "left.parenchymaConcrementSize",
+              "positionField": "left.parenchymaConcrementLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "с акустической тенью",
+              "labels": {
+                "one": "конкремент",
+                "few": "конкремента",
+                "many": "конкрементов"
+              }
+            }
+          },
+          {
+            "type": "polypList",
+            "trigger": {
+              "field": "left.parenchymaCysts",
+              "notSelectedText": "кисты паренхимы не определяются"
+            },
+            "list": {
+              "field": "left.parenchymaCystsList",
+              "emptyText": "кисты паренхимы определяются"
+            },
+            "item": {
+              "sizeField": "left.parenchymaCystSize",
+              "positionField": "left.parenchymaCystLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "без акустической тени",
+              "participleSingle": "",
+              "participleFew": "",
+              "labels": {
+                "one": "киста",
+                "few": "кисты",
+                "many": "кист"
+              }
+            }
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "left.parenchymaPathologicalFormations",
+            "notSelectedText": "",
+            "triggerValue": "определяются",
+            "textareaField": "left.parenchymaPathologicalFormationsText",
+            "selectedFallbackText": "патологические очаговые образования паренхимы определяются"
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.pcsSize", "template": "ЧЛС {value}" }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.pcsMicroliths", "template": "микролиты {value}" },
+              { "field": "left.pcsMicrolithsSize", "template": "до {value} мм" }
+            ]
+          },
+          {
+            "type": "concretionList",
+            "trigger": {
+              "field": "left.pcsConcrements",
+              "notSelectedText": "конкременты ЧЛС не определяются"
+            },
+            "list": {
+              "field": "left.pcsConcrementsList",
+              "emptyText": "конкременты ЧЛС определяются"
+            },
+            "item": {
+              "sizeField": "left.pcsConcrementSize",
+              "positionField": "left.pcsConcrementLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "с акустической тенью",
+              "labels": {
+                "one": "конкремент",
+                "few": "конкремента",
+                "many": "конкрементов"
+              }
+            }
+          },
+          {
+            "type": "polypList",
+            "trigger": {
+              "field": "left.pcsCysts",
+              "notSelectedText": "кисты ЧЛС не определяются"
+            },
+            "list": {
+              "field": "left.pcsCystsList",
+              "emptyText": "кисты ЧЛС определяются"
+            },
+            "item": {
+              "sizeField": "left.pcsCystSize",
+              "positionField": "left.pcsCystLocation"
+            },
+            "templates": {
+              "positionPrefix": "",
+              "positionJoinWord": " и ",
+              "sizePrefix": "размерами до ",
+              "sizeUnit": " мм",
+              "sizeJoinWord": " и ",
+              "acoustic": "без акустической тени",
+              "participleSingle": "",
+              "participleFew": "",
+              "labels": {
+                "one": "киста",
+                "few": "кисты",
+                "many": "кист"
+              }
+            }
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "left.pcsPathologicalFormations",
+            "notSelectedText": "",
+            "triggerValue": "определяются",
+            "textareaField": "left.pcsPathologicalFormationsText",
+            "selectedFallbackText": "патологические образования ЧЛС определяются"
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "left.sinus", "template": "синус {value}" }
+            ]
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "left.adrenalArea",
+            "notSelectedText": "область надпочечников не изменена",
+            "triggerValue": "изменена",
+            "textareaField": "left.adrenalAreaText",
+            "selectedFallbackText": "область левого надпочечника изменена"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "label": "Мочевой пузырь:",
+        "fields": [
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "urinaryBladder.length", "template": "длина {value} мм", "optional": true },
+              { "field": "urinaryBladder.width", "template": "ширина {value} мм", "optional": true },
+              { "field": "urinaryBladder.depth", "template": "передне-задний размер {value} мм", "optional": true }
+            ],
+            "separator": ", "
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "urinaryBladder.volume", "template": "объем до микции {value} мл", "optional": true }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "urinaryBladder.wallThickness", "template": "толщина стенки {value} мм", "optional": true }
+            ]
+          },
+          {
+            "type": "conditional",
+            "field": "urinaryBladder.residualStatus",
+            "values": {
+              "не определяется": "остаточная моча не определяется",
+              "определяется": "остаточная моча определяется"
+            }
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "urinaryBladder.residualVolume", "template": "объемом {value} мл", "optional": true }
+            ]
+          },
+          {
+            "type": "fieldValues",
+            "fields": [
+              { "field": "urinaryBladder.contents", "template": "содержимое {value}" }
+            ]
+          },
+          {
+            "type": "selectWithTextarea",
+            "field": "urinaryBladder.contents",
+            "notSelectedText": "",
+            "triggerValue": "неоднородное",
+            "textareaField": "urinaryBladder.contentsText",
+            "selectedFallbackText": "содержимое мочевого пузыря неоднородное"
+          }
+        ]
+      },
+      {
+        "type": "freeFluid",
+        "hidden": true,
+        "field": "dummy",
+        "detailsField": "dummy",
+        "templates": {
+          "notDetermined": "",
+          "determinedEmpty": ""
+        }
+      }
+    ]
+  }
+}
