@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Save, Eye, Edit3, Printer, Upload, Download } from 'lucide-react'
 import type { ProtocolSchema, PrintTemplate } from '../schema'
 import { DynamicProtocolForm } from './DynamicProtocolForm'
-import { PrintTemplateEditor } from './PrintTemplateEditor'
+import { PrintTemplateVisualEditor } from './PrintTemplateVisualEditor'
 import { ProtocolTreeEditor } from './ProtocolTreeEditor'
 import { loadCustomProtocols, saveCustomProtocol, exportProtocolToFile, importProtocolFromFile, loadCustomProtocolsSync } from '../utils/storage'
 
@@ -199,7 +199,7 @@ export const ConstructorPage: React.FC = () => {
         /* ===== РЕДАКТОР ===== */
         <div className="space-y-4">
           {activeTab === 'print' ? (
-            <PrintTemplateEditor
+            <PrintTemplateVisualEditor
               template={schema.printTemplate}
               onChange={handlePrintTemplateChange}
             />
