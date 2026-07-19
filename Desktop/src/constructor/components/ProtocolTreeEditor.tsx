@@ -273,7 +273,7 @@ const FieldProperties: React.FC<FieldPropertiesProps> = ({ field, onChange }) =>
       )}
 
       {field.type === 'repeatingGroup' && (
-        <div className="space-y-2 border-t border-slate-200 pt-2">
+        <div className="space-y-3 border-t border-slate-200 pt-2">
           <div className="text-xs font-semibold text-slate-600">Настройки повторяющейся группы</div>
           <div>
             <label className="text-xs text-slate-500">Шаблон заголовка</label>
@@ -308,6 +308,170 @@ const FieldProperties: React.FC<FieldPropertiesProps> = ({ field, onChange }) =>
               }
               placeholder='Добавить конкремент'
             />
+          </div>
+
+          {/* Поля шаблона (внутри repeatingGroup) */}
+          <div className="border-t border-slate-100 pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-slate-600">Поля шаблона</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const rg = field.repeatingGroup ?? { fields: [] }
+                  const newField: FieldDefinition = {
+                    id: `rg-field-${Date.now()}`,
+                    label: 'Новое поле',
+                    type: 'sizeRow',
+                  }
+                  update({
+                    repeatingGroup: {
+                      ...rg,
+                      fields: [...rg.fields, newField],
+                    } as RepeatingGroupTemplate,
+                  })
+                }}
+                className="text-xs px-2 py-1 rounded bg-sky-100 text-sky-700 hover:bg-sky-200 flex items-center gap-1"
+              >
+                <Plus size={12} /> Добавить поле
+              </button>
+            </div>
+            <div className="space-y-2">
+              {(field.repeatingGroup?.fields ?? []).map((rgField, rgIndex) => (
+                <div key={rgField.id} className="border border-slate-200 rounded-lg p-2 bg-slate-50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-500">Поле #{rgIndex + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const rg = field.repeatingGroup!
+                        update({
+                          repeatingGroup: {
+                            ...rg,
+                            fields: rg.fields.filter((_, j) => j !== rgIndex),
+                          } as RepeatingGroupTemplate,
+                        })
+                      }}
+                      className="p-1 text-red-400 hover:text-red-600"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-slate-400">ID</label>
+                      <input
+                        type="text"
+                        className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                        value={rgField.id}
+                        onChange={(e) => {
+                          const rg = field.repeatingGroup!
+                          const updated = [...rg.fields]
+                          updated[rgIndex] = { ...updated[rgIndex], id: e.target.value }
+                          update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Подпись</label>
+                      <input
+                        type="text"
+                        className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                        value={rgField.label}
+                        onChange={(e) => {
+                          const rg = field.repeatingGroup!
+                          const updated = [...rg.fields]
+                          updated[rgIndex] = { ...updated[rgIndex], label: e.target.value }
+                          update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Тип</label>
+                    <select
+                      className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                      value={rgField.type}
+                      onChange={(e) => {
+                        const rg = field.repeatingGroup!
+                        const updated = [...rg.fields]
+                        updated[rgIndex] = { ...updated[rgIndex], type: e.target.value as FieldType }
+                        update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                      }}
+                    >
+                      <option value="sizeRow">📏 Размер</option>
+                      <option value="text">📄 Текст</option>
+                      <option value="buttonSelect">🔘 Выбор кнопками</option>
+                      <option value="selectWithTextarea">📝 Выбор + текст</option>
+                      <option value="textarea">✏️ Текст (многострочный)</option>
+                    </select>
+                  </div>
+                  {rgField.type === 'sizeRow' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-slate-400">Норма мин</label>
+                        <input
+                          type="number"
+                          className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                          value={rgField.normalRange?.min ?? ''}
+                          onChange={(e) => {
+                            const rg = field.repeatingGroup!
+                            const updated = [...rg.fields]
+                            updated[rgIndex] = {
+                              ...updated[rgIndex],
+                              normalRange: { ...updated[rgIndex].normalRange, min: e.target.value ? Number(e.target.value) : undefined },
+                            }
+                            update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-slate-400">Норма макс</label>
+                        <input
+                          type="number"
+                          className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                          value={rgField.normalRange?.max ?? ''}
+                          onChange={(e) => {
+                            const rg = field.repeatingGroup!
+                            const updated = [...rg.fields]
+                            updated[rgIndex] = {
+                              ...updated[rgIndex],
+                              normalRange: { ...updated[rgIndex].normalRange, max: e.target.value ? Number(e.target.value) : undefined },
+                            }
+                            update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {(rgField.type === 'buttonSelect' || rgField.type === 'selectWithTextarea') && (
+                    <div>
+                      <label className="text-xs text-slate-400">Опции (через запятую)</label>
+                      <input
+                        type="text"
+                        className="w-full text-xs border border-slate-200 rounded px-2 py-1"
+                        value={(rgField.options ?? []).map(o => o.value).join(', ')}
+                        onChange={(e) => {
+                          const rg = field.repeatingGroup!
+                          const updated = [...rg.fields]
+                          const values = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                          updated[rgIndex] = {
+                            ...updated[rgIndex],
+                            options: values.map(v => ({ value: v, label: v })),
+                          }
+                          update({ repeatingGroup: { ...rg, fields: updated } as RepeatingGroupTemplate })
+                        }}
+                        placeholder="значение1, значение2"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+              {(field.repeatingGroup?.fields ?? []).length === 0 && (
+                <div className="text-center py-4 text-xs text-slate-400 border border-dashed border-slate-200 rounded-lg">
+                  Нет полей в шаблоне. Нажмите "Добавить поле"
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
