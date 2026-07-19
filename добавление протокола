@@ -1,0 +1,300 @@
+Вот **инструкция для агента по добавлению нового протокола** — формализованная, пошаговая, с указанием точных файлов и мест (`SEARCH`/`REPLACE` для AI).
+
+---
+
+## Инструкция: добавление нового протокола (на примере «ЭхоКГ»)
+
+### 🔹 Шаг 1. DESKTOP — types.ts
+**Файл:** `Desktop/src/protocols/types.ts`
+
+Добавь новый `ProtocolId`:
+```diff
+ export type ProtocolId =
+   ...
++  | 'echokg'
+```
+
+Добавь новый `ProtocolSelectionLabel`:
+```diff
+ export type ProtocolSelectionLabel =
+   ...
++  | 'ЭхоКГ'
+```
+
+Если у протокола есть подсекции — добавь их в `ProtocolSectionId`:
+```diff
+ export type ProtocolSectionId =
+   ...
++  | 'echokg.heart'
++  | 'echokg.valves'
++  | 'echokg.pericardium'
+```
+
+---
+
+### 🔹 Шаг 2. DESKTOP — catalog.ts (секции)
+**Файл:** `Desktop/src/protocols/catalog.ts`
+
+Добавь секции в массив `SECTION_DEFINITIONS`:
+```ts
+{ id: 'echokg.heart', protocolId: 'echokg', desktopKey: 'ЭхоКГ:сердце', label: 'Камеры сердца', order: 1 },
+{ id: 'echokg.valves', protocolId: 'echokg', desktopKey: 'ЭхоКГ:клапаны', label: 'Клапанный аппарат', order: 2 },
+{ id: 'echokg.pericardium', protocolId: 'echokg', desktopKey: 'ЭхоКГ:перикард', label: 'Перикард', order: 3 },
+```
+
+---
+
+### 🔹 Шаг 3. DESKTOP — catalog.ts (протокол)
+**Файл:** `Desktop/src/protocols/catalog.ts`
+
+Добавь в массив `PROTOCOL_DEFINITIONS`:
+```ts
+{
+  id: 'echokg',
+  selectionLabel: 'ЭхоКГ',
+  title: 'Эхокардиография',
+  description: 'Камеры сердца, клапанный аппарат, перикард.',
+  sectionIds: ['echokg.heart', 'echokg.valves', 'echokg.pericardium'],
+},
+```
+
+---
+
+### 🔹 Шаг 4. DESKTOP — компоненты органа
+**Директория:** `Desktop/src/components/organs/Echokg/`
+
+Создай папку и компоненты:
+- `EchokgCommon.tsx` — общие поля
+- `EchokgHeart.tsx` — камеры сердца  
+- `EchokgValves.tsx` — клапанный аппарат
+- `EchokgPericardium.tsx` — перикард
+
+---
+
+### 🔹 Шаг 5. DESKTOP — index.ts органов
+**Файл:** `Desktop/src/components/organs/index.ts`
+
+Добавь экспорт:
+```ts
+export { default as EchokgCommon } from './Echokg/EchokgCommon';
+```
+
+---
+
+### 🔹 Шаг 6. DESKTOP — печатная версия органа
+**Файл:** `Desktop/src/components/print/organs/EchokgPrint.tsx` — создать
+
+Компонент, который преобразует данные секций в HTML для печати.
+
+---
+
+### 🔹 Шаг 7. DESKTOP — печатная версия исследования
+**Файл:** `Desktop/src/components/print/researches/EchokgPrint.tsx` — создать
+
+Компонент-обёртка, который собирает все секции в единый печатный блок.
+
+---
+
+### 🔹 Шаг 8. DESKTOP — PrintableProtocol.tsx
+**Файл:** `Desktop/src/components/print/PrintableProtocol.tsx`
+
+1. Импортировать:
+   ```ts
+   import EchokgResearchPrint from "@/components/print/researches/EchokgPrint";
+   ```
+
+2. Добавить `BlockId` (тип):
+   ```diff
+   type BlockId =
+     ...
+   + | "echokg"
+   ```
+
+3. В `studyDefinitions` добавить:
+   ```ts
+   {
+     id: "echokg",
+     key: "echokg",
+     label: "ЭхоКГ",
+     studyData: /* соответствующая data */,
+     conclusion: /* ... */,
+     recommendations: /* ... */,
+     element: <EchokgResearchPrint />,
+   },
+   ```
+
+4. В `studiesData` добавить строку:
+   ```ts
+   const echokgData = studiesData["ЭхоКГ"];
+   ```
+
+5. Добавить в массив зависимостей `useMemo`.
+
+---
+
+### 🔹 Шаг 9. DESKTOP — PrintableSavedProtocol.tsx
+**Файл:** `Desktop/src/components/print/PrintableSavedProtocol.tsx`
+
+Те же изменения, что в шаге 8 (импорт, BlockId, studyDefinitions, studiesData, зависимости).
+
+---
+
+### 🔹 Шаг 10. DESKTOP — справочник (опционально)
+**Файл:** `Desktop/src/components/directory/EchokgNorms.tsx` — создать
+
+Если есть справочные таблицы (нормы, классификации). Зарегистрировать в `Directory.tsx`.
+
+---
+
+### 🔹 Шаг 11. DESKTOP — парсинг Medison (опционально)
+**Файл:** `Desktop/electron/ipc/medisonIpc.ts`
+
+Если аппарат УЗИ генерирует XML для этого исследования — добавить логику парсинга (она обычно в другом месте, в `src/`, не в этом файле; этот файл только читает XML с флешки).
+
+---
+
+### 🔹 Шаг 12. MOBILE — shared/echokgDraft.ts
+**Файл:** `Mobile/src/shared/echokgDraft.ts` — создать
+
+```ts
+export interface EchokgStudyDraft {
+  heart: { ... };
+  valves: { ... };
+  pericardium: { ... };
+  conclusion?: string;
+  recommendations?: string;
+}
+
+export function createEmptyEchokgStudyDraft(): EchokgStudyDraft {
+  return { heart: {}, valves: {}, pericardium: {} };
+}
+```
+
+---
+
+### 🔹 Шаг 13. MOBILE — normalize
+**Директория:** `Mobile/src/protocols/echokg/normalize.ts` — создать
+
+```ts
+export function normalizeEchokgDraft(value: unknown): EchokgStudyDraft { ... }
+```
+
+Функция, приводящая сырые данные к структуре `EchokgStudyDraft`.
+
+---
+
+### 🔹 Шаг 14. MOBILE — types.ts
+**Файл:** `Mobile/src/protocols/types.ts`
+
+Добавить в `MobileStudyData`:
+```diff
+ export type MobileStudyData =
+   | StudyDraft
+   | ObpDraft
+   ...
++  | EchokgStudyDraft;
+```
+
+---
+
+### 🔹 Шаг 15. MOBILE — registry.ts
+**Файл:** `Mobile/src/protocols/registry.ts`
+
+1. В `MobileProtocolId`:
+   ```diff
+   export type MobileProtocolId =
+     ...
+   + | "echokg"
+   ```
+
+2. В `MOBILE_PROTOCOL_REGISTRY`:
+   ```ts
+   echokg: {
+     id: "echokg",
+     selectionLabel: "ЭхоКГ",
+     createEmpty: createEmptyEchokgStudyDraft,
+     normalize: normalizeEchokgDraft,
+   },
+   ```
+
+3. В `MOBILE_PROTOCOL_SELECTION_LABEL_TO_ID`:
+   ```ts
+   "ЭхоКГ": "echokg",
+   ```
+
+4. В `MOBILE_PROTOCOL_DESKTOP_STUDY_TYPE_TO_ID`:
+   ```ts
+   "ЭхоКГ": "echokg",
+   ```
+
+5. Добавить импорт:
+   ```ts
+   import { createEmptyEchokgStudyDraft } from "../shared/echokgDraft";
+   import { normalizeEchokgDraft } from "./echokg/normalize";
+   ```
+
+---
+
+### 🔹 Шаг 16. MOBILE — typeGuards.ts
+**Файл:** `Mobile/src/protocols/typeGuards.ts`
+
+```ts
+import type { EchokgStudyDraft } from "../shared/echokgDraft";
+
+export function isEchokgDraft(value: unknown): value is EchokgStudyDraft {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "heart" in value
+  );
+}
+```
+
+---
+
+### 🔹 Шаг 17. MOBILE — экран
+**Директория:** `Mobile/src/screens/echokg/EchokgScreen.tsx` — создать
+
+Экран для заполнения протокола на мобильном устройстве.
+
+Зарегистрировать в `Mobile/src/screens/protocolRenderers/` (там маппинг protocolId → компонент).
+
+---
+
+### 🔹 Шаг 18. MOBILE — index.ts
+**Файл:** `Mobile/src/protocols/index.ts`
+
+Добавить экспорты:
+```ts
+export { normalizeEchokgDraft } from "./echokg/normalize";
+export { isEchokgDraft } from "./typeGuards";
+```
+
+---
+
+## 📋 ЧЕКЛИСТ ДЛЯ АГЕНТА (краткий)
+
+| # | Действие | Файл |
+|---|---|---|
+| 1 | `ProtocolId` + `ProtocolSelectionLabel` | `Desktop/.../protocols/types.ts` |
+| 2 | Секции в `SECTION_DEFINITIONS` | `Desktop/.../protocols/catalog.ts` |
+| 3 | Запись в `PROTOCOL_DEFINITIONS` | `Desktop/.../protocols/catalog.ts` |
+| 4 | Компоненты органа | `Desktop/.../components/organs/Echokg/` |
+| 5 | Экспорт в index.ts органов | `Desktop/.../components/organs/index.ts` |
+| 6 | Печать органа | `Desktop/.../components/print/organs/EchokgPrint.tsx` |
+| 7 | Печать исследования | `Desktop/.../components/print/researches/EchokgPrint.tsx` |
+| 8 | Регистрация в `PrintableProtocol` | `Desktop/.../components/print/PrintableProtocol.tsx` |
+| 9 | Регистрация в `PrintableSavedProtocol` | `Desktop/.../components/print/PrintableSavedProtocol.tsx` |
+| 10 | Справочник (если нужно) | `Desktop/.../components/directory/` |
+| 11 | shared-draft на mobile | `Mobile/src/shared/echokgDraft.ts` |
+| 12 | normalize на mobile | `Mobile/src/protocols/echokg/normalize.ts` |
+| 13 | Тип в `MobileStudyData` | `Mobile/src/protocols/types.ts` |
+| 14 | Регистрация в `MOBILE_PROTOCOL_REGISTRY` | `Mobile/src/protocols/registry.ts` |
+| 15 | type guard | `Mobile/src/protocols/typeGuards.ts` |
+| 16 | Экран на mobile | `Mobile/src/screens/echokg/EchokgScreen.tsx` |
+| 17 | Регистрация экрана в renderers | `Mobile/src/screens/protocolRenderers/` |
+| 18 | Экспорты в index.ts | `Mobile/src/protocols/index.ts` |
+
+---
+
+Каждый шаг — это `SEARCH`/`REPLACE` блок (для существующих файлов) или `write_to_file` (для новых). Если хочешь, чтобы я сгенерировал **скелетные файлы-заготовки** для ЭхоКГ прямо сейчас — переключись в **ACT MODE**.
