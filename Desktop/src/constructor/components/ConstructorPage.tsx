@@ -189,6 +189,50 @@ export const ConstructorPage: React.FC = () => {
         </div>
       )}
 
+      {/* Метаданные протокола */}
+      {mode === 'edit' && (
+        <div className="mb-4 p-4 border border-slate-200 rounded-xl bg-white space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-slate-500 font-medium">Название протокола</label>
+              <input
+                type="text"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={schema.selectionLabel}
+                onChange={(e) => setSchema((prev) => ({ ...prev, selectionLabel: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 font-medium">ID (техническое имя)</label>
+              <input
+                type="text"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={schema.id}
+                onChange={(e) => setSchema((prev) => ({ ...prev, id: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 font-medium">Заголовок</label>
+              <input
+                type="text"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={schema.title}
+                onChange={(e) => setSchema((prev) => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 font-medium">Описание</label>
+              <input
+                type="text"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-1.5 mt-0.5"
+                value={schema.description}
+                onChange={(e) => setSchema((prev) => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Вкладки: Секции / Печать */}
       {mode === 'edit' && (
         <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
