@@ -85,8 +85,15 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "right.parenchymaConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "right.parenchymaConcrementLocation", "label": "Локализация", "type": "textField" }
+                  { "id": "size", "label": "Размер (мм)", "type": "sizeRow" },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
               }
             },
@@ -99,11 +106,32 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "right.parenchymaCystSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "right.parenchymaCystLocation", "label": "Локализация", "type": "textField" }
+                  {
+                    "id": "size", "label": "Размеры", "type": "sizeRowJoin",
+                    "joinFields": [
+                      { "id": "size1", "label": "Размер 1 (мм)" },
+                      { "id": "size2", "label": "Размер 2 (мм)" }
+                    ],
+                    "joinDelimiter": "x"
+                  },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
+              },
+              "cystConfig": {
+                "enabled": true,
+                "multipleFieldId": "right.parenchymaMultipleCysts",
+                "multipleSizeFieldId": "right.parenchymaMultipleCystsSize"
               }
             },
+            { "id": "right.parenchymaMultipleCysts", "label": "", "type": "text", "hidden": true, "defaultValue": "нет" },
+            { "id": "right.parenchymaMultipleCystsSize", "label": "", "type": "text", "hidden": true },
             {
               "id": "right.parenchymaPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
               "options": [
@@ -135,7 +163,7 @@
               ]
             },
             {
-              "id": "right.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "textField",
+              "id": "right.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "text",
               "visibleWhen": [{ "field": "right.pcsMicroliths", "operator": "==", "value": "определяются" }]
             },
             {
@@ -147,8 +175,15 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "right.pcsConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "right.pcsConcrementLocation", "label": "Локализация", "type": "textField" }
+                  { "id": "size", "label": "Размер (мм)", "type": "sizeRow" },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
               }
             },
@@ -161,11 +196,32 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "right.pcsCystSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "right.pcsCystLocation", "label": "Локализация", "type": "textField" }
+                  {
+                    "id": "size", "label": "Размеры", "type": "sizeRowJoin",
+                    "joinFields": [
+                      { "id": "size1", "label": "Размер 1 (мм)" },
+                      { "id": "size2", "label": "Размер 2 (мм)" }
+                    ],
+                    "joinDelimiter": "x"
+                  },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
+              },
+              "cystConfig": {
+                "enabled": true,
+                "multipleFieldId": "right.pcsMultipleCysts",
+                "multipleSizeFieldId": "right.pcsMultipleCystsSize"
               }
             },
+            { "id": "right.pcsMultipleCysts", "label": "", "type": "text", "hidden": true, "defaultValue": "нет" },
+            { "id": "right.pcsMultipleCystsSize", "label": "", "type": "text", "hidden": true },
             {
               "id": "right.pcsPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
               "options": [
@@ -297,8 +353,15 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "left.parenchymaConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "left.parenchymaConcrementLocation", "label": "Локализация", "type": "textField" }
+                  { "id": "size", "label": "Размер (мм)", "type": "sizeRow" },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
               }
             },
@@ -311,11 +374,32 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "left.parenchymaCystSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "left.parenchymaCystLocation", "label": "Локализация", "type": "textField" }
+                  {
+                    "id": "size", "label": "Размеры", "type": "sizeRowJoin",
+                    "joinFields": [
+                      { "id": "size1", "label": "Размер 1 (мм)" },
+                      { "id": "size2", "label": "Размер 2 (мм)" }
+                    ],
+                    "joinDelimiter": "x"
+                  },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
+              },
+              "cystConfig": {
+                "enabled": true,
+                "multipleFieldId": "left.parenchymaMultipleCysts",
+                "multipleSizeFieldId": "left.parenchymaMultipleCystsSize"
               }
             },
+            { "id": "left.parenchymaMultipleCysts", "label": "", "type": "text", "hidden": true, "defaultValue": "нет" },
+            { "id": "left.parenchymaMultipleCystsSize", "label": "", "type": "text", "hidden": true },
             {
               "id": "left.parenchymaPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
               "options": [
@@ -347,7 +431,7 @@
               ]
             },
             {
-              "id": "left.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "textField",
+              "id": "left.pcsMicrolithsSize", "label": "Размером до (мм)", "type": "text",
               "visibleWhen": [{ "field": "left.pcsMicroliths", "operator": "==", "value": "определяются" }]
             },
             {
@@ -359,8 +443,15 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "left.pcsConcrementSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "left.pcsConcrementLocation", "label": "Локализация", "type": "textField" }
+                  { "id": "size", "label": "Размер (мм)", "type": "sizeRow" },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
               }
             },
@@ -373,11 +464,32 @@
                   { "value": "определяются", "label": "определяются" }
                 ],
                 "fields": [
-                  { "id": "left.pcsCystSize", "label": "Размер (мм)", "type": "sizeRow" },
-                  { "id": "left.pcsCystLocation", "label": "Локализация", "type": "textField" }
+                  {
+                    "id": "size", "label": "Размеры", "type": "sizeRowJoin",
+                    "joinFields": [
+                      { "id": "size1", "label": "Размер 1 (мм)" },
+                      { "id": "size2", "label": "Размер 2 (мм)" }
+                    ],
+                    "joinDelimiter": "x"
+                  },
+                  {
+                    "id": "location", "label": "Локализация", "type": "buttonSelect",
+                    "options": [
+                      { "value": "верхнего полюса", "label": "верхний полюс" },
+                      { "value": "нижнего полюса", "label": "нижний полюс" },
+                      { "value": "центральной части", "label": "в центре" }
+                    ]
+                  }
                 ]
+              },
+              "cystConfig": {
+                "enabled": true,
+                "multipleFieldId": "left.pcsMultipleCysts",
+                "multipleSizeFieldId": "left.pcsMultipleCystsSize"
               }
             },
+            { "id": "left.pcsMultipleCysts", "label": "", "type": "text", "hidden": true, "defaultValue": "нет" },
+            { "id": "left.pcsMultipleCystsSize", "label": "", "type": "text", "hidden": true },
             {
               "id": "left.pcsPathologicalFormations", "label": "Патологические образования", "type": "selectWithTextarea",
               "options": [
@@ -567,8 +679,8 @@
               "emptyText": "конкременты паренхимы определяются"
             },
             "item": {
-              "sizeField": "right.parenchymaConcrementSize",
-              "positionField": "right.parenchymaConcrementLocation"
+              "sizeField": "size",
+              "positionField": "location"
             },
             "templates": {
               "positionPrefix": "",
@@ -595,12 +707,17 @@
               "emptyText": "кисты паренхимы определяются"
             },
             "item": {
-              "sizeField": "right.parenchymaCystSize",
-              "positionField": "right.parenchymaCystLocation"
+              "sizeField": "size",
+              "positionField": "location",
+              "wallField": "location"
             },
             "templates": {
               "positionPrefix": "",
               "positionJoinWord": " и ",
+              "wallPrefix": ", ",
+              "wallJoinWord": " и ",
+              "wallSingleSuffix": "",
+              "wallBothText": "",
               "sizePrefix": "размерами до ",
               "sizeUnit": " мм",
               "sizeJoinWord": " и ",
@@ -646,8 +763,8 @@
               "emptyText": "конкременты ЧЛС определяются"
             },
             "item": {
-              "sizeField": "right.pcsConcrementSize",
-              "positionField": "right.pcsConcrementLocation"
+              "sizeField": "size",
+              "positionField": "location"
             },
             "templates": {
               "positionPrefix": "",
@@ -674,12 +791,17 @@
               "emptyText": "кисты ЧЛС определяются"
             },
             "item": {
-              "sizeField": "right.pcsCystSize",
-              "positionField": "right.pcsCystLocation"
+              "sizeField": "size",
+              "positionField": "location",
+              "wallField": "location"
             },
             "templates": {
               "positionPrefix": "",
               "positionJoinWord": " и ",
+              "wallPrefix": ", ",
+              "wallJoinWord": " и ",
+              "wallSingleSuffix": "",
+              "wallBothText": "",
               "sizePrefix": "размерами до ",
               "sizeUnit": " мм",
               "sizeJoinWord": " и ",
@@ -764,8 +886,8 @@
               "emptyText": "конкременты паренхимы определяются"
             },
             "item": {
-              "sizeField": "left.parenchymaConcrementSize",
-              "positionField": "left.parenchymaConcrementLocation"
+              "sizeField": "size",
+              "positionField": "location"
             },
             "templates": {
               "positionPrefix": "",
@@ -792,12 +914,17 @@
               "emptyText": "кисты паренхимы определяются"
             },
             "item": {
-              "sizeField": "left.parenchymaCystSize",
-              "positionField": "left.parenchymaCystLocation"
+              "sizeField": "size",
+              "positionField": "location",
+              "wallField": "location"
             },
             "templates": {
               "positionPrefix": "",
               "positionJoinWord": " и ",
+              "wallPrefix": ", ",
+              "wallJoinWord": " и ",
+              "wallSingleSuffix": "",
+              "wallBothText": "",
               "sizePrefix": "размерами до ",
               "sizeUnit": " мм",
               "sizeJoinWord": " и ",
@@ -843,8 +970,8 @@
               "emptyText": "конкременты ЧЛС определяются"
             },
             "item": {
-              "sizeField": "left.pcsConcrementSize",
-              "positionField": "left.pcsConcrementLocation"
+              "sizeField": "size",
+              "positionField": "location"
             },
             "templates": {
               "positionPrefix": "",
@@ -871,12 +998,17 @@
               "emptyText": "кисты ЧЛС определяются"
             },
             "item": {
-              "sizeField": "left.pcsCystSize",
-              "positionField": "left.pcsCystLocation"
+              "sizeField": "size",
+              "positionField": "location",
+              "wallField": "location"
             },
             "templates": {
               "positionPrefix": "",
               "positionJoinWord": " и ",
+              "wallPrefix": ", ",
+              "wallJoinWord": " и ",
+              "wallSingleSuffix": "",
+              "wallBothText": "",
               "sizePrefix": "размерами до ",
               "sizeUnit": " мм",
               "sizeJoinWord": " и ",

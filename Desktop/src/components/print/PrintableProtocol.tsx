@@ -9,6 +9,9 @@ import kidneySchema from "@/constructor/definitions/kidney.json";
 import type { PrintTemplate, ProtocolSchema } from "@/constructor/schema";
 import { getCustomSchemas } from "@/constructor/utils/protocolRegistry";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
+import RightKidneyPrint from "@/components/print/organs/Kidney/RightKidneyPrint";
+import LeftKidneyPrint from "@/components/print/organs/Kidney/LeftKidneyPrint";
+import type { KidneyProtocol } from "@/types/organs/kidney";
 import UrinaryBladderStudyPrint from "@/components/print/researches/UrinaryBladderStudyPrint";
 import ConclusionPrint from "@/components/print/ConclusionPrint";
 import OmtFemalePrint from "@/components/print/researches/OmtFemalePrint";
@@ -179,9 +182,76 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     return typeof data === "object" && data !== null && "right.position" in data;
   };
 
+  // Преобразование плоского динамического формата в структуру KidneyProtocol
+  const convertFlatToKidneyProtocol = (flat: Record<string, any>, side: 'right' | 'left'): KidneyProtocol => {
+    const prefix = side === 'right' ? 'right' : 'left';
+    const concrementsList = (flat[`${prefix}.parenchymaConcrementsList`] ?? []).map((item: Record<string, string>) => ({
+      size: item.size ?? '',
+      location: item.location ?? '',
+    }));
+    const cystsList = (flat[`${prefix}.parenchymaCystsList`] ?? []).map((item: Record<string, string>) => ({
+      size: item.size ?? '',
+      location: item.location ?? '',
+    }));
+    const pcsConcrementsList = (flat[`${prefix}.pcsConcrementsList`] ?? []).map((item: Record<string, string>) => ({
+      size: item.size ?? '',
+      location: item.location ?? '',
+    }));
+    const pcsCystsList = (flat[`${prefix}.pcsCystsList`] ?? []).map((item: Record<string, string>) => ({
+      size: item.size ?? '',
+      location: item.location ?? '',
+    }));
+    return {
+      position: flat[`${prefix}.position`] ?? '',
+      positionText: flat[`${prefix}.positionText`] ?? '',
+      length: flat[`${prefix}.length`] ?? '',
+      width: flat[`${prefix}.width`] ?? '',
+      thickness: flat[`${prefix}.thickness`] ?? '',
+      parenchymaSize: flat[`${prefix}.parenchymaSize`] ?? '',
+      parenchymaEchogenicity: flat[`${prefix}.parenchymaEchogenicity`] ?? '',
+      parenchymaStructure: flat[`${prefix}.parenchymaStructure`] ?? '',
+      parenchymaConcrements: flat[`${prefix}.parenchymaConcrements`] ?? '',
+      parenchymaConcrementslist: concrementsList,
+      parenchymaCysts: flat[`${prefix}.parenchymaCysts`] ?? '',
+      parenchymaCystslist: cystsList,
+      parenchymaMultipleCysts: flat[`${prefix}.parenchymaMultipleCysts`] === 'да',
+      parenchymaMultipleCystsSize: flat[`${prefix}.parenchymaMultipleCystsSize`] ?? '',
+      parenchymaPathologicalFormations: flat[`${prefix}.parenchymaPathologicalFormations`] ?? '',
+      parenchymaPathologicalFormationsText: flat[`${prefix}.parenchymaPathologicalFormationsText`] ?? '',
+      pcsSize: flat[`${prefix}.pcsSize`] ?? '',
+      pcsMicroliths: flat[`${prefix}.pcsMicroliths`] ?? '',
+      pcsMicrolithsSize: flat[`${prefix}.pcsMicrolithsSize`] ?? '',
+      pcsConcrements: flat[`${prefix}.pcsConcrements`] ?? '',
+      pcsConcrementslist: pcsConcrementsList,
+      pcsCysts: flat[`${prefix}.pcsCysts`] ?? '',
+      pcsCystslist: pcsCystsList,
+      pcsMultipleCysts: flat[`${prefix}.pcsMultipleCysts`] === 'да',
+      pcsMultipleCystsSize: flat[`${prefix}.pcsMultipleCystsSize`] ?? '',
+      pcsPathologicalFormations: flat[`${prefix}.pcsPathologicalFormations`] ?? '',
+      pcsPathologicalFormationsText: flat[`${prefix}.pcsPathologicalFormationsText`] ?? '',
+      sinus: flat[`${prefix}.sinus`] ?? '',
+      adrenalArea: flat[`${prefix}.adrenalArea`] ?? '',
+      adrenalAreaText: flat[`${prefix}.adrenalAreaText`] ?? '',
+      contour: flat[`${prefix}.contour`] ?? '',
+      additional: flat[`${prefix}.additional`] ?? '',
+    };
+  };
+
   const kidneysIsDynamic = isDynamicKidney(kidneysData);
   const dynamicKidneyData = kidneysIsDynamic ? (kidneysData as Record<string, any>) : undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;
+
+  // Для динамического формата конвертируем данные и используем кастомные print-компоненты
+  const dynamicKidneysPrintElement = kidneysIsDynamic && dynamicKidneyData ? (
+    <>
+      {dynamicKidneyData['right.position'] !== 'нефрэктомия' && (
+        <RightKidneyPrint value={convertFlatToKidneyProtocol(dynamicKidneyData, 'right')} />
+      )}
+      {dynamicKidneyData['left.position'] !== 'нефрэктомия' && (
+        <LeftKidneyPrint value={convertFlatToKidneyProtocol(dynamicKidneyData, 'left')} />
+      )}
+    </>
+  ) : undefined;
   const bladderStudyProtocol = bladderStudyData as UrinaryBladderStudyProtocol | undefined;
   const omtFemaleProtocol = omtFemaleData as OmtFemaleProtocol | undefined;
   const omtMaleProtocol = omtMaleData as OmtMaleProtocol | undefined;
@@ -218,8 +288,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
           studyData: kidneysIsDynamic ? dynamicKidneyData : kidneysProtocol,
           conclusion: kidneysIsDynamic ? (dynamicKidneyData?.["conclusion.conclusion"] ?? "") : (kidneysProtocol?.conclusion || ""),
           recommendations: kidneysIsDynamic ? (dynamicKidneyData?.["conclusion.recommendations"] ?? "") : (kidneysProtocol?.recommendations || ""),
-          element: kidneysIsDynamic
-            ? <DynamicPrint template={(kidneySchema as any).printTemplate as PrintTemplate} data={dynamicKidneyData ?? {}} />
+          element: kidneysIsDynamic && dynamicKidneysPrintElement
+            ? dynamicKidneysPrintElement
             : <KidneysPrint />,
         },
         {

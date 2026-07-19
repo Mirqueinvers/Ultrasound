@@ -1,6 +1,6 @@
 // Типы JSON-схемы протокола
 
-export type FieldType = 'sizeRow' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'textField' | 'fieldset' | 'repeatingGroup'
+export type FieldType = 'sizeRow' | 'sizeRowJoin' | 'buttonSelect' | 'selectWithTextarea' | 'textarea' | 'text' | 'textField' | 'fieldset' | 'repeatingGroup'
 
 export interface ButtonSelectOption {
   value: string
@@ -26,6 +26,12 @@ export interface RepeatingGroupTemplate {
   fields: FieldDefinition[]  // поля одного элемента
 }
 
+export interface CystConfig {
+  enabled: boolean
+  multipleFieldId: string
+  multipleSizeFieldId: string
+}
+
 export interface FieldDefinition {
   id: string
   label: string
@@ -39,9 +45,15 @@ export interface FieldDefinition {
   rows?: number
   readOnly?: boolean
   autoCalculated?: boolean
+  hidden?: boolean
   visibleWhen?: VisibleWhenCondition[]
   fields?: FieldDefinition[]
   repeatingGroup?: RepeatingGroupTemplate
+  // Поля для sizeRowJoin (объединение двух SizeRow через разделитель)
+  joinFields?: { id: string; label: string }[]
+  joinDelimiter?: string
+  // Конфигурация для кист (множественные кисты + двойной размер)
+  cystConfig?: CystConfig
 }
 
 export interface SectionDefinition {

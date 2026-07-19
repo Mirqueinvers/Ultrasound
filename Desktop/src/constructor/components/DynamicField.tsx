@@ -56,9 +56,6 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
   const getValue = (fieldId: string): string => {
     const rawValue = value[fieldId]
     if (rawValue !== undefined && rawValue !== '') return rawValue
-    // Если значение пустое — проверяем defaultValue у самого поля
-    // Находим определение поля по fieldId среди всех полей схемы
-    // (упрощённо: проверяем только текущее поле)
     if (fieldId === field.id && field.defaultValue) return field.defaultValue
     return rawValue ?? ''
   }
@@ -68,8 +65,12 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
     return null
   }
 
+  // Скрытые поля — не рендерим, но они хранятся в состоянии через cystConfig
+  if (field.hidden) {
+    return null
+  }
+
   const handleSizeRowChange = (fieldId: string, val: string) => {
-    // Сначала обновляем само поле
     onChange(fieldId, val)
 
     // Авто-вычисление liver.rightLobeTotal = liver.rightLobeAP + liver.rightLobeCCR
@@ -82,7 +83,6 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
       return
     }
 
-    // Авто-вычисление liver.leftLobeTotal = liver.leftLobeAP + liver.leftLobeCCR
     if (fieldId === 'liver.leftLobeAP' || fieldId === 'liver.leftLobeCCR') {
       const ap = parseFloat(fieldId === 'liver.leftLobeAP' ? val : getValue('liver.leftLobeAP')) || 0
       const ccr = parseFloat(fieldId === 'liver.leftLobeCCR' ? val : getValue('liver.leftLobeCCR')) || 0
@@ -116,12 +116,17 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
     )
   }
 
-  // Рендер повторяющейся группы (конкременты, полипы)
+  // Рендер повторяющейся группы (конкременты, кисты, полипы)
   if (field.type === 'repeatingGroup') {
     const template = field.repeatingGroup
     const triggerValue = getValue(field.id)
     const listFieldId = field.id + 'List'
     const list: Record<string, string>[] = value[listFieldId] ?? []
+    const cystCfg = field.cystConfig
+    const isCystGroup = cystCfg?.enabled ?? false
+    const multipleValue = cystCfg?.multipleFieldId
+      ? getValue(cystCfg.multipleFieldId)
+      : ''
 
     const triggerOptions = template?.triggerOptions ?? [
       { value: 'не определяются', label: 'не определяются' },
@@ -149,14 +154,53 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
       onChange(listFieldId, list.filter((_, i) => i !== index))
     }
 
-    /**
-     * Рендер вложенного поля шаблона внутри карточки элемента списка.
-     */
+    const handleSizeJoinChange = (
+      itemIndex: number,
+      subFieldId: string,
+      val: string,
+      parentFieldId: string,
+      joinFields: { id: string; label: string }[],
+      delimiter: string
+    ) => {
+      const itemData = list[itemIndex] ?? {}
+      const parts = (itemData[parentFieldId] ?? '').split(delimiter)
+      const idx = joinFields.findIndex((f) => f.id === subFieldId)
+      const newParts = joinFields.map((_, i) => (i === idx ? val : parts[i] ?? ''))
+      const newVal = newParts.join(delimiter)
+      updateItem(itemIndex, parentFieldId, newVal)
+    }
+
     const renderTemplateField = (
       tplField: FieldDefinition,
       itemIndex: number,
       itemData: Record<string, string>
     ) => {
+      // Обработка sizeRowJoin — два SizeRow, объединённые через delimiter
+      if (tplField.type === 'sizeRowJoin') {
+        const delimiter = tplField.joinDelimiter ?? 'x'
+        const joinFields = tplField.joinFields ?? [{ id: 'size1', label: 'Размер 1 (мм)' }, { id: 'size2', label: 'Размер 2 (мм)' }]
+        const currentValue = itemData[tplField.id] ?? ''
+        const parts = currentValue.split(delimiter)
+
+        return (
+          <div className="space-y-2">
+            {joinFields.map((jf, jIdx) => (
+              <SizeRow
+                key={jf.id}
+                label={jf.label}
+                value={parts[jIdx] ?? ''}
+                onChange={(val) => handleSizeJoinChange(itemIndex, jf.id, val, tplField.id, joinFields, delimiter)}
+                range={
+                  tplField.normalRange
+                    ? { min: tplField.normalRange.min ?? 0, max: tplField.normalRange.max ?? 999, unit: 'мм' }
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        )
+      }
+
       const itemValue = itemData[tplField.id] ?? ''
 
       switch (tplField.type) {
@@ -213,23 +257,83 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
 
         {triggerValue === 'определяются' && (
           <div className="mt-3 space-y-3 ml-4">
-            {list.length === 0 ? (
+            {/* Для кист: показываем блок множественных кист */}
+            {isCystGroup && multipleValue === 'да' && cystCfg && (
+              <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 space-y-3">
+                    <div className="mb-4">Максимальным размером до</div>
+                    <SizeRow
+                      label="Размер 1 (мм)"
+                      value={(value[cystCfg.multipleSizeFieldId ?? ''] ?? '').split('x')[0] || ''}
+                      onChange={(e) => {
+                        const multipleSizeId = cystCfg.multipleSizeFieldId ?? ''
+                        const current = value[multipleSizeId] ?? ''
+                        const size2 = current.split('x')[1] || ''
+                        onChange(multipleSizeId, e + (size2 ? `x${size2}` : ''))
+                      }}
+                    />
+                    <SizeRow
+                      label="Размер 2 (мм)"
+                      value={(value[cystCfg.multipleSizeFieldId ?? ''] ?? '').split('x')[1] || ''}
+                      onChange={(e) => {
+                        const multipleSizeId = cystCfg.multipleSizeFieldId ?? ''
+                        const current = value[multipleSizeId] ?? ''
+                        const size1 = current.split('x')[0] || ''
+                        onChange(multipleSizeId, size1 + (e ? `x${e}` : ''))
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="text-amber-600 hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-white/50 flex-shrink-0 mt-2"
+                    onClick={() => {
+                      onChange(cystCfg!.multipleFieldId!, 'нет')
+                      if (cystCfg?.multipleSizeFieldId) {
+                        onChange(cystCfg.multipleSizeFieldId, '')
+                      }
+                    }}
+                    title="Удалить множественные кисты"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Пустое состояние — только когда нет кист и нет множественных */}
+            {list.length === 0 && !(isCystGroup && multipleValue === 'да') && (
               <div className="text-center py-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
                 <p className="text-slate-500 text-xs mb-3">
                   {template?.addButtonLabel
                     ? `${template.addButtonLabel.replace('Добавить ', '')} не добавлены`
                     : 'Элементы не добавлены'}
                 </p>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all text-sm"
-                >
-                  <Plus size={16} />
-                  {template?.addButtonLabel ?? 'Добавить'}
-                </button>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all text-sm"
+                  >
+                    <Plus size={16} />
+                    {template?.addButtonLabel ?? 'Добавить'}
+                  </button>
+                  {isCystGroup && cystCfg && (
+                    <button
+                      type="button"
+                      onClick={() => onChange(cystCfg!.multipleFieldId!, 'да')}
+                      className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all text-sm"
+                    >
+                      <Plus size={16} />
+                      Множественные кисты
+                    </button>
+                  )}
+                </div>
               </div>
-            ) : (
+            )}
+
+            {/* Список одиночных кист/конкрементов */}
+            {list.length > 0 && (
               <>
                 {list.map((itemData, itemIndex) => (
                   <div
@@ -260,14 +364,41 @@ export const DynamicField: React.FC<DynamicFieldProps> = ({
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all text-sm"
-                >
-                  <Plus size={16} />
-                  {template?.addButtonLabel ?? 'Добавить'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all text-sm"
+                  >
+                    <Plus size={16} />
+                    {template?.addButtonLabel ?? 'Добавить'}
+                  </button>
+                  {isCystGroup && cystCfg && multipleValue !== 'да' && (
+                    <button
+                      type="button"
+                      onClick={() => onChange(cystCfg!.multipleFieldId!, 'да')}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-dashed border-amber-300 text-amber-600 rounded-xl hover:bg-amber-50 hover:border-amber-400 transition-all text-sm"
+                    >
+                      <Plus size={16} />
+                      Множественные кисты
+                    </button>
+                  )}
+                  {isCystGroup && cystCfg && multipleValue === 'да' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(cystCfg!.multipleFieldId!, 'нет')
+                        if (cystCfg?.multipleSizeFieldId) {
+                          onChange(cystCfg.multipleSizeFieldId, '')
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-dashed border-amber-300 text-amber-600 rounded-xl hover:bg-amber-50 hover:border-amber-400 transition-all text-sm"
+                    >
+                      <Trash2 size={16} />
+                      Удалить множественные кисты
+                    </button>
+                  )}
+                </div>
               </>
             )}
           </div>
