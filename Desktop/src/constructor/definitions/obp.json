@@ -485,6 +485,134 @@
           ]
         }
       ]
+    },
+    {
+      "id": "obp.spleen",
+      "label": "Селезёнка",
+      "desktopKey": "ОБП:селезёнка",
+      "order": 4,
+      "fieldsets": [
+        {
+          "id": "spleen.position",
+          "title": "Положение",
+          "fields": [
+            {
+              "id": "position",
+              "label": "Положение селезенки",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "обычное", "label": "Обычное" },
+                { "value": "спленэктомия", "label": "Спленэктомия" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spleen.sizes",
+          "title": "Размеры",
+          "visibleWhen": [
+            { "field": "position", "operator": "==", "value": "обычное" }
+          ],
+          "fields": [
+            {
+              "id": "length",
+              "label": "Длина (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 80, "max": 120 }
+            },
+            {
+              "id": "width",
+              "label": "Ширина (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 40, "max": 60 }
+            }
+          ]
+        },
+        {
+          "id": "spleen.structure",
+          "title": "Структура",
+          "visibleWhen": [
+            { "field": "position", "operator": "==", "value": "обычное" }
+          ],
+          "fields": [
+            {
+              "id": "echogenicity",
+              "label": "Эхогенность",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "средняя", "label": "средняя" },
+                { "value": "повышена", "label": "повышена" },
+                { "value": "снижена", "label": "снижена" }
+              ]
+            },
+            {
+              "id": "echostructure",
+              "label": "Эхоструктура",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "однородная", "label": "однородная" },
+                { "value": "неоднородная", "label": "неоднородная" },
+                { "value": "диффузно-неоднородная", "label": "диффузно-неоднородная" }
+              ]
+            },
+            {
+              "id": "contours",
+              "label": "Контур",
+              "type": "buttonSelect",
+              "options": [
+                { "value": "ровные", "label": "четкий, ровный" },
+                { "value": "неровные", "label": "четкий, неровный" },
+                { "value": "бугристые", "label": "бугристый" }
+              ]
+            },
+            {
+              "id": "pathologicalFormations",
+              "label": "Патологические образования",
+              "type": "selectWithTextarea",
+              "options": [
+                { "value": "не определяются", "label": "не определяются" },
+                { "value": "определяются", "label": "определяются" }
+              ],
+              "triggerValue": "определяются",
+              "textareaLabel": "Описание патологических образований",
+              "textareaId": "pathologicalFormationsText"
+            }
+          ]
+        },
+        {
+          "id": "spleen.vessels",
+          "title": "Сосуды",
+          "visibleWhen": [
+            { "field": "position", "operator": "==", "value": "обычное" }
+          ],
+          "fields": [
+            {
+              "id": "splenicVein",
+              "label": "Селезеночная вена, диаметр (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 4, "max": 10 }
+            },
+            {
+              "id": "splenicArtery",
+              "label": "Селезеночная артерия, диаметр (мм)",
+              "type": "sizeRow",
+              "normalRange": { "min": 3, "max": 6 }
+            }
+          ]
+        },
+        {
+          "id": "spleen.additional",
+          "title": "Дополнительно",
+          "fields": [
+            {
+              "id": "additional",
+              "label": "Дополнительно",
+              "type": "textarea",
+              "rows": 3
+            }
+          ]
+        }
+      ]
     }
   ]
 }

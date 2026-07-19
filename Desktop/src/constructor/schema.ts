@@ -54,6 +54,7 @@ export interface SectionDefinition {
 export interface FieldsetDefinition {
   id?: string
   title: string
+  visibleWhen?: VisibleWhenCondition[]
   fields: FieldDefinition[]
 }
 
