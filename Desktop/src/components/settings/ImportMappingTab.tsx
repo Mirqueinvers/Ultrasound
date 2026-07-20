@@ -37,33 +37,38 @@ const ImportMappingTab: React.FC = () => {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [collapsedStudies, setCollapsedStudies] = useState<Set<string>>(new Set());
 
+  // Загружает маппинги из БД (без рекурсии)
   const loadMappings = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
       const result = await window.importMappingAPI.getMappings(parseInt(user.id));
-      if (result.success && result.mappings) {
-        // Строим список всех известных measurementId
-        const entries: MappingEntry[] = ALL_MEASUREMENTS.map((m) => {
-          const dbRow = result.mappings!.find(
-            (r: MedisonMappingRow) =>
-              r.measurement_id === m.id && r.target_study_type === m.studyType
-          );
-          return {
-            id: dbRow?.id ?? null,
-            measurementId: m.id,
-            measurementLabel: m.label,
-            targetStudyType: m.studyType,
-            targetField: dbRow?.target_field ?? "",
-            transform: dbRow?.transform ?? "number->string",
-            isEnabled: dbRow ? dbRow.is_enabled === 1 : true,
-          };
-        });
-        setMappings(entries);
-      } else {
-        // Если маппингов нет — сбрасываем на дефолтные
-        await handleResetDefaults();
+      let dbMappings = (result.success && result.mappings) ? result.mappings : [];
+
+      // Если маппингов нет — сбрасываем на дефолтные и загружаем снова
+      if (dbMappings.length === 0) {
+        await window.importMappingAPI.resetDefaultMappings(parseInt(user.id));
+        const retry = await window.importMappingAPI.getMappings(parseInt(user.id));
+        dbMappings = (retry.success && retry.mappings) ? retry.mappings : [];
       }
+
+      // Строим список всех известных measurementId
+      const entries: MappingEntry[] = ALL_MEASUREMENTS.map((m) => {
+        const dbRow = dbMappings.find(
+          (r: MedisonMappingRow) =>
+            r.measurement_id === m.id && r.target_study_type === m.studyType
+        );
+        return {
+          id: dbRow?.id ?? null,
+          measurementId: m.id,
+          measurementLabel: m.label,
+          targetStudyType: m.studyType,
+          targetField: dbRow?.target_field ?? "",
+          transform: dbRow?.transform ?? "number->string",
+          isEnabled: dbRow ? dbRow.is_enabled === 1 : true,
+        };
+      });
+      setMappings(entries);
     } catch {
       setMessage({ type: "error", text: "Ошибка загрузки маппингов" });
     } finally {
