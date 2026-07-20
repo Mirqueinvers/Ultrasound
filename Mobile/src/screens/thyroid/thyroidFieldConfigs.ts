@@ -43,26 +43,26 @@ export const THYROID_VOLUME_FORMATIONS_OPTIONS: FieldEditorOption[] = [
 ];
 
 export const THYROID_NODE_ECHOGENICITY_OPTIONS: FieldEditorOption[] = [
-  { value: "средняя", label: "Средняя" },
-  { value: "повышенная", label: "Повышенная" },
-  { value: "пониженная", label: "Пониженная" },
-  { value: "анэхогенный", label: "Анэхогенный" },
-  { value: "смешанная", label: "Смешанная" },
+  { value: "анэхогенный", label: "анэхогенный" },
+  { value: "гиперэхогенный", label: "гиперэхогенный" },
+  { value: "изоэхогенный", label: "изоэхогенный" },
+  { value: "гипоэхогенный", label: "гипоэхогенный" },
+  { value: "выраженно гипоэхогенный", label: "выраженно гипоэхогенный" },
 ];
 
 export const THYROID_NODE_ECHOSTRUCTURE_OPTIONS: FieldEditorOption[] = [
-  { value: "однородная", label: "Однородная" },
-  { value: "неоднородная", label: "Неоднородная" },
-  { value: "кистозно-солидная", label: "Кистозно-солидная" },
-  { value: "кистозная", label: "Кистозная" },
-  { value: "солидная", label: "Солидная" },
+  { value: "кистозный", label: "кистозный" },
+  { value: "спонгиозный", label: "спонгиозный" },
+  { value: "кистозно-солидная", label: "кистозно-солидная" },
+  { value: "преимущественно солидный", label: "преимущественно солидный" },
+  { value: "солидный", label: "солидный" },
 ];
 
 export const THYROID_NODE_CONTOUR_OPTIONS: FieldEditorOption[] = [
-  { value: "четкий, ровный", label: "Четкий, ровный" },
-  { value: "четкий, неровный", label: "Четкий, неровный" },
-  { value: "нечеткий, ровный", label: "Нечеткий, ровный" },
-  { value: "нечеткий, неровный", label: "Нечеткий, неровный" },
+  { value: "четкий ровный", label: "четкий ровный" },
+  { value: "не четкий", label: "не четкий" },
+  { value: "не ровный", label: "не ровный" },
+  { value: "экстра-тиреоидальное распространение", label: "экстра-тиреоидальное распространение" },
 ];
 
 export const THYROID_NODE_ECHOGENIC_FOCI_OPTIONS: FieldEditorOption[] = [
@@ -93,25 +93,25 @@ export const THYROID_CONCLUSION_SAMPLES: ConclusionSample[] = [
 
 export const ECHOGENICITY_POINTS: Record<string, number> = {
   "анэхогенный": 0,
-  "средняя": 1,
-  "пониженная": 2,
-  "повышенная": 3,
-  "смешанная": 1,
+  "гиперэхогенный": 1,
+  "изоэхогенный": 1,
+  "гипоэхогенный": 2,
+  "выраженно гипоэхогенный": 3,
 };
 
 export const ECHOSTRUCTURE_POINTS: Record<string, number> = {
-  "однородная": 0,
-  "неоднородная": 0,
+  "кистозный": 0,
+  "спонгиозный": 0,
   "кистозно-солидная": 1,
-  "кистозная": 0,
-  "солидная": 1,
+  "преимущественно солидный": 2,
+  "солидный": 2,
 };
 
 export const CONTOUR_POINTS: Record<string, number> = {
-  "четкий, ровный": 0,
-  "четкий, неровный": 0,
-  "нечеткий, ровный": 0,
-  "нечеткий, неровный": 3,
+  "четкий ровный": 0,
+  "не четкий": 0,
+  "не ровный": 2,
+  "экстра-тиреоидальное распространение": 3,
 };
 
 export const ECHOGENIC_FOCI_POINTS: Record<string, number> = {
