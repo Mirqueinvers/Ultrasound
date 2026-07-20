@@ -1,0 +1,92 @@
+.settings-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 100px 24px 40px;
+}
+
+.settings-page__container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.settings-page__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 24px 0;
+}
+
+/* Вкладки */
+.settings-page__tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0;
+}
+
+.settings-page__tab {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.settings-page__tab:hover {
+  color: #334155;
+  background: #f8fafc;
+}
+
+.settings-page__tab.active {
+  color: #0f6cbd;
+  border-bottom-color: #0f6cbd;
+}
+
+.settings-page__content {
+  min-height: 300px;
+}
+
+/* Профиль в настройках */
+.settings-profile__section {
+  margin-bottom: 24px;
+}
+
+.settings-profile__section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.settings-profile__data {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-profile__field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-profile__field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  min-width: 120px;
+}
+
+.settings-profile__field span {
+  font-size: 14px;
+  color: #1e293b;
+}

@@ -133,6 +133,26 @@ export interface PrintBlockOverrideRow {
   updated_at: string;
 }
 
+export const CREATE_MEDISON_MAPPINGS_TABLE = `
+  CREATE TABLE IF NOT EXISTS medison_mappings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    measurement_id TEXT NOT NULL,
+    target_study_type TEXT NOT NULL,
+    target_field TEXT NOT NULL,
+    transform TEXT DEFAULT 'number->string',
+    is_enabled INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  )
+`;
+
+export const CREATE_MEDISON_MAPPINGS_INDEX = `
+  CREATE INDEX IF NOT EXISTS idx_medison_mappings_user_id
+  ON medison_mappings(user_id);
+`;
+
 export const CREATE_USERNAME_INDEX = `
   CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users(username)
 `;

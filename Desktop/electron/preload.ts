@@ -190,6 +190,32 @@ export interface MedisonAPI {
   onXmlFound: (handler: (data: { filePath: string; filename: string; content: string }) => void) => () => void;
 }
 
+export interface MedisonMappingRow {
+  id: number;
+  user_id: number;
+  measurement_id: string;
+  target_study_type: string;
+  target_field: string;
+  transform: string;
+  is_enabled: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ImportMappingAPI {
+  getMappings: (userId: number) => Promise<{ success: boolean; mappings?: MedisonMappingRow[]; message?: string }>;
+  upsertMapping: (data: {
+    userId: number;
+    measurementId: string;
+    targetStudyType: string;
+    targetField: string;
+    transform: string;
+    isEnabled: boolean;
+  }) => Promise<{ success: boolean; id?: number; message?: string }>;
+  deleteMapping: (id: number) => Promise<{ success: boolean; message?: string }>;
+  resetDefaultMappings: (userId: number) => Promise<{ success: boolean; message?: string }>;
+}
+
 export interface MobileHostAPI {
   getStatus: () => Promise<MobileHostStatus>;
   start: () => Promise<MobileHostStatus>;
@@ -443,6 +469,13 @@ const medisonAPI: MedisonAPI = {
   },
 };
 
+const importMappingAPI: ImportMappingAPI = {
+  getMappings: (userId) => ipcRenderer.invoke("medison-mapping:getAll", userId),
+  upsertMapping: (data) => ipcRenderer.invoke("medison-mapping:upsert", data),
+  deleteMapping: (id) => ipcRenderer.invoke("medison-mapping:delete", id),
+  resetDefaultMappings: (userId) => ipcRenderer.invoke("medison-mapping:resetDefaults", userId),
+};
+
 const databaseAPI: DatabaseAPI = {
   getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => 
     ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
@@ -460,5 +493,6 @@ contextBridge.exposeInMainWorld("protocolAPI", protocolAPI);
 contextBridge.exposeInMainWorld("fileAPI", fileAPI);
 contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
+contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 

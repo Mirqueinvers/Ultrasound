@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, LogOut, ChevronDown } from 'lucide-react';
+import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 
 interface UserMenuProps {
   onNavigateToProfile: () => void;
+  onNavigateToSettings?: () => void;
 }
 
 interface ConfirmDialogProps {
@@ -49,7 +50,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ open, title, message, onC
   );
 };
 
-const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile, onNavigateToSettings }) => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -88,6 +89,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile }) => {
   const handleProfileClick = () => {
     setIsOpen(false);
     onNavigateToProfile();
+  };
+
+  const handleSettingsClick = () => {
+    setIsOpen(false);
+    onNavigateToSettings?.();
   };
 
   const getInitials = (name: string): string => {
@@ -157,6 +163,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ onNavigateToProfile }) => {
               >
                 <User size={16} className="text-slate-400" />
                 <span>Профиль</span>
+              </button>
+
+              <button 
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-all"
+                onClick={handleSettingsClick}
+              >
+                <Settings size={16} className="text-slate-400" />
+                <span>Настройки</span>
               </button>
 
               <div className="h-px bg-slate-100 my-1" />

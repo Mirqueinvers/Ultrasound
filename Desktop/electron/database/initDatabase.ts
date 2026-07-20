@@ -8,6 +8,8 @@ import {
   CREATE_RESEARCH_STUDIES_TABLE,
   CREATE_PRINT_BLOCK_OVERRIDES_TABLE,
   CREATE_RESEARCHES_INDEXES,
+  CREATE_MEDISON_MAPPINGS_TABLE,
+  CREATE_MEDISON_MAPPINGS_INDEX,
 } from "./schema";
 
 export const initializeDatabase = (db: Database.Database): void => {
@@ -19,6 +21,8 @@ export const initializeDatabase = (db: Database.Database): void => {
   db.exec(CREATE_RESEARCH_STUDIES_TABLE);
   db.exec(CREATE_PRINT_BLOCK_OVERRIDES_TABLE);
   db.exec(CREATE_RESEARCHES_INDEXES);
+  db.exec(CREATE_MEDISON_MAPPINGS_TABLE);
+  db.exec(CREATE_MEDISON_MAPPINGS_INDEX);
 };
 
 export const runMigrations = (db: Database.Database): void => {

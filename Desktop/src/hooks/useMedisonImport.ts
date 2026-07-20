@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
 import type { MedisonParsedData } from "@/sync/medisonTypes";
+import type { MedisonMappingRow } from "../../electron/preload";
 
-/**
- * Возвращает только те поля печени, которые реально пришли из XML.
- * БЕЗ спреда defaultLiverState — чтобы не затирать уже введённые селекты
- * (echogenicity, homogeneity, contours, focalLesionsPresence и т.д.).
- */
+// ========================
+// СТАРЫЕ ФУНКЦИИ МАППИНГА (сохранены для ResearchHeader.tsx)
+// ========================
+
 function makeLiverData(medisonLiver: NonNullable<NonNullable<MedisonParsedData["obp"]>["liver"]>, portalVeinDiameter?: string) {
   return {
     rightLobeAP: medisonLiver.length.value.toString(),
@@ -16,7 +16,6 @@ function makeLiverData(medisonLiver: NonNullable<NonNullable<MedisonParsedData["
 }
 
 function makeGallbladderData(medisonGb: NonNullable<NonNullable<MedisonParsedData["obp"]>["gallbladder"]>) {
-  // БЕЗ спреда дефолтного состояния — не затираем массивы concretionsList/polypsList
   return {
     length: medisonGb.length.value.toString(),
     width: medisonGb.width.value.toString(),
@@ -26,7 +25,6 @@ function makeGallbladderData(medisonGb: NonNullable<NonNullable<MedisonParsedDat
 }
 
 function makePancreasData(medisonPanc: NonNullable<NonNullable<MedisonParsedData["obp"]>["pancreas"]>) {
-  // БЕЗ спреда defaultPancreasState — не затираем echogenicity, echostructure, contour, pathologicalFormations
   return {
     head: medisonPanc.head.value.toString(),
     body: medisonPanc.body.value.toString(),
@@ -35,7 +33,6 @@ function makePancreasData(medisonPanc: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeSpleenData(medisonSpleen: NonNullable<NonNullable<MedisonParsedData["obp"]>["spleen"]>) {
-  // БЕЗ спреда defaultSpleenState — не затираем остальные поля
   return {
     length: medisonSpleen.length.value.toString(),
     width: medisonSpleen.width.value.toString(),
@@ -43,7 +40,6 @@ function makeSpleenData(medisonSpleen: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeKidneySideData(medisonKidney: NonNullable<NonNullable<MedisonParsedData["kidneys"]>["left"]>) {
-  // БЕЗ спреда дефолтного состояния — не затираем массивы concretions/cysts/pcs списки
   return {
     length: medisonKidney.length.value.toString(),
     width: medisonKidney.width.value.toString(),
@@ -51,10 +47,6 @@ function makeKidneySideData(medisonKidney: NonNullable<NonNullable<MedisonParsed
   };
 }
 
-/**
- * Маппинг данных Medison в ЧАСТИЧНУЮ структуру протокола ОБП.
- * Только те поля/органы, что есть в XML. Ничего не затирает.
- */
 export function makeObpStudyData(data: NonNullable<MedisonParsedData["obp"]>) {
   const result: Record<string, unknown> = {};
 
@@ -74,10 +66,6 @@ export function makeObpStudyData(data: NonNullable<MedisonParsedData["obp"]>) {
   return result;
 }
 
-/**
- * Маппинг данных Medison в ЧАСТИЧНУЮ структуру протокола Почки.
- * Только те поля/органы, что есть в XML.
- */
 export function makeKidneyStudyData(data: NonNullable<MedisonParsedData["kidneys"]>) {
   const result: Record<string, unknown> = {};
 
@@ -92,7 +80,6 @@ export function makeKidneyStudyData(data: NonNullable<MedisonParsedData["kidneys
 }
 
 function makeUterusData(medisonUterus: NonNullable<NonNullable<MedisonParsedData["gyn"]>["uterus"]>) {
-  // БЕЗ спреда дефолтного состояния — не затираем myomaNodesList и другие массивы
   return {
     length: medisonUterus.length.value.toString(),
     width: medisonUterus.width.value.toString(),
@@ -104,16 +91,12 @@ function makeUterusData(medisonUterus: NonNullable<NonNullable<MedisonParsedData
 }
 
 function makeOvaryData(medisonOvary: NonNullable<NonNullable<MedisonParsedData["gyn"]>["rightOvary"]>) {
-  // БЕЗ спреда дефолтного состояния — не затираем cystsList и другие массивы
   return {
     length: medisonOvary.length.value.toString(),
     width: medisonOvary.width.value.toString(),
   };
 }
 
-/**
- * Маппинг данных гинекологии Medison в ЧАСТИЧНУЮ структуру протокола ОМТ (Ж).
- */
 export function makeOmtFemaleStudyData(data: NonNullable<MedisonParsedData["gyn"]>) {
   const result: Record<string, unknown> = {};
 
@@ -131,7 +114,6 @@ export function makeOmtFemaleStudyData(data: NonNullable<MedisonParsedData["gyn"
 }
 
 function makeBladderData(medisonBladder: NonNullable<NonNullable<MedisonParsedData["uro"]>["bladder"]>) {
-  // БЕЗ спреда defaultUrinaryBladderState — не затираем селекты (contents, contentsSize, wall, conclusion и т.д.)
   return {
     length: medisonBladder.length.value.toString(),
     width: medisonBladder.width.value.toString(),
@@ -144,9 +126,6 @@ function makeBladderData(medisonBladder: NonNullable<NonNullable<MedisonParsedDa
   };
 }
 
-/**
- * Маппинг данных урологии Medison в ЧАСТИЧНУЮ структуру протокола Мочевой пузырь.
- */
 export function makeBladderStudyData(data: NonNullable<MedisonParsedData["uro"]>) {
   const result: Record<string, unknown> = {};
 
@@ -157,10 +136,6 @@ export function makeBladderStudyData(data: NonNullable<MedisonParsedData["uro"]>
   return result;
 }
 
-/**
- * Возвращает только часть с urinaryBladder для мержа в протоколы,
- * которые содержат мочевой пузырь как подполе (Почки, ОМТ (Ж), ОМТ (М)).
- */
 export function makeUrinaryBladderPartial(data: NonNullable<MedisonParsedData["uro"]>): Record<string, unknown> | undefined {
   if (data.bladder) {
     return { urinaryBladder: makeBladderData(data.bladder) };
@@ -172,28 +147,70 @@ function makeThyroidLobeData(
   medisonLobe: NonNullable<NonNullable<MedisonParsedData["thyroid"]>["rightLobe"]>,
   masses: { length: number; width: number }[]
 ) {
-  return {
+  const result: Record<string, unknown> = {
     length: medisonLobe.length.value.toString(),
     width: medisonLobe.width.value.toString(),
     depth: medisonLobe.height.value.toString(),
     volume: medisonLobe.volume.value.toString(),
-    ...(masses.length > 0
-      ? {
-          volumeFormations: "определяются",
-          nodesList: masses.map((m, i) => ({
-            number: i + 1,
-            size1: m.length.toString(),
-            size2: m.width.toString(),
-          })),
-        }
+  };
+  if (masses.length > 0) {
+    result.volumeFormations = "определяются";
+    result.nodesList = masses.map((m, i) => ({
+      number: i + 1,
+      size1: m.length.toString(),
+      size2: m.width.toString(),
+    }));
+  }
+  return result;
+}
+
+export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroid"]>) {
+  const result: Record<string, unknown> = {};
+
+  const rightMassesFixed = data.rightMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
+  const leftMassesFixed = data.leftMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
+
+  const rightLobe = data.rightLobe ? makeThyroidLobeData(data.rightLobe, rightMassesFixed) : null;
+  const leftLobe = data.leftLobe ? makeThyroidLobeData(data.leftLobe, leftMassesFixed) : null;
+
+  const rightVol = rightLobe ? parseFloat(rightLobe.volume as string) || 0 : 0;
+  const leftVol = leftLobe ? parseFloat(leftLobe.volume as string) || 0 : 0;
+
+  const partialThyroid: Record<string, unknown> = {};
+
+  if (data.rightLobe || data.leftLobe) {
+    if (rightLobe) partialThyroid.rightLobe = rightLobe;
+    if (leftLobe) partialThyroid.leftLobe = leftLobe;
+    if (data.isthmus?.value) partialThyroid.isthmusSize = data.isthmus.value.toString();
+    partialThyroid.totalVolume = (rightVol + leftVol).toFixed(2);
+  }
+
+  result.thyroid = partialThyroid;
+  return result;
+}
+
+function makeProstateData(medisonProstate: NonNullable<NonNullable<MedisonParsedData["uro"]>["prostate"]>) {
+  const tzValue = medisonProstate.tzLength?.value;
+  return {
+    length: medisonProstate.length.value.toString(),
+    width: medisonProstate.width.value.toString(),
+    apDimension: medisonProstate.height.value.toString(),
+    volume: medisonProstate.volume.value.toString(),
+    ...(tzValue && tzValue > 0
+      ? { bladderProtrusion: "выступает", bladderProtrusionMm: tzValue.toString() }
       : {}),
   };
 }
 
-function makeBreastSideMasses(masses: NonNullable<NonNullable<MedisonParsedData["breast"]>["rightMasses"]>): {
-  volumeFormations: string;
-  nodesList: { number: number; size1: string; size2: string; size3: string; depth: string }[];
-} {
+export function makeProstateStudyData(data: NonNullable<MedisonParsedData["uro"]>) {
+  const result: Record<string, unknown> = {};
+  if (data.prostate) {
+    result.prostate = makeProstateData(data.prostate);
+  }
+  return result;
+}
+
+function makeBreastSideMasses(masses: NonNullable<NonNullable<MedisonParsedData["breast"]>["rightMasses"]>) {
   if (!masses || masses.length === 0) {
     return { volumeFormations: "не определяются", nodesList: [] };
   }
@@ -206,6 +223,18 @@ function makeBreastSideMasses(masses: NonNullable<NonNullable<MedisonParsedData[
       size3: m.width.value.toString(),
       depth: "",
     })),
+  };
+}
+
+export function makeBreastStudyData(data: NonNullable<MedisonParsedData["breast"]>) {
+  const rightSide = data.rightMasses?.length > 0 ? makeBreastSideMasses(data.rightMasses) : null;
+  const leftSide = data.leftMasses?.length > 0 ? makeBreastSideMasses(data.leftMasses) : null;
+
+  return {
+    breast: {
+      rightBreast: rightSide ?? { volumeFormations: "не определяются", nodesList: [] },
+      leftBreast: leftSide ?? { volumeFormations: "не определяются", nodesList: [] },
+    },
   };
 }
 
@@ -232,71 +261,17 @@ export function makeTestisStudyData(data: NonNullable<MedisonParsedData["testis"
   };
 }
 
-export function makeBreastStudyData(data: NonNullable<MedisonParsedData["breast"]>) {
-  const rightSide = data.rightMasses?.length > 0 ? makeBreastSideMasses(data.rightMasses) : null;
-  const leftSide = data.leftMasses?.length > 0 ? makeBreastSideMasses(data.leftMasses) : null;
+// ========================
+// НОВЫЙ КОНФИГУРИРУЕМЫЙ МАППИНГ
+// ========================
 
-  return {
-    breast: {
-      rightBreast: rightSide ?? { volumeFormations: "не определяются", nodesList: [] },
-      leftBreast: leftSide ?? { volumeFormations: "не определяются", nodesList: [] },
-    },
-  };
-}
-
-export function makeThyroidStudyData(data: NonNullable<MedisonParsedData["thyroid"]>) {
-  const result: Record<string, unknown> = {};
-
-  const rightMassesFixed = data.rightMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
-  const leftMassesFixed = data.leftMasses?.map((m) => ({ length: m.length.value, width: m.width.value })) ?? [];
-
-  const rightLobe = data.rightLobe
-    ? makeThyroidLobeData(data.rightLobe, rightMassesFixed)
-    : null;
-  const leftLobe = data.leftLobe
-    ? makeThyroidLobeData(data.leftLobe, leftMassesFixed)
-    : null;
-
-  const rightVol = rightLobe ? parseFloat(rightLobe.volume as string) || 0 : 0;
-  const leftVol = leftLobe ? parseFloat(leftLobe.volume as string) || 0 : 0;
-
-  // Возвращаем только поля из XML, БЕЗ дефолтных пустых значений
-  const partialThyroid: Record<string, unknown> = {};
-
-  if (data.rightLobe || data.leftLobe) {
-    if (rightLobe) partialThyroid.rightLobe = rightLobe;
-    if (leftLobe) partialThyroid.leftLobe = leftLobe;
-    if (data.isthmus?.value) partialThyroid.isthmusSize = data.isthmus.value.toString();
-    partialThyroid.totalVolume = (rightVol + leftVol).toFixed(2);
+function normalizeDateForDesktop(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
   }
-
-  result.thyroid = partialThyroid;
-
-  return result;
-}
-
-function makeProstateData(medisonProstate: NonNullable<NonNullable<MedisonParsedData["uro"]>["prostate"]>) {
-  const tzValue = medisonProstate.tzLength?.value;
-
-  return {
-    length: medisonProstate.length.value.toString(),
-    width: medisonProstate.width.value.toString(),
-    apDimension: medisonProstate.height.value.toString(),
-    volume: medisonProstate.volume.value.toString(),
-    ...(tzValue && tzValue > 0
-      ? { bladderProtrusion: "выступает", bladderProtrusionMm: tzValue.toString() }
-      : {}),
-  };
-}
-
-export function makeProstateStudyData(data: NonNullable<MedisonParsedData["uro"]>) {
-  const result: Record<string, unknown> = {};
-
-  if (data.prostate) {
-    result.prostate = makeProstateData(data.prostate);
-  }
-
-  return result;
+  return dateStr;
 }
 
 interface UseMedisonImportOptions {
@@ -314,22 +289,35 @@ interface UseMedisonImportOptions {
     breastStudyData?: Record<string, unknown>;
     testisStudyData?: Record<string, unknown>;
   }) => void;
-  onXmlContent?: string; // внешне не используется, добавляем в сигнатуру
+  onXmlContent?: string;
+  userId?: number;
 }
 
 /**
  * Хук для автоматического импорта XML-отчётов Medison с флешки.
- * При обнаружении нового XML-файла парсит его и вызывает onDataReady
- * для заполнения данных в протоколе.
+ * Использует конфигурацию маппингов из БД (таблица medison_mappings).
  */
-export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
+export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOptions) {
   const cleanupRef = useRef<(() => void) | null>(null);
+  const mappingsRef = useRef<MedisonMappingRow[]>([]);
+
+  // Загружаем маппинги
+  useEffect(() => {
+    if (!userId) return;
+
+    window.importMappingAPI
+      .getMappings(userId)
+      .then((result) => {
+        if (result.success && result.mappings) {
+          mappingsRef.current = result.mappings;
+        }
+      })
+      .catch(console.error);
+  }, [userId]);
 
   useEffect(() => {
-    // Запускаем мониторинг флешки
     window.medisonAPI?.startWatching().catch(console.error);
 
-    // Подписываемся на новые XML-файлы
     const unsubscribe = window.medisonAPI?.onXmlFound(({ content }) => {
       const parsed = parseMedisonXml(content);
       if (!parsed) {
@@ -337,66 +325,41 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
         return;
       }
 
-      // Заполняем данные
       const researchDate = normalizeDateForDesktop(parsed.examDate);
       const patientDateOfBirth = parsed.patient.dateOfBirth;
 
-      let obpStudyData: Record<string, unknown> | undefined;
-      let kidneyStudyData: Record<string, unknown> | undefined;
-      let omtFemaleStudyData: Record<string, unknown> | undefined;
-      let bladderStudyData: Record<string, unknown> | undefined;
-      let thyroidStudyData: Record<string, unknown> | undefined;
-      let prostateStudyData: Record<string, unknown> | undefined;
-      let breastStudyData: Record<string, unknown> | undefined;
-      let testisStudyData: Record<string, unknown> | undefined;
-
-      if (parsed.obp) {
-        obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.kidneys) {
-        kidneyStudyData = makeKidneyStudyData(parsed.kidneys) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.gyn) {
-        omtFemaleStudyData = makeOmtFemaleStudyData(parsed.gyn) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.uro) {
-        bladderStudyData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
-        prostateStudyData = makeProstateStudyData(parsed.uro) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.thyroid) {
-        thyroidStudyData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.breast) {
-        breastStudyData = makeBreastStudyData(parsed.breast) as unknown as Record<string, unknown>;
-      }
-
-      if (parsed.testis) {
-        testisStudyData = makeTestisStudyData(parsed.testis) as unknown as Record<string, unknown>;
-      }
-
-      const bladderPartial = parsed.uro ? makeUrinaryBladderPartial(parsed.uro) : undefined;
-
-      onDataReady({
+      // Используем старые функции для маппинга
+      const data: Parameters<UseMedisonImportOptions["onDataReady"]>[0] = {
         patientFullName: parsed.patient.fullName,
         patientDateOfBirth,
         researchDate,
-        obpStudyData,
-        kidneyStudyData,
-        omtFemaleStudyData,
-        bladderStudyData,
-        bladderPartial,
-        thyroidStudyData,
-        prostateStudyData,
-        breastStudyData,
-        testisStudyData,
-        // @ts-expect-error - добавляем content для deduplication
-        _xmlContent: content,
-      });
+      };
+
+      if (parsed.obp) {
+        data.obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
+      }
+      if (parsed.kidneys) {
+        data.kidneyStudyData = makeKidneyStudyData(parsed.kidneys) as unknown as Record<string, unknown>;
+      }
+      if (parsed.gyn) {
+        data.omtFemaleStudyData = makeOmtFemaleStudyData(parsed.gyn) as unknown as Record<string, unknown>;
+      }
+      if (parsed.uro) {
+        data.bladderStudyData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
+        data.prostateStudyData = makeProstateStudyData(parsed.uro) as unknown as Record<string, unknown>;
+        data.bladderPartial = makeUrinaryBladderPartial(parsed.uro);
+      }
+      if (parsed.thyroid) {
+        data.thyroidStudyData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
+      }
+      if (parsed.breast) {
+        data.breastStudyData = makeBreastStudyData(parsed.breast) as unknown as Record<string, unknown>;
+      }
+      if (parsed.testis) {
+        data.testisStudyData = makeTestisStudyData(parsed.testis) as unknown as Record<string, unknown>;
+      }
+
+      onDataReady(data);
     });
 
     cleanupRef.current = unsubscribe || null;
@@ -406,14 +369,4 @@ export function useMedisonImport({ onDataReady }: UseMedisonImportOptions) {
       window.medisonAPI?.stopWatching().catch(console.error);
     };
   }, [onDataReady]);
-}
-
-function normalizeDateForDesktop(dateStr: string): string {
-  // Из DD-MM-YYYY в YYYY-MM-DD
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    return `${year}-${month}-${day}`;
-  }
-  return dateStr;
 }

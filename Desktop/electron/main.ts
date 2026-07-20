@@ -5,6 +5,7 @@ import { setupAuthHandlers } from "./ipc-handlers";
 import { setupProtocolHandlers } from "./ipc/protocolHandlers";
 import { setupMobileHostHandlers } from "./ipc/mobileHostHandlers";
 import { setupMedisonHandlers } from "./ipc/medisonIpc";
+import { setupMedisonMappingHandlers } from "./ipc/medisonMappingIpc";
 import { DatabaseManager } from "./database/database";
 import { getMobileHostService } from "./mobile-host";
 
@@ -43,6 +44,7 @@ function createWindow() {
       mainWindow.webContents.send("medison:xmlFound", payload);
     }
   });
+  setupMedisonMappingHandlers();
   getMobileHostService().setRendererWindow(mainWindow);
 
   if (process.env.NODE_ENV === "development") {

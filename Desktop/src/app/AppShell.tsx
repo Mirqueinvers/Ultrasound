@@ -8,6 +8,7 @@ import Content from "@layout/Content";
 import MainLayout from "@layout/MainLayout";
 
 import ProfilePage from "@/components/profile/ProfilePage";
+import SettingsPage from "@/components/settings/SettingsPage";
 import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
 import RegistryPanel from "@/components/registry/RegistryPanel";
@@ -79,6 +80,10 @@ const AppShell: React.FC = () => {
   } = useDesktopAppSelection();
   const sectionRefs = useSectionRefs();
 
+  const handleNavigateToSettings = React.useCallback(() => {
+    setActiveSection("settings");
+  }, [setActiveSection]);
+
   const mainLayout = (children: ReactNode) => (
     <MainLayout
       activeSection={activeSection}
@@ -102,9 +107,13 @@ const AppShell: React.FC = () => {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         onNavigateToProfile={handleNavigateToProfile}
+        onNavigateToSettings={handleNavigateToSettings}
       />
       {activeSection === "profile" && (
         <RightPanelProvider>{mainLayout(<ProfilePage />)}</RightPanelProvider>
+      )}
+      {activeSection === "settings" && (
+        <RightPanelProvider>{mainLayout(<SettingsPage />)}</RightPanelProvider>
       )}
       {activeSection === "journal" && (
         <ResearchProvider>
@@ -126,7 +135,7 @@ const AppShell: React.FC = () => {
           </div>
         </main>
       )}
-      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && (
+      {activeSection !== "profile" && activeSection !== "journal" && activeSection !== "statistics" && activeSection !== "registry" && activeSection !== "settings" && (
         <ResearchProvider>
           <MedisonAutoImport />
           <RightPanelProvider>

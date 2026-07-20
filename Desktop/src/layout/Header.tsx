@@ -6,6 +6,7 @@ interface HeaderProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   onNavigateToProfile: () => void;
+  onNavigateToSettings?: () => void;
 }
 
 const menuItems = [
@@ -45,6 +46,7 @@ const Header: React.FC<HeaderProps> = ({
   activeSection,
   setActiveSection,
   onNavigateToProfile,
+  onNavigateToSettings,
 }) => {
   const navRef = React.useRef<HTMLDivElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = React.useState<{ left: number; width: number } | null>(null);
@@ -118,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* User Menu */}
         <div className="relative z-[100] ml-4">
-          <UserMenu onNavigateToProfile={onNavigateToProfile} />
+          <UserMenu onNavigateToProfile={onNavigateToProfile} onNavigateToSettings={onNavigateToSettings} />
         </div>
       </div>
     </header>
