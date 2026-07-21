@@ -265,6 +265,139 @@ export function makeTestisStudyData(data: NonNullable<MedisonParsedData["testis"
 // НОВЫЙ КОНФИГУРИРУЕМЫЙ МАППИНГ
 // ========================
 
+/**
+ * Извлекает значение любого измерения из сырого XML по measurementId.
+ * Работает как getMeasurementValue в medisonXmlParser.ts.
+ */
+function getMeasurementValueFromXml(xmlContent: string, measurementId: string): string | null {
+  const escapedId = measurementId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Ищем <m value="..." /> или <m1 value="..." />
+  const pattern = new RegExp(
+    `<measurement\\s+id="${escapedId}"[^>]*>.*?<m(?:1)?\\s+value="([^"]*)"`,
+    "s"
+  );
+  const match = xmlContent.match(pattern);
+  if (match && match[1].trim() !== "") {
+    const parsed = parseFloat(match[1]);
+    return isNaN(parsed) ? match[1].trim() : parsed.toString();
+  }
+  return null;
+}
+
+/**
+ * Устанавливает значение в объекте по точечному пути.
+ * Например setValueAtPath({}, "liver.rightLobeAP", "150") → { liver: { rightLobeAP: "150" } }
+ */
+function setValueAtPath(obj: Record<string, unknown>, path: string, value: string): void {
+  const keys = path.split(".");
+  let current: Record<string, unknown> = obj;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    if (!(key in current) || typeof current[key] !== "object") {
+      current[key] = {};
+    }
+    current = current[key] as Record<string, unknown>;
+  }
+
+  const lastKey = keys[keys.length - 1];
+  current[lastKey] = value;
+}
+
+function findNested(obj: Record<string, unknown>, keys: string[]): unknown {
+  let current: unknown = obj;
+  for (const key of keys) {
+    if (current && typeof current === "object" && key in current) {
+      current = (current as Record<string, unknown>)[key];
+    } else {
+      return undefined;
+    }
+  }
+  return current;
+}
+
+/**
+ * Применяет маппинги к сырому XML и возвращает частичный объект данных.
+ * Поддерживает любые кастомные measurementId.
+ */
+function applyMappingsFromXml(
+  parsed: MedisonParsedData,
+  mappings: MedisonMappingRow[],
+  rawXml: string
+): {
+  obpStudyData?: Record<string, unknown>;
+  kidneyStudyData?: Record<string, unknown>;
+  omtFemaleStudyData?: Record<string, unknown>;
+  bladderStudyData?: Record<string, unknown>;
+  bladderPartial?: Record<string, unknown>;
+  thyroidStudyData?: Record<string, unknown>;
+  prostateStudyData?: Record<string, unknown>;
+  breastStudyData?: Record<string, unknown>;
+  testisStudyData?: Record<string, unknown>;
+} {
+  const obpData: Record<string, unknown> = {};
+  const kidneyData: Record<string, unknown> = {};
+  const omtFemaleData: Record<string, unknown> = {};
+  const bladderData: Record<string, unknown> = {};
+  const thyroidData: Record<string, unknown> = {};
+  const breastData: Record<string, unknown> = {};
+  const testisData: Record<string, unknown> = {};
+
+  const studyContainers: Record<string, Record<string, unknown>> = {
+    obp: obpData,
+    kidneys: kidneyData,
+    gyn: omtFemaleData,
+    uro: bladderData,
+    thyroid: thyroidData,
+    breast: breastData,
+    testis: testisData,
+  };
+
+  for (const mapping of mappings) {
+    if (!mapping.is_enabled) continue;
+    const { measurement_id, target_study_type, target_field } = mapping;
+    if (!target_field) continue;
+
+    // Извлекаем значение прямо из сырого XML
+    const rawValue = getMeasurementValueFromXml(rawXml, measurement_id);
+    if (rawValue === null) continue;
+
+    const container = studyContainers[target_study_type];
+    if (!container) continue;
+
+    setValueAtPath(container, target_field, rawValue);
+  }
+
+  const result: ReturnType<typeof applyMappingsFromXml> = {};
+
+  if (Object.keys(obpData).length > 0) result.obpStudyData = obpData;
+  if (Object.keys(kidneyData).length > 0) result.kidneyStudyData = kidneyData;
+  if (Object.keys(omtFemaleData).length > 0) result.omtFemaleStudyData = omtFemaleData;
+
+  if (Object.keys(bladderData).length > 0) {
+    const bladderFields = [
+      "bladder.length", "bladder.height", "bladder.width", "bladder.volume",
+      "bladder.residualLength", "bladder.residualHeight", "bladder.residualWidth", "bladder.residualVolume",
+    ];
+    const hasBladder = bladderFields.some((f) => {
+      const keys = f.split(".");
+      return findNested(bladderData, keys) !== undefined;
+    });
+    if (hasBladder) {
+      result.bladderStudyData = bladderData;
+    }
+    if ("prostate" in bladderData) {
+      result.prostateStudyData = { prostate: bladderData.prostate };
+    }
+  }
+
+  if (Object.keys(thyroidData).length > 0) result.thyroidStudyData = thyroidData;
+  if (Object.keys(breastData).length > 0) result.breastStudyData = breastData;
+  if (Object.keys(testisData).length > 0) result.testisStudyData = testisData;
+
+  return result;
+}
+
 function normalizeDateForDesktop(dateStr: string): string {
   const parts = dateStr.split("-");
   if (parts.length === 3) {
@@ -296,10 +429,12 @@ interface UseMedisonImportOptions {
 /**
  * Хук для автоматического импорта XML-отчётов Medison с флешки.
  * Использует конфигурацию маппингов из БД (таблица medison_mappings).
+ * Поддерживает любые кастомные measurementId — извлекает значения напрямую из сырого XML.
  */
 export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOptions) {
   const cleanupRef = useRef<(() => void) | null>(null);
   const mappingsRef = useRef<MedisonMappingRow[]>([]);
+  const rawXmlRef = useRef<string>("");
 
   // Загружаем маппинги
   useEffect(() => {
@@ -325,41 +460,23 @@ export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOption
         return;
       }
 
+      // Сохраняем сырой XML для извлечения кастомных measurementId
+      rawXmlRef.current = content;
+
       const researchDate = normalizeDateForDesktop(parsed.examDate);
       const patientDateOfBirth = parsed.patient.dateOfBirth;
 
-      // Используем старые функции для маппинга
-      const data: Parameters<UseMedisonImportOptions["onDataReady"]>[0] = {
+      // Используем маппинг из БД для извлечения значений напрямую из XML
+      const mapped = applyMappingsFromXml(parsed, mappingsRef.current, content);
+
+      onDataReady({
         patientFullName: parsed.patient.fullName,
         patientDateOfBirth,
         researchDate,
-      };
-
-      if (parsed.obp) {
-        data.obpStudyData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
-      }
-      if (parsed.kidneys) {
-        data.kidneyStudyData = makeKidneyStudyData(parsed.kidneys) as unknown as Record<string, unknown>;
-      }
-      if (parsed.gyn) {
-        data.omtFemaleStudyData = makeOmtFemaleStudyData(parsed.gyn) as unknown as Record<string, unknown>;
-      }
-      if (parsed.uro) {
-        data.bladderStudyData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
-        data.prostateStudyData = makeProstateStudyData(parsed.uro) as unknown as Record<string, unknown>;
-        data.bladderPartial = makeUrinaryBladderPartial(parsed.uro);
-      }
-      if (parsed.thyroid) {
-        data.thyroidStudyData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
-      }
-      if (parsed.breast) {
-        data.breastStudyData = makeBreastStudyData(parsed.breast) as unknown as Record<string, unknown>;
-      }
-      if (parsed.testis) {
-        data.testisStudyData = makeTestisStudyData(parsed.testis) as unknown as Record<string, unknown>;
-      }
-
-      onDataReady(data);
+        ...mapped,
+        // @ts-expect-error - добавляем content для deduplication
+        _xmlContent: content,
+      });
     });
 
     cleanupRef.current = unsubscribe || null;

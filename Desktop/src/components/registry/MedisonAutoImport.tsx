@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMedisonImport } from "@/hooks/useMedisonImport";
 import { useResearch } from "@/contexts/ResearchContext";
 
@@ -23,6 +24,7 @@ function simpleHash(str: string): string {
 const IMPORTED_KEY = "medison_imported_hash";
 
 export default function MedisonAutoImport() {
+  const { user } = useAuth();
   const {
     setPatientFullName,
     setPatientDateOfBirth,
@@ -46,6 +48,7 @@ export default function MedisonAutoImport() {
   };
 
   useMedisonImport({
+    userId: user ? parseInt(user.id) : undefined,
     onDataReady: (data) => {
       console.log("MedisonAutoImport: получены данные", {
         keys: Object.keys(data),
