@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { User, Database, ChevronRight } from "lucide-react";
 import ImportMappingTab from "./ImportMappingTab";
 import "./SettingsPage.css";
 
 type SettingsTab = "profile" | "mapping";
+
+const sidebarItems: { id: SettingsTab; icon: React.ReactNode; label: string }[] = [
+  { id: "profile", icon: <User size={18} />, label: "Профиль" },
+  { id: "mapping", icon: <Database size={18} />, label: "Импорт данных" },
+];
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
@@ -13,29 +19,36 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="settings-page">
-      <div className="settings-page__container">
-        <h1 className="settings-page__title">Настройки</h1>
+      <div className="settings-page__layout">
+        {/* Левая панель навигации */}
+        <nav className="settings-page__sidebar">
+          <div className="settings-page__sidebar-header">
+            <h2>Настройки</h2>
+          </div>
+          <div className="settings-page__sidebar-menu">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                className={`settings-page__sidebar-item ${activeTab === item.id ? "active" : ""}`}
+                onClick={() => setActiveTab(item.id)}
+              >
+                <span className="settings-page__sidebar-icon">{item.icon}</span>
+                <span className="settings-page__sidebar-label">{item.label}</span>
+                <ChevronRight size={14} className="settings-page__sidebar-chevron" />
+              </button>
+            ))}
+          </div>
+        </nav>
 
-        <div className="settings-page__tabs">
-          <button
-            className={`settings-page__tab ${activeTab === "profile" ? "active" : ""}`}
-            onClick={() => setActiveTab("profile")}
-          >
-            Профиль
-          </button>
-          <button
-            className={`settings-page__tab ${activeTab === "mapping" ? "active" : ""}`}
-            onClick={() => setActiveTab("mapping")}
-          >
-            Импорт данных
-          </button>
-        </div>
-
+        {/* Правая область контента */}
         <div className="settings-page__content">
           {activeTab === "profile" && (
             <div className="settings-profile">
+              <div className="settings-profile__header">
+                <h2>Профиль пользователя</h2>
+                <p className="settings-profile__subtitle">Личная информация и данные учётной записи</p>
+              </div>
               <div className="settings-profile__section">
-                <h3>Личные данные</h3>
                 <div className="settings-profile__data">
                   <div className="settings-profile__field">
                     <label>Имя:</label>
