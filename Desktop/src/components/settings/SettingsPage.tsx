@@ -1,23 +1,18 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { User, Database, Smartphone, ChevronRight } from "lucide-react";
+import { Database, Smartphone, ChevronRight } from "lucide-react";
 import ImportMappingTab from "./ImportMappingTab";
 import MobileSyncTab from "./MobileSyncTab";
 import "./SettingsPage.css";
 
-type SettingsTab = "profile" | "mapping" | "mobile";
+type SettingsTab = "mapping" | "mobile";
 
 const sidebarItems: { id: SettingsTab; icon: React.ReactNode; label: string }[] = [
-  { id: "profile", icon: <User size={18} />, label: "Профиль" },
   { id: "mobile", icon: <Smartphone size={18} />, label: "Mobile Sync" },
   { id: "mapping", icon: <Database size={18} />, label: "Импорт данных" },
 ];
 
 const SettingsPage: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
-
-  if (!user) return null;
+  const [activeTab, setActiveTab] = useState<SettingsTab>("mobile");
 
   return (
     <div className="settings-page">
@@ -44,43 +39,6 @@ const SettingsPage: React.FC = () => {
 
         {/* Правая область контента */}
         <div className="settings-page__content">
-          {activeTab === "profile" && (
-            <div className="settings-profile">
-              <div className="settings-profile__header">
-                <h2>Профиль пользователя</h2>
-                <p className="settings-profile__subtitle">Личная информация и данные учётной записи</p>
-              </div>
-              <div className="settings-profile__section">
-                <div className="settings-profile__data">
-                  <div className="settings-profile__field">
-                    <label>Имя:</label>
-                    <span>{user.name}</span>
-                  </div>
-                  <div className="settings-profile__field">
-                    <label>Email:</label>
-                    <span>{user.email}</span>
-                  </div>
-                  {user.organization && (
-                    <div className="settings-profile__field">
-                      <label>Организация:</label>
-                      <span>{user.organization}</span>
-                    </div>
-                  )}
-                  {user.role && (
-                    <div className="settings-profile__field">
-                      <label>Роль:</label>
-                      <span>
-                        {user.role === "admin" && "Администратор"}
-                        {user.role === "doctor" && "Врач УЗИ"}
-                        {user.role === "user" && "Пользователь"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === "mapping" && <ImportMappingTab />}
           {activeTab === "mobile" && <MobileSyncTab />}
         </div>
