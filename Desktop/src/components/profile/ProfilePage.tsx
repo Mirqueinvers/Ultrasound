@@ -1,7 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import QRCode from 'qrcode';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import type { MobileHostStatus } from '@/types/electron';
 import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
@@ -16,129 +14,45 @@ const ProfilePage: React.FC = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
-  const [mobileHostStatus, setMobileHostStatus] = useState<MobileHostStatus | null>(null);
-  const [mobileHostError, setMobileHostError] = useState<string>('');
-  const [isMobileHostBusy, setIsMobileHostBusy] = useState(false);
-  const [mobileSyncQr, setMobileSyncQr] = useState<string>('');
 
-  const mobileSyncPayload = useMemo(() => {
-    if (!mobileHostStatus?.httpUrl || !mobileHostStatus?.pairingCode) {
-      return '';
-    }
+  const handleSaveProfile = async () => {
+    try {
+      setError('');
+      setSuccess('');
 
-    const payloadUrl = new URL('ultrasound-mobile://connect');
-    payloadUrl.searchParams.set('host', mobileHostStatus.httpUrl);
-    payloadUrl.searchParams.set('code', mobileHostStatus.pairingCode);
-    return payloadUrl.toString();
-  }, [mobileHostStatus?.httpUrl, mobileHostStatus?.pairingCode]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadStatus = async () => {
-      try {
-        if (!window.mobileHostAPI) {
-          return;
-        }
-
-        const status = await window.mobileHostAPI.getStatus();
-        if (!cancelled) {
-          setMobileHostStatus(status);
-          setMobileHostError('');
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setMobileHostError(err instanceof Error ? err.message : 'Не удалось получить статус mobile sync');
-        }
-      }
-    };
-
-    loadStatus();
-    const interval = window.setInterval(loadStatus, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const renderQr = async () => {
-      if (!mobileSyncPayload) {
-        setMobileSyncQr('');
+      if (!editedName.trim()) {
+        setError('Имя не может быть пустым');
         return;
       }
 
-      try {
-        const dataUrl = await QRCode.toDataURL(mobileSyncPayload, {
-          errorCorrectionLevel: 'M',
-          margin: 1,
-          width: 256,
-          color: {
-            dark: '#0f172a',
-            light: '#ffffff',
-          },
-        });
-
-        if (!cancelled) {
-          setMobileSyncQr(dataUrl);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setMobileHostError(err instanceof Error ? err.message : 'Не удалось сгенерировать QR-код');
-        }
+      if (!window.authAPI) {
+        throw new Error('Auth API недоступен');
       }
-    };
 
-    renderQr();
+      const response = await window.authAPI.updateUser({
+        id: parseInt(user!.id),
+        name: editedName,
+        username: editedEmail,
+        organization: editedOrganization || undefined,
+      });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [mobileSyncPayload]);
+      if (!response.success) {
+        throw new Error(response.message || 'Ошибка обновления профиля');
+      }
 
-  const handleSaveProfile = async () => {
-  try {
-    setError('');
-    setSuccess('');
+      await updateUser({
+        ...user!,
+        name: editedName,
+        email: editedEmail,
+        organization: editedOrganization || undefined,
+      });
 
-    if (!editedName.trim()) {
-      setError('Имя не может быть пустым');
-      return;
+      setIsEditing(false);
+      setSuccess('Профиль успешно обновлен');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
     }
-
-    if (!window.authAPI) {
-      throw new Error('Auth API недоступен');
-    }
-
-    const response = await window.authAPI.updateUser({
-      id: parseInt(user!.id),
-      name: editedName,
-      username: editedEmail,
-      organization: editedOrganization || undefined,
-    });
-
-    if (!response.success) {
-      throw new Error(response.message || 'Ошибка обновления профиля');
-    }
-
-    // Вызываем updateUser, который теперь перезагрузит данные из БД
-    await updateUser({
-      ...user!,
-      name: editedName,
-      email: editedEmail,
-      organization: editedOrganization || undefined,
-    });
-
-    setIsEditing(false);
-    setSuccess('Профиль успешно обновлен');
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Произошла ошибка');
-  }
-};
-
+  };
 
   const handleChangePassword = async () => {
     try {
@@ -198,42 +112,6 @@ const ProfilePage: React.FC = () => {
     setConfirmPassword('');
     setIsChangingPassword(false);
     setError('');
-  };
-
-  const handleRestartMobileHost = async () => {
-    try {
-      setIsMobileHostBusy(true);
-      setMobileHostError('');
-
-      if (!window.mobileHostAPI) {
-        throw new Error('Mobile host API недоступен');
-      }
-
-      const status = await window.mobileHostAPI.restart();
-      setMobileHostStatus(status);
-    } catch (err) {
-      setMobileHostError(err instanceof Error ? err.message : 'Не удалось перезапустить mobile host');
-    } finally {
-      setIsMobileHostBusy(false);
-    }
-  };
-
-  const handleCopyMobileUrl = async () => {
-    if (!mobileHostStatus?.httpUrl) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(mobileHostStatus.httpUrl);
-    setSuccess('Адрес подключения скопирован');
-  };
-
-  const handleCopyMobilePayload = async () => {
-    if (!mobileSyncPayload) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(mobileSyncPayload);
-    setSuccess('QR payload скопирован');
   };
 
   const getInitials = (name: string): string => {
@@ -412,123 +290,6 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
-
-        <div className="profile-page__section">
-          <h3>Mobile Sync</h3>
-
-          {mobileHostError && (
-            <div className="profile-page__error">{mobileHostError}</div>
-          )}
-
-          <div className="profile-page__data">
-            <div className="profile-page__field">
-              <label>Статус:</label>
-              <span>{mobileHostStatus?.running ? 'Запущен' : 'Остановлен'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>HTTP:</label>
-              <span>{mobileHostStatus?.httpUrl || 'Не доступен'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>WS:</label>
-              <span>{mobileHostStatus?.wsUrl || 'Не доступен'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>Код:</label>
-              <span>{mobileHostStatus?.pairingCode || 'Не доступен'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>Draft:</label>
-              <span>{mobileHostStatus?.draftActive ? 'Active' : 'Idle'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>Active protocol:</label>
-              <span>{mobileHostStatus?.activeStudyLabel || 'None'}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>Устройств:</label>
-              <span>{mobileHostStatus?.clients ?? 0}</span>
-            </div>
-            <div className="profile-page__field">
-              <label>Адреса:</label>
-              <span>
-                {mobileHostStatus?.addresses?.length
-                  ? mobileHostStatus.addresses.join(', ')
-                  : 'Не обнаружены'}
-              </span>
-            </div>
-          </div>
-
-          <div className="profile-page__actions">
-            <button
-              className="profile-page__button profile-page__button--primary"
-              onClick={handleRestartMobileHost}
-              disabled={isMobileHostBusy}
-            >
-              {isMobileHostBusy ? 'Обновление...' : 'Перезапустить host'}
-            </button>
-            <button
-              className="profile-page__button profile-page__button--secondary"
-              onClick={handleCopyMobileUrl}
-              disabled={!mobileHostStatus?.httpUrl}
-            >
-              Скопировать адрес
-            </button>
-          </div>
-
-          <div className="profile-page__qr">
-            <div className="profile-page__qr-card">
-              <div className="profile-page__qr-head">
-                <div>
-                  <h4>Подключение с телефона</h4>
-                  <p>
-                    Сканируй QR-код в mobile-приложении, чтобы сразу подставить адрес хоста и pairing code.
-                  </p>
-                </div>
-                <span className="profile-page__qr-badge">
-                  {mobileHostStatus?.running ? 'Live' : 'Offline'}
-                </span>
-              </div>
-
-              {mobileSyncQr ? (
-                <div className="profile-page__qr-imageWrap">
-                  <img
-                    className="profile-page__qr-image"
-                    src={mobileSyncQr}
-                    alt="QR code for Ultrasound mobile sync"
-                  />
-                </div>
-              ) : (
-                <div className="profile-page__qr-placeholder">
-                  QR-код появится, когда host будет запущен и получит адрес в сети.
-                </div>
-              )}
-
-              <div className="profile-page__qr-meta">
-                <div className="profile-page__field">
-                  <label>Payload:</label>
-                  <span>{mobileSyncPayload || 'Недоступен'}</span>
-                </div>
-                <div className="profile-page__actions">
-                  <button
-                    className="profile-page__button profile-page__button--secondary"
-                    onClick={handleCopyMobilePayload}
-                    disabled={!mobileSyncPayload}
-                  >
-                    Скопировать payload
-                  </button>
-                  <button
-                    className="profile-page__button profile-page__button--secondary"
-                    onClick={handleCopyMobileUrl}
-                    disabled={!mobileHostStatus?.httpUrl}
-                  >
-                    Скопировать адрес
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
