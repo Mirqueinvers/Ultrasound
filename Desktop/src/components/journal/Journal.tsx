@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PatientCard } from "@/components/common/PatientCard";
 import { EditPatientModal } from "@/components/journal/EditPatientModal";
-import { JournalExportRenderer } from "@/components/journal/JournalExportRenderer";
 import PrintSavedModal from "@/components/print/PrintSavedModal";
+import ExportModal from "@/components/journal/ExportModal";
 import DatePickerField from "@/components/common/DatePickerField";
 import type { JournalEntry, Patient, Research } from "@/types";
 
@@ -61,21 +61,11 @@ const ruToIso = (ru: string): string => {
   return `${match[3]}-${match[2]}-${match[1]}`;
 };
 
-type ExportMode = "date" | "period";
-
 type FailedExport = {
   researchId: number;
   patientName: string;
   researchDate: string;
 };
-
-type ExportResearchMeta = Record<
-  number,
-  {
-    patientName: string;
-    researchDate: string;
-  }
->;
 
 const Journal: React.FC = () => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -87,21 +77,7 @@ const Journal: React.FC = () => {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [isEditPatientOpen, setIsEditPatientOpen] = useState(false);
 
-  const [exportMode, setExportMode] = useState<ExportMode>("date");
-  const [exportStartDate, setExportStartDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const [exportEndDate, setExportEndDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const [isPreparingExport, setIsPreparingExport] = useState(false);
-  const [exportResearchIds, setExportResearchIds] = useState<number[]>([]);
-  const [exportResearchMeta, setExportResearchMeta] =
-    useState<ExportResearchMeta>({});
-  const [exportFileName, setExportFileName] = useState("uzi-protocols.html");
   const [failedExports, setFailedExports] = useState<FailedExport[]>([]);
-  const [doctorNames, setDoctorNames] = useState<string[]>([]);
-  const [selectedDoctorName, setSelectedDoctorName] = useState("");
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const totalResearches = useMemo(
@@ -219,118 +195,9 @@ const Journal: React.FC = () => {
     }
   };
 
-  const handleExport = async () => {
-    const startDate = exportMode === "date" ? date : exportStartDate;
-    const endDate = exportMode === "date" ? date : exportEndDate;
-
-    if (!startDate || !endDate) {
-      window.alert("Выберите даты для экспорта.");
-      return;
-    }
-
-    if (startDate > endDate) {
-      window.alert("Дата начала периода не может быть позже даты окончания.");
-      return;
-    }
-
-    setIsPreparingExport(true);
-
-    try {
-      const exportEntries =
-        startDate === endDate
-          ? await window.journalAPI.getByDate(startDate)
-          : await window.journalAPI.getByPeriod(startDate, endDate);
-
-      const filteredEntries = exportEntries
-        .map((entry) => ({
-          ...entry,
-          researches: entry.researches.filter((research) =>
-            selectedDoctorName
-              ? (research.doctor_name ?? "").trim() === selectedDoctorName
-              : true,
-          ),
-        }))
-        .filter((entry) => entry.researches.length > 0);
-
-      const researchIds = filteredEntries.flatMap((entry) =>
-        entry.researches.map((research) => research.id),
-      );
-
-      if (researchIds.length === 0) {
-        window.alert(
-          selectedDoctorName
-            ? "За выбранный диапазон у этого врача исследований не найдено."
-            : "За выбранный диапазон исследований не найдено.",
-        );
-        return;
-      }
-
-      const researchMeta = filteredEntries.reduce<ExportResearchMeta>(
-        (accumulator, entry) => {
-          const patientName = formatPatientName(entry.patient);
-
-          entry.researches.forEach((research) => {
-            accumulator[research.id] = {
-              patientName,
-              researchDate: research.research_date,
-            };
-          });
-
-          return accumulator;
-        },
-        {},
-      );
-
-      const suffix =
-        startDate === endDate ? startDate : `${startDate}_to_${endDate}`;
-      const doctorSuffix = selectedDoctorName
-        ? `-${selectedDoctorName
-            .toLocaleLowerCase("ru-RU")
-            .replace(/[^a-zа-я0-9]+/gi, "-")
-            .replace(/^-+|-+$/g, "")}`
-        : "";
-
-      setFailedExports([]);
-      setExportResearchMeta(researchMeta);
-      setExportFileName(`uzi-protocols-${suffix}${doctorSuffix}.html`);
-      setExportResearchIds(researchIds);
-    } catch (error) {
-      console.error("Ошибка подготовки экспорта", error);
-      window.alert("Не удалось подготовить экспорт.");
-    } finally {
-      setIsPreparingExport(false);
-    }
-  };
-
   useEffect(() => {
     void loadData(date);
   }, [date]);
-
-  useEffect(() => {
-    let isCancelled = false;
-
-    async function loadDoctorNames() {
-      try {
-        const items = await window.journalAPI.getDoctorNames();
-
-        if (!isCancelled) {
-          setDoctorNames(items);
-        }
-      } catch (error) {
-        console.error("Не удалось загрузить список врачей", error);
-
-        if (!isCancelled) {
-          setDoctorNames([]);
-        }
-      }
-    }
-
-    void loadDoctorNames();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -470,131 +337,14 @@ const Journal: React.FC = () => {
         onDelete={handleDeletePatient}
       />
 
-      {/* Модалка экспорта */}
-      {isExportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-800">Экспорт протоколов</h2>
-              <button
-                type="button"
-                onClick={() => setIsExportModalOpen(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <label className="flex flex-col gap-1 text-sm text-slate-700">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Режим
-                </span>
-                <select
-                  value={exportMode}
-                  onChange={(event) =>
-                    setExportMode(event.target.value as ExportMode)
-                  }
-                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="date">За выбранную дату</option>
-                  <option value="period">За период</option>
-                </select>
-              </label>
-
-              {exportMode === "period" ? (
-                <div className="flex gap-3">
-                  <label className="flex flex-1 flex-col gap-1 text-sm text-slate-700">
-                    <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                      С
-                    </span>
-                    <DatePickerField
-                      value={isoToRu(exportStartDate)}
-                      onChange={(val) => setExportStartDate(ruToIso(val))}
-                      placeholder="дд.мм.гггг"
-                    />
-                  </label>
-
-                  <label className="flex flex-1 flex-col gap-1 text-sm text-slate-700">
-                    <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                      По
-                    </span>
-                    <DatePickerField
-                      value={isoToRu(exportEndDate)}
-                      onChange={(val) => setExportEndDate(ruToIso(val))}
-                      placeholder="дд.мм.гггг"
-                    />
-                  </label>
-                </div>
-              ) : null}
-
-              <label className="flex flex-col gap-1 text-sm text-slate-700">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Врач
-                </span>
-                <select
-                  value={selectedDoctorName}
-                  onChange={(event) => setSelectedDoctorName(event.target.value)}
-                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="">Все врачи</option>
-                  {doctorNames.map((doctorName) => (
-                    <option key={doctorName} value={doctorName}>
-                      {doctorName}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <p className="text-xs text-slate-500">
-                Экспорт собирает готовые печатные версии исследований в один HTML-файл
-                с сохранением оформления. При выборе врача выгрузятся только его
-                исследования.
-              </p>
-            </div>
-
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsExportModalOpen(false)}
-                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsExportModalOpen(false);
-                  void handleExport();
-                }}
-                disabled={isPreparingExport}
-                className="inline-flex items-center gap-2 rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-sky-500/70 transition-all hover:-translate-y-[1px] hover:bg-sky-500 hover:shadow-md active:translate-y-0 active:shadow-sm disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
-              >
-                <span className="i-ph-export-duotone text-base" />
-                <span>
-                  {isPreparingExport ? "Готовлю экспорт..." : "Экспортировать"}
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {exportResearchIds.length > 0 ? (
-        <JournalExportRenderer
-          researchIds={exportResearchIds}
-          fileName={exportFileName}
-          researchMeta={exportResearchMeta}
-          onComplete={(result) => {
-            setExportResearchIds([]);
-            setExportResearchMeta({});
-            setExportFileName("uzi-protocols.html");
-            setFailedExports(result?.failedResearches ?? []);
-          }}
-        />
-      ) : null}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => {
+          setIsExportModalOpen(false);
+          setFailedExports([]);
+        }}
+        journalDate={date}
+      />
     </div>
   );
 };
