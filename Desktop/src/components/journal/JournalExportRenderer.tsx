@@ -29,6 +29,9 @@ export interface JournalExportRendererProps {
       researchDate: string;
     }>;
   }) => void;
+  onReadyChange?: (ready: boolean) => void;
+  onNetworkStatusChange?: (status: "idle" | "sending" | "sent" | "error") => void;
+  onNetworkMessageChange?: (message: string) => void;
 }
 
 type ExportStatus = "pending" | "ready" | "failed";
@@ -88,7 +91,7 @@ export const JournalExportRenderer = React.forwardRef<
   JournalExportRendererApi,
   JournalExportRendererProps
 >(function JournalExportRenderer(
-  { researchIds, fileName, researchMeta, onComplete },
+  { researchIds, fileName, researchMeta, onComplete, onReadyChange, onNetworkStatusChange, onNetworkMessageChange },
   ref,
 ) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -118,6 +121,18 @@ export const JournalExportRenderer = React.forwardRef<
   const resolvedCount = readyCount + failedIds.length;
 
   const isReady = resolvedCount === researchIds.length && researchIds.length > 0 && !isSaving;
+
+  React.useEffect(() => {
+    onReadyChange?.(isReady);
+  }, [isReady, onReadyChange]);
+
+  React.useEffect(() => {
+    onNetworkStatusChange?.(networkStatus);
+  }, [networkStatus, onNetworkStatusChange]);
+
+  React.useEffect(() => {
+    onNetworkMessageChange?.(networkMessage);
+  }, [networkMessage, onNetworkMessageChange]);
 
   const markStatus = React.useCallback(
     (researchId: number, status: ExportStatus) => {

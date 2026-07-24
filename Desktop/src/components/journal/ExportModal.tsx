@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import DatePickerField from "@/components/common/DatePickerField";
 import { JournalExportRenderer } from "@/components/journal/JournalExportRenderer";
 import type { JournalExportRendererApi } from "@/components/journal/JournalExportRenderer";
@@ -71,6 +71,11 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
   const [exportFileName, setExportFileName] = useState("uzi-protocols.html");
   const [failedExports, setFailedExports] = useState<FailedExport[]>([]);
 
+  // Локальный IP (синхронизируется с localStorage и ref)
+  const [targetIp, setTargetIp] = useState(() => localStorage.getItem("exportTargetIp") || "");
+  const [networkStatus, setNetworkStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [networkMessage, setNetworkMessage] = useState("");
+
   useEffect(() => {
     let isCancelled = false;
 
@@ -106,8 +111,21 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
       setExportResearchIds([]);
       setExportResearchMeta({});
       setExportFileName("uzi-protocols.html");
+      setNetworkStatus("idle");
+      setNetworkMessage("");
     }
   }, [isOpen, journalDate]);
+
+  // Синхронизация IP стейта с ref, когда он появляется
+  useEffect(() => {
+    if (exportRendererRef.current) {
+      exportRendererRef.current.setTargetIp(targetIp);
+    }
+  }, [targetIp, exportResearchIds]);
+
+  const handleIpChange = useCallback((ip: string) => {
+    setTargetIp(ip);
+  }, []);
 
   const handleStartExport = async () => {
     const startDate = exportMode === "date" ? journalDate : exportStartDate;
@@ -183,6 +201,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
       setExportFileName(`uzi-protocols-${suffix}${doctorSuffix}.html`);
       setExportResearchIds(researchIds);
       setStep("export");
+      setNetworkStatus("idle");
+      setNetworkMessage("");
     } catch (error) {
       console.error("Ошибка подготовки экспорта", error);
       window.alert("Не удалось подготовить экспорт.");
@@ -191,10 +211,20 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
     }
   };
 
+  const handleSaveToFile = useCallback(async () => {
+    if (exportRendererRef.current) {
+      await exportRendererRef.current.handleSaveToFile();
+    }
+  }, []);
+
+  const handleSendOverNetwork = useCallback(async () => {
+    if (exportRendererRef.current) {
+      await exportRendererRef.current.handleSendOverNetwork();
+    }
+  }, []);
+
   const handleExportComplete = (result?: { failedResearches: FailedExport[] }) => {
     setFailedExports(result?.failedResearches ?? []);
-    setExportResearchIds([]);
-    setExportResearchMeta({});
   };
 
   const handleCopyFailedExports = async () => {
@@ -215,9 +245,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
     }
   };
 
-  const isAllDone =
-    !exportRendererRef.current?.isReady &&
-    exportResearchIds.length === 0;
+  const [isReady, setIsReady] = useState(false);
+  const isAllDone = !isReady && exportResearchIds.length === 0;
 
   if (!isOpen) return null;
 
@@ -344,7 +373,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
                   {exportResearchIds.length}
                 </span>
                 <span>
-                  {exportRendererRef.current?.isReady
+                  {isReady
                     ? "Протоколы готовы к экспорту"
                     : "Подготовка протоколов..."}
                 </span>
@@ -357,11 +386,11 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
                 </span>
                 <input
                   type="text"
-                  value={exportRendererRef.current?.targetIp ?? ""}
-                  onChange={(e) => exportRendererRef.current?.setTargetIp(e.target.value)}
+                  value={targetIp}
+                  onChange={(e) => handleIpChange(e.target.value)}
                   placeholder="192.168.1.100"
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  disabled={exportRendererRef.current?.networkStatus === "sending"}
+                  disabled={networkStatus === "sending"}
                 />
               </label>
 
@@ -369,8 +398,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => void exportRendererRef.current?.handleSaveToFile()}
-                  disabled={!exportRendererRef.current?.isReady}
+                  onClick={() => void handleSaveToFile()}
+                  disabled={!isReady}
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -381,11 +410,11 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
 
                 <button
                   type="button"
-                  onClick={() => void exportRendererRef.current?.handleSendOverNetwork()}
-                  disabled={!exportRendererRef.current?.isReady || !exportRendererRef.current?.targetIp.trim() || exportRendererRef.current?.networkStatus === "sending"}
+                  onClick={() => void handleSendOverNetwork()}
+                  disabled={!isReady || !targetIp.trim() || networkStatus === "sending"}
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-sky-500/70 transition-all hover:-translate-y-[1px] hover:bg-sky-500 hover:shadow-md active:translate-y-0 active:shadow-sm disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                 >
-                  {exportRendererRef.current?.networkStatus === "sending" ? (
+                  {networkStatus === "sending" ? (
                     <>
                       <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -405,17 +434,17 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
               </div>
 
               {/* Сообщение о результате отправки */}
-              {exportRendererRef.current?.networkMessage ? (
+              {networkMessage ? (
                 <span
                   className={`text-xs ${
-                    exportRendererRef.current.networkStatus === "error"
+                    networkStatus === "error"
                       ? "text-red-600"
-                      : exportRendererRef.current.networkStatus === "sent"
+                      : networkStatus === "sent"
                         ? "text-green-600"
                         : "text-slate-500"
                   }`}
                 >
-                  {exportRendererRef.current.networkMessage}
+                  {networkMessage}
                 </span>
               ) : null}
 
@@ -486,17 +515,18 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
           </>
         )}
 
-        {/* Скрытый рендерер протоколов (всегда смонтирован когда на шаге export) */}
+        {/* Рендерер протоколов (работает когда на шаге export, скрыт через фиксированное позиционирование внутри) */}
         {step === "export" && exportResearchIds.length > 0 && (
-          <div style={{ display: "none" }}>
-            <JournalExportRenderer
-              ref={exportRendererRef}
-              researchIds={exportResearchIds}
-              fileName={exportFileName}
-              researchMeta={exportResearchMeta}
-              onComplete={handleExportComplete}
-            />
-          </div>
+          <JournalExportRenderer
+            ref={exportRendererRef}
+            researchIds={exportResearchIds}
+            fileName={exportFileName}
+            researchMeta={exportResearchMeta}
+            onComplete={handleExportComplete}
+            onReadyChange={setIsReady}
+            onNetworkStatusChange={setNetworkStatus}
+            onNetworkMessageChange={setNetworkMessage}
+          />
         )}
       </div>
     </div>
