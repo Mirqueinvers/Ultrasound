@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Upload } from "lucide-react";
 
 const STORAGE_KEY = "exportTargetIp";
 
