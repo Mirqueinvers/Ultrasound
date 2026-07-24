@@ -1,7 +1,9 @@
 // ultrasound/frontend/electron/ipc-handlers.ts
 import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { promises as fs } from "node:fs";
+import http from "node:http";
 import path from "node:path";
+import { URL } from "node:url";
 import { DatabaseManager } from "./database/database";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
@@ -459,4 +461,73 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
       mainWindow.close();
     }
   });
+
+  // ==================== NETWORK HANDLERS ====================
+
+  ipcMain.handle(
+    "network:sendExport",
+    async (
+      _,
+      {
+        targetIp,
+        html,
+        fileName,
+      }: {
+        targetIp: string;
+        html: string;
+        fileName?: string;
+      }
+    ) => {
+      try {
+        const normalizedIp = targetIp.trim();
+        if (!normalizedIp) {
+          return { success: false, message: "IP-адрес не указан" };
+        }
+
+        const url = new URL(`http://${normalizedIp}:38243/receive-export`);
+
+        const response = await fetch(url.toString(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            html,
+            fileName: fileName || "uzi-protocol.html",
+          }),
+        });
+
+        if (!response.ok) {
+          let errorMessage = `Ошибка сервера: ${response.status}`;
+          try {
+            const errorBody = (await response.json()) as { message?: string };
+            if (errorBody.message) {
+              errorMessage = errorBody.message;
+            }
+          } catch {
+            // ignore parse error
+          }
+          return { success: false, message: errorMessage };
+        }
+
+        const result = (await response.json()) as {
+          success?: boolean;
+          imported?: number;
+          skipped?: number;
+          message?: string;
+        };
+        return {
+          success: true,
+          imported: result.imported ?? 0,
+          skipped: result.skipped ?? 0,
+          message: result.message,
+        };
+      } catch (error) {
+        console.error("Network export error:", error);
+        const message =
+          error instanceof Error
+            ? `Не удалось подключиться к ${targetIp}: ${error.message}`
+            : "Не удалось отправить данные по сети";
+        return { success: false, message };
+      }
+    }
+  );
 }

@@ -82,6 +82,19 @@ export interface FileAPI {
   }>;
 }
 
+export interface NetworkAPI {
+  sendExport: (data: {
+    targetIp: string;
+    html: string;
+    fileName?: string;
+  }) => Promise<{
+    success: boolean;
+    imported?: number;
+    skipped?: number;
+    message?: string;
+  }>;
+}
+
 // ░░ Patient API ░░
 
 export interface PatientAPI {
@@ -196,6 +209,7 @@ declare global {
     researchAPI: ResearchAPI;
     protocolAPI: ProtocolAPI;
     fileAPI: FileAPI;
+    networkAPI: NetworkAPI;
     authAPI: any;
     windowAPI: any;
     mobileHostAPI: MobileHostAPI;

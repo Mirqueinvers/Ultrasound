@@ -277,6 +277,19 @@ export interface FileAPI {
   }>;
 }
 
+export interface NetworkAPI {
+  sendExport: (data: {
+    targetIp: string;
+    html: string;
+    fileName?: string;
+  }) => Promise<{
+    success: boolean;
+    imported?: number;
+    skipped?: number;
+    message?: string;
+  }>;
+}
+
 // ========== PATIENT SEARCH API (для SearchSection) ==========
 
 export interface PatientSearchEntry {
@@ -481,6 +494,10 @@ const databaseAPI: DatabaseAPI = {
     ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
 };
 
+const networkAPI: NetworkAPI = {
+  sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
+};
+
 // ========== Экспорт в window ==========
 
 contextBridge.exposeInMainWorld("authAPI", authAPI);
@@ -495,4 +512,5 @@ contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
 contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
+contextBridge.exposeInMainWorld("networkAPI", networkAPI);
 
