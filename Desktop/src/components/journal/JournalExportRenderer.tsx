@@ -86,7 +86,9 @@ export function JournalExportRenderer({
     {},
   );
   const [hasTimedOut, setHasTimedOut] = React.useState(false);
-  const [targetIp, setTargetIp] = React.useState("");
+  const [targetIp, setTargetIp] = React.useState(() => {
+    return localStorage.getItem("exportTargetIp") || "";
+  });
   const [networkStatus, setNetworkStatus] = React.useState<NetworkStatus>("idle");
   const [networkMessage, setNetworkMessage] = React.useState("");
   const htmlRef = React.useRef<string>("");
