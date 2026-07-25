@@ -271,10 +271,32 @@ export const useDesktopAppSelection = () => {
     ],
   );
 
+  const handleSelectStudiesAndNavigate = React.useCallback(
+    (studies: string[]) => {
+      setSelectedStudy("");
+      setSelectedStudies(studies);
+      setIsMultiSelectMode(true);
+      setIsDraftActive(true);
+      setMobileSaveRequestAt(null);
+      setMobilePrintRequestAt(null);
+      setMobileClearRequestAt(null);
+      setActiveSection("uzi-protocols");
+      publishSelectionSync({
+        activeSection: "uzi-protocols",
+        selectedStudy: "",
+        selectedStudies: studies,
+        isMultiSelectMode: true,
+        selectedDirectoryItem,
+      });
+    },
+    [publishSelectionSync, selectedDirectoryItem],
+  );
+
   return {
     activeSection,
     setActiveSection: handleSetActiveSection,
     handleSetActiveSection,
+    handleSelectStudiesAndNavigate,
     selectedStudy,
     selectedStudies,
     isMultiSelectMode,

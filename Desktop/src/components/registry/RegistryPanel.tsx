@@ -9,6 +9,12 @@ interface Patient {
   date_of_birth: string;
 }
 
+export interface PatientSelectData {
+  fullName: string;
+  dateOfBirth: string;
+  studies: string[];
+}
+
 interface Appointment {
   id: number;
   patient_id: number;
@@ -62,7 +68,11 @@ function getAgeWord(age: number): string {
   return "лет";
 }
 
-const RegistryPanel: React.FC = () => {
+interface RegistryPanelProps {
+  onPatientSelect?: (data: PatientSelectData) => void;
+}
+
+const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -128,6 +138,19 @@ const RegistryPanel: React.FC = () => {
     setRegistryAddresses(addresses);
     setShowSettings(false);
   };
+
+  const handlePatientClick = useCallback(
+    (appt: Appointment) => {
+      if (!onPatientSelect || !appt.patient) return;
+      const fullName = `${appt.patient.last_name} ${appt.patient.first_name} ${appt.patient.middle_name}`.trim();
+      onPatientSelect({
+        fullName,
+        dateOfBirth: appt.patient.date_of_birth || "",
+        studies: appt.studies,
+      });
+    },
+    [onPatientSelect],
+  );
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -203,7 +226,8 @@ const RegistryPanel: React.FC = () => {
           {appointments.map((appt) => (
             <div
               key={appt.id}
-              className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow duration-200"
+              onClick={() => handlePatientClick(appt)}
+              className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow duration-200 cursor-pointer"
             >
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-medical-50 flex items-center justify-center shrink-0">

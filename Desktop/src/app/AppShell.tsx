@@ -11,7 +11,8 @@ import ProfilePage from "@/components/profile/ProfilePage";
 import SettingsPage from "@/components/settings/SettingsPage";
 import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
-import RegistryPanel from "@/components/registry/RegistryPanel";
+import RegistryPanel, { type PatientSelectData } from "@/components/registry/RegistryPanel";
+import { useResearch } from "@contexts/ResearchContext";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 import MedisonAutoImport from "@/components/registry/MedisonAutoImport";
 
@@ -60,6 +61,27 @@ export function AppTitlebar() {
   );
 }
 
+interface RegistryPanelWrapperProps {
+  onSelectStudies: (studies: string[]) => void;
+}
+
+const RegistryPanelWrapper: React.FC<RegistryPanelWrapperProps> = ({
+  onSelectStudies,
+}) => {
+  const { setPatientFullName, setPatientDateOfBirth } = useResearch();
+
+  const handlePatientSelect = React.useCallback(
+    (data: PatientSelectData) => {
+      setPatientFullName(data.fullName);
+      setPatientDateOfBirth(data.dateOfBirth);
+      onSelectStudies(data.studies);
+    },
+    [setPatientFullName, setPatientDateOfBirth, onSelectStudies],
+  );
+
+  return <RegistryPanel onPatientSelect={handlePatientSelect} />;
+};
+
 const AppShell: React.FC = () => {
   const {
     activeSection,
@@ -74,6 +96,7 @@ const AppShell: React.FC = () => {
     mobileClearRequestAt,
     handleToggleStudy,
     handleStudySelect,
+    handleSelectStudiesAndNavigate,
     handleClearResearch,
     handleNavigateToProfile,
     handleDirectoryItemSelect,
@@ -129,7 +152,11 @@ const AppShell: React.FC = () => {
           <div className="flex flex-col gap-3 p-6 pt-24">
             <div className="flex justify-center">
               <div className="w-[70%] px-6 py-6 rounded-lg">
-                <RegistryPanel />
+                <ResearchProvider>
+                  <RegistryPanelWrapper
+                    onSelectStudies={handleSelectStudiesAndNavigate}
+                  />
+                </ResearchProvider>
               </div>
             </div>
           </div>
