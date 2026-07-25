@@ -8,6 +8,7 @@ interface CalendarViewProps {
   appointments: Appointment[];
   calendarMonth: number;
   calendarYear: number;
+  selectedDate: string;
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onSelectDate: (dateStr: string) => void;
@@ -18,6 +19,7 @@ export default function CalendarView({
   appointments,
   calendarMonth,
   calendarYear,
+  selectedDate,
   onPrevMonth,
   onNextMonth,
   onSelectDate,
@@ -93,13 +95,14 @@ export default function CalendarView({
               day === today.getDate() &&
               calendarMonth === today.getMonth() &&
               calendarYear === today.getFullYear();
+            const isSelected = dateStr === selectedDate;
 
             return (
               <button
                 key={day}
                 onClick={() => onSelectDate(dateStr)}
                 className={`flex flex-col items-center justify-center rounded-lg transition-all duration-200 border ${
-                  isToday
+                  isSelected
                     ? "border-medical-400 ring-2 ring-medical-100"
                     : "border-transparent"
                 } ${

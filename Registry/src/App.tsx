@@ -304,6 +304,7 @@ export default function App() {
               appointments={allAppointments}
               calendarMonth={calendarMonth}
               calendarYear={calendarYear}
+              selectedDate={date}
               onPrevMonth={prevMonth}
               onNextMonth={nextMonth}
               onSelectDate={setDate}
@@ -314,6 +315,7 @@ export default function App() {
               appointments={allAppointments}
               calendarMonth={calendarMonth}
               calendarYear={calendarYear}
+              selectedDate={date}
               onPrevMonth={prevMonth}
               onNextMonth={nextMonth}
               onSelectDate={setDate}
