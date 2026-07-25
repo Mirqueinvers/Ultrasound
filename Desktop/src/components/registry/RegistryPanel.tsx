@@ -37,12 +37,16 @@ function setRegistryAddresses(addresses: string[]) {
 }
 
 function formatDate(dateStr: string): string {
+  if (!dateStr) return "";
+  if (dateStr.includes(".")) return dateStr; // уже DD.MM.YYYY
   const [y, m, d] = dateStr.split("-");
   return `${d}.${m}.${y}`;
 }
 
 function calculateAge(dateOfBirth: string): string {
+  if (!dateOfBirth) return "";
   const birth = new Date(dateOfBirth);
+  if (isNaN(birth.getTime())) return "";
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
@@ -211,10 +215,11 @@ const RegistryPanel: React.FC = () => {
                       {appt.patient?.last_name} {appt.patient?.first_name}{" "}
                       {appt.patient?.middle_name}
                     </span>
-                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
-                      {formatDate(appt.patient?.date_of_birth || "")},{" "}
-                      {calculateAge(appt.patient?.date_of_birth || "")}
-                    </span>
+                    {appt.patient?.date_of_birth && (
+                      <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
+                        {formatDate(appt.patient.date_of_birth)}, {calculateAge(appt.patient.date_of_birth)}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                     <Stethoscope size={14} className="text-slate-400 shrink-0" />
