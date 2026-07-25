@@ -498,6 +498,50 @@ const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
 
+// ========== UPDATE API ==========
+
+export interface UpdateAPI {
+  check: () => Promise<void>;
+  download: () => Promise<void>;
+  install: () => Promise<void>;
+  onUpdateAvailable: (handler: (info: { version: string }) => void) => () => void;
+  onUpdateNotAvailable: (handler: (info: { version: string }) => void) => () => void;
+  onDownloadProgress: (handler: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
+  onUpdateDownloaded: (handler: (info: { version: string }) => void) => () => void;
+  onUpdateError: (handler: (error: { message: string }) => void) => () => void;
+}
+
+const updateAPI: UpdateAPI = {
+  check: () => ipcRenderer.invoke("update:check"),
+  download: () => ipcRenderer.invoke("update:download"),
+  install: () => ipcRenderer.invoke("update:install"),
+  onUpdateAvailable: (handler) => {
+    const listener = (_event: unknown, info: { version: string }) => handler(info);
+    ipcRenderer.on("update:available", listener);
+    return () => ipcRenderer.removeListener("update:available", listener);
+  },
+  onUpdateNotAvailable: (handler) => {
+    const listener = (_event: unknown, info: { version: string }) => handler(info);
+    ipcRenderer.on("update:not-available", listener);
+    return () => ipcRenderer.removeListener("update:not-available", listener);
+  },
+  onDownloadProgress: (handler) => {
+    const listener = (_event: unknown, progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => handler(progress);
+    ipcRenderer.on("update:download-progress", listener);
+    return () => ipcRenderer.removeListener("update:download-progress", listener);
+  },
+  onUpdateDownloaded: (handler) => {
+    const listener = (_event: unknown, info: { version: string }) => handler(info);
+    ipcRenderer.on("update:downloaded", listener);
+    return () => ipcRenderer.removeListener("update:downloaded", listener);
+  },
+  onUpdateError: (handler) => {
+    const listener = (_event: unknown, error: { message: string }) => handler(error);
+    ipcRenderer.on("update:error", listener);
+    return () => ipcRenderer.removeListener("update:error", listener);
+  },
+};
+
 // ========== Экспорт в window ==========
 
 contextBridge.exposeInMainWorld("authAPI", authAPI);
@@ -513,4 +557,5 @@ contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
 contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
+contextBridge.exposeInMainWorld("updateAPI", updateAPI);
 

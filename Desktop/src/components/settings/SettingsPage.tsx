@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Database, Smartphone, Upload, ChevronRight } from "lucide-react";
+import { Database, Smartphone, Upload, RefreshCw, ChevronRight } from "lucide-react";
 import ImportMappingTab from "./ImportMappingTab";
 import MobileSyncTab from "./MobileSyncTab";
 import ExportSettingsTab from "./ExportSettingsTab";
+import UpdateTab from "./UpdateTab";
 import "./SettingsPage.css";
 
-type SettingsTab = "mapping" | "mobile" | "export";
+type SettingsTab = "mapping" | "mobile" | "export" | "update";
 
 const sidebarItems: { id: SettingsTab; icon: React.ReactNode; label: string }[] = [
   { id: "mobile", icon: <Smartphone size={18} />, label: "Mobile Sync" },
   { id: "mapping", icon: <Database size={18} />, label: "Импорт данных" },
   { id: "export", icon: <Upload size={18} />, label: "Экспорт" },
+  { id: "update", icon: <RefreshCw size={18} />, label: "Обновление" },
 ];
 
 const SettingsPage: React.FC = () => {
@@ -44,6 +46,7 @@ const SettingsPage: React.FC = () => {
           {activeTab === "mapping" && <ImportMappingTab />}
           {activeTab === "mobile" && <MobileSyncTab />}
           {activeTab === "export" && <ExportSettingsTab />}
+          {activeTab === "update" && <UpdateTab />}
         </div>
       </div>
     </div>

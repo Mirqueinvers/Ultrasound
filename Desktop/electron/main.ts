@@ -1,5 +1,5 @@
 ﻿// // ultrasound/frontend/electron/main.ts
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { setupAuthHandlers } from "./ipc-handlers";
 import { setupProtocolHandlers } from "./ipc/protocolHandlers";
@@ -8,6 +8,13 @@ import { setupMedisonHandlers } from "./ipc/medisonIpc";
 import { setupMedisonMappingHandlers } from "./ipc/medisonMappingIpc";
 import { DatabaseManager } from "./database/database";
 import { getMobileHostService } from "./mobile-host";
+import {
+  setAutoUpdaterWindow,
+  initAutoUpdater,
+  checkForUpdates,
+  downloadUpdate,
+  quitAndInstall,
+} from "./autoUpdater";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -35,6 +42,8 @@ function createWindow() {
       contextIsolation: true,
     },
   });
+
+  setAutoUpdaterWindow(mainWindow);
 
   setupAuthHandlers(mainWindow);
   setupProtocolHandlers(dbManager.protocol);
@@ -71,6 +80,22 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+
+  // IPC handlers for auto-updater
+  ipcMain.handle("update:check", () => {
+    checkForUpdates();
+  });
+
+  ipcMain.handle("update:download", () => {
+    downloadUpdate();
+  });
+
+  ipcMain.handle("update:install", () => {
+    quitAndInstall();
+  });
+
+  // Init auto-updater
+  initAutoUpdater();
 });
 
 app.on("before-quit", () => {
