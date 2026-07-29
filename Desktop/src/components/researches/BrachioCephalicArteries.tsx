@@ -1,5 +1,5 @@
 // src/components/researches/BrachioCephalicArteries.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BrachioCephalicCommon from "@organs/BrachioCephalicArteries/BrachioCephalicCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -11,6 +11,7 @@ import type {
   BrachioCephalicProtocol,
 } from "@/types";
 import { defaultBrachioCephalicArteriesStudyState } from "@/types";
+import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BrachioCephalicSectionKey = Extract<
@@ -39,9 +40,47 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<BrachioCephalicArteriesStudyProtocol>(
     value ?? defaultBrachioCephalicArteriesStudyState
   );
+  const [version, setVersion] = useState(0);
+
+  // Применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const arteryKeys = [
+        "БЦА:ОСА правая", "БЦА:ОСА левая",
+        "БЦА:ВСА правая", "БЦА:ВСА левая",
+        "БЦА:НСА правая", "БЦА:НСА левая",
+        "БЦА:позвоночная правая", "БЦА:позвоночная левая",
+        "БЦА:подключичная правая", "БЦА:подключичная левая",
+      ];
+      const anyDefaults = arteryKeys.some((key) => defaults[key]);
+      if (anyDefaults) {
+        setForm({
+          ...defaultBrachioCephalicArteriesStudyState,
+          brachioCephalicArteries: {
+            brachiocephalicTrunkRight: (defaults["БЦА:подключичная правая"] || {}) as any,
+            brachiocephalicTrunkLeft: (defaults["БЦА:подключичная левая"] || {}) as any,
+            commonCarotidRight: (defaults["БЦА:ОСА правая"] || {}) as any,
+            commonCarotidLeft: (defaults["БЦА:ОСА левая"] || {}) as any,
+            internalCarotidRight: (defaults["БЦА:ВСА правая"] || {}) as any,
+            internalCarotidLeft: (defaults["БЦА:ВСА левая"] || {}) as any,
+            externalCarotidRight: (defaults["БЦА:НСА правая"] || {}) as any,
+            externalCarotidLeft: (defaults["БЦА:НСА левая"] || {}) as any,
+            vertebralRight: (defaults["БЦА:позвоночная правая"] || {}) as any,
+            vertebralLeft: (defaults["БЦА:позвоночная левая"] || {}) as any,
+            subclavianRight: (defaults["БЦА:подключичная правая"] || {}) as any,
+            subclavianLeft: (defaults["БЦА:подключичная левая"] || {}) as any,
+            overallFindings: "",
+          },
+        });
+        setVersion((v) => v + 1);
+      }
+    }
+  }, [value, isLoaded, defaults]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
@@ -81,6 +120,7 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
       </div>
 
       <BrachioCephalicCommon
+        key={version}
         value={form.brachioCephalicArteries ?? undefined}
         onChange={updateBrachioCephalicArteries}
         sectionRefs={sectionRefs}

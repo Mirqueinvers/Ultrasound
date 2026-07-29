@@ -2,6 +2,7 @@ import React, { type ReactNode } from "react";
 
 import { RightPanelProvider } from "@contexts/RightPanelContext";
 import { ResearchProvider } from "@contexts/ResearchContext";
+import { DefaultValuesProvider } from "@contexts/DefaultValuesContext";
 
 import Header from "@layout/Header";
 import Content from "@layout/Content";
@@ -125,6 +126,7 @@ const AppShell: React.FC = () => {
 
   return (
     <>
+      <DefaultValuesProvider>
       <AppTitlebar />
       <Header
         activeSection={activeSection}
@@ -184,6 +186,7 @@ const AppShell: React.FC = () => {
           </RightPanelProvider>
         </ResearchProvider>
       )}
+      </DefaultValuesProvider>
     </>
   );
 };
