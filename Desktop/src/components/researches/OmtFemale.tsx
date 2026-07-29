@@ -17,6 +17,7 @@ import type {
   UrinaryBladderProtocol,
 } from "@/types";
 import { defaultOmtFemaleState } from "@/types";
+import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
 
@@ -29,9 +30,24 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<OmtFemaleProtocol>(
     value ?? defaultOmtFemaleState
   );
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      setForm({
+        ...defaultOmtFemaleState,
+        uterus: (defaults["ОМТ (Ж):матка"] as unknown as UterusProtocol) ?? null,
+        rightOvary: (defaults["ОМТ (Ж):правый яичник"] as unknown as OvaryProtocol) ?? null,
+        leftOvary: (defaults["ОМТ (Ж):левый яичник"] as unknown as OvaryProtocol) ?? null,
+        urinaryBladder: (defaults["ОМТ (Ж):мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+      });
+    }
+  }, [value, isLoaded, defaults]);
 
   const prevValueRef = useRef(value);
 

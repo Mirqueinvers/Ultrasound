@@ -8,6 +8,8 @@ import { Spleen } from "@/components/organs/Spleen";
 import { KidneyCommon } from "@/components/organs/Kidney/KidneyCommon";
 import { UrinaryBladder } from "@/components/organs/UrinaryBladder";
 import { TestisSide } from "@/components/organs/Testis";
+import { Uterus } from "@/components/organs/Uterus";
+import { Ovary } from "@/components/organs/Ovary";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
@@ -20,7 +22,7 @@ import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 import "./DefaultValuesTab.css";
 
-const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum"] as const;
+const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum", "omt_female"] as const;
 
 const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОБП:печень": defaultLiverState as unknown as Record<string, unknown>,
@@ -32,6 +34,10 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "Почки:мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
   "Органы мошонки:правое яичко": {} as Record<string, unknown>,
   "Органы мошонки:левое яичко": {} as Record<string, unknown>,
+  "ОМТ (Ж):матка": {} as Record<string, unknown>,
+  "ОМТ (Ж):правый яичник": {} as Record<string, unknown>,
+  "ОМТ (Ж):левый яичник": {} as Record<string, unknown>,
+  "ОМТ (Ж):мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
 };
 
 const ORGAN_COMPONENTS: Record<
@@ -64,6 +70,18 @@ const ORGAN_COMPONENTS: Record<
   ),
   "Органы мошонки:левое яичко": ({ value, onChange }) => (
     <TestisSide side="left" value={value as any} onChange={onChange as any} />
+  ),
+  "ОМТ (Ж):матка": ({ value, onChange }) => (
+    <Uterus value={value as any} onChange={onChange as any} />
+  ),
+  "ОМТ (Ж):правый яичник": ({ value, onChange }) => (
+    <Ovary side="right" value={value as any} onChange={onChange as any} />
+  ),
+  "ОМТ (Ж):левый яичник": ({ value, onChange }) => (
+    <Ovary side="left" value={value as any} onChange={onChange as any} />
+  ),
+  "ОМТ (Ж):мочевой пузырь": ({ value, onChange }) => (
+    <UrinaryBladder value={value as any} onChange={onChange as any} />
   ),
 };
 
