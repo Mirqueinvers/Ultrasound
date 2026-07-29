@@ -245,56 +245,56 @@ const DefaultValuesTab: React.FC = () => {
 
   return (
     <div className="defaults-tab">
-      {/* Левая колонка — список протоколов */}
-      <div className="defaults-tab__protocols">
-        <h3 className="defaults-tab__title">Протоколы</h3>
-        <div className="defaults-tab__list">
-          {SUPPORTED_PROTOCOLS.map((pid) => {
-            const pdef = PROTOCOL_BY_ID[pid];
-            if (!pdef) return null;
-            return (
-              <button
-                key={pid}
-                className={`defaults-tab__protocol-item ${
-                  selectedProtocolId === pid ? "defaults-tab__protocol-item--active" : ""
-                }`}
-                onClick={() => setSelectedProtocolId(pid)}
-              >
-                {pdef.selectionLabel}
-              </button>
-            );
-          })}
+      {/* Верхняя панель — протоколы и секции */}
+      <div className="defaults-tab__top-bar">
+        <div className="defaults-tab__top-group">
+          <span className="defaults-tab__top-label">Протоколы</span>
+          <div className="defaults-tab__top-items">
+            {SUPPORTED_PROTOCOLS.map((pid) => {
+              const pdef = PROTOCOL_BY_ID[pid];
+              if (!pdef) return null;
+              return (
+                <button
+                  key={pid}
+                  className={`defaults-tab__protocol-btn ${
+                    selectedProtocolId === pid ? "defaults-tab__protocol-btn--active" : ""
+                  }`}
+                  onClick={() => setSelectedProtocolId(pid)}
+                >
+                  {pdef.selectionLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="defaults-tab__top-group">
+          <span className="defaults-tab__top-label">Секции</span>
+          <div className="defaults-tab__top-items">
+            {sectionKeys.map((sectionKey) => {
+              const sectionDef = SECTION_BY_KEY[sectionKey];
+              const label = sectionDef?.label ?? protocolDef?.selectionLabel ?? sectionKey;
+              return (
+                <button
+                  key={sectionKey}
+                  className={`defaults-tab__section-btn ${
+                    selectedSectionKey === sectionKey ? "defaults-tab__section-btn--active" : ""
+                  }`}
+                  onClick={() => setSelectedSectionKey(sectionKey)}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Средняя колонка — секции выбранного протокола */}
-      <div className="defaults-tab__sections">
-        <h3 className="defaults-tab__title">Секции</h3>
-        <div className="defaults-tab__list">
-          {sectionKeys.map((sectionKey) => {
-            const sectionDef = SECTION_BY_KEY[sectionKey];
-            // Для протоколов без секций (sectionIds: []) показываем название протокола
-            const label = sectionDef?.label ?? protocolDef?.selectionLabel ?? sectionKey;
-            return (
-              <button
-                key={sectionKey}
-                className={`defaults-tab__section-item ${
-                  selectedSectionKey === sectionKey ? "defaults-tab__section-item--active" : ""
-                }`}
-                onClick={() => setSelectedSectionKey(sectionKey)}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Правая колонка — форма органа */}
+      {/* Нижняя часть — редактор органа на всю ширину */}
       <div className="defaults-tab__editor">
         <div className="defaults-tab__editor-header">
-          <h3 className="defaults-tab__title">
-            {selectedSectionDef?.label ?? "Выберите секцию"}
+          <h3 className="defaults-tab__editor-title">
+            {selectedSectionDef?.label ?? protocolDef?.selectionLabel ?? "Выберите секцию"}
           </h3>
           <button
             className="defaults-tab__reset-btn"
