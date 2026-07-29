@@ -155,56 +155,60 @@ export function KidneyCystPanel({
           const multipleSize2Key = `${multipleKey}-multipleSize2`;
 
           return (
-            <View style={styles.obpFieldList}>
-              {renderNumpadField(
-                multipleSize1Key,
-                "Размер 1",
-                multipleSize1,
-                () =>
-                  openEditor({
-                    title: `Размер 1 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
-                    mode: "number",
-                    value: multipleSize1,
-                    placeholder: "мм",
-                    onSave: (nextValue) =>
-                      onUpdateField(
-                        side,
-                        multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
-                        joinPairSize(nextValue, multipleSize2),
-                      ),
-                  }),
-                (nextValue) =>
-                  onUpdateField(
-                    side,
-                    multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
-                    joinPairSize(nextValue, multipleSize2),
-                  ),
-              )}
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+              <View style={{ width: "48.5%" }}>
+                {renderNumpadField(
+                  multipleSize1Key,
+                  "Размер 1",
+                  multipleSize1,
+                  () =>
+                    openEditor({
+                      title: `Размер 1 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
+                      mode: "number",
+                      value: multipleSize1,
+                      placeholder: "мм",
+                      onSave: (nextValue) =>
+                        onUpdateField(
+                          side,
+                          multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                          joinPairSize(nextValue, multipleSize2),
+                        ),
+                    }),
+                  (nextValue) =>
+                    onUpdateField(
+                      side,
+                      multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                      joinPairSize(nextValue, multipleSize2),
+                    ),
+                )}
+              </View>
 
-              {renderNumpadField(
-                multipleSize2Key,
-                "Размер 2",
-                multipleSize2,
-                () =>
-                  openEditor({
-                    title: `Размер 2 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
-                    mode: "number",
-                    value: multipleSize2,
-                    placeholder: "мм",
-                    onSave: (nextValue) =>
-                      onUpdateField(
-                        side,
-                        multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
-                        joinPairSize(multipleSize1, nextValue),
-                      ),
-                  }),
-                (nextValue) =>
-                  onUpdateField(
-                    side,
-                    multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
-                    joinPairSize(multipleSize1, nextValue),
-                  ),
-              )}
+              <View style={{ width: "48.5%" }}>
+                {renderNumpadField(
+                  multipleSize2Key,
+                  "Размер 2",
+                  multipleSize2,
+                  () =>
+                    openEditor({
+                      title: `Размер 2 множественных кист${title === "Кисты ЧЛС" ? " ЧЛС" : ""}`,
+                      mode: "number",
+                      value: multipleSize2,
+                      placeholder: "мм",
+                      onSave: (nextValue) =>
+                        onUpdateField(
+                          side,
+                          multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                          joinPairSize(multipleSize1, nextValue),
+                        ),
+                    }),
+                  (nextValue) =>
+                    onUpdateField(
+                      side,
+                      multipleSizeField as keyof import("../../shared/kidneyDraft").KidneyDraft,
+                      joinPairSize(multipleSize1, nextValue),
+                    ),
+                )}
+              </View>
             </View>
           );
         })()}
@@ -227,51 +231,57 @@ export function KidneyCystPanel({
                 onActionPress={() => onRemove(side, cystListKey, index)}
                 variant="item"
               >
-                <View style={styles.obpFieldList}>
-                  {renderNumpadField(
-                    size1Key,
-                    "Размер 1",
-                    size1,
-                    () =>
-                      openEditor({
-                        title: `Размер 1 #${index + 1}`,
-                        mode: "number",
-                        value: size1,
-                        placeholder: "мм",
-                        onSave: (nextValue) =>
-                          onUpdateCystSize(side, cystListKey, index, nextValue),
-                      }),
-                    (nextValue) =>
-                      onUpdateCystSize(side, cystListKey, index, nextValue),
-                  )}
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                  <View style={{ width: "48.5%" }}>
+                    {renderNumpadField(
+                      size1Key,
+                      "Размер 1",
+                      size1,
+                      () =>
+                        openEditor({
+                          title: `Размер 1 #${index + 1}`,
+                          mode: "number",
+                          value: size1,
+                          placeholder: "мм",
+                          onSave: (nextValue) =>
+                            onUpdateCystSize(side, cystListKey, index, nextValue),
+                        }),
+                      (nextValue) =>
+                        onUpdateCystSize(side, cystListKey, index, nextValue),
+                    )}
+                  </View>
 
-                  {renderNumpadField(
-                    size2Key,
-                    "Размер 2",
-                    size2,
-                    () =>
-                      openEditor({
-                        title: `Размер 2 #${index + 1}`,
-                        mode: "number",
-                        value: size2,
-                        placeholder: "мм",
-                        onSave: (nextValue) =>
-                          onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
-                      }),
-                    (nextValue) =>
-                      onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
-                  )}
+                  <View style={{ width: "48.5%" }}>
+                    {renderNumpadField(
+                      size2Key,
+                      "Размер 2",
+                      size2,
+                      () =>
+                        openEditor({
+                          title: `Размер 2 #${index + 1}`,
+                          mode: "number",
+                          value: size2,
+                          placeholder: "мм",
+                          onSave: (nextValue) =>
+                            onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
+                        }),
+                      (nextValue) =>
+                        onUpdateCystSize(side, cystListKey, index, undefined, nextValue),
+                    )}
+                  </View>
 
-                  <ProtocolFieldRow
-                    label="Локализация"
-                    value={item.location || "Нажмите для ввода"}
-                    typeLabel="select"
-                    filled={item.location.trim().length > 0}
-                    options={KIDNEY_LOCATION_OPTIONS}
-                    onSelectOption={(nextValue) =>
-                      onUpdateListItem(side, cystListKey, index, "location", nextValue)
-                    }
-                  />
+                  <View style={{ width: "100%" }}>
+                    <ProtocolFieldRow
+                      label="Локализация"
+                      value={item.location || "Нажмите для ввода"}
+                      typeLabel="select"
+                      filled={item.location.trim().length > 0}
+                      options={KIDNEY_LOCATION_OPTIONS}
+                      onSelectOption={(nextValue) =>
+                        onUpdateListItem(side, cystListKey, index, "location", nextValue)
+                      }
+                    />
+                  </View>
                 </View>
               </ProtocolCard>
             );

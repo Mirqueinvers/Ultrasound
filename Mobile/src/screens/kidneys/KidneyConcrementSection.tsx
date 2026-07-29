@@ -76,26 +76,76 @@ export function KidneyConcrementSection({
               variant="item"
             >
               <View style={styles.obpFieldList}>
-                {(["size", "location"] as const).map((itemField) => {
-                  const fieldKey = `${listKey}-${index}-${itemField}`;
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                  {(["size", "location"] as const).map((itemField) => {
+                    const fieldKey = `${listKey}-${index}-${itemField}`;
 
-                  if (itemField === "size" && isLandscape && numpadApi) {
+                    if (itemField === "size" && isLandscape && numpadApi) {
+                      return (
+                        <View
+                          key={fieldKey}
+                          style={{ width: "48.5%" }}
+                          ref={(el) => { numpadApi.fieldRefs.current[fieldKey] = el; }}
+                          onLayout={(event) => numpadApi.handleFieldLayout(fieldKey, event)}
+                        >
+                          <Pressable
+                            onPress={() => {
+                              const fieldView = numpadApi.fieldRefs.current[fieldKey] ?? null;
+                              numpadApi.openNumpad(
+                                fieldKey,
+                                fieldView,
+                                item[itemField],
+                                (nextValue) => onUpdateItem(side, listKey, index, itemField, nextValue),
+                              );
+                            }}
+                            style={({ pressed }) => [
+                              styles.obpFieldRow,
+                              item[itemField].trim().length > 0 && styles.obpFieldRowFilled,
+                              pressed && styles.obpFieldRowPressed,
+                            ]}
+                          >
+                            <View style={styles.obpFieldRowContent}>
+                              <Text style={styles.obpFieldLabel}>Размер</Text>
+                              <Text style={styles.obpFieldValue}>
+                                {item[itemField] || "Нажмите для ввода"}
+                              </Text>
+                            </View>
+                            <Text style={styles.obpFieldType}>numpad</Text>
+                          </Pressable>
+                        </View>
+                      );
+                    }
+
+                    if (itemField === "location") {
+                      return (
+                        <View key={fieldKey} style={{ width: "100%" }}>
+                          <ProtocolFieldRow
+                            label="Локализация"
+                            value={item[itemField] || "Нажмите для ввода"}
+                            typeLabel="select"
+                            filled={item[itemField].trim().length > 0}
+                            options={KIDNEY_LOCATION_OPTIONS}
+                            onSelectOption={(nextValue) =>
+                              onUpdateItem(side, listKey, index, itemField, nextValue)
+                            }
+                          />
+                        </View>
+                      );
+                    }
+
                     return (
-                      <View
-                        key={fieldKey}
-                        ref={(el) => { numpadApi.fieldRefs.current[fieldKey] = el; }}
-                        onLayout={(event) => numpadApi.handleFieldLayout(fieldKey, event)}
-                      >
+                      <View key={fieldKey} style={{ width: "48.5%" }}>
                         <Pressable
-                          onPress={() => {
-                            const fieldView = numpadApi.fieldRefs.current[fieldKey] ?? null;
-                            numpadApi.openNumpad(
-                              fieldKey,
-                              fieldView,
-                              item[itemField],
-                              (nextValue) => onUpdateItem(side, listKey, index, itemField, nextValue),
-                            );
-                          }}
+                          onPress={() =>
+                            openEditor({
+                              title: `Размер #${index + 1}`,
+                              mode: "number",
+                              value: item[itemField],
+                              placeholder: "мм",
+                              onSave: (nextValue) =>
+                                onUpdateItem(side, listKey, index, itemField, nextValue),
+                            })
+                          }
                           style={({ pressed }) => [
                             styles.obpFieldRow,
                             item[itemField].trim().length > 0 && styles.obpFieldRowFilled,
@@ -112,53 +162,8 @@ export function KidneyConcrementSection({
                         </Pressable>
                       </View>
                     );
-                  }
-
-                  if (itemField === "location") {
-                    return (
-                      <ProtocolFieldRow
-                        key={fieldKey}
-                        label="Локализация"
-                        value={item[itemField] || "Нажмите для ввода"}
-                        typeLabel="select"
-                        filled={item[itemField].trim().length > 0}
-                        options={KIDNEY_LOCATION_OPTIONS}
-                        onSelectOption={(nextValue) =>
-                          onUpdateItem(side, listKey, index, itemField, nextValue)
-                        }
-                      />
-                    );
-                  }
-
-                  return (
-                    <Pressable
-                      key={fieldKey}
-                      onPress={() =>
-                        openEditor({
-                          title: `Размер #${index + 1}`,
-                          mode: "number",
-                          value: item[itemField],
-                          placeholder: "мм",
-                          onSave: (nextValue) =>
-                            onUpdateItem(side, listKey, index, itemField, nextValue),
-                        })
-                      }
-                      style={({ pressed }) => [
-                        styles.obpFieldRow,
-                        item[itemField].trim().length > 0 && styles.obpFieldRowFilled,
-                        pressed && styles.obpFieldRowPressed,
-                      ]}
-                    >
-                      <View style={styles.obpFieldRowContent}>
-                        <Text style={styles.obpFieldLabel}>Размер</Text>
-                        <Text style={styles.obpFieldValue}>
-                          {item[itemField] || "Нажмите для ввода"}
-                        </Text>
-                      </View>
-                      <Text style={styles.obpFieldType}>numpad</Text>
-                    </Pressable>
-                  );
-                })}
+                  })}
+                </View>
               </View>
             </ProtocolCard>
           ))
