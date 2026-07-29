@@ -141,7 +141,7 @@ export function UrinaryBladderPanel({
 
   const renderLandscapeFieldRow = (field: typeof bladderFields[0]) => {
     const currentValue = bladder[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue ;
 
     return (
       <View
@@ -175,7 +175,7 @@ export function UrinaryBladderPanel({
 
     const label = index < labels.length ? labels[index] : fieldKey;
     const currentValue = values[index] ?? "";
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue ;
 
     if (isLandscape && !readOnly) {
       return (
@@ -281,7 +281,7 @@ export function UrinaryBladderPanel({
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
                 <Text style={styles.obpFieldValue}>
-                  {bladder.contentsText || "Нажмите для ввода"}
+                  {bladder.contentsText }
                 </Text>
               </View>
               <Text style={styles.obpFieldType}>text</Text>
@@ -323,7 +323,7 @@ export function UrinaryBladderPanel({
             if (!isFieldVisible(field, fieldVisibility)) return null;
             const currentValue = bladder[field.key];
             const filled = Boolean(currentValue && currentValue.trim().length > 0);
-            const currentDisplay = currentValue || "Нажмите для ввода";
+            const currentDisplay = currentValue ;
 
             return (
               <Fragment key={field.key}>
@@ -360,7 +360,7 @@ export function UrinaryBladderPanel({
                           >
                             <View style={styles.obpFieldRowContent}>
                               <Text style={styles.obpFieldLabel}>{labels[index]}</Text>
-                              <Text style={styles.obpFieldValue}>{values[index] || "Нажмите для ввода"}</Text>
+                              <Text style={styles.obpFieldValue}>{values[index] }</Text>
                             </View>
                             <Text style={styles.obpFieldType}>{readOnly ? "auto" : "numpad"}</Text>
                           </Pressable>
@@ -390,7 +390,7 @@ export function UrinaryBladderPanel({
                   >
                     <View style={styles.obpFieldRowContent}>
                       <Text style={styles.obpFieldLabel}>Описание содержимого</Text>
-                      <Text style={styles.obpFieldValue}>{bladder.contentsText || "Нажмите для ввода"}</Text>
+                      <Text style={styles.obpFieldValue}>{bladder.contentsText }</Text>
                     </View>
                     <Text style={styles.obpFieldType}>text</Text>
                   </Pressable>

@@ -143,7 +143,7 @@ export function ThyroidProtocolBlock({
               >
                 <ProtocolFieldRow
                   label="Размер перешейка (мм)"
-                  value={thyroid.isthmusSize || "Нажмите для ввода"}
+                  value={thyroid.isthmusSize }
                   typeLabel="numpad"
                   filled={Boolean(thyroid.isthmusSize)}
                   compact={isLandscape}
@@ -189,7 +189,7 @@ export function ThyroidProtocolBlock({
             {fv["thyroid.echogenicity"] !== false && (
               <ProtocolFieldRow
                 label="Эхогенность железы"
-                value={thyroid.echogenicity || "Нажмите для ввода"}
+                value={thyroid.echogenicity }
                 typeLabel="select"
                 filled={Boolean(thyroid.echogenicity)}
                 compact={isLandscape}
@@ -200,7 +200,7 @@ export function ThyroidProtocolBlock({
             {fv["thyroid.echostructure"] !== false && (
               <ProtocolFieldRow
                 label="Эхоструктура"
-                value={thyroid.echostructure || "Нажмите для ввода"}
+                value={thyroid.echostructure }
                 typeLabel="select"
                 filled={Boolean(thyroid.echostructure)}
                 compact={isLandscape}
@@ -211,7 +211,7 @@ export function ThyroidProtocolBlock({
             {fv["thyroid.contour"] !== false && (
               <ProtocolFieldRow
                 label="Контур"
-                value={thyroid.contour || "Нажмите для ввода"}
+                value={thyroid.contour }
                 typeLabel="select"
                 filled={Boolean(thyroid.contour)}
                 compact={isLandscape}
@@ -222,7 +222,7 @@ export function ThyroidProtocolBlock({
             {fv["thyroid.symmetry"] !== false && (
               <ProtocolFieldRow
                 label="Симметричность"
-                value={thyroid.symmetry || "Нажмите для ввода"}
+                value={thyroid.symmetry }
                 typeLabel="select"
                 filled={Boolean(thyroid.symmetry)}
                 compact={isLandscape}
@@ -233,7 +233,7 @@ export function ThyroidProtocolBlock({
             {fv["thyroid.position"] !== false && (
               <ProtocolFieldRow
                 label="Положение"
-                value={thyroid.position || "Нажмите для ввода"}
+                value={thyroid.position }
                 typeLabel="select"
                 filled={Boolean(thyroid.position)}
                 compact={isLandscape}

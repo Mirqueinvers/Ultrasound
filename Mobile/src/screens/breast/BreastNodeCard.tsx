@@ -109,7 +109,7 @@ export function BreastNodeCard({
         onLayout={getNumpadLayout(fieldKey)}
         style={{ width: "48.5%" }}
       >
-        {renderRow(label, value || "Нажмите для ввода", "numpad", Boolean(value),
+        {renderRow(label, value , "numpad", Boolean(value),
           () => openLandscapeNumpad(fieldKey),
           undefined, isLandscape)}
       </View>
@@ -169,13 +169,13 @@ export function BreastNodeCard({
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
               {SELECT_FIELDS.map((field) => (
                 <View key={field.key} style={{ width: "48.5%" }}>
-                  {renderRow(field.label, (node[field.key] as string) || "Нажмите для ввода", "select", Boolean(node[field.key]),
+                  {renderRow(field.label, (node[field.key] as string) , "select", Boolean(node[field.key]),
                     undefined, undefined, isLandscape, field.options, (nextValue) => onUpdateNodeField(side, index, field.key, nextValue))}
                 </View>
               ))}
             </View>
 
-            {renderRow("Комментарий", node.comment || "Нажмите для ввода", "text", Boolean(node.comment),
+            {renderRow("Комментарий", node.comment , "text", Boolean(node.comment),
               () => openEditor({ title: `Узел #${index + 1}: комментарий`, mode: "text", value: node.comment, placeholder: "Введите комментарий", multiline: true, onSave: (nextValue) => onUpdateNodeField(side, index, "comment", nextValue) }),
               undefined, isLandscape)}
 
@@ -209,28 +209,28 @@ export function BreastNodeCard({
           <>
             <View style={styles.dualRow}>
               <View style={styles.dualCol}>
-                {renderRow("Размер 1 (мм)", node.size1 || "Нажмите для ввода", "numpad", Boolean(node.size1),
+                {renderRow("Размер 1 (мм)", node.size1 , "numpad", Boolean(node.size1),
                   () => openEditor({ title: `Узел #${index + 1}: размер 1`, mode: "number", value: node.size1, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size1", nextValue) }),
                   undefined, isLandscape)}
               </View>
               <View style={styles.dualCol}>
-                {renderRow("Размер 2 (мм)", node.size2 || "Нажмите для ввода", "numpad", Boolean(node.size2),
+                {renderRow("Размер 2 (мм)", node.size2 , "numpad", Boolean(node.size2),
                   () => openEditor({ title: `Узел #${index + 1}: размер 2`, mode: "number", value: node.size2, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size2", nextValue) }),
                   undefined, isLandscape)}
               </View>
             </View>
 
-            {renderRow("Размер 3 (мм)", node.size3 || "Нажмите для ввода", "numpad", Boolean(node.size3),
+            {renderRow("Размер 3 (мм)", node.size3 , "numpad", Boolean(node.size3),
               () => openEditor({ title: `Узел #${index + 1}: размер 3`, mode: "number", value: node.size3, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "size3", nextValue) }),
               undefined, isLandscape)}
 
             {renderVolume()}
 
-            {renderRow("Глубина (мм)", node.depth || "Нажмите для ввода", "numpad", Boolean(node.depth),
+            {renderRow("Глубина (мм)", node.depth , "numpad", Boolean(node.depth),
               () => openEditor({ title: `Узел #${index + 1}: глубина`, mode: "number", value: node.depth, placeholder: "мм", onSave: (nextValue) => onUpdateNodeField(side, index, "depth", nextValue) }),
               undefined, isLandscape)}
 
-            {renderRow("Направление узла (часы)", node.direction || "Нажмите для ввода", "numpad", Boolean(node.direction),
+            {renderRow("Направление узла (часы)", node.direction , "numpad", Boolean(node.direction),
               () => openEditor({ title: `Узел #${index + 1}: направление`, mode: "number", value: node.direction, placeholder: "1-12", onSave: (nextValue) => onUpdateNodeField(side, index, "direction", nextValue) }),
               undefined, isLandscape)}
 
@@ -238,13 +238,13 @@ export function BreastNodeCard({
             <View style={{ flexDirection: isLandscape ? "row" : "column", flexWrap: "wrap", gap: 6 }}>
               {SELECT_FIELDS.map((field) => (
                 <View key={field.key} style={isLandscape ? { width: "48.5%" } : {}}>
-                  {renderRow(field.label, (node[field.key] as string) || "Нажмите для ввода", "select", Boolean(node[field.key]),
+                  {renderRow(field.label, (node[field.key] as string) , "select", Boolean(node[field.key]),
                     undefined, undefined, isLandscape, field.options, (nextValue) => onUpdateNodeField(side, index, field.key, nextValue))}
                 </View>
               ))}
             </View>
 
-            {renderRow("Комментарий", node.comment || "Нажмите для ввода", "text", Boolean(node.comment),
+            {renderRow("Комментарий", node.comment , "text", Boolean(node.comment),
               () => openEditor({ title: `Узел #${index + 1}: комментарий`, mode: "text", value: node.comment, placeholder: "Введите комментарий", multiline: true, onSave: (nextValue) => onUpdateNodeField(side, index, "comment", nextValue) }),
               undefined, isLandscape)}
           </>

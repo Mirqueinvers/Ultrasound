@@ -12,10 +12,8 @@ import type { EditorState } from "./useObpEditor";
 import { useInlineNumpad } from "./useInlineNumpad";
 
 const SPLEEN_SECTION_HEADERS: Record<string, string> = {
-  position: "Положение",
   length: "Размеры",
   echogenicity: "Структура",
-  splenicVein: "Сосуды",
   additional: "Дополнительно",
 };
 
@@ -23,7 +21,6 @@ type SpleenSectionProps = {
   styles: AppStyles;
   fieldVisibility: FieldVisibility;
   spleen: SpleenDraft;
-  hasPathologicalFormations: boolean;
   isLandscape?: boolean;
   openEditor: (config: NonNullable<EditorState>) => void;
   onUpdateField: (field: keyof SpleenDraft, value: string) => void;
@@ -33,7 +30,6 @@ export function SpleenSection({
   styles,
   fieldVisibility,
   spleen,
-  hasPathologicalFormations,
   isLandscape,
   openEditor,
   onUpdateField,
@@ -48,7 +44,6 @@ export function SpleenSection({
     let currentGroup: typeof SPLEEN_FIELDS = [];
 
     SPLEEN_FIELDS.forEach((field) => {
-      if (field.key === "pathologicalFormationsText" && !hasPathologicalFormations) return;
       if (!isFieldVisible(field, fieldVisibility)) return;
 
       if (SPLEEN_SECTION_HEADERS[field.key]) {
@@ -64,7 +59,7 @@ export function SpleenSection({
       groups.push({ fields: currentGroup });
     }
     return groups;
-  }, [hasPathologicalFormations, fieldVisibility]);
+  }, [fieldVisibility]);
 
   const handleNumpadChange = useCallback(
     (fieldKey: keyof SpleenDraft, nextValue: string) => {
@@ -95,7 +90,7 @@ export function SpleenSection({
 
   const renderFieldRow = (field: typeof SPLEEN_FIELDS[0]) => {
     const currentValue = spleen[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue;
     const fieldKey = field.key as string;
 
     return (
@@ -120,7 +115,7 @@ export function SpleenSection({
 
   return (
     <>
-      <ProtocolOrganHeader title="Селезёнка" />
+      <ProtocolOrganHeader title="Селезенка" />
       {isLandscape ? (
         <View ref={landscapeRef} style={{ gap: 8, position: "relative" }}>
           {groupedFields.map((group, gi) => (
@@ -163,15 +158,12 @@ export function SpleenSection({
       ) : (
         <View style={styles.obpFieldList}>
           {SPLEEN_FIELDS.map((field) => {
-            if (field.key === "pathologicalFormationsText" && !hasPathologicalFormations) {
-              return null;
-            }
             if (!isFieldVisible(field, fieldVisibility)) {
               return null;
             }
 
             const currentValue = spleen[field.key];
-            const displayValue = currentValue || "Нажмите для ввода";
+            const displayValue = currentValue;
 
             return (
               <Fragment key={field.key}>

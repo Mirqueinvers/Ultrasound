@@ -120,7 +120,7 @@ export function GallbladderSection({
 
   const renderFieldRow = (field: typeof GALLBLADDER_FIELDS[0], compact = false) => {
     const currentValue = gallbladder[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue;
     const fieldKey = field.key as string;
 
     return (
@@ -165,7 +165,7 @@ export function GallbladderSection({
 
   const renderConcretionField = (item: GallbladderConcretionDraft, field: typeof GALLBLADDER_CONCRETION_FIELDS[0], index: number) => {
     const currentItemValue = item[field.key];
-    const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+    const itemDisplayValue = currentItemValue;
     const fieldKey = `concretion-${index}-${field.key}`;
 
     return (
@@ -212,7 +212,7 @@ export function GallbladderSection({
 
   const renderPolypField = (item: GallbladderPolypDraft, field: typeof GALLBLADDER_POLYP_FIELDS[0], index: number) => {
     const currentItemValue = item[field.key];
-    const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+    const itemDisplayValue = currentItemValue;
     const fieldKey = `polyp-${index}-${field.key}`;
 
     return (
@@ -441,7 +441,7 @@ export function GallbladderSection({
             }
 
             const currentValue = gallbladder[field.key];
-            const displayValue = currentValue || "Нажмите для ввода";
+            const displayValue = currentValue;
 
             const fieldRow = (
               <ProtocolFieldRow
@@ -493,7 +493,7 @@ export function GallbladderSection({
                               <View style={styles.obpFieldList}>
                                 {GALLBLADDER_CONCRETION_FIELDS.map((itemField) => {
                                   const currentItemValue = item[itemField.key];
-                                  const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+                                  const itemDisplayValue = currentItemValue;
                                   return (
                                     <ProtocolFieldRow
                                       key={itemField.key}
@@ -558,7 +558,7 @@ export function GallbladderSection({
                               <View style={styles.obpFieldList}>
                                 {GALLBLADDER_POLYP_FIELDS.map((itemField) => {
                                   const currentItemValue = item[itemField.key];
-                                  const itemDisplayValue = currentItemValue || "Нажмите для ввода";
+                                  const itemDisplayValue = currentItemValue;
                                   return (
                                     <ProtocolFieldRow
                                       key={itemField.key}

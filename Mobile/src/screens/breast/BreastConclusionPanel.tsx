@@ -30,7 +30,7 @@ export function BreastConclusionPanel({
       <View style={styles.obpFieldList}>
         <ProtocolFieldRow
           label="Заключение"
-          value={conclusion || "Нажмите для ввода"}
+          value={conclusion }
           typeLabel="text"
           filled={Boolean(conclusion?.trim())}
           compact={isLandscape}
@@ -47,7 +47,7 @@ export function BreastConclusionPanel({
         />
         <ProtocolFieldRow
           label="Рекомендации"
-          value={recommendations || "Нажмите для ввода"}
+          value={recommendations }
           typeLabel="text"
           filled={Boolean(recommendations?.trim())}
           compact={isLandscape}

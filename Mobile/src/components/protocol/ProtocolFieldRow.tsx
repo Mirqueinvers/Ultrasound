@@ -1,4 +1,4 @@
-﻿import { memo } from "react";
+import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { isNormalizedMatch } from "../../shared/normalizeSelectValue";
@@ -38,7 +38,7 @@ function ProtocolFieldRowComponent({
     <>
       <View style={[rowStyles.content, compact && rowStyles.contentCompact]}>
         <Text style={[rowStyles.label, compact && rowStyles.labelCompact]}>{label}</Text>
-        <Text style={[rowStyles.value, compact && rowStyles.valueCompact]}>{value || "Нажмите для ввода"}</Text>
+        <Text style={[rowStyles.value, compact && rowStyles.valueCompact]}>{value || ""}</Text>
       </View>
       <Text style={[rowStyles.type, compact && rowStyles.typeCompact]}>{typeLabel}</Text>
 

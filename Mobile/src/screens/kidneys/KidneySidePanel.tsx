@@ -104,7 +104,7 @@ function renderKidneyFieldRow(
 ) {
   const currentValue = kidney[field.key];
   const filled = Boolean(currentValue && currentValue.trim().length > 0);
-  const currentDisplay = currentValue || "Нажмите для ввода";
+  const currentDisplay = currentValue ;
 
   return (
     <ProtocolFieldRow
@@ -289,7 +289,7 @@ export function KidneySidePanel({
 
   const renderLandscapeFieldRow = (field: KidneyFieldSpec) => {
     const currentValue = kidney[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue ;
 
     return (
       <View
@@ -378,7 +378,7 @@ export function KidneySidePanel({
           <View style={styles.obpFieldRowContent}>
             <Text style={styles.obpFieldLabel}>Описание патологических образований паренхимы</Text>
             <Text style={styles.obpFieldValue}>
-              {kidney.parenchymaPathologicalFormationsText || "Нажмите для ввода"}
+              {kidney.parenchymaPathologicalFormationsText }
             </Text>
           </View>
           <Text style={styles.obpFieldType}>text</Text>
@@ -451,7 +451,7 @@ export function KidneySidePanel({
           <View style={styles.obpFieldRowContent}>
             <Text style={styles.obpFieldLabel}>Описание патологических образований ЧЛС</Text>
             <Text style={styles.obpFieldValue}>
-              {kidney.pcsPathologicalFormationsText || "Нажмите для ввода"}
+              {kidney.pcsPathologicalFormationsText }
             </Text>
           </View>
           <Text style={styles.obpFieldType}>text</Text>
@@ -522,7 +522,7 @@ export function KidneySidePanel({
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Описание изменений</Text>
                 <Text style={styles.obpFieldValue}>
-                  {kidney.adrenalAreaText || "Нажмите для ввода"}
+                  {kidney.adrenalAreaText }
                 </Text>
               </View>
               <Text style={styles.obpFieldType}>text</Text>
@@ -549,7 +549,7 @@ export function KidneySidePanel({
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Описание положения</Text>
                 <Text style={styles.obpFieldValue}>
-                  {kidney.positionText || "Нажмите для ввода"}
+                  {kidney.positionText }
                 </Text>
               </View>
               <Text style={styles.obpFieldType}>text</Text>
@@ -675,7 +675,7 @@ export function KidneySidePanel({
                       <View style={styles.obpFieldRowContent}>
                         <Text style={styles.obpFieldLabel}>Описание патологических образований паренхимы</Text>
                         <Text style={styles.obpFieldValue}>
-                          {kidney.parenchymaPathologicalFormationsText || "Нажмите для ввода"}
+                          {kidney.parenchymaPathologicalFormationsText }
                         </Text>
                       </View>
                       <Text style={styles.obpFieldType}>text</Text>
@@ -743,7 +743,7 @@ export function KidneySidePanel({
                       <View style={styles.obpFieldRowContent}>
                         <Text style={styles.obpFieldLabel}>Описание патологических образований ЧЛС</Text>
                         <Text style={styles.obpFieldValue}>
-                          {kidney.pcsPathologicalFormationsText || "Нажмите для ввода"}
+                          {kidney.pcsPathologicalFormationsText }
                         </Text>
                       </View>
                       <Text style={styles.obpFieldType}>text</Text>
@@ -790,7 +790,7 @@ export function KidneySidePanel({
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Описание изменений</Text>
                 <Text style={styles.obpFieldValue}>
-                  {kidney.adrenalAreaText || "Нажмите для ввода"}
+                  {kidney.adrenalAreaText }
                 </Text>
               </View>
               <Text style={styles.obpFieldType}>text</Text>
@@ -817,7 +817,7 @@ export function KidneySidePanel({
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Описание положения</Text>
                 <Text style={styles.obpFieldValue}>
-                  {kidney.positionText || "Нажмите для ввода"}
+                  {kidney.positionText }
                 </Text>
               </View>
               <Text style={styles.obpFieldType}>text</Text>

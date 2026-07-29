@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, type RefObject, type SetStateAction } from "react";
+import { useMemo, useState, type RefObject, type SetStateAction } from "react";
 
 import { type TabKey } from "../components/TabBar";
 import { createInitialMobileSnapshot } from "../shared/syncHelpers";

@@ -1,4 +1,4 @@
-﻿import { View } from "react-native";
+import { View } from "react-native";
 
 import { FieldEditorModal } from "../../components/FieldEditorModal";
 import type { AppStyles } from "../../styles/appStyles";

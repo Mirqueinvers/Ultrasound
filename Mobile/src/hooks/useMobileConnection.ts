@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState, type RefObject, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject, type SetStateAction } from "react";
 import { useCameraPermissions } from "expo-camera";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

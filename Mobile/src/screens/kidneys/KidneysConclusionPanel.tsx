@@ -29,7 +29,7 @@ export function KidneysConclusionPanel({
 
       <ProtocolFieldRow
         label="Заключение почек"
-        value={conclusion || "Нажмите для ввода"}
+        value={conclusion }
         typeLabel="text"
         filled={conclusion.trim().length > 0}
         compact={isLandscape}
@@ -51,7 +51,7 @@ export function KidneysConclusionPanel({
 
       <ProtocolFieldRow
         label="Рекомендации"
-        value={recommendations || "Нажмите для ввода"}
+        value={recommendations }
         typeLabel="text"
         filled={recommendations.trim().length > 0}
         compact={isLandscape}

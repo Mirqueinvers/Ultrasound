@@ -109,7 +109,7 @@ export function KidneyCystPanel({
             <View style={styles.obpFieldRowContent}>
               <Text style={styles.obpFieldLabel}>{label}</Text>
               <Text style={styles.obpFieldValue}>
-                {currentValue || "Нажмите для ввода"}
+                {currentValue }
               </Text>
             </View>
             <Text style={styles.obpFieldType}>numpad</Text>
@@ -131,7 +131,7 @@ export function KidneyCystPanel({
         <View style={styles.obpFieldRowContent}>
           <Text style={styles.obpFieldLabel}>{label}</Text>
           <Text style={styles.obpFieldValue}>
-            {currentValue || "Нажмите для ввода"}
+            {currentValue }
           </Text>
         </View>
         <Text style={styles.obpFieldType}>numpad</Text>
@@ -273,7 +273,7 @@ export function KidneyCystPanel({
                   <View style={{ width: "100%" }}>
                     <ProtocolFieldRow
                       label="Локализация"
-                      value={item.location || "Нажмите для ввода"}
+                      value={item.location }
                       typeLabel="select"
                       filled={item.location.trim().length > 0}
                       options={KIDNEY_LOCATION_OPTIONS}

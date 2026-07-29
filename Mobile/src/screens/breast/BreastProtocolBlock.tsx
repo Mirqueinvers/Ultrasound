@@ -74,7 +74,7 @@ export function BreastProtocolBlock({
             {fv["breast.lastMenstruationDate"] !== false && (
               <ProtocolFieldRow
                 label="Дата последней менструации"
-                value={formatDateForMobileDisplay(breast.lastMenstruationDate) || "Нажмите для ввода"}
+                value={formatDateForMobileDisplay(breast.lastMenstruationDate) }
                 typeLabel="numpad"
                 filled={Boolean(breast.lastMenstruationDate)}
                 onPress={() =>
@@ -139,7 +139,7 @@ export function BreastProtocolBlock({
           <ProtocolSectionHeader title="Структура молочных желез" />
           <ProtocolFieldRow
             label="Структура"
-            value={breast.structure || "Нажмите для ввода"}
+            value={breast.structure }
             typeLabel="select"
             filled={Boolean(breast.structure)}
             compact={isLandscape}

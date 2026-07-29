@@ -29,7 +29,7 @@ export function ThyroidConclusionPanel({
       <View style={styles.obpFieldList}>
         <ProtocolFieldRow
           label="Заключение"
-          value={conclusion || "Нажмите для ввода"}
+          value={conclusion }
           typeLabel="text"
           filled={Boolean(conclusion)}
           compact={isLandscape}
@@ -50,7 +50,7 @@ export function ThyroidConclusionPanel({
         />
         <ProtocolFieldRow
           label="Рекомендации"
-          value={recommendations || "Нажмите для ввода"}
+          value={recommendations }
           typeLabel="text"
           filled={Boolean(recommendations)}
           compact={isLandscape}

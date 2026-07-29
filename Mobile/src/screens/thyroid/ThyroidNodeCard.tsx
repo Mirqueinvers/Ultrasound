@@ -83,7 +83,7 @@ export function ThyroidNodeCard({
       >
         <ProtocolFieldRow
           label={label}
-          value={value || "Нажмите для ввода"}
+          value={value }
           typeLabel="numpad"
           filled={Boolean(value)}
           compact={isLandscape}
@@ -115,7 +115,7 @@ export function ThyroidNodeCard({
               <View key={field.key} style={isLandscape ? { width: "48.5%" } : {}}>
                 <ProtocolFieldRow
                   label={field.label}
-                  value={(node[field.key] as string) || "Нажмите для ввода"}
+                  value={(node[field.key] as string) }
                   typeLabel="select"
                   filled={Boolean(node[field.key])}
                   compact={isLandscape}
@@ -128,7 +128,7 @@ export function ThyroidNodeCard({
 
           <ProtocolFieldRow
             label="Комментарий"
-            value={node.comment || "Нажмите для ввода"}
+            value={node.comment }
             typeLabel="text"
             filled={Boolean(node.comment)}
             compact={isLandscape}

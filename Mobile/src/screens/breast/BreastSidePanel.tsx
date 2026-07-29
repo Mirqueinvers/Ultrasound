@@ -83,27 +83,27 @@ export function BreastSidePanel({
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
             {fv[`breast.${sideKey}.skin`] !== false && (
               <View style={{ width: "48.5%" }}>
-                {renderRow("Кожа", breastSide.skin || "Нажмите для ввода", "select", Boolean(breastSide.skin), undefined, undefined, isLandscape, BREAST_SKIN_OPTIONS, (nextValue) => onUpdateSideField(side, "skin", nextValue))}
+                {renderRow("Кожа", breastSide.skin , "select", Boolean(breastSide.skin), undefined, undefined, isLandscape, BREAST_SKIN_OPTIONS, (nextValue) => onUpdateSideField(side, "skin", nextValue))}
               </View>
             )}
             {isNormalizedMatch(breastSide.skin, "изменена") && fv[`breast.${sideKey}.skinComment`] !== false && (
               <View style={{ width: "48.5%" }}>
-                {renderRow("Описание изменений кожи", breastSide.skinComment || "Нажмите для ввода", "text", Boolean(breastSide.skinComment), () => openEditor({title: `${title}: описание изменений кожи`, mode: "text", value: breastSide.skinComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue)}), undefined, isLandscape)}
+                {renderRow("Описание изменений кожи", breastSide.skinComment , "text", Boolean(breastSide.skinComment), () => openEditor({title: `${title}: описание изменений кожи`, mode: "text", value: breastSide.skinComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue)}), undefined, isLandscape)}
               </View>
             )}
             {fv[`breast.${sideKey}.nipples`] !== false && (
               <View style={{ width: "48.5%" }}>
-                {renderRow("Соски и ареолы", breastSide.nipples || "Нажмите для ввода", "select", Boolean(breastSide.nipples), undefined, undefined, isLandscape, BREAST_NIPPLES_OPTIONS, (nextValue) => onUpdateSideField(side, "nipples", nextValue))}
+                {renderRow("Соски и ареолы", breastSide.nipples , "select", Boolean(breastSide.nipples), undefined, undefined, isLandscape, BREAST_NIPPLES_OPTIONS, (nextValue) => onUpdateSideField(side, "nipples", nextValue))}
               </View>
             )}
             {isNormalizedMatch(breastSide.nipples, "изменены") && fv[`breast.${sideKey}.nipplesComment`] !== false && (
               <View style={{ width: "48.5%" }}>
-                {renderRow("Описание изменений сосков и ареол", breastSide.nipplesComment || "Нажмите для ввода", "text", Boolean(breastSide.nipplesComment), () => openEditor({title: `${title}: описание изменений сосков и ареол`, mode: "text", value: breastSide.nipplesComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue)}), undefined, isLandscape)}
+                {renderRow("Описание изменений сосков и ареол", breastSide.nipplesComment , "text", Boolean(breastSide.nipplesComment), () => openEditor({title: `${title}: описание изменений сосков и ареол`, mode: "text", value: breastSide.nipplesComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue)}), undefined, isLandscape)}
               </View>
             )}
             {fv[`breast.${sideKey}.milkDucts`] !== false && (
               <View style={{ width: "48.5%" }}>
-                {renderRow("Млечные протоки", breastSide.milkDucts || "Нажмите для ввода", "select", Boolean(breastSide.milkDucts), undefined, undefined, isLandscape, BREAST_MILK_DUCTS_OPTIONS, (nextValue) => onUpdateSideField(side, "milkDucts", nextValue))}
+                {renderRow("Млечные протоки", breastSide.milkDucts , "select", Boolean(breastSide.milkDucts), undefined, undefined, isLandscape, BREAST_MILK_DUCTS_OPTIONS, (nextValue) => onUpdateSideField(side, "milkDucts", nextValue))}
               </View>
             )}
           </View>
@@ -113,7 +113,7 @@ export function BreastSidePanel({
               <ProtocolSectionHeader title="Объемные образования" />
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
                 <View style={{ width: "48.5%" }}>
-                  {renderRow("Определение", breastSide.volumeFormations || "Нажмите для ввода", "select", Boolean(breastSide.volumeFormations), undefined, undefined, isLandscape, BREAST_VOLUME_FORMATIONS_OPTIONS, (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue))}
+                  {renderRow("Определение", breastSide.volumeFormations , "select", Boolean(breastSide.volumeFormations), undefined, undefined, isLandscape, BREAST_VOLUME_FORMATIONS_OPTIONS, (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue))}
                 </View>
               </View>
 
@@ -148,7 +148,7 @@ export function BreastSidePanel({
               <ProtocolSectionHeader title="Дополнительно" />
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
                 <View style={{ width: "48.5%" }}>
-                  {renderRow("Дополнительно", breastSide.additional || "Нажмите для ввода", "text", Boolean(breastSide.additional), () => openEditor({title: `${title}: дополнительно`, mode: "text", value: breastSide.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue)}), undefined, isLandscape)}
+                  {renderRow("Дополнительно", breastSide.additional , "text", Boolean(breastSide.additional), () => openEditor({title: `${title}: дополнительно`, mode: "text", value: breastSide.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue)}), undefined, isLandscape)}
                 </View>
               </View>
             </>
@@ -161,21 +161,21 @@ export function BreastSidePanel({
               <ProtocolSectionHeader title="Общие характеристики" />
             )}
             {fv[`breast.${sideKey}.skin`] !== false &&
-              renderRow("Кожа", breastSide.skin || "Нажмите для ввода", "select", Boolean(breastSide.skin), undefined, undefined, isLandscape, BREAST_SKIN_OPTIONS, (nextValue) => onUpdateSideField(side, "skin", nextValue))}
+              renderRow("Кожа", breastSide.skin , "select", Boolean(breastSide.skin), undefined, undefined, isLandscape, BREAST_SKIN_OPTIONS, (nextValue) => onUpdateSideField(side, "skin", nextValue))}
             {isNormalizedMatch(breastSide.skin, "изменена") && fv[`breast.${sideKey}.skinComment`] !== false &&
-              renderRow("Описание изменений кожи", breastSide.skinComment || "Нажмите для ввода", "text", Boolean(breastSide.skinComment), () => openEditor({title: `${title}: описание изменений кожи`, mode: "text", value: breastSide.skinComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue)}), undefined, isLandscape)}
+              renderRow("Описание изменений кожи", breastSide.skinComment , "text", Boolean(breastSide.skinComment), () => openEditor({title: `${title}: описание изменений кожи`, mode: "text", value: breastSide.skinComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "skinComment", nextValue)}), undefined, isLandscape)}
             {fv[`breast.${sideKey}.nipples`] !== false &&
-              renderRow("Соски и ареолы", breastSide.nipples || "Нажмите для ввода", "select", Boolean(breastSide.nipples), undefined, undefined, isLandscape, BREAST_NIPPLES_OPTIONS, (nextValue) => onUpdateSideField(side, "nipples", nextValue))}
+              renderRow("Соски и ареолы", breastSide.nipples , "select", Boolean(breastSide.nipples), undefined, undefined, isLandscape, BREAST_NIPPLES_OPTIONS, (nextValue) => onUpdateSideField(side, "nipples", nextValue))}
             {isNormalizedMatch(breastSide.nipples, "изменены") && fv[`breast.${sideKey}.nipplesComment`] !== false &&
-              renderRow("Описание изменений сосков и ареол", breastSide.nipplesComment || "Нажмите для ввода", "text", Boolean(breastSide.nipplesComment), () => openEditor({title: `${title}: описание изменений сосков и ареол`, mode: "text", value: breastSide.nipplesComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue)}), undefined, isLandscape)}
+              renderRow("Описание изменений сосков и ареол", breastSide.nipplesComment , "text", Boolean(breastSide.nipplesComment), () => openEditor({title: `${title}: описание изменений сосков и ареол`, mode: "text", value: breastSide.nipplesComment, placeholder: "Введите описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "nipplesComment", nextValue)}), undefined, isLandscape)}
             {fv[`breast.${sideKey}.milkDucts`] !== false &&
-              renderRow("Млечные протоки", breastSide.milkDucts || "Нажмите для ввода", "select", Boolean(breastSide.milkDucts), undefined, undefined, isLandscape, BREAST_MILK_DUCTS_OPTIONS, (nextValue) => onUpdateSideField(side, "milkDucts", nextValue))}
+              renderRow("Млечные протоки", breastSide.milkDucts , "select", Boolean(breastSide.milkDucts), undefined, undefined, isLandscape, BREAST_MILK_DUCTS_OPTIONS, (nextValue) => onUpdateSideField(side, "milkDucts", nextValue))}
           </>
 
           {fv[`breast.${sideKey}.volumeFormations`] !== false && (
             <>
               <ProtocolSectionHeader title="Объемные образования" />
-              {renderRow("Определение", breastSide.volumeFormations || "Нажмите для ввода", "select", Boolean(breastSide.volumeFormations), undefined, undefined, isLandscape, BREAST_VOLUME_FORMATIONS_OPTIONS, (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue))}
+              {renderRow("Определение", breastSide.volumeFormations , "select", Boolean(breastSide.volumeFormations), undefined, undefined, isLandscape, BREAST_VOLUME_FORMATIONS_OPTIONS, (nextValue) => onUpdateSideField(side, "volumeFormations", nextValue))}
 
               {showNodeList && (
                 <View style={styles.obpFieldList}>
@@ -196,7 +196,7 @@ export function BreastSidePanel({
           {fv[`breast.${sideKey}.additional`] !== false && (
             <>
               <ProtocolSectionHeader title="Дополнительно" />
-              {renderRow("Дополнительно", breastSide.additional || "Нажмите для ввода", "text", Boolean(breastSide.additional), () => openEditor({title: `${title}: дополнительно`, mode: "text", value: breastSide.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue)}), undefined, isLandscape)}
+              {renderRow("Дополнительно", breastSide.additional , "text", Boolean(breastSide.additional), () => openEditor({title: `${title}: дополнительно`, mode: "text", value: breastSide.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (nextValue) => onUpdateSideField(side, "additional", nextValue)}), undefined, isLandscape)}
             </>
           )}
         </View>

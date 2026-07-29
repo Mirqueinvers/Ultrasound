@@ -25,11 +25,11 @@ export function OmtMaleConclusionPanel({
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title="Заключение" />
       <View style={styles.obpFieldList}>
-        <ProtocolFieldRow label="Заключение" value={conclusion || "Нажмите для ввода"}
+        <ProtocolFieldRow label="Заключение" value={conclusion }
           typeLabel="text" filled={Boolean(conclusion)}
           onPress={() => openEditor({ title: "Заключение ОМТ (М)", mode: "text", value: conclusion, placeholder: "Введите заключение", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, conclusion: v })) })}
         />
-        <ProtocolFieldRow label="Рекомендации" value={recommendations || "Нажмите для ввода"}
+        <ProtocolFieldRow label="Рекомендации" value={recommendations }
           typeLabel="text" filled={Boolean(recommendations)}
           onPress={() => openEditor({ title: "Рекомендации ОМТ (М)", mode: "text", value: recommendations, placeholder: "Введите рекомендации", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, recommendations: v })) })}
         />

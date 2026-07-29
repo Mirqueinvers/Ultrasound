@@ -1,4 +1,4 @@
-﻿import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 import { InlineStat } from "../components/InlineStat";
 import { SectionPanel } from "../components/SectionPanel";

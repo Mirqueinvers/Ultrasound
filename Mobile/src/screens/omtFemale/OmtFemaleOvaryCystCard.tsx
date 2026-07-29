@@ -53,7 +53,7 @@ export function OmtFemaleOvaryCystCard({
               style={({ pressed }) => [styles.obpFieldRow, size1.trim().length > 0 && styles.obpFieldRowFilled, pressed && styles.obpFieldRowPressed]}>
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Размер 1</Text>
-                <Text style={styles.obpFieldValue}>{size1 || "Нажмите для ввода"}</Text>
+                <Text style={styles.obpFieldValue}>{size1 }</Text>
               </View>
               <Text style={styles.obpFieldType}>numpad</Text>
             </Pressable>
@@ -68,7 +68,7 @@ export function OmtFemaleOvaryCystCard({
               style={({ pressed }) => [styles.obpFieldRow, size2.trim().length > 0 && styles.obpFieldRowFilled, pressed && styles.obpFieldRowPressed]}>
               <View style={styles.obpFieldRowContent}>
                 <Text style={styles.obpFieldLabel}>Размер 2</Text>
-                <Text style={styles.obpFieldValue}>{size2 || "Нажмите для ввода"}</Text>
+                <Text style={styles.obpFieldValue}>{size2 }</Text>
               </View>
               <Text style={styles.obpFieldType}>numpad</Text>
             </Pressable>

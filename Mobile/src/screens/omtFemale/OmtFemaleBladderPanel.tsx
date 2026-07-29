@@ -72,7 +72,7 @@ export function OmtFemaleBladderPanel({
         >
           <ProtocolFieldRow
             label={label}
-            value={value || "Нажмите для ввода"}
+            value={value }
             typeLabel="numpad"
             filled={filled}
             compact={true}
@@ -82,7 +82,7 @@ export function OmtFemaleBladderPanel({
       );
     }
     return (
-      <ProtocolFieldRow key={fieldKey} label={label} value={value || "Нажмите для ввода"}
+      <ProtocolFieldRow key={fieldKey} label={label} value={value }
         typeLabel="numpad" filled={filled}
         onPress={() => openEditor({ title: label, mode: "number", value, placeholder: "мм", onSave: (v) => onUpdateBladderField(fieldKey as keyof UrinaryBladderDraft, v) })} />
     );
@@ -116,7 +116,7 @@ export function OmtFemaleBladderPanel({
             <ProtocolSectionHeader title="Объем остаточной мочи" />
             <View style={isLandscape ? { flexDirection: "row", flexWrap: "wrap", gap: 6 } : undefined}>
               {fv["omt_female.bladderResidualStatus"] !== false && (
-                <ProtocolFieldRow label="Определение" value={bladder.residualStatus || "Нажмите для ввода"} typeLabel="select" filled={Boolean(bladder.residualStatus)} compact={isLandscape} options={BLADDER_RESIDUAL_OPTIONS}
+                <ProtocolFieldRow label="Определение" value={bladder.residualStatus } typeLabel="select" filled={Boolean(bladder.residualStatus)} compact={isLandscape} options={BLADDER_RESIDUAL_OPTIONS}
                   onSelectOption={(v) => onUpdateBladderField("residualStatus", v)} />
               )}
               {showResidual && (
@@ -141,11 +141,11 @@ export function OmtFemaleBladderPanel({
           <>
             <ProtocolSectionHeader title="Содержимое" />
             {fv["omt_female.bladderContents"] !== false && (
-              <ProtocolFieldRow label="Характер содержимого" value={bladder.contents || "Нажмите для ввода"} typeLabel="select" filled={Boolean(bladder.contents)} compact={isLandscape} options={BLADDER_CONTENT_OPTIONS}
+              <ProtocolFieldRow label="Характер содержимого" value={bladder.contents } typeLabel="select" filled={Boolean(bladder.contents)} compact={isLandscape} options={BLADDER_CONTENT_OPTIONS}
                 onSelectOption={(v) => onUpdateBladderField("contents", v)} />
             )}
             {showContentsText && fv["omt_female.bladderContentsText"] !== false && (
-              <ProtocolFieldRow label="Описание содержимого" value={bladder.contentsText || "Нажмите для ввода"} typeLabel="text" filled={Boolean(bladder.contentsText)} compact={isLandscape}
+              <ProtocolFieldRow label="Описание содержимого" value={bladder.contentsText } typeLabel="text" filled={Boolean(bladder.contentsText)} compact={isLandscape}
                 onPress={() => openEditor({ title: "Описание содержимого", mode: "text", value: bladder.contentsText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateBladderField("contentsText", v) })} />
             )}
           </>
@@ -154,7 +154,7 @@ export function OmtFemaleBladderPanel({
         {fv["omt_female.bladderAdditional"] !== false && (
           <>
             <ProtocolSectionHeader title="Дополнительно" />
-            <ProtocolFieldRow label="Дополнительно" value={bladder.additional || "Нажмите для ввода"} typeLabel="text" filled={Boolean(bladder.additional)} compact={isLandscape}
+            <ProtocolFieldRow label="Дополнительно" value={bladder.additional } typeLabel="text" filled={Boolean(bladder.additional)} compact={isLandscape}
               onPress={() => openEditor({ title: "Мочевой пузырь: дополнительно", mode: "text", value: bladder.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (v) => onUpdateBladderField("additional", v) })} />
           </>
         )}

@@ -22,9 +22,9 @@ export function OmtFemaleConclusionPanel({
     <View style={styles.kidneyPlainSection}>
       <ProtocolOrganHeader title="Заключение" />
       <View style={styles.obpFieldList}>
-        <ProtocolFieldRow label="Заключение" value={conclusion || "Нажмите для ввода"} typeLabel="text" filled={Boolean(conclusion)} compact={isLandscape}
+        <ProtocolFieldRow label="Заключение" value={conclusion } typeLabel="text" filled={Boolean(conclusion)} compact={isLandscape}
           onPress={() => openEditor({ title: "Заключение ОМТ (Ж)", mode: "text", value: conclusion, placeholder: "Введите заключение", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, conclusion: v })) })} />
-        <ProtocolFieldRow label="Рекомендации" value={recommendations || "Нажмите для ввода"} typeLabel="text" filled={Boolean(recommendations)} compact={isLandscape}
+        <ProtocolFieldRow label="Рекомендации" value={recommendations } typeLabel="text" filled={Boolean(recommendations)} compact={isLandscape}
           onPress={() => openEditor({ title: "Рекомендации ОМТ (Ж)", mode: "text", value: recommendations, placeholder: "Введите рекомендации", multiline: true, onSave: (v) => onUpdateForm((c) => ({ ...c, recommendations: v })) })} />
       </View>
     </View>

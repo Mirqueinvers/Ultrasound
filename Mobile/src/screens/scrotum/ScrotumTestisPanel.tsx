@@ -112,7 +112,7 @@ export function ScrotumTestisPanel({
     >
       <ProtocolFieldRow
         label={label}
-        value={value || "Нажмите для ввода"}
+        value={value }
         typeLabel={typeLabel}
         filled={filled}
         readonly={readonly}
@@ -230,7 +230,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.length"] !== false && (
               <ProtocolFieldRow
                 label="Длина (мм)"
-                value={testis.length || "Нажмите для ввода"}
+                value={testis.length }
                 typeLabel="numpad"
                 filled={Boolean(testis.length)}
                 onPress={() =>
@@ -247,7 +247,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.width"] !== false && (
               <ProtocolFieldRow
                 label="Ширина (мм)"
-                value={testis.width || "Нажмите для ввода"}
+                value={testis.width }
                 typeLabel="numpad"
                 filled={Boolean(testis.width)}
                 onPress={() =>
@@ -264,7 +264,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.depth"] !== false && (
               <ProtocolFieldRow
                 label="Глубина (мм)"
-                value={testis.depth || "Нажмите для ввода"}
+                value={testis.depth }
                 typeLabel="numpad"
                 filled={Boolean(testis.depth)}
                 onPress={() =>
@@ -294,7 +294,7 @@ export function ScrotumTestisPanel({
               <ProtocolSectionHeader title="Расположение" />
               <ProtocolFieldRow
                 label="Расположение"
-                value={testis.location || "Нажмите для ввода"}
+                value={testis.location }
                 typeLabel="select"
                 filled={Boolean(testis.location)}
                 options={LOCATION_OPTIONS}
@@ -308,7 +308,7 @@ export function ScrotumTestisPanel({
               <ProtocolSectionHeader title="Контур" />
               <ProtocolFieldRow
                 label="Контур"
-                value={testis.contour || "Нажмите для ввода"}
+                value={testis.contour }
                 typeLabel="select"
                 filled={Boolean(testis.contour)}
                 options={CONTOUR_OPTIONS}
@@ -324,7 +324,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.capsule"] !== false && (
               <ProtocolFieldRow
                 label="Капсула"
-                value={testis.capsule || "Нажмите для ввода"}
+                value={testis.capsule }
                 typeLabel="select"
                 filled={Boolean(testis.capsule)}
                 options={CAPSULE_OPTIONS}
@@ -334,7 +334,7 @@ export function ScrotumTestisPanel({
             {showCapsuleText && fv["scrotum.capsuleText"] !== false && (
               <ProtocolFieldRow
                 label="Описание"
-                value={testis.capsuleText || "Нажмите для ввода"}
+                value={testis.capsuleText }
                 typeLabel="text"
                 filled={Boolean(testis.capsuleText)}
                 onPress={() =>
@@ -356,7 +356,7 @@ export function ScrotumTestisPanel({
               <ProtocolSectionHeader title="Эхогенность" />
               <ProtocolFieldRow
                 label="Эхогенность"
-                value={testis.echogenicity || "Нажмите для ввода"}
+                value={testis.echogenicity }
                 typeLabel="select"
                 filled={Boolean(testis.echogenicity)}
                 options={ECHOGENICITY_OPTIONS}
@@ -372,7 +372,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.echotexture"] !== false && (
               <ProtocolFieldRow
                 label="Эхоструктура"
-                value={testis.echotexture || "Нажмите для ввода"}
+                value={testis.echotexture }
                 typeLabel="select"
                 filled={Boolean(testis.echotexture)}
                 options={ECHOTEXTURE_OPTIONS}
@@ -382,7 +382,7 @@ export function ScrotumTestisPanel({
             {showEchotextureText && fv["scrotum.echotextureText"] !== false && (
               <ProtocolFieldRow
                 label="Описание"
-                value={testis.echotextureText || "Нажмите для ввода"}
+                value={testis.echotextureText }
                 typeLabel="text"
                 filled={Boolean(testis.echotextureText)}
                 onPress={() =>
@@ -406,7 +406,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.mediastinum"] !== false && (
               <ProtocolFieldRow
                 label="Структура средостения"
-                value={testis.mediastinum || "Нажмите для ввода"}
+                value={testis.mediastinum }
                 typeLabel="select"
                 filled={Boolean(testis.mediastinum)}
                 options={MEDIASTINUM_OPTIONS}
@@ -416,7 +416,7 @@ export function ScrotumTestisPanel({
             {showMediastinumText && fv["scrotum.mediastinumText"] !== false && (
               <ProtocolFieldRow
                 label="Описание"
-                value={testis.mediastinumText || "Нажмите для ввода"}
+                value={testis.mediastinumText }
                 typeLabel="text"
                 filled={Boolean(testis.mediastinumText)}
                 onPress={() =>
@@ -438,7 +438,7 @@ export function ScrotumTestisPanel({
               <ProtocolSectionHeader title="Кровоток в яичке" />
               <ProtocolFieldRow
                 label="Кровоток"
-                value={testis.bloodFlow || "Нажмите для ввода"}
+                value={testis.bloodFlow }
                 typeLabel="select"
                 filled={Boolean(testis.bloodFlow)}
                 options={BLOOD_FLOW_OPTIONS}
@@ -454,7 +454,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.appendage"] !== false && (
               <ProtocolFieldRow
                 label="Придаток"
-                value={testis.appendage || "Нажмите для ввода"}
+                value={testis.appendage }
                 typeLabel="select"
                 filled={Boolean(testis.appendage)}
                 options={APPENDAGE_OPTIONS}
@@ -464,7 +464,7 @@ export function ScrotumTestisPanel({
             {showAppendageText && fv["scrotum.appendageText"] !== false && (
               <ProtocolFieldRow
                 label="Описание"
-                value={testis.appendageText || "Нажмите для ввода"}
+                value={testis.appendageText }
                 typeLabel="text"
                 filled={Boolean(testis.appendageText)}
                 onPress={() =>
@@ -488,7 +488,7 @@ export function ScrotumTestisPanel({
             {fv["scrotum.fluidAmount"] !== false && (
               <ProtocolFieldRow
                 label="Количество жидкости"
-                value={testis.fluidAmount || "Нажмите для ввода"}
+                value={testis.fluidAmount }
                 typeLabel="select"
                 filled={Boolean(testis.fluidAmount)}
                 options={FLUID_AMOUNT_OPTIONS}
@@ -498,7 +498,7 @@ export function ScrotumTestisPanel({
             {showFluidAmountText && fv["scrotum.fluidAmountText"] !== false && (
               <ProtocolFieldRow
                 label="Описание"
-                value={testis.fluidAmountText || "Нажмите для ввода"}
+                value={testis.fluidAmountText }
                 typeLabel="text"
                 filled={Boolean(testis.fluidAmountText)}
                 onPress={() =>
@@ -520,7 +520,7 @@ export function ScrotumTestisPanel({
               <ProtocolSectionHeader title="Дополнительно" />
               <ProtocolFieldRow
                 label="Дополнительно"
-                value={testis.additional || "Нажмите для ввода"}
+                value={testis.additional }
                 typeLabel="text"
                 filled={Boolean(testis.additional)}
                 onPress={() =>

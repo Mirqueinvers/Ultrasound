@@ -90,7 +90,7 @@ export function OmtMaleProstatePanel({
     >
       <ProtocolFieldRow
         label={label}
-        value={value || "Нажмите для ввода"}
+        value={value }
         typeLabel={typeLabel}
         filled={filled}
         readonly={readonly}
@@ -290,7 +290,7 @@ export function OmtMaleProstatePanel({
               <ProtocolSectionHeader title="Информация об исследовании" />
               <ProtocolFieldRow
                 label="Вид исследования"
-                value={prostate.studyType || "Нажмите для ввода"}
+                value={prostate.studyType }
                 typeLabel="select"
                 filled={Boolean(prostate.studyType)}
                 options={PROSTATE_STUDY_TYPE_OPTIONS}
@@ -304,7 +304,7 @@ export function OmtMaleProstatePanel({
               <ProtocolSectionHeader title="Положение" />
               <ProtocolFieldRow
                 label="Положение"
-                value={prostate.position || "Нажмите для ввода"}
+                value={prostate.position }
                 typeLabel="select"
                 filled={Boolean(prostate.position)}
                 options={PROSTATE_POSITION_OPTIONS}
@@ -318,21 +318,21 @@ export function OmtMaleProstatePanel({
               <ProtocolSectionHeader title="Размеры" />
               {fv["omt_male.length"] !== false && (
                 <ProtocolFieldRow
-                  label="Длина (мм)" value={prostate.length || "Нажмите для ввода"}
+                  label="Длина (мм)" value={prostate.length }
                   typeLabel="numpad" filled={Boolean(prostate.length)}
                   onPress={() => openEditor({ title: "Простата: длина", mode: "number", value: prostate.length, placeholder: "мм", onSave: (v) => onUpdateProstateField("length", v) })}
                 />
               )}
               {fv["omt_male.width"] !== false && (
                 <ProtocolFieldRow
-                  label="Ширина (мм)" value={prostate.width || "Нажмите для ввода"}
+                  label="Ширина (мм)" value={prostate.width }
                   typeLabel="numpad" filled={Boolean(prostate.width)}
                   onPress={() => openEditor({ title: "Простата: ширина", mode: "number", value: prostate.width, placeholder: "мм", onSave: (v) => onUpdateProstateField("width", v) })}
                 />
               )}
               {fv["omt_male.apDimension"] !== false && (
                 <ProtocolFieldRow
-                  label="ПЗР (мм)" value={prostate.apDimension || "Нажмите для ввода"}
+                  label="ПЗР (мм)" value={prostate.apDimension }
                   typeLabel="numpad" filled={Boolean(prostate.apDimension)}
                   onPress={() => openEditor({ title: "Простата: ПЗР", mode: "number", value: prostate.apDimension, placeholder: "мм", onSave: (v) => onUpdateProstateField("apDimension", v) })}
                 />
@@ -351,7 +351,7 @@ export function OmtMaleProstatePanel({
               {fv["omt_male.contour"] !== false && (
                 <>
                   <ProtocolSectionHeader title="Контур" />
-                  <ProtocolFieldRow label="Контур" value={prostate.contour || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Контур" value={prostate.contour }
                     typeLabel="select" filled={Boolean(prostate.contour)} options={PROSTATE_CONTOUR_OPTIONS}
                     onSelectOption={(v) => onUpdateProstateField("contour", v)}
                   />
@@ -360,7 +360,7 @@ export function OmtMaleProstatePanel({
               {fv["omt_male.symmetry"] !== false && (
                 <>
                   <ProtocolSectionHeader title="Симметричность" />
-                  <ProtocolFieldRow label="Симметричность" value={prostate.symmetry || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Симметричность" value={prostate.symmetry }
                     typeLabel="select" filled={Boolean(prostate.symmetry)} options={PROSTATE_SYMMETRY_OPTIONS}
                     onSelectOption={(v) => onUpdateProstateField("symmetry", v)}
                   />
@@ -369,7 +369,7 @@ export function OmtMaleProstatePanel({
               {fv["omt_male.shape"] !== false && (
                 <>
                   <ProtocolSectionHeader title="Форма" />
-                  <ProtocolFieldRow label="Форма" value={prostate.shape || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Форма" value={prostate.shape }
                     typeLabel="select" filled={Boolean(prostate.shape)} options={PROSTATE_SHAPE_OPTIONS}
                     onSelectOption={(v) => onUpdateProstateField("shape", v)}
                   />
@@ -383,7 +383,7 @@ export function OmtMaleProstatePanel({
               {fv["omt_male.echogenicity"] !== false && (
                 <>
                   <ProtocolSectionHeader title="Эхогенность" />
-                  <ProtocolFieldRow label="Эхогенность" value={prostate.echogenicity || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Эхогенность" value={prostate.echogenicity }
                     typeLabel="select" filled={Boolean(prostate.echogenicity)} options={PROSTATE_ECHOGENICITY_OPTIONS}
                     onSelectOption={(v) => onUpdateProstateField("echogenicity", v)}
                   />
@@ -393,13 +393,13 @@ export function OmtMaleProstatePanel({
                 <>
                   <ProtocolSectionHeader title="Эхоструктура" />
                   {fv["omt_male.echotexture"] !== false && (
-                    <ProtocolFieldRow label="Эхоструктура" value={prostate.echotexture || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Эхоструктура" value={prostate.echotexture }
                       typeLabel="select" filled={Boolean(prostate.echotexture)} options={PROSTATE_ECHOTEXTURE_OPTIONS}
                       onSelectOption={(v) => onUpdateProstateField("echotexture", v)}
                     />
                   )}
                   {showEchotextureText && fv["omt_male.echotextureText"] !== false && (
-                    <ProtocolFieldRow label="Описание" value={prostate.echotextureText || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Описание" value={prostate.echotextureText }
                       typeLabel="text" filled={Boolean(prostate.echotextureText)}
                       onPress={() => openEditor({ title: "Простата: описание эхоструктуры", mode: "text", value: prostate.echotextureText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateProstateField("echotextureText", v) })}
                     />
@@ -411,13 +411,13 @@ export function OmtMaleProstatePanel({
                 <>
                   <ProtocolSectionHeader title="В просвет мочевого пузыря" />
                   {fv["omt_male.bladderProtrusion"] !== false && (
-                    <ProtocolFieldRow label="Выпячивание" value={prostate.bladderProtrusion || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Выпячивание" value={prostate.bladderProtrusion }
                       typeLabel="select" filled={Boolean(prostate.bladderProtrusion)} options={PROSTATE_BLAADDER_PROTRUSION_OPTIONS}
                       onSelectOption={(v) => onUpdateProstateField("bladderProtrusion", v)}
                     />
                   )}
                   {showProtrusionMm && fv["omt_male.bladderProtrusionMm"] !== false && (
-                    <ProtocolFieldRow label="Выпячивание на (мм)" value={prostate.bladderProtrusionMm || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Выпячивание на (мм)" value={prostate.bladderProtrusionMm }
                       typeLabel="numpad" filled={Boolean(prostate.bladderProtrusionMm)}
                       onPress={() => openEditor({ title: "Простата: выпячивание на (мм)", mode: "number", value: prostate.bladderProtrusionMm, placeholder: "мм", onSave: (v) => onUpdateProstateField("bladderProtrusionMm", v) })}
                     />
@@ -429,13 +429,13 @@ export function OmtMaleProstatePanel({
                 <>
                   <ProtocolSectionHeader title="Патологические образования" />
                   {fv["omt_male.pathologicLesions"] !== false && (
-                    <ProtocolFieldRow label="Определение" value={prostate.pathologicLesions || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Определение" value={prostate.pathologicLesions }
                       typeLabel="select" filled={Boolean(prostate.pathologicLesions)} options={YES_NO_OPTIONS}
                       onSelectOption={(v) => onUpdateProstateField("pathologicLesions", v)}
                     />
                   )}
                   {showPathologicLesionsText && fv["omt_male.pathologicLesionsText"] !== false && (
-                    <ProtocolFieldRow label="Описание" value={prostate.pathologicLesionsText || "Нажмите для ввода"}
+                    <ProtocolFieldRow label="Описание" value={prostate.pathologicLesionsText }
                       typeLabel="text" filled={Boolean(prostate.pathologicLesionsText)}
                       onPress={() => openEditor({ title: "Простата: описание патологических образований", mode: "text", value: prostate.pathologicLesionsText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateProstateField("pathologicLesionsText", v) })}
                     />
@@ -448,7 +448,7 @@ export function OmtMaleProstatePanel({
           {fv["omt_male.additional"] !== false && (
             <>
               <ProtocolSectionHeader title="Дополнительно" />
-              <ProtocolFieldRow label="Дополнительно" value={prostate.additional || "Нажмите для ввода"}
+              <ProtocolFieldRow label="Дополнительно" value={prostate.additional }
                 typeLabel="text" filled={Boolean(prostate.additional)}
                 onPress={() => openEditor({ title: "Простата: дополнительно", mode: "text", value: prostate.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (v) => onUpdateProstateField("additional", v) })}
               />

@@ -88,7 +88,7 @@ export function ConclusionSection({
       <View style={styles.obpFieldList}>
         <ProtocolFieldRow
           label={OBP_FINAL_FIELDS[0].label}
-          value={freeFluid || "Нажмите для ввода"}
+          value={freeFluid }
           typeLabel="select"
           filled={hasValue(freeFluid)}
           options={OBP_FINAL_FIELDS[0].options}
@@ -115,7 +115,7 @@ export function ConclusionSection({
             <View style={styles.obpFieldRowContent}>
               <Text style={styles.obpFieldLabel}>{OBP_FINAL_FIELDS[1].label}</Text>
               <Text style={styles.obpFieldValue}>
-                {freeFluidDetails || "Нажмите для ввода"}
+                {freeFluidDetails }
               </Text>
             </View>
             <Text style={styles.obpFieldType}>text</Text>
@@ -126,7 +126,7 @@ export function ConclusionSection({
         <ProtocolOrganHeader title="Заключение" />
         <ProtocolFieldRow
           label={OBP_FINAL_FIELDS[2].label}
-          value={conclusion || "Нажмите для ввода"}
+          value={conclusion }
           typeLabel="text"
           filled={hasValue(conclusion)}
           onPress={() => {
@@ -150,7 +150,7 @@ export function ConclusionSection({
         />
         <ProtocolFieldRow
           label={OBP_FINAL_FIELDS[3].label}
-          value={recommendations || "Нажмите для ввода"}
+          value={recommendations }
           typeLabel="text"
           filled={hasValue(recommendations)}
           onPress={() => {

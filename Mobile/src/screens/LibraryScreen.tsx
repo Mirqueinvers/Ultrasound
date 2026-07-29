@@ -1,4 +1,4 @@
-﻿import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { SectionPanel } from "../components/SectionPanel";
 import { useOrientation } from "../hooks/useOrientation";

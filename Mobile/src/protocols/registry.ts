@@ -1,4 +1,4 @@
-﻿import { createEmptyBreastStudyDraft } from "../shared/breastDraft";
+import { createEmptyBreastStudyDraft } from "../shared/breastDraft";
 import { createEmptyKidneyStudyDraft } from "../shared/kidneyDraft";
 import {
   createEmptyLymphNodesStudyDraft,

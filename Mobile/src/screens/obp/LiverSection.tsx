@@ -100,7 +100,7 @@ export function LiverSection({
   const renderFieldRow = (field: typeof LIVER_FIELDS[0]) => {
     const readonly = isReadOnlyField(field.key);
     const currentValue = liver[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue;
     const fieldKey = field.key as string;
 
     return (
@@ -178,7 +178,7 @@ export function LiverSection({
 
             const readonly = isReadOnlyField(field.key);
             const currentValue = liver[field.key];
-            const displayValue = currentValue || "Нажмите для ввода";
+            const displayValue = currentValue;
 
             return (
               <Fragment key={field.key}>

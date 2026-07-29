@@ -94,7 +94,7 @@ export function PancreasSection({
 
   const renderFieldRow = (field: typeof PANCREAS_FIELDS[0]) => {
     const currentValue = pancreas[field.key];
-    const displayValue = currentValue || "Нажмите для ввода";
+    const displayValue = currentValue;
     const fieldKey = field.key as string;
 
     return (
@@ -170,7 +170,7 @@ export function PancreasSection({
             }
 
             const currentValue = pancreas[field.key];
-            const displayValue = currentValue || "Нажмите для ввода";
+            const displayValue = currentValue;
 
             return (
               <Fragment key={field.key}>

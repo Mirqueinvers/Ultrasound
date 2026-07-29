@@ -108,7 +108,7 @@ export function OmtFemaleMyomaNodeCard({
               ref={(el) => { if (isLandscape) numpadApi.fieldRefs.current[`myoma-${index}-size1`] = el; }}
               onLayout={isLandscape ? (e) => numpadApi.handleFieldLayout(`myoma-${index}-size1`, e) : undefined}
             >
-              <ProtocolFieldRow label="Размер 1 (мм)" value={node.size1 || "Нажмите для ввода"}
+              <ProtocolFieldRow label="Размер 1 (мм)" value={node.size1 }
                 typeLabel="numpad" filled={Boolean(node.size1)}
                 onPress={isLandscape ? handleSizePress("size1") : () => openEditor({ title: `Узел #${index + 1}: размер 1`, mode: "number", value: node.size1, placeholder: "мм", onSave: (v) => onUpdateNode(index, "size1", v) })} />
             </View>
@@ -118,7 +118,7 @@ export function OmtFemaleMyomaNodeCard({
               ref={(el) => { if (isLandscape) numpadApi.fieldRefs.current[`myoma-${index}-size2`] = el; }}
               onLayout={isLandscape ? (e) => numpadApi.handleFieldLayout(`myoma-${index}-size2`, e) : undefined}
             >
-              <ProtocolFieldRow label="Размер 2 (мм)" value={node.size2 || "Нажмите для ввода"}
+              <ProtocolFieldRow label="Размер 2 (мм)" value={node.size2 }
                 typeLabel="numpad" filled={Boolean(node.size2)}
                 onPress={isLandscape ? handleSizePress("size2") : () => openEditor({ title: `Узел #${index + 1}: размер 2`, mode: "number", value: node.size2, placeholder: "мм", onSave: (v) => onUpdateNode(index, "size2", v) })} />
             </View>
@@ -131,7 +131,7 @@ export function OmtFemaleMyomaNodeCard({
             <View key={field.key} style={{ width: "48%" }}>
               <ProtocolFieldRow
                 label={field.label}
-                value={(node[field.key] as string) || "Нажмите для ввода"}
+                value={(node[field.key] as string) }
                 typeLabel="select"
                 filled={Boolean(node[field.key])}
                 options={field.options}
@@ -142,7 +142,7 @@ export function OmtFemaleMyomaNodeCard({
         </View>
 
         {/* Комментарий — на всю ширину */}
-        <ProtocolFieldRow label="Комментарий" value={node.comment || "Нажмите для ввода"}
+        <ProtocolFieldRow label="Комментарий" value={node.comment }
           typeLabel="text" filled={Boolean(node.comment)}
           onPress={() => openEditor({ title: `Узел #${index + 1}: комментарий`, mode: "text", value: node.comment, placeholder: "Введите комментарий", multiline: true, onSave: (v) => onUpdateNode(index, "comment", v) })} />
       </View>

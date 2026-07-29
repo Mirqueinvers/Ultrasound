@@ -107,7 +107,7 @@ export function KidneyConcrementSection({
                             <View style={styles.obpFieldRowContent}>
                               <Text style={styles.obpFieldLabel}>Размер</Text>
                               <Text style={styles.obpFieldValue}>
-                                {item[itemField] || "Нажмите для ввода"}
+                                {item[itemField] }
                               </Text>
                             </View>
                             <Text style={styles.obpFieldType}>numpad</Text>
@@ -121,7 +121,7 @@ export function KidneyConcrementSection({
                         <View key={fieldKey} style={{ width: "100%" }}>
                           <ProtocolFieldRow
                             label="Локализация"
-                            value={item[itemField] || "Нажмите для ввода"}
+                            value={item[itemField] }
                             typeLabel="select"
                             filled={item[itemField].trim().length > 0}
                             options={KIDNEY_LOCATION_OPTIONS}
@@ -155,7 +155,7 @@ export function KidneyConcrementSection({
                           <View style={styles.obpFieldRowContent}>
                             <Text style={styles.obpFieldLabel}>Размер</Text>
                             <Text style={styles.obpFieldValue}>
-                              {item[itemField] || "Нажмите для ввода"}
+                              {item[itemField] }
                             </Text>
                           </View>
                           <Text style={styles.obpFieldType}>numpad</Text>

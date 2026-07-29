@@ -80,7 +80,7 @@ export function OmtFemaleOvaryPanel({
         >
           <ProtocolFieldRow
             label={label}
-            value={value || "Нажмите для ввода"}
+            value={value }
             typeLabel="numpad"
             filled={filled}
             compact={true}
@@ -90,7 +90,7 @@ export function OmtFemaleOvaryPanel({
       );
     }
     return (
-      <ProtocolFieldRow key={fieldKey} label={label} value={value || "Нажмите для ввода"}
+      <ProtocolFieldRow key={fieldKey} label={label} value={value }
         typeLabel="numpad" filled={filled}
         onPress={() => openEditor({ title: `${title}: ${label}`, mode: "number", value, placeholder: "мм", onSave: (v) => onUpdateOvaryField(side, fieldKey as keyof OvaryDraft, v) })} />
     );
@@ -101,7 +101,7 @@ export function OmtFemaleOvaryPanel({
       <ProtocolOrganHeader title={title} />
       <View style={styles.obpFieldList}>
         {fv["omt_female.ovaryPosition"] !== false && (
-          <ProtocolFieldRow label="Положение" value={ovary.position || "Нажмите для ввода"}
+          <ProtocolFieldRow label="Положение" value={ovary.position }
             typeLabel="select" filled={Boolean(ovary.position)} compact={isLandscape} options={OVARY_POSITION_OPTIONS}
             onSelectOption={(v) => onUpdateOvaryField(side, "position", v)} />
         )}
@@ -125,12 +125,12 @@ export function OmtFemaleOvaryPanel({
               <>
                 <ProtocolSectionHeader title="Строение" />
                 {fv["omt_female.ovaryShape"] !== false && (
-                  <ProtocolFieldRow label="Форма" value={ovary.shape || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Форма" value={ovary.shape }
                     typeLabel="select" filled={Boolean(ovary.shape)} compact={isLandscape} options={OVARY_SHAPE_OPTIONS}
                     onSelectOption={(v) => onUpdateOvaryField(side, "shape", v)} />
                 )}
                 {fv["omt_female.ovaryContour"] !== false && (
-                  <ProtocolFieldRow label="Контур" value={ovary.contour || "Нажмите для ввода"}
+                  <ProtocolFieldRow label="Контур" value={ovary.contour }
                     typeLabel="select" filled={Boolean(ovary.contour)} compact={isLandscape} options={OVARY_CONTOUR_OPTIONS}
                     onSelectOption={(v) => onUpdateOvaryField(side, "contour", v)} />
                 )}
@@ -142,7 +142,7 @@ export function OmtFemaleOvaryPanel({
         {fv["omt_female.ovaryCysts"] !== false && (
           <>
             <ProtocolSectionHeader title="Кисты" />
-            <ProtocolFieldRow label="Определение" value={ovary.cysts || "Нажмите для ввода"}
+            <ProtocolFieldRow label="Определение" value={ovary.cysts }
               typeLabel="select" filled={Boolean(ovary.cysts)} compact={isLandscape} options={YES_NO_OPTIONS}
               onSelectOption={(v) => onUpdateOvaryField(side, "cysts", v)} />
             {showCysts && (
@@ -171,11 +171,11 @@ export function OmtFemaleOvaryPanel({
         {fv["omt_female.ovaryFormations"] !== false && (
           <>
             <ProtocolSectionHeader title="Образования" />
-            <ProtocolFieldRow label="Определение" value={ovary.formations || "Нажмите для ввода"}
+            <ProtocolFieldRow label="Определение" value={ovary.formations }
               typeLabel="select" filled={Boolean(ovary.formations)} compact={isLandscape} options={YES_NO_OPTIONS}
               onSelectOption={(v) => onUpdateOvaryField(side, "formations", v)} />
             {showFormations && (
-              <ProtocolFieldRow label="Описание" value={ovary.formationsText || "Нажмите для ввода"}
+              <ProtocolFieldRow label="Описание" value={ovary.formationsText }
                 typeLabel="text" filled={Boolean(ovary.formationsText)} compact={isLandscape}
                 onPress={() => openEditor({ title: `${title}: описание образований`, mode: "text", value: ovary.formationsText, placeholder: "Введите описание", multiline: true, onSave: (v) => onUpdateOvaryField(side, "formationsText", v) })} />
             )}
@@ -185,7 +185,7 @@ export function OmtFemaleOvaryPanel({
         {fv["omt_female.ovaryAdditional"] !== false && (
           <>
             <ProtocolSectionHeader title="Дополнительно" />
-            <ProtocolFieldRow label="Дополнительно" value={ovary.additional || "Нажмите для ввода"}
+            <ProtocolFieldRow label="Дополнительно" value={ovary.additional }
               typeLabel="text" filled={Boolean(ovary.additional)} compact={isLandscape}
               onPress={() => openEditor({ title: `${title}: дополнительно`, mode: "text", value: ovary.additional, placeholder: "Введите дополнительное описание", multiline: true, onSave: (v) => onUpdateOvaryField(side, "additional", v) })} />
           </>

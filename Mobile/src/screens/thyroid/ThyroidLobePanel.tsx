@@ -89,7 +89,7 @@ export function ThyroidLobePanel({
       fields.push({
         key: "length",
         label: "Длина (мм)",
-        value: lobe.length || "Нажмите для ввода",
+        value: lobe.length ,
         filled: Boolean(lobe.length),
         onPress: () => isLandscape ? openLandscapeNumpad("length") : openFieldEditor("length", "длина", "мм"),
       });
@@ -98,7 +98,7 @@ export function ThyroidLobePanel({
       fields.push({
         key: "width",
         label: "Ширина (мм)",
-        value: lobe.width || "Нажмите для ввода",
+        value: lobe.width ,
         filled: Boolean(lobe.width),
         onPress: () => isLandscape ? openLandscapeNumpad("width") : openFieldEditor("width", "ширина", "мм"),
       });
@@ -107,7 +107,7 @@ export function ThyroidLobePanel({
       fields.push({
         key: "depth",
         label: "Глубина (мм)",
-        value: lobe.depth || "Нажмите для ввода",
+        value: lobe.depth ,
         filled: Boolean(lobe.depth),
         onPress: () => isLandscape ? openLandscapeNumpad("depth") : openFieldEditor("depth", "глубина", "мм"),
       });
@@ -174,7 +174,7 @@ export function ThyroidLobePanel({
                 <View style={{ width: "48.5%" }}>
                   <ProtocolFieldRow
                     label="Определение"
-                    value={lobe.volumeFormations || "Нажмите для ввода"}
+                    value={lobe.volumeFormations }
                     typeLabel="select"
                     filled={Boolean(lobe.volumeFormations)}
                     compact={isLandscape}
@@ -216,7 +216,7 @@ export function ThyroidLobePanel({
                 <View style={{ width: "48.5%" }}>
                   <ProtocolFieldRow
                     label="Дополнительно"
-                    value={lobe.additional || "Нажмите для ввода"}
+                    value={lobe.additional }
                     typeLabel="text"
                     filled={Boolean(lobe.additional)}
                     compact={isLandscape}
@@ -271,7 +271,7 @@ export function ThyroidLobePanel({
             {fv["thyroid.length"] !== false && (
               <ProtocolFieldRow
                 label="Длина (мм)"
-                value={lobe.length || "Нажмите для ввода"}
+                value={lobe.length }
                 typeLabel="numpad"
                 filled={Boolean(lobe.length)}
                 compact={isLandscape}
@@ -289,7 +289,7 @@ export function ThyroidLobePanel({
             {fv["thyroid.width"] !== false && (
               <ProtocolFieldRow
                 label="Ширина (мм)"
-                value={lobe.width || "Нажмите для ввода"}
+                value={lobe.width }
                 typeLabel="numpad"
                 filled={Boolean(lobe.width)}
                 compact={isLandscape}
@@ -307,7 +307,7 @@ export function ThyroidLobePanel({
             {fv["thyroid.depth"] !== false && (
               <ProtocolFieldRow
                 label="Глубина (мм)"
-                value={lobe.depth || "Нажмите для ввода"}
+                value={lobe.depth }
                 typeLabel="numpad"
                 filled={Boolean(lobe.depth)}
                 compact={isLandscape}
@@ -339,7 +339,7 @@ export function ThyroidLobePanel({
               <ProtocolSectionHeader title="Объемные образования" />
               <ProtocolFieldRow
                 label="Определение"
-                value={lobe.volumeFormations || "Нажмите для ввода"}
+                value={lobe.volumeFormations }
                 typeLabel="select"
                 filled={Boolean(lobe.volumeFormations)}
                 compact={isLandscape}
@@ -376,7 +376,7 @@ export function ThyroidLobePanel({
               <ProtocolSectionHeader title="Дополнительно" />
               <ProtocolFieldRow
                 label="Дополнительно"
-                value={lobe.additional || "Нажмите для ввода"}
+                value={lobe.additional }
                 typeLabel="text"
                 filled={Boolean(lobe.additional)}
                 compact={isLandscape}

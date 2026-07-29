@@ -1,4 +1,4 @@
-﻿import { CameraView } from "expo-camera";
+import { CameraView } from "expo-camera";
 import { Pressable, Text, View } from "react-native";
 
 type CameraPermissionLike = {

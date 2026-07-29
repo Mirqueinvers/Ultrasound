@@ -1,4 +1,4 @@
-﻿import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { MobileField } from "./MobileField";
 import { StatusPill } from "./StatusPill";

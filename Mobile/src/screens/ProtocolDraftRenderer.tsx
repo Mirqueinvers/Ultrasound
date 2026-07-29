@@ -1,4 +1,4 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import { Text, View } from "react-native";
 
 import { MobileField } from "../components/MobileField";

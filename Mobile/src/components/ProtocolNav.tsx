@@ -1,4 +1,4 @@
-﻿import { memo } from "react";
+import { memo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { getProtocolManifestByLabel } from "../shared/protocols";
