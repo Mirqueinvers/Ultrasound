@@ -14,11 +14,12 @@ export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
   const { height: windowHeight } = useWindowDimensions();
   const [activeNumpadField, setActiveNumpadField] = useState<string | null>(null);
   const [numpadPosition, setNumpadPosition] = useState<NumpadPosition | null>(null);
-  const [showAbove, setShowAbove] = useState(false);
+  const [bottomPadding, setBottomPadding] = useState(0);
   const fieldWidthsRef = useRef<Record<string, number>>({});
 
   const handleCloseNumpad = useCallback(() => {
     setActiveNumpadField(null);
+    setBottomPadding(0);
   }, []);
 
   const openNumpad = useCallback(
@@ -29,14 +30,18 @@ export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
 
       fieldView.measureLayout(
         containerRef.current,
-        (left, top) => {
-          const width = fieldWidthsRef.current[fieldKey] ?? 200;
+        (left, top, width, height) => {
+          const fieldHeight = height;
+          const fieldWidth = fieldWidthsRef.current[fieldKey] ?? width ?? 200;
 
-          const fitsBelow = top + NUMPAD_HEIGHT < windowHeight - 16;
-          const adjustedTop = fitsBelow ? top + 4 : Math.max(top - NUMPAD_HEIGHT - 4, 4);
+          // Всегда под полем
+          const numpadTop = top + fieldHeight + 4;
 
-          setShowAbove(!fitsBelow);
-          setNumpadPosition({ top: adjustedTop, left, width });
+          // Если numpad не влезает — считаем нужный отступ снизу
+          const neededBottom = numpadTop + NUMPAD_HEIGHT - windowHeight + 16;
+          setBottomPadding(Math.max(0, neededBottom));
+
+          setNumpadPosition({ top: numpadTop, left, width: fieldWidth });
         },
         () => {
           // fallback
@@ -57,7 +62,7 @@ export function useInlineNumpad(containerRef: React.RefObject<View | null>) {
   return {
     activeNumpadField,
     numpadPosition,
-    showAbove,
+    bottomPadding,
     openNumpad,
     closeNumpad: handleCloseNumpad,
     handleFieldLayout,

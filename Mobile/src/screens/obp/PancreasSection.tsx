@@ -155,6 +155,9 @@ export function PancreasSection({
               </View>
             );
           })()}
+          {numpad.bottomPadding > 0 && (
+            <View style={{ height: numpad.bottomPadding }} />
+          )}
         </View>
       ) : (
         <View style={styles.obpFieldList}>
