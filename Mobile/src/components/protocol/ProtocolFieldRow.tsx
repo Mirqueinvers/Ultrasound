@@ -40,7 +40,7 @@ function ProtocolFieldRowComponent({
         <Text style={[rowStyles.label, compact && rowStyles.labelCompact]}>{label}</Text>
         <Text style={[rowStyles.value, compact && rowStyles.valueCompact]}>{value || ""}</Text>
       </View>
-      <Text style={[rowStyles.type, compact && rowStyles.typeCompact]}>{typeLabel}</Text>
+      {(typeLabel === "auto" || typeLabel === "text") && <Text style={[rowStyles.type, compact && rowStyles.typeCompact]}>{typeLabel}</Text>}
 
       {showInlineOptions ? (
         <View style={[rowStyles.optionWrap, compact && rowStyles.optionWrapCompact]}>
