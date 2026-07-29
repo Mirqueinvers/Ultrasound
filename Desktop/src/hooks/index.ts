@@ -13,3 +13,4 @@ export * from './useMobileDraftCommands';
 export * from './useClearResearchDraft';
 export * from './useDesktopAppSelection';
 export * from './useResearchMobileSync';
+export * from './useDefaultValues';

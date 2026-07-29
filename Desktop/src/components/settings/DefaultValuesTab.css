@@ -1,0 +1,141 @@
+/* src/components/settings/DefaultValuesTab.css */
+
+.defaults-tab {
+  display: flex;
+  height: 100%;
+  gap: 0;
+  background: #f8fafc;
+}
+
+.defaults-tab__protocols {
+  width: 180px;
+  min-width: 180px;
+  border-right: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.defaults-tab__sections {
+  width: 200px;
+  min-width: 200px;
+  border-right: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.defaults-tab__editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.defaults-tab__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  padding: 16px 16px 12px;
+  margin: 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.defaults-tab__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.defaults-tab__protocol-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #334155;
+  cursor: default;
+  background: #f1f5f9;
+  font-weight: 500;
+}
+
+.defaults-tab__protocol-item--active {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.defaults-tab__section-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  transition: background 0.15s;
+  margin-bottom: 2px;
+}
+
+.defaults-tab__section-item:hover {
+  background: #f1f5f9;
+}
+
+.defaults-tab__section-item--active {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.defaults-tab__editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.defaults-tab__editor-header .defaults-tab__title {
+  border-bottom: none;
+  flex: 1;
+}
+
+.defaults-tab__reset-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.defaults-tab__reset-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.defaults-tab__reset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.defaults-tab__editor-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.defaults-tab__loading,
+.defaults-tab__error,
+.defaults-tab__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #94a3b8;
+  font-size: 14px;
+}

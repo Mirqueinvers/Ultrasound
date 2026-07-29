@@ -10,6 +10,7 @@ import type {
   FileAPI,
   MedisonAPI,
   ImportMappingAPI,
+  DefaultsAPI,
 } from "../../electron/preload";
 
 declare global {
@@ -25,6 +26,7 @@ declare global {
     medisonAPI: MedisonAPI;
     importMappingAPI: ImportMappingAPI;
     databaseAPI: DatabaseAPI;
+    defaultsAPI: DefaultsAPI;
   }
 }
 

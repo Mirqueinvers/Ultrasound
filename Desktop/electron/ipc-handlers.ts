@@ -462,6 +462,44 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   });
 
+  // ==================== DEFAULTS HANDLERS ====================
+
+  const defaultsFilePath = path.join(app.getPath("userData"), "defaultValues.json");
+
+  ipcMain.handle("defaults:load", async () => {
+    try {
+      const data = await fs.readFile(defaultsFilePath, "utf8");
+      return { success: true, data: JSON.parse(data) as Record<string, unknown> };
+    } catch {
+      return { success: true, data: {} };
+    }
+  });
+
+  ipcMain.handle("defaults:save", async (_, updates: Record<string, unknown>) => {
+    try {
+      const existing = await fs.readFile(defaultsFilePath, "utf8").then(
+        (d) => JSON.parse(d) as Record<string, unknown>,
+        () => ({}) as Record<string, unknown>,
+      );
+      const merged = { ...existing, ...updates };
+      await fs.writeFile(defaultsFilePath, JSON.stringify(merged, null, 2), "utf8");
+      return { success: true };
+    } catch (error) {
+      console.error("Defaults save error:", error);
+      return { success: false, message: "Не удалось сохранить значения по умолчанию" };
+    }
+  });
+
+  ipcMain.handle("defaults:reset", async () => {
+    try {
+      await fs.writeFile(defaultsFilePath, "{}", "utf8");
+      return { success: true };
+    } catch (error) {
+      console.error("Defaults reset error:", error);
+      return { success: false, message: "Не удалось сбросить значения по умолчанию" };
+    }
+  });
+
   // ==================== NETWORK HANDLERS ====================
 
   ipcMain.handle(

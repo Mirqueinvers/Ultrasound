@@ -136,7 +136,9 @@ const AppShell: React.FC = () => {
         <RightPanelProvider>{mainLayout(<ProfilePage />)}</RightPanelProvider>
       )}
       {activeSection === "settings" && (
-        <SettingsPage />
+        <RightPanelProvider>
+          <SettingsPage />
+        </RightPanelProvider>
       )}
       {activeSection === "journal" && (
         <ResearchProvider>

@@ -277,6 +277,12 @@ export interface FileAPI {
   }>;
 }
 
+export interface DefaultsAPI {
+  load: () => Promise<{ success: boolean; data?: Record<string, unknown>; message?: string }>;
+  save: (updates: Record<string, unknown>) => Promise<{ success: boolean; message?: string }>;
+  reset: () => Promise<{ success: boolean; message?: string }>;
+}
+
 export interface NetworkAPI {
   sendExport: (data: {
     targetIp: string;
@@ -494,6 +500,12 @@ const databaseAPI: DatabaseAPI = {
     ipcRenderer.invoke("database:getStatistics", startDate, endDate, doctorName),
 };
 
+const defaultsAPI: DefaultsAPI = {
+  load: () => ipcRenderer.invoke("defaults:load"),
+  save: (updates) => ipcRenderer.invoke("defaults:save", updates),
+  reset: () => ipcRenderer.invoke("defaults:reset"),
+};
+
 const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
@@ -556,6 +568,7 @@ contextBridge.exposeInMainWorld("patientSearchAPI", patientSearchAPI);
 contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
 contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
+contextBridge.exposeInMainWorld("defaultsAPI", defaultsAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);
 

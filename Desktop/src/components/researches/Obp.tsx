@@ -19,6 +19,7 @@ import type {
   SpleenProtocol,
 } from "@/types";
 import { defaultObpState } from "@/types";
+import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
 import { useRightPanel } from "@contexts/RightPanelContext";
@@ -90,8 +91,23 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
     return result;
   }, [mergeNodeArrays]);
 
-  const initialValue = value ?? defaultObpState;
-  const [form, setForm] = useState<ObpProtocol>(initialValue);
+  const { defaults, isLoaded } = useDefaultValues();
+
+  const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const merged: ObpProtocol = {
+        ...defaultObpState,
+        liver: (defaults["ОБП:печень"] as unknown as LiverProtocol) ?? null,
+        gallbladder: (defaults["ОБП:желчный"] as unknown as GallbladderProtocol) ?? null,
+        pancreas: (defaults["ОБП:поджелудочная"] as unknown as PancreasProtocol) ?? null,
+        spleen: (defaults["ОБП:селезёнка"] as unknown as SpleenProtocol) ?? null,
+      };
+      setForm(merged);
+    }
+  }, [value, isLoaded, defaults]);
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
