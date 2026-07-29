@@ -39,7 +39,7 @@ interface TestisWithSectionsProps extends TestisProps {
   >;
 }
 
-const TestisSide: React.FC<{
+export const TestisSide: React.FC<{
   side: "right" | "left";
   value?: SingleTestisProtocol | null;
   onChange: (val: SingleTestisProtocol) => void;

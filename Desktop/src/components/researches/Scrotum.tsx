@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/Scrotum.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Testis from "@organs/Testis";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -11,6 +11,7 @@ import type {
   TestisProtocol,
 } from "@/types";
 import { defaultScrotumState } from "@/types";
+import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type ScrotumSectionKey = Extract<
@@ -31,9 +32,29 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<ScrotumProtocol>(
     value ?? defaultScrotumState
   );
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const rightDefault = defaults["Органы мошонки:правое яичко"] as unknown as TestisProtocol["rightTestis"] | undefined;
+      const leftDefault = defaults["Органы мошонки:левое яичко"] as unknown as TestisProtocol["leftTestis"] | undefined;
+      const hasAnyDefault = rightDefault || leftDefault;
+      setForm({
+        ...defaultScrotumState,
+        testis: hasAnyDefault
+          ? {
+              rightTestis: rightDefault ?? null,
+              leftTestis: leftDefault ?? null,
+            }
+          : null,
+      });
+    }
+  }, [value, isLoaded, defaults]);
 
   useEffect(() => {
     setForm(value ?? defaultScrotumState);

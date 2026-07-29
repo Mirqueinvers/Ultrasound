@@ -7,6 +7,7 @@ import { Pancreas } from "@/components/organs/Pancreas";
 import { Spleen } from "@/components/organs/Spleen";
 import { KidneyCommon } from "@/components/organs/Kidney/KidneyCommon";
 import { UrinaryBladder } from "@/components/organs/UrinaryBladder";
+import { TestisSide } from "@/components/organs/Testis";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
@@ -19,7 +20,7 @@ import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 import "./DefaultValuesTab.css";
 
-const SUPPORTED_PROTOCOLS = ["obp", "kidneys"] as const;
+const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum"] as const;
 
 const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОБП:печень": defaultLiverState as unknown as Record<string, unknown>,
@@ -29,6 +30,8 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "Почки:правая": defaultKidneyState as unknown as Record<string, unknown>,
   "Почки:левая": defaultKidneyState as unknown as Record<string, unknown>,
   "Почки:мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
+  "Органы мошонки:правое яичко": {} as Record<string, unknown>,
+  "Органы мошонки:левое яичко": {} as Record<string, unknown>,
 };
 
 const ORGAN_COMPONENTS: Record<
@@ -55,6 +58,12 @@ const ORGAN_COMPONENTS: Record<
   ),
   "Почки:мочевой пузырь": ({ value, onChange }) => (
     <UrinaryBladder value={value as any} onChange={onChange as any} />
+  ),
+  "Органы мошонки:правое яичко": ({ value, onChange }) => (
+    <TestisSide side="right" value={value as any} onChange={onChange as any} />
+  ),
+  "Органы мошонки:левое яичко": ({ value, onChange }) => (
+    <TestisSide side="left" value={value as any} onChange={onChange as any} />
   ),
 };
 
