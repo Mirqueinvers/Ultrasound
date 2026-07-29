@@ -12,6 +12,9 @@ import { Uterus } from "@/components/organs/Uterus";
 import { Ovary } from "@/components/organs/Ovary";
 import { Prostate } from "@/components/organs/Prostate";
 import { ThyroidLobe } from "@/components/organs/Thyroid/ThyroidLobe";
+import { BreastSide } from "@/components/organs/Breast/BreastSide";
+import { SalivaryGland } from "@/components/organs/SalivaryGlands/SalivaryGland";
+import { Artery } from "@/components/organs/BrachioCephalicArteries/Artery";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
@@ -24,7 +27,7 @@ import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 import "./DefaultValuesTab.css";
 
-const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum", "omt_female", "omt_male", "thyroid"] as const;
+const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum", "omt_female", "omt_male", "thyroid", "salivary_glands", "brachio_cephalic_arteries", "breast", "urinary_bladder"] as const;
 
 const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОБП:печень": defaultLiverState as unknown as Record<string, unknown>,
@@ -44,6 +47,25 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОМТ (М):мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
   "Щитовидная железа:правая доля": {} as Record<string, unknown>,
   "Щитовидная железа:левая доля": {} as Record<string, unknown>,
+  "Слюнные железы:околоушная правая": {} as Record<string, unknown>,
+  "Слюнные железы:околоушная левая": {} as Record<string, unknown>,
+  "Слюнные железы:подчелюстная правая": {} as Record<string, unknown>,
+  "Слюнные железы:подчелюстная левая": {} as Record<string, unknown>,
+  "Слюнные железы:подъязычная правая": {} as Record<string, unknown>,
+  "Слюнные железы:подъязычная левая": {} as Record<string, unknown>,
+  "Молочные железы:правая железа": {} as Record<string, unknown>,
+  "Молочные железы:левая железа": {} as Record<string, unknown>,
+  "Мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
+  "БЦА:ОСА правая": {} as Record<string, unknown>,
+  "БЦА:ОСА левая": {} as Record<string, unknown>,
+  "БЦА:ВСА правая": {} as Record<string, unknown>,
+  "БЦА:ВСА левая": {} as Record<string, unknown>,
+  "БЦА:НСА правая": {} as Record<string, unknown>,
+  "БЦА:НСА левая": {} as Record<string, unknown>,
+  "БЦА:позвоночная правая": {} as Record<string, unknown>,
+  "БЦА:позвоночная левая": {} as Record<string, unknown>,
+  "БЦА:подключичная правая": {} as Record<string, unknown>,
+  "БЦА:подключичная левая": {} as Record<string, unknown>,
 };
 
 const ORGAN_COMPONENTS: Record<
@@ -100,6 +122,63 @@ const ORGAN_COMPONENTS: Record<
   ),
   "Щитовидная железа:левая доля": ({ value, onChange }) => (
     <ThyroidLobe side="left" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:околоушная правая": ({ value, onChange }) => (
+    <SalivaryGland gland="parotidRight" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:околоушная левая": ({ value, onChange }) => (
+    <SalivaryGland gland="parotidLeft" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:подчелюстная правая": ({ value, onChange }) => (
+    <SalivaryGland gland="submandibularRight" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:подчелюстная левая": ({ value, onChange }) => (
+    <SalivaryGland gland="submandibularLeft" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:подъязычная правая": ({ value, onChange }) => (
+    <SalivaryGland gland="sublingualRight" value={value as any} onChange={onChange as any} />
+  ),
+  "Слюнные железы:подъязычная левая": ({ value, onChange }) => (
+    <SalivaryGland gland="sublingualLeft" value={value as any} onChange={onChange as any} />
+  ),
+  "Молочные железы:правая железа": ({ value, onChange }) => (
+    <BreastSide side="right" value={value as any} onChange={onChange as any} />
+  ),
+  "Молочные железы:левая железа": ({ value, onChange }) => (
+    <BreastSide side="left" value={value as any} onChange={onChange as any} />
+  ),
+  "Мочевой пузырь": ({ value, onChange }) => (
+    <UrinaryBladder value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:ОСА правая": ({ value, onChange }) => (
+    <Artery artery="commonCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:ОСА левая": ({ value, onChange }) => (
+    <Artery artery="commonCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:ВСА правая": ({ value, onChange }) => (
+    <Artery artery="internalCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:ВСА левая": ({ value, onChange }) => (
+    <Artery artery="internalCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:НСА правая": ({ value, onChange }) => (
+    <Artery artery="externalCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:НСА левая": ({ value, onChange }) => (
+    <Artery artery="externalCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:позвоночная правая": ({ value, onChange }) => (
+    <Artery artery="vertebralRight" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:позвоночная левая": ({ value, onChange }) => (
+    <Artery artery="vertebralLeft" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:подключичная правая": ({ value, onChange }) => (
+    <Artery artery="subclavianRight" mode="main" value={value as any} onChange={onChange as any} />
+  ),
+  "БЦА:подключичная левая": ({ value, onChange }) => (
+    <Artery artery="subclavianLeft" mode="main" value={value as any} onChange={onChange as any} />
   ),
 };
 

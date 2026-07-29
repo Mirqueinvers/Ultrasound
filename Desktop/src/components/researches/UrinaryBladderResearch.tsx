@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -10,14 +10,27 @@ import type {
   UrinaryBladderProtocol,
 } from "@/types";
 import { defaultUrinaryBladderStudyState } from "@/types";
+import { useDefaultValues } from "@hooks";
 
 export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   value,
   onChange,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<UrinaryBladderStudyProtocol>(
     value ?? defaultUrinaryBladderStudyState,
   );
+
+  // Применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded && defaults["Мочевой пузырь"]) {
+      setForm({
+        ...defaultUrinaryBladderStudyState,
+        urinaryBladder: defaults["Мочевой пузырь"] as unknown as UrinaryBladderProtocol,
+      });
+    }
+  }, [value, isLoaded, defaults]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

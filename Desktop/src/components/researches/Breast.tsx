@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -10,6 +10,7 @@ import type {
   BreastProtocol,
 } from "@types";
 import { defaultBreastStudyState, defaultBreastState } from "@types";
+import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BreastSectionKey = Extract<
@@ -30,9 +31,31 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<BreastStudyProtocol>(
     value ?? defaultBreastStudyState
   );
+
+  // Применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const rightDefault = defaults["Молочные железы:правая железа"] as any;
+      const leftDefault = defaults["Молочные железы:левая железа"] as any;
+      if (rightDefault || leftDefault) {
+        setForm({
+          ...defaultBreastStudyState,
+          breast: {
+            lastMenstruationDate: "",
+            cycleDay: "",
+            rightBreast: rightDefault ?? { skin: "", skinComment: "", nipples: "", nipplesComment: "", milkDucts: "", volumeFormations: "", nodesList: [], additional: "" },
+            leftBreast: leftDefault ?? { skin: "", skinComment: "", nipples: "", nipplesComment: "", milkDucts: "", volumeFormations: "", nodesList: [], additional: "" },
+            structure: "",
+          },
+        });
+      }
+    }
+  }, [value, isLoaded, defaults]);
 
   useEffect(() => {
     setForm(value ?? defaultBreastStudyState);

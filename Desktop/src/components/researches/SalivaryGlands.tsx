@@ -1,5 +1,5 @@
 // src/components/researches/SalivaryGlands.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SalivaryCommon from "@organs/SalivaryGlands/SalivaryCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -11,6 +11,7 @@ import type {
   SalivaryGlandsProtocol,
 } from "@/types";
 import { defaultSalivaryGlandsStudyState } from "@/types";
+import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type SalivarySectionKey = Extract<
@@ -35,9 +36,38 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<SalivaryGlandsStudyProtocol>(
     value ?? defaultSalivaryGlandsStudyState
   );
+
+  // Применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const anyDefaults = [
+        "Слюнные железы:околоушная правая",
+        "Слюнные железы:околоушная левая",
+        "Слюнные железы:подчелюстная правая",
+        "Слюнные железы:подчелюстная левая",
+        "Слюнные железы:подъязычная правая",
+        "Слюнные железы:подъязычная левая",
+      ].some((key) => defaults[key]);
+      if (anyDefaults) {
+        setForm({
+          ...defaultSalivaryGlandsStudyState,
+          salivaryGlands: {
+            parotidRight: (defaults["Слюнные железы:околоушная правая"] || {}) as any,
+            parotidLeft: (defaults["Слюнные железы:околоушная левая"] || {}) as any,
+            submandibularRight: (defaults["Слюнные железы:подчелюстная правая"] || {}) as any,
+            submandibularLeft: (defaults["Слюнные железы:подчелюстная левая"] || {}) as any,
+            sublingualRight: (defaults["Слюнные железы:подъязычная правая"] || {}) as any,
+            sublingualLeft: (defaults["Слюнные железы:подъязычная левая"] || {}) as any,
+          },
+        });
+      }
+    }
+  }, [value, isLoaded, defaults]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
