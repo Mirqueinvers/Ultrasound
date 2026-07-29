@@ -24,11 +24,15 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
 
   // Применяем пользовательские дефолты
   useEffect(() => {
-    if (!value && isLoaded && defaults["Мочевой пузырь"]) {
-      setForm({
-        ...defaultUrinaryBladderStudyState,
-        urinaryBladder: defaults["Мочевой пузырь"] as unknown as UrinaryBladderProtocol,
-      });
+    if (!value && isLoaded) {
+      const key = "urinary_bladder";
+      const saved = defaults[key] as Record<string, unknown> | undefined;
+      if (saved) {
+        setForm({
+          ...defaultUrinaryBladderStudyState,
+          urinaryBladder: saved as unknown as UrinaryBladderProtocol,
+        });
+      }
     }
   }, [value, isLoaded, defaults]);
 

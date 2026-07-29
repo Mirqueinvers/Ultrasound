@@ -56,6 +56,7 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "Молочные железы:правая железа": {} as Record<string, unknown>,
   "Молочные железы:левая железа": {} as Record<string, unknown>,
   "Мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
+  "urinary_bladder": defaultUrinaryBladderState as unknown as Record<string, unknown>,
   "БЦА:ОСА правая": {} as Record<string, unknown>,
   "БЦА:ОСА левая": {} as Record<string, unknown>,
   "БЦА:ВСА правая": {} as Record<string, unknown>,
@@ -150,6 +151,9 @@ const ORGAN_COMPONENTS: Record<
   "Мочевой пузырь": ({ value, onChange }) => (
     <UrinaryBladder value={value as any} onChange={onChange as any} />
   ),
+  "urinary_bladder": ({ value, onChange }) => (
+    <UrinaryBladder value={value as any} onChange={onChange as any} />
+  ),
   "БЦА:ОСА правая": ({ value, onChange }) => (
     <Artery artery="commonCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
   ),
@@ -190,7 +194,10 @@ const DefaultValuesTab: React.FC = () => {
   const [localValues, setLocalValues] = useState<Record<string, unknown> | null>(null);
 
   const protocolDef = PROTOCOL_BY_ID[selectedProtocolId as keyof typeof PROTOCOL_BY_ID];
-  const sectionKeys = SECTION_KEYS_BY_PROTOCOL[selectedProtocolId as keyof typeof SECTION_KEYS_BY_PROTOCOL] ?? [];
+  const rawSectionKeys = SECTION_KEYS_BY_PROTOCOL[selectedProtocolId as keyof typeof SECTION_KEYS_BY_PROTOCOL] ?? [];
+
+  // Если у протокола нет секций — используем виртуальную секцию с desktopKey = id протокола
+  const sectionKeys = rawSectionKeys.length > 0 ? rawSectionKeys : [selectedProtocolId];
 
   // При смене секции загружаем её значения
   useEffect(() => {
@@ -266,6 +273,8 @@ const DefaultValuesTab: React.FC = () => {
         <div className="defaults-tab__list">
           {sectionKeys.map((sectionKey) => {
             const sectionDef = SECTION_BY_KEY[sectionKey];
+            // Для протоколов без секций (sectionIds: []) показываем название протокола
+            const label = sectionDef?.label ?? protocolDef?.selectionLabel ?? sectionKey;
             return (
               <button
                 key={sectionKey}
@@ -274,7 +283,7 @@ const DefaultValuesTab: React.FC = () => {
                 }`}
                 onClick={() => setSelectedSectionKey(sectionKey)}
               >
-                {sectionDef?.label ?? sectionKey}
+                {label}
               </button>
             );
           })}
