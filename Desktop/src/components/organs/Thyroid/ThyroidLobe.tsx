@@ -74,12 +74,12 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
     }
   }, [form.length, form.width, form.depth]);
 
-  const nodesManager = useListManager<ThyroidNode>(
+  const nodesManager = useListManager(
     form.nodesList,
     form,
     setForm,
-    onChange,
-    "nodesList"
+    "nodesList",
+    onChange
   );
 
   const addNode = () => {

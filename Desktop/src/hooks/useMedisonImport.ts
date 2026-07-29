@@ -321,7 +321,7 @@ function findNested(obj: Record<string, unknown>, keys: string[]): unknown {
  * Поддерживает любые кастомные measurementId.
  */
 function applyMappingsFromXml(
-  parsed: MedisonParsedData,
+  _parsed: MedisonParsedData,
   mappings: MedisonMappingRow[],
   rawXml: string
 ): {

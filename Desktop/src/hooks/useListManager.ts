@@ -5,8 +5,8 @@ export const useListManager = <T, F>(
   list: T[],
   form: F,
   setForm: Dispatch<SetStateAction<F>>,
-  onChange?: (data: F) => void,
-  listKey: keyof F
+  listKey: keyof F,
+  onChange?: (data: F) => void
 ) => {
   const addItem = useCallback((newItem: T) => {
     const updated = { ...form, [listKey]: [...list, newItem] as unknown as F[keyof F] };

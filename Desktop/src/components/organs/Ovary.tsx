@@ -13,7 +13,7 @@ import {
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
 import { Plus, Trash2 } from "lucide-react";
-import type { OvaryCyst, OvaryProtocol, OvaryProps } from "@types";
+import type { OvaryProtocol, OvaryProps } from "@types";
 import { defaultOvaryState } from "@types";
 
 export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
@@ -42,12 +42,12 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
   const thicknessFocus = useFieldFocus(organName, "thickness");
   const volumeFocus = useFieldFocus(organName, "volume");
 
-  const cystsManager = useListManager<OvaryCyst>(
+  const cystsManager = useListManager(
     form.cystsList,
     form,
     setForm,
-    onChange,
-    "cystsList"
+    "cystsList",
+    onChange
   );
 
   const position = form.position || "обычное";

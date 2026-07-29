@@ -1,5 +1,5 @@
 // src/components/researches/LowerExtremityVeins.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import LowerExtremityVeinsCommon from "@organs/LowerExtremityVeins/LowerExtremityVeinsCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";

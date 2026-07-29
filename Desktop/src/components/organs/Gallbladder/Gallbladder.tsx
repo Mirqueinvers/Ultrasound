@@ -13,8 +13,6 @@ import {
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
 import type {
-  Concretion,
-  Polyp,
   GallbladderProtocol,
   GallbladderProps,
 } from "@types";
@@ -51,20 +49,20 @@ export const Gallbladder: React.FC<GallbladderProps> = ({ value, onChange }) => 
   const cysticDuctFocus = useFieldFocus("gallbladder", "cysticDuct");
   const commonBileDuctFocus = useFieldFocus("gallbladder", "commonBileDuct");
 
-  const concretionsManager = useListManager<Concretion>(
+  const concretionsManager = useListManager(
     form.concretionsList,
     form,
     setForm,
-    onChange,
-    "concretionsList"
+    "concretionsList",
+    onChange
   );
 
-  const polypsManager = useListManager<Polyp>(
+  const polypsManager = useListManager(
     form.polypsList,
     form,
     setForm,
-    onChange,
-    "polypsList"
+    "polypsList",
+    onChange
   );
 
   const isCholecystectomy = form.position === "холецистэктомия";

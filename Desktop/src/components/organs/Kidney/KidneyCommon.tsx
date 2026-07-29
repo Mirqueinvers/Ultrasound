@@ -8,7 +8,7 @@ import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
-import type { Concrement, Cyst, KidneyProtocol, KidneyCommonProps } from "@types";
+import type { KidneyProtocol, KidneyCommonProps } from "@types";
 import { defaultKidneyState } from "@types";
 
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({
@@ -63,36 +63,36 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   const thicknessFocus = useFieldFocus(organName, "thickness");
   const parenchymaSizeFocus = useFieldFocus(organName, "parenchymaSize");
 
-  const parenchymaConcrementsManager = useListManager<Concrement>(
+  const parenchymaConcrementsManager = useListManager(
     form.parenchymaConcrementslist,
     form,
     setForm,
-    onChange,
-    "parenchymaConcrementslist"
+    "parenchymaConcrementslist",
+    onChange
   );
 
-  const parenchymaCystsManager = useListManager<Cyst>(
+  const parenchymaCystsManager = useListManager(
     form.parenchymaCystslist,
     form,
     setForm,
-    onChange,
-    "parenchymaCystslist"
+    "parenchymaCystslist",
+    onChange
   );
 
-  const pcsConcrementsManager = useListManager<Concrement>(
+  const pcsConcrementsManager = useListManager(
     form.pcsConcrementslist,
     form,
     setForm,
-    onChange,
-    "pcsConcrementslist"
+    "pcsConcrementslist",
+    onChange
   );
 
-  const pcsCystsManager = useListManager<Cyst>(
+  const pcsCystsManager = useListManager(
     form.pcsCystslist,
     form,
     setForm,
-    onChange,
-    "pcsCystslist"
+    "pcsCystslist",
+    onChange
   );
 
   const updateSelect = (

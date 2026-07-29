@@ -14,7 +14,7 @@ import {
   defaultLymphNodeState,
 } from "@/types/organs/lymphNodes";
 import { Plus } from "lucide-react";
-import { DETECTION_OPTIONS, DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
+import { DETECTION_OPTIONS } from "@utils/constants";
 
 export const SalivaryGland: React.FC<SalivaryGlandProps> = ({
   gland,

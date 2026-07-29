@@ -1,5 +1,5 @@
 // src/components/researches/BrachioCephalicArteries.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BrachioCephalicCommon from "@organs/BrachioCephalicArteries/BrachioCephalicCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";

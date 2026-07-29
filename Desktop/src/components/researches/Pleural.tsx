@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Pleural.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PleuralCommon from "@organs/Pleural/PleuralCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";

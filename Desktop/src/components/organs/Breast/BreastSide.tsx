@@ -34,12 +34,12 @@ export const BreastSide: React.FC<BreastSideProps> = ({
   const title =
     side === "left" ? "Левая молочная железа" : "Правая молочная железа";
 
-  const nodesManager = useListManager<BreastNode>(
+  const nodesManager = useListManager(
     form.nodesList,
     form,
     setForm,
-    onChange,
-    "nodesList"
+    "nodesList",
+    onChange
   );
 
   const addNode = () => {

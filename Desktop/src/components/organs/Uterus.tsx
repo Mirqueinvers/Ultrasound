@@ -81,12 +81,12 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
     }
   }, [form.length, form.width, form.apDimension, form.volume, isNormal]);
 
-  const myomaNodesManager = useListManager<UterusNode>(
+  const myomaNodesManager = useListManager(
     form.myomaNodesList,
     form,
     setForm,
-    onChange,
-    "myomaNodesList"
+    "myomaNodesList",
+    onChange
   );
 
   const addMyomaNode = () => {
