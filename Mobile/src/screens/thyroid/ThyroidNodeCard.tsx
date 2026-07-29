@@ -94,7 +94,7 @@ export function ThyroidNodeCard({
   };
 
   return (
-    <View ref={landscapeRef}>
+    <View ref={landscapeRef} style={{ position: "relative" }}>
       <ProtocolCard
         key={`${side}-thyroid-node-${index}`}
         title={`Узел #${index + 1}`}
@@ -175,6 +175,9 @@ export function ThyroidNodeCard({
           </View>
         );
       })()}
+      {numpad.bottomPadding > 0 && (
+        <View style={{ height: numpad.bottomPadding }} />
+      )}
     </View>
   );
 }

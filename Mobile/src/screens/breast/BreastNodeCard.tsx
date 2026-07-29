@@ -201,6 +201,9 @@ export function BreastNodeCard({
                 </View>
               );
             })()}
+            {numpad.bottomPadding > 0 && (
+              <View style={{ height: numpad.bottomPadding }} />
+            )}
           </>
         ) : (
           <>

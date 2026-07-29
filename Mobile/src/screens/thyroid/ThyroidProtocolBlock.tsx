@@ -171,6 +171,9 @@ export function ThyroidProtocolBlock({
               />
             </View>
           )}
+          {isthmusNumpad.bottomPadding > 0 && (
+            <View style={{ height: isthmusNumpad.bottomPadding }} />
+          )}
         </View>
       )}
 

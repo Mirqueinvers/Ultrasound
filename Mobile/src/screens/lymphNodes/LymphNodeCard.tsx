@@ -162,6 +162,9 @@ export function LymphNodeCard({
                 </View>
               );
             })()}
+            {numpad.bottomPadding > 0 && (
+              <View style={{ height: numpad.bottomPadding }} />
+            )}
           </>
         ) : (
           <View style={styles.obpFieldList}>
