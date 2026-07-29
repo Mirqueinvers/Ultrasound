@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Kidney.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
@@ -15,6 +15,7 @@ import type {
   UrinaryBladderProtocol,
 } from "@/types";
 import { defaultKidneyStudyState } from "@/types";
+import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
 
@@ -86,9 +87,24 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<KidneyStudyProtocol>(
     value ?? defaultKidneyStudyState
   );
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const merged = {
+        ...defaultKidneyStudyState,
+        rightKidney: (defaults["Почки:правая"] as unknown as KidneyCommonProtocol) ?? null,
+        leftKidney: (defaults["Почки:левая"] as unknown as KidneyCommonProtocol) ?? null,
+        urinaryBladder: (defaults["Почки:мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+      };
+      setForm(merged);
+    }
+  }, [value, isLoaded, defaults]);
 
   // Глубокое слияние — не затирает уже заполненные поля
   useEffect(() => {

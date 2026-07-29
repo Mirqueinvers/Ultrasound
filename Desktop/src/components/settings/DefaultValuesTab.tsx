@@ -5,22 +5,30 @@ import { Hepat } from "@/components/organs/Hepat";
 import { Gallbladder } from "@/components/organs/Gallbladder/Gallbladder";
 import { Pancreas } from "@/components/organs/Pancreas";
 import { Spleen } from "@/components/organs/Spleen";
+import { KidneyCommon } from "@/components/organs/Kidney/KidneyCommon";
+import { UrinaryBladder } from "@/components/organs/UrinaryBladder";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
-import type { ProtocolSectionDefinition } from "@/protocols/types";
+import type { ProtocolDefinition, ProtocolSectionDefinition } from "@/protocols/types";
 import { defaultLiverState } from "@/types/defaultStates/organs/liver";
 import { defaultGallbladderState } from "@/types/defaultStates/organs/gallbladder";
 import { defaultPancreasState } from "@/types/defaultStates/organs/pancreas";
 import { defaultSpleenState } from "@/types/defaultStates/organs/spleen";
+import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
+import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 import "./DefaultValuesTab.css";
 
-const OBP_ID = "obp" as const;
+const SUPPORTED_PROTOCOLS = ["obp", "kidneys"] as const;
+
 const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОБП:печень": defaultLiverState as unknown as Record<string, unknown>,
   "ОБП:желчный": defaultGallbladderState as unknown as Record<string, unknown>,
   "ОБП:поджелудочная": defaultPancreasState as unknown as Record<string, unknown>,
   "ОБП:селезёнка": defaultSpleenState as unknown as Record<string, unknown>,
+  "Почки:правая": defaultKidneyState as unknown as Record<string, unknown>,
+  "Почки:левая": defaultKidneyState as unknown as Record<string, unknown>,
+  "Почки:мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
 };
 
 const ORGAN_COMPONENTS: Record<
@@ -28,39 +36,37 @@ const ORGAN_COMPONENTS: Record<
   React.FC<{ value?: Record<string, unknown>; onChange?: (value: Record<string, unknown>) => void }>
 > = {
   "ОБП:печень": ({ value, onChange }) => (
-    <Hepat
-      value={value as any}
-      onChange={onChange as any}
-    />
+    <Hepat value={value as any} onChange={onChange as any} />
   ),
   "ОБП:желчный": ({ value, onChange }) => (
-    <Gallbladder
-      value={value as any}
-      onChange={onChange as any}
-    />
+    <Gallbladder value={value as any} onChange={onChange as any} />
   ),
   "ОБП:поджелудочная": ({ value, onChange }) => (
-    <Pancreas
-      value={value as any}
-      onChange={onChange as any}
-    />
+    <Pancreas value={value as any} onChange={onChange as any} />
   ),
   "ОБП:селезёнка": ({ value, onChange }) => (
-    <Spleen
-      value={value as any}
-      onChange={onChange as any}
-    />
+    <Spleen value={value as any} onChange={onChange as any} />
+  ),
+  "Почки:правая": ({ value, onChange }) => (
+    <KidneyCommon side="right" value={value as any} onChange={onChange as any} />
+  ),
+  "Почки:левая": ({ value, onChange }) => (
+    <KidneyCommon side="left" value={value as any} onChange={onChange as any} />
+  ),
+  "Почки:мочевой пузырь": ({ value, onChange }) => (
+    <UrinaryBladder value={value as any} onChange={onChange as any} />
   ),
 };
 
 const DefaultValuesTab: React.FC = () => {
   const { defaults, isLoaded, saveDefaults, resetDefaults } = useDefaultValues();
 
-  const obpDefinition = PROTOCOL_BY_ID[OBP_ID];
-  const sectionKeys = SECTION_KEYS_BY_PROTOCOL[OBP_ID];
-
+  const [selectedProtocolId, setSelectedProtocolId] = useState<string>("obp");
   const [selectedSectionKey, setSelectedSectionKey] = useState<string | null>(null);
   const [localValues, setLocalValues] = useState<Record<string, unknown> | null>(null);
+
+  const protocolDef = PROTOCOL_BY_ID[selectedProtocolId as keyof typeof PROTOCOL_BY_ID];
+  const sectionKeys = SECTION_KEYS_BY_PROTOCOL[selectedProtocolId as keyof typeof SECTION_KEYS_BY_PROTOCOL] ?? [];
 
   // При смене секции загружаем её значения
   useEffect(() => {
@@ -73,12 +79,14 @@ const DefaultValuesTab: React.FC = () => {
     }
   }, [selectedSectionKey, defaults]);
 
-  // При первом рендере выбираем первую секцию
+  // При смене протокола выбираем первую секцию
   useEffect(() => {
-    if (sectionKeys.length > 0 && !selectedSectionKey) {
+    if (sectionKeys.length > 0) {
       setSelectedSectionKey(sectionKeys[0]);
+    } else {
+      setSelectedSectionKey(null);
     }
-  }, [sectionKeys, selectedSectionKey]);
+  }, [selectedProtocolId, sectionKeys]);
 
   const handleChange = useCallback(
     (newValue: Record<string, unknown>) => {
@@ -97,19 +105,7 @@ const DefaultValuesTab: React.FC = () => {
   }, [selectedSectionKey, resetDefaults]);
 
   if (!isLoaded) {
-    return (
-      <div className="defaults-tab">
-        <div className="defaults-tab__loading">Загрузка...</div>
-      </div>
-    );
-  }
-
-  if (!obpDefinition) {
-    return (
-      <div className="defaults-tab">
-        <div className="defaults-tab__error">Протокол ОБП не найден</div>
-      </div>
-    );
+    return <div className="defaults-tab"><div className="defaults-tab__loading">Загрузка...</div></div>;
   }
 
   const selectedSectionDef: ProtocolSectionDefinition | undefined = selectedSectionKey
@@ -122,9 +118,21 @@ const DefaultValuesTab: React.FC = () => {
       <div className="defaults-tab__protocols">
         <h3 className="defaults-tab__title">Протоколы</h3>
         <div className="defaults-tab__list">
-          <div className="defaults-tab__protocol-item defaults-tab__protocol-item--active">
-            {obpDefinition.selectionLabel}
-          </div>
+          {SUPPORTED_PROTOCOLS.map((pid) => {
+            const pdef = PROTOCOL_BY_ID[pid];
+            if (!pdef) return null;
+            return (
+              <button
+                key={pid}
+                className={`defaults-tab__protocol-item ${
+                  selectedProtocolId === pid ? "defaults-tab__protocol-item--active" : ""
+                }`}
+                onClick={() => setSelectedProtocolId(pid)}
+              >
+                {pdef.selectionLabel}
+              </button>
+            );
+          })}
         </div>
       </div>
 
