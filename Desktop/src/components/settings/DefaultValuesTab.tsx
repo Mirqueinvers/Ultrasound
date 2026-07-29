@@ -11,6 +11,7 @@ import { TestisSide } from "@/components/organs/Testis";
 import { Uterus } from "@/components/organs/Uterus";
 import { Ovary } from "@/components/organs/Ovary";
 import { Prostate } from "@/components/organs/Prostate";
+import { ThyroidLobe } from "@/components/organs/Thyroid/ThyroidLobe";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
@@ -23,7 +24,7 @@ import { defaultKidneyState } from "@/types/defaultStates/organs/kidney";
 import { defaultUrinaryBladderState } from "@/types/defaultStates/organs/urinaryBladder";
 import "./DefaultValuesTab.css";
 
-const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum", "omt_female", "omt_male"] as const;
+const SUPPORTED_PROTOCOLS = ["obp", "kidneys", "scrotum", "omt_female", "omt_male", "thyroid"] as const;
 
 const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОБП:печень": defaultLiverState as unknown as Record<string, unknown>,
@@ -41,6 +42,8 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "ОМТ (Ж):мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
   "ОМТ (М):простата": {} as Record<string, unknown>,
   "ОМТ (М):мочевой пузырь": defaultUrinaryBladderState as unknown as Record<string, unknown>,
+  "Щитовидная железа:правая доля": {} as Record<string, unknown>,
+  "Щитовидная железа:левая доля": {} as Record<string, unknown>,
 };
 
 const ORGAN_COMPONENTS: Record<
@@ -91,6 +94,12 @@ const ORGAN_COMPONENTS: Record<
   ),
   "ОМТ (М):мочевой пузырь": ({ value, onChange }) => (
     <UrinaryBladder value={value as any} onChange={onChange as any} />
+  ),
+  "Щитовидная железа:правая доля": ({ value, onChange }) => (
+    <ThyroidLobe side="right" value={value as any} onChange={onChange as any} />
+  ),
+  "Щитовидная железа:левая доля": ({ value, onChange }) => (
+    <ThyroidLobe side="left" value={value as any} onChange={onChange as any} />
   ),
 };
 

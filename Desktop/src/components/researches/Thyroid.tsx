@@ -11,6 +11,7 @@ import type {
   ThyroidProtocol,
 } from "@/types";
 import { defaultThyroidStudyState } from "@/types";
+import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type ThyroidSectionKey = Extract<
@@ -31,9 +32,36 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<ThyroidStudyProtocol>(
     value ?? defaultThyroidStudyState
   );
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские
+  useEffect(() => {
+    if (!value && isLoaded) {
+      const rightDefault = defaults["Щитовидная железа:правая доля"] as any;
+      const leftDefault = defaults["Щитовидная железа:левая доля"] as any;
+      if (rightDefault || leftDefault) {
+        setForm({
+          ...defaultThyroidStudyState,
+          thyroid: {
+            rightLobe: rightDefault ?? { length: "", width: "", depth: "", volume: "", volumeFormations: "", additional: "", nodesList: [] },
+            leftLobe: leftDefault ?? { length: "", width: "", depth: "", volume: "", volumeFormations: "", additional: "", nodesList: [] },
+            isthmusSize: "",
+            totalVolume: "",
+            rightToLeftRatio: "",
+            echogenicity: "",
+            echostructure: "",
+            contour: "",
+            symmetry: "",
+            position: "",
+          },
+        });
+      }
+    }
+  }, [value, isLoaded, defaults]);
 
   // ref для отслеживания предыдущего value
   const prevValueRef = useRef(value);
