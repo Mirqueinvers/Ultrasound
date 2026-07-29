@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/OmtMale.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import Prostate from "@organs/Prostate";
 import UrinaryBladder from "@organs/UrinaryBladder";
@@ -15,6 +15,7 @@ import type {
   UrinaryBladderProtocol,
 } from "@/types";
 import { defaultOmtMaleState } from "@/types";
+import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
 
@@ -27,9 +28,22 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
+  const { defaults, isLoaded } = useDefaultValues();
+
   const [form, setForm] = useState<OmtMaleProtocol>(
     value ?? defaultOmtMaleState
   );
+
+  // Когда дефолты загружены и нет value извне — применяем пользовательские
+  useEffect(() => {
+    if (!value && isLoaded) {
+      setForm({
+        ...defaultOmtMaleState,
+        prostate: (defaults["ОМТ (М):простата"] as unknown as ProstateProtocol) ?? null,
+        urinaryBladder: (defaults["ОМТ (М):мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+      });
+    }
+  }, [value, isLoaded, defaults]);
 
   useEffect(() => {
     setForm(value ?? defaultOmtMaleState);
