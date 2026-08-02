@@ -9,9 +9,11 @@ import type {
   SalivaryGlandsStudyProtocol,
   SalivaryGlandsStudyProps,
   SalivaryGlandsProtocol,
+  SalivaryGlandProtocol,
 } from "@/types";
 import { defaultSalivaryGlandsStudyState } from "@/types";
-import { useDefaultValues } from "@hooks";
+import { defaultSalivaryGlandState } from "@/types";
+import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type SalivarySectionKey = Extract<
@@ -36,7 +38,7 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const { defaults, isLoaded } = useDefaultValues();
+  const { isLoaded, getOrganOrDefault, hasOrgan } = useDefaultOrganValues();
 
   const [form, setForm] = useState<SalivaryGlandsStudyProtocol>(
     value ?? defaultSalivaryGlandsStudyState
@@ -52,22 +54,22 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
         "Слюнные железы:подчелюстная левая",
         "Слюнные железы:подъязычная правая",
         "Слюнные железы:подъязычная левая",
-      ].some((key) => defaults[key]);
+      ].some((key) => hasOrgan(key));
       if (anyDefaults) {
         setForm({
           ...defaultSalivaryGlandsStudyState,
           salivaryGlands: {
-            parotidRight: (defaults["Слюнные железы:околоушная правая"] || {}) as any,
-            parotidLeft: (defaults["Слюнные железы:околоушная левая"] || {}) as any,
-            submandibularRight: (defaults["Слюнные железы:подчелюстная правая"] || {}) as any,
-            submandibularLeft: (defaults["Слюнные железы:подчелюстная левая"] || {}) as any,
-            sublingualRight: (defaults["Слюнные железы:подъязычная правая"] || {}) as any,
-            sublingualLeft: (defaults["Слюнные железы:подъязычная левая"] || {}) as any,
+            parotidRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:околоушная правая", { ...defaultSalivaryGlandState }),
+            parotidLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:околоушная левая", { ...defaultSalivaryGlandState }),
+            submandibularRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подчелюстная правая", { ...defaultSalivaryGlandState }),
+            submandibularLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подчелюстная левая", { ...defaultSalivaryGlandState }),
+            sublingualRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подъязычная правая", { ...defaultSalivaryGlandState }),
+            sublingualLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подъязычная левая", { ...defaultSalivaryGlandState }),
           },
         });
       }
     }
-  }, [value, isLoaded, defaults]);
+  }, [value, isLoaded, hasOrgan, getOrganOrDefault]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

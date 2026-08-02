@@ -1,21 +1,8 @@
 // src/components/settings/DefaultValuesTab.tsx
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Hepat } from "@/components/organs/Hepat";
-import { Gallbladder } from "@/components/organs/Gallbladder/Gallbladder";
-import { Pancreas } from "@/components/organs/Pancreas";
-import { Spleen } from "@/components/organs/Spleen";
-import { KidneyCommon } from "@/components/organs/Kidney/KidneyCommon";
-import { UrinaryBladder } from "@/components/organs/UrinaryBladder";
-import { TestisSide } from "@/components/organs/Testis";
-import { Uterus } from "@/components/organs/Uterus";
-import { Ovary } from "@/components/organs/Ovary";
-import { Prostate } from "@/components/organs/Prostate";
-import { ThyroidLobe } from "@/components/organs/Thyroid/ThyroidLobe";
-import { BreastSide } from "@/components/organs/Breast/BreastSide";
-import { SalivaryGland } from "@/components/organs/SalivaryGlands/SalivaryGland";
-import { Artery } from "@/components/organs/BrachioCephalicArteries/Artery";
 import { useDefaultValues } from "@hooks";
+import { ORGAN_EDITORS } from "@/utils/organEditor";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
 import type { ProtocolSectionDefinition } from "@/protocols/types";
@@ -67,123 +54,6 @@ const DEFAULT_STATES: Record<string, Record<string, unknown>> = {
   "БЦА:позвоночная левая": {} as Record<string, unknown>,
   "БЦА:подключичная правая": {} as Record<string, unknown>,
   "БЦА:подключичная левая": {} as Record<string, unknown>,
-};
-
-const ORGAN_COMPONENTS: Record<
-  string,
-  React.FC<{ value?: Record<string, unknown>; onChange?: (value: Record<string, unknown>) => void }>
-> = {
-  "ОБП:печень": ({ value, onChange }) => (
-    <Hepat value={value as any} onChange={onChange as any} />
-  ),
-  "ОБП:желчный": ({ value, onChange }) => (
-    <Gallbladder value={value as any} onChange={onChange as any} />
-  ),
-  "ОБП:поджелудочная": ({ value, onChange }) => (
-    <Pancreas value={value as any} onChange={onChange as any} />
-  ),
-  "ОБП:селезёнка": ({ value, onChange }) => (
-    <Spleen value={value as any} onChange={onChange as any} />
-  ),
-  "Почки:правая": ({ value, onChange }) => (
-    <KidneyCommon side="right" value={value as any} onChange={onChange as any} />
-  ),
-  "Почки:левая": ({ value, onChange }) => (
-    <KidneyCommon side="left" value={value as any} onChange={onChange as any} />
-  ),
-  "Почки:мочевой пузырь": ({ value, onChange }) => (
-    <UrinaryBladder value={value as any} onChange={onChange as any} />
-  ),
-  "Органы мошонки:правое яичко": ({ value, onChange }) => (
-    <TestisSide side="right" value={value as any} onChange={onChange as any} />
-  ),
-  "Органы мошонки:левое яичко": ({ value, onChange }) => (
-    <TestisSide side="left" value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (Ж):матка": ({ value, onChange }) => (
-    <Uterus value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (Ж):правый яичник": ({ value, onChange }) => (
-    <Ovary side="right" value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (Ж):левый яичник": ({ value, onChange }) => (
-    <Ovary side="left" value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (Ж):мочевой пузырь": ({ value, onChange }) => (
-    <UrinaryBladder value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (М):простата": ({ value, onChange }) => (
-    <Prostate value={value as any} onChange={onChange as any} />
-  ),
-  "ОМТ (М):мочевой пузырь": ({ value, onChange }) => (
-    <UrinaryBladder value={value as any} onChange={onChange as any} />
-  ),
-  "Щитовидная железа:правая доля": ({ value, onChange }) => (
-    <ThyroidLobe side="right" value={value as any} onChange={onChange as any} />
-  ),
-  "Щитовидная железа:левая доля": ({ value, onChange }) => (
-    <ThyroidLobe side="left" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:околоушная правая": ({ value, onChange }) => (
-    <SalivaryGland gland="parotidRight" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:околоушная левая": ({ value, onChange }) => (
-    <SalivaryGland gland="parotidLeft" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:подчелюстная правая": ({ value, onChange }) => (
-    <SalivaryGland gland="submandibularRight" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:подчелюстная левая": ({ value, onChange }) => (
-    <SalivaryGland gland="submandibularLeft" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:подъязычная правая": ({ value, onChange }) => (
-    <SalivaryGland gland="sublingualRight" value={value as any} onChange={onChange as any} />
-  ),
-  "Слюнные железы:подъязычная левая": ({ value, onChange }) => (
-    <SalivaryGland gland="sublingualLeft" value={value as any} onChange={onChange as any} />
-  ),
-  "Молочные железы:правая железа": ({ value, onChange }) => (
-    <BreastSide side="right" value={value as any} onChange={onChange as any} />
-  ),
-  "Молочные железы:левая железа": ({ value, onChange }) => (
-    <BreastSide side="left" value={value as any} onChange={onChange as any} />
-  ),
-  "Мочевой пузырь": ({ value, onChange }) => (
-    <UrinaryBladder value={value as any} onChange={onChange as any} />
-  ),
-  "urinary_bladder": ({ value, onChange }) => (
-    <UrinaryBladder value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:ОСА правая": ({ value, onChange }) => (
-    <Artery artery="commonCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:ОСА левая": ({ value, onChange }) => (
-    <Artery artery="commonCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:ВСА правая": ({ value, onChange }) => (
-    <Artery artery="internalCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:ВСА левая": ({ value, onChange }) => (
-    <Artery artery="internalCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:НСА правая": ({ value, onChange }) => (
-    <Artery artery="externalCarotidRight" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:НСА левая": ({ value, onChange }) => (
-    <Artery artery="externalCarotidLeft" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:позвоночная правая": ({ value, onChange }) => (
-    <Artery artery="vertebralRight" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:позвоночная левая": ({ value, onChange }) => (
-    <Artery artery="vertebralLeft" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:подключичная правая": ({ value, onChange }) => (
-    <Artery artery="subclavianRight" mode="main" value={value as any} onChange={onChange as any} />
-  ),
-  "БЦА:подключичная левая": ({ value, onChange }) => (
-    <Artery artery="subclavianLeft" mode="main" value={value as any} onChange={onChange as any} />
-  ),
 };
 
 const DefaultValuesTab: React.FC = () => {
@@ -242,6 +112,8 @@ const DefaultValuesTab: React.FC = () => {
   const selectedSectionDef: ProtocolSectionDefinition | undefined = selectedSectionKey
     ? SECTION_BY_KEY[selectedSectionKey]
     : undefined;
+
+  const selectedEditor = selectedSectionKey ? ORGAN_EDITORS[selectedSectionKey] : undefined;
 
   return (
     <div className="defaults-tab">
@@ -306,16 +178,11 @@ const DefaultValuesTab: React.FC = () => {
           </button>
         </div>
         <div className="defaults-tab__editor-body">
-          {selectedSectionKey && ORGAN_COMPONENTS[selectedSectionKey] ? (
-            (() => {
-              const Component = ORGAN_COMPONENTS[selectedSectionKey];
-              return (
-                <Component
-                  value={localValues ?? undefined}
-                  onChange={handleChange}
-                />
-              );
-            })()
+          {selectedSectionKey && selectedEditor ? (
+            selectedEditor(
+              localValues ?? undefined,
+              (newValue) => handleChange(newValue as Record<string, unknown>),
+            )
           ) : (
             <div className="defaults-tab__placeholder">
               Выберите секцию для редактирования значений по умолчанию

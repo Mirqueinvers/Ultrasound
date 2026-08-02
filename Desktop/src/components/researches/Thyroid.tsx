@@ -9,9 +9,11 @@ import type {
   ThyroidStudyProtocol,
   ThyroidStudyProps,
   ThyroidProtocol,
+  ThyroidLobeProtocol,
 } from "@/types";
 import { defaultThyroidStudyState } from "@/types";
-import { useDefaultValues } from "@hooks";
+import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid";
+import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type ThyroidSectionKey = Extract<
@@ -32,7 +34,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const { defaults, isLoaded } = useDefaultValues();
+  const { isLoaded, getOrganOrDefault } = useDefaultOrganValues();
 
   const [form, setForm] = useState<ThyroidStudyProtocol>(
     value ?? defaultThyroidStudyState
@@ -41,27 +43,31 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   // Когда дефолты загружены и нет value извне — применяем пользовательские
   useEffect(() => {
     if (!value && isLoaded) {
-      const rightDefault = defaults["Щитовидная железа:правая доля"] as any;
-      const leftDefault = defaults["Щитовидная железа:левая доля"] as any;
-      if (rightDefault || leftDefault) {
-        setForm({
-          ...defaultThyroidStudyState,
-          thyroid: {
-            rightLobe: rightDefault ?? { length: "", width: "", depth: "", volume: "", volumeFormations: "", additional: "", nodesList: [] },
-            leftLobe: leftDefault ?? { length: "", width: "", depth: "", volume: "", volumeFormations: "", additional: "", nodesList: [] },
-            isthmusSize: "",
-            totalVolume: "",
-            rightToLeftRatio: "",
-            echogenicity: "",
-            echostructure: "",
-            contour: "",
-            symmetry: "",
-            position: "",
-          },
-        });
-      }
+      const rightDefault = getOrganOrDefault<ThyroidLobeProtocol>(
+        "Щитовидная железа:правая доля",
+        { ...defaultThyroidLobeState },
+      );
+      const leftDefault = getOrganOrDefault<ThyroidLobeProtocol>(
+        "Щитовидная железа:левая доля",
+        { ...defaultThyroidLobeState },
+      );
+      setForm({
+        ...defaultThyroidStudyState,
+        thyroid: {
+          rightLobe: rightDefault ?? { ...defaultThyroidLobeState },
+          leftLobe: leftDefault ?? { ...defaultThyroidLobeState },
+          isthmusSize: "",
+          totalVolume: "",
+          rightToLeftRatio: "",
+          echogenicity: "",
+          echostructure: "",
+          contour: "",
+          symmetry: "",
+          position: "",
+        },
+      });
     }
-  }, [value, isLoaded, defaults]);
+  }, [value, isLoaded, getOrganOrDefault]);
 
   /** Глубокое рекурсивное слияние для ThyroidStudyProtocol */
   function deepMergeThyroid(target: ThyroidStudyProtocol, source: ThyroidStudyProtocol): ThyroidStudyProtocol {

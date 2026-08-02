@@ -530,7 +530,6 @@ function parseBreastData(xmlContent: string): MedisonBreastData {
   // Парсим группы Breast_Mass через прямой поиск <Group id="Breast_Mass
   // и вырезаем содержимое до </Group>
   let searchFrom = 0;
-  let massIndex = 0;
 
   while (true) {
     const groupStart = xmlContent.indexOf('<Group id="Breast_Mass', searchFrom);
@@ -542,7 +541,6 @@ function parseBreastData(xmlContent: string): MedisonBreastData {
     const groupXml = xmlContent.substring(groupStart, groupEnd + 8); // +8 for </Group>
     searchFrom = groupEnd + 8;
 
-    massIndex++;
     const laterality = groupXml.includes('laterality="0"') ? "0" :
                        groupXml.includes('laterality="1"') ? "1" : null;
     if (!laterality) {

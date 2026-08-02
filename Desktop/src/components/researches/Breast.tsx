@@ -8,9 +8,11 @@ import type {
   BreastStudyProtocol,
   BreastStudyProps,
   BreastProtocol,
+  BreastSideProtocol,
 } from "@types";
 import { defaultBreastStudyState, defaultBreastState } from "@types";
-import { useDefaultValues } from "@hooks";
+import { defaultBreastSideState } from "@/types/defaultStates/organs/breast";
+import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BreastSectionKey = Extract<
@@ -31,7 +33,7 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const { defaults, isLoaded } = useDefaultValues();
+  const { isLoaded, getOrganOrDefault } = useDefaultOrganValues();
 
   const [form, setForm] = useState<BreastStudyProtocol>(
     value ?? defaultBreastStudyState
@@ -40,22 +42,26 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
   // Применяем пользовательские дефолты
   useEffect(() => {
     if (!value && isLoaded) {
-      const rightDefault = defaults["Молочные железы:правая железа"] as any;
-      const leftDefault = defaults["Молочные железы:левая железа"] as any;
-      if (rightDefault || leftDefault) {
-        setForm({
-          ...defaultBreastStudyState,
-          breast: {
-            lastMenstruationDate: "",
-            cycleDay: "",
-            rightBreast: rightDefault ?? { skin: "", skinComment: "", nipples: "", nipplesComment: "", milkDucts: "", volumeFormations: "", nodesList: [], additional: "" },
-            leftBreast: leftDefault ?? { skin: "", skinComment: "", nipples: "", nipplesComment: "", milkDucts: "", volumeFormations: "", nodesList: [], additional: "" },
-            structure: "",
-          },
-        });
-      }
+      const rightDefault = getOrganOrDefault<BreastSideProtocol>(
+        "Молочные железы:правая железа",
+        { ...defaultBreastSideState },
+      );
+      const leftDefault = getOrganOrDefault<BreastSideProtocol>(
+        "Молочные железы:левая железа",
+        { ...defaultBreastSideState },
+      );
+      setForm({
+        ...defaultBreastStudyState,
+        breast: {
+          lastMenstruationDate: "",
+          cycleDay: "",
+          rightBreast: rightDefault ?? { ...defaultBreastSideState },
+          leftBreast: leftDefault ?? { ...defaultBreastSideState },
+          structure: "",
+        },
+      });
     }
-  }, [value, isLoaded, defaults]);
+  }, [value, isLoaded, getOrganOrDefault]);
 
   useEffect(() => {
     setForm(value ?? defaultBreastStudyState);

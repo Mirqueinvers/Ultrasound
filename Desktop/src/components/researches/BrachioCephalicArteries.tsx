@@ -9,9 +9,11 @@ import type {
   BrachioCephalicArteriesStudyProtocol,
   BrachioCephalicArteriesStudyProps,
   BrachioCephalicProtocol,
+  ArteryProtocol,
 } from "@/types";
 import { defaultBrachioCephalicArteriesStudyState } from "@/types";
-import { useDefaultValues } from "@hooks";
+import { defaultArteryState } from "@/types/defaultStates/organs/brachioCephalicArteries";
+import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
 type BrachioCephalicSectionKey = Extract<
@@ -40,7 +42,7 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
   onChange,
   sectionRefs,
 }) => {
-  const { defaults, isLoaded } = useDefaultValues();
+  const { isLoaded, getOrganOrDefault, hasOrgan } = useDefaultOrganValues();
 
   const [form, setForm] = useState<BrachioCephalicArteriesStudyProtocol>(
     value ?? defaultBrachioCephalicArteriesStudyState
@@ -57,30 +59,30 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
         "БЦА:позвоночная правая", "БЦА:позвоночная левая",
         "БЦА:подключичная правая", "БЦА:подключичная левая",
       ];
-      const anyDefaults = arteryKeys.some((key) => defaults[key]);
+      const anyDefaults = arteryKeys.some((key) => hasOrgan(key));
       if (anyDefaults) {
         setForm({
           ...defaultBrachioCephalicArteriesStudyState,
           brachioCephalicArteries: {
-            brachiocephalicTrunkRight: (defaults["БЦА:подключичная правая"] || {}) as any,
-            brachiocephalicTrunkLeft: (defaults["БЦА:подключичная левая"] || {}) as any,
-            commonCarotidRight: (defaults["БЦА:ОСА правая"] || {}) as any,
-            commonCarotidLeft: (defaults["БЦА:ОСА левая"] || {}) as any,
-            internalCarotidRight: (defaults["БЦА:ВСА правая"] || {}) as any,
-            internalCarotidLeft: (defaults["БЦА:ВСА левая"] || {}) as any,
-            externalCarotidRight: (defaults["БЦА:НСА правая"] || {}) as any,
-            externalCarotidLeft: (defaults["БЦА:НСА левая"] || {}) as any,
-            vertebralRight: (defaults["БЦА:позвоночная правая"] || {}) as any,
-            vertebralLeft: (defaults["БЦА:позвоночная левая"] || {}) as any,
-            subclavianRight: (defaults["БЦА:подключичная правая"] || {}) as any,
-            subclavianLeft: (defaults["БЦА:подключичная левая"] || {}) as any,
+            brachiocephalicTrunkRight: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная правая", { ...defaultArteryState }),
+            brachiocephalicTrunkLeft: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная левая", { ...defaultArteryState }),
+            commonCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:ОСА правая", { ...defaultArteryState }),
+            commonCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:ОСА левая", { ...defaultArteryState }),
+            internalCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:ВСА правая", { ...defaultArteryState }),
+            internalCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:ВСА левая", { ...defaultArteryState }),
+            externalCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:НСА правая", { ...defaultArteryState }),
+            externalCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:НСА левая", { ...defaultArteryState }),
+            vertebralRight: getOrganOrDefault<ArteryProtocol>("БЦА:позвоночная правая", { ...defaultArteryState }),
+            vertebralLeft: getOrganOrDefault<ArteryProtocol>("БЦА:позвоночная левая", { ...defaultArteryState }),
+            subclavianRight: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная правая", { ...defaultArteryState }),
+            subclavianLeft: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная левая", { ...defaultArteryState }),
             overallFindings: "",
           },
         });
         setVersion((v) => v + 1);
       }
     }
-  }, [value, isLoaded, defaults]);
+  }, [value, isLoaded, hasOrgan, getOrganOrDefault]);
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

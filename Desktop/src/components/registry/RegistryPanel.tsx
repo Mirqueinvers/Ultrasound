@@ -108,7 +108,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         // data может быть массивом или объектом {value: [...], Count: ...}
         const items = Array.isArray(data) ? data : (data.value || []);
         allAppointments.push(...items);
-      } catch (err: any) {
+      } catch {
         lastError = `Не удалось подключиться к ${addr.name} (${addr.ip})`;
       }
     }

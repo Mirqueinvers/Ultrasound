@@ -5,7 +5,6 @@ import type { UterusNodeProps } from "@types";
 export const UterusNodeComponent: React.FC<UterusNodeProps> = ({
   node,
   onUpdate,
-  onRemove: _onRemove,
 }) => {
   return (
     <div className="space-y-4">
