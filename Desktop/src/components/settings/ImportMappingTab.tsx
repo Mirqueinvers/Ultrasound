@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/useAuth";
 import { STUDY_SCHEMAS } from "@/sync/medisonMappingTypes";
 import type { MedisonMappingRow } from "../../../electron/preload";
 import "./ImportMappingTab.css";

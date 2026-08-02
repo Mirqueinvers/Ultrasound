@@ -1,7 +1,7 @@
 // src/components/layout/RightSidePanel.tsx
 import React from "react";
 
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useAvailableSectionKeys } from "@hooks";
 import { ORG_LABELS } from "@components/common/OrgNavigation";
 import NormalValuesPanel from "@components/hints/NormalValuesPanel";

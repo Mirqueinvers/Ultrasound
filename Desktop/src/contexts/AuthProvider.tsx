@@ -1,17 +1,6 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { User, LoginFormData, RegisterFormData } from '@/types/auth';
-
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (data: LoginFormData) => Promise<void>;
-  register: (data: RegisterFormData) => Promise<void>;
-  logout: () => void;
-  updateUser: (user: User) => void;
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext, type AuthContextType } from './AuthContext';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -22,11 +11,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       try {
         const storedUserId = localStorage.getItem('userId');
-        
+
         if (storedUserId && window.authAPI) {
           // Загружаем данные пользователя из БД
           const userData = await window.authAPI.getUser(parseInt(storedUserId));
-          
+
           if (userData) {
             const user: User = {
               id: userData.id.toString(),
@@ -95,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Сохраняем только userId
       localStorage.setItem('userId', response.user.id.toString());
-      
+
       setUser(user);
     } catch (error) {
       console.error('Ошибка входа:', error);
@@ -141,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Сохраняем userId
       localStorage.setItem('userId', userData.id.toString());
-      
+
       setUser(user);
     } catch (error) {
       console.error('Ошибка регистрации:', error);
@@ -152,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = (): void => {
     localStorage.removeItem('userId');
     setUser(null);
-    
+
     // Принудительно фокусируем окно после выхода
     setTimeout(() => {
       if (window.windowAPI) {
@@ -164,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateUser = async (updatedUser: User): Promise<void> => {
     // Обновляем состояние
     setUser(updatedUser);
-    
+
     // Перезагружаем данные из БД для синхронизации
     if (window.authAPI && updatedUser.id) {
       try {
@@ -185,27 +174,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        register,
-        logout,
-        updateUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  const value: AuthContextType = {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    login,
+    register,
+    logout,
+    updateUser,
+  };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

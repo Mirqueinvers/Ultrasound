@@ -2,7 +2,7 @@
 
 import ResearchHeader from "@components/common/ResearchHeader";
 import { useResearch } from "@contexts";
-import { useAuth } from "@contexts/AuthContext";
+import { useAuth } from "@contexts/useAuth";
 import { Directory } from "@components/directory";
 
 import PrintModal from "@components/print/PrintModal";

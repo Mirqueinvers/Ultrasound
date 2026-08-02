@@ -1,26 +1,9 @@
-// src/contexts/DefaultValuesContext.tsx
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-
-type DefaultValuesMap = Record<string, Record<string, unknown>>;
-
-interface DefaultValuesContextType {
-  defaults: DefaultValuesMap;
-  isLoaded: boolean;
-  error: string | null;
-  saveDefaults: (desktopKey: string, values: Record<string, unknown>) => Promise<void>;
-  resetDefaults: (desktopKey?: string) => Promise<void>;
-  reload: () => Promise<void>;
-}
-
-const DefaultValuesContext = createContext<DefaultValuesContextType | undefined>(undefined);
-
-export const useDefaultValuesContext = () => {
-  const context = useContext(DefaultValuesContext);
-  if (!context) {
-    throw new Error("useDefaultValuesContext must be used within DefaultValuesProvider");
-  }
-  return context;
-};
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  DefaultValuesContext,
+  type DefaultValuesMap,
+  type DefaultValuesContextType,
+} from "./DefaultValuesContext";
 
 export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [defaults, setDefaults] = useState<DefaultValuesMap>({});
@@ -90,7 +73,7 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
     load();
   }, [load]);
 
-  const value = useMemo(
+  const value: DefaultValuesContextType = useMemo(
     () => ({ defaults, isLoaded, error, saveDefaults, resetDefaults, reload: load }),
     [defaults, isLoaded, error, saveDefaults, resetDefaults, load],
   );

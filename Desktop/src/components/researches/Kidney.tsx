@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useResearch } from "@contexts";
 import { useResearchConclusionAddText } from "@hooks";
 

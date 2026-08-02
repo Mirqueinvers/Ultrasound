@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useRightPanel } from '../contexts/RightPanelContext';
+import { useRightPanel } from '../contexts/useRightPanel';
 import { organHints } from '../components/hints/organs';
 
 export const useFieldFocus = (organ: string, field?: string) => {

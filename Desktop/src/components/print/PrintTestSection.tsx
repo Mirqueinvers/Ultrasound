@@ -1,7 +1,7 @@
 // /components/print/PrintTestSection.tsx
 import React from "react";
 import { useResearch } from "@contexts";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/useAuth";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
 import ObpPrint from "@/components/print/researches/ObpPrint";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";

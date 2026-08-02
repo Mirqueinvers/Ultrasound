@@ -22,7 +22,7 @@ import { defaultObpState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { deepMerge } from "@/utils/deepMerge";
 
 const FREE_FLUID_OPTIONS = [

@@ -6,7 +6,7 @@ import Ovary from "@organs/Ovary";
 import { Conclusion } from "@common";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { useResearch } from "@contexts";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useResearchConclusionAddText } from "@hooks";
 
 import type {

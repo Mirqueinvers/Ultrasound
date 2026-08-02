@@ -1,8 +1,8 @@
 import React, { type ReactNode } from "react";
 
-import { RightPanelProvider } from "@contexts/RightPanelContext";
-import { ResearchProvider } from "@contexts/ResearchContext";
-import { DefaultValuesProvider } from "@contexts/DefaultValuesContext";
+import { RightPanelProvider } from "@contexts/RightPanelProvider";
+import { ResearchProvider } from "@contexts/ResearchProvider";
+import { DefaultValuesProvider } from "@contexts/DefaultValuesProvider";
 
 import Header from "@layout/Header";
 import Content from "@layout/Content";
@@ -13,7 +13,7 @@ import SettingsPage from "@/components/settings/SettingsPage";
 import Journal from "@/components/journal/Journal";
 import Statistics from "@/components/statistics/Statistics";
 import RegistryPanel, { type PatientSelectData } from "@/components/registry/RegistryPanel";
-import { useResearch } from "@contexts/ResearchContext";
+import { useResearch } from "@contexts/useResearch";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 import MedisonAutoImport from "@/components/registry/MedisonAutoImport";
 

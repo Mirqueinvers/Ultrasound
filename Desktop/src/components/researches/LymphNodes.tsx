@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import LymphNodesCommon from "@organs/LymphNodes/LymphNodesCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useResearchConclusionAddText } from "@hooks";
 import type {
   LymphNodesStudyProtocol,

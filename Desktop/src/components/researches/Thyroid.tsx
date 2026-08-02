@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useResearchConclusionAddText } from "@hooks";
 import type {
   ThyroidStudyProtocol,

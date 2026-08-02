@@ -1,4 +1,5 @@
-import { AuthProvider, useAuth } from "@contexts/AuthContext";
+import { AuthProvider } from "@contexts/AuthProvider";
+import { useAuth } from "@contexts/useAuth";
 
 import AuthForm from "@/components/auth/AuthForm";
 import AppShell, { AppTitlebar } from "@/app/AppShell";

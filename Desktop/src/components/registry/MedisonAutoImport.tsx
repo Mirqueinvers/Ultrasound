@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/useAuth";
 import { useMedisonImport } from "@/hooks/useMedisonImport";
-import { useResearch } from "@/contexts/ResearchContext";
+import { useResearch } from "@/contexts/useResearch";
 
 /**
  * Компонент-обёртка для автоматического импорта данных с флешки.

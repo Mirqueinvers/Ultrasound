@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/useAuth';
 import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 
 interface UserMenuProps {

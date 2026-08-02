@@ -2,7 +2,7 @@
 
 > Документ для передачи новому чату/разработчику как контекст и план миграции.
 > Проект: `c:/Projects/Ultrasound`, десктоп в `Desktop/`.
-> Состояние проекта уже прошло этапы 1–3 (баги, типизация, дедупликация).
+> Состояние проекта уже прошло этапы 1–3 (баги, типизация, дедупликация) и этап B (чистка контекстов).
 
 ---
 
@@ -20,16 +20,17 @@ Ultrasound/
 └── update-server/ — автообновление Desktop
 ```
 
-**Текущее состояние (после этапов 1–3):**
+**Текущее состояние (после этапов 1–3 и этапа B):**
 - TypeScript `tsc --noEmit`: **0 ошибок**
 - Критические баги (TDZ, immutability): **устранены**
 - `no-explicit-any`: **29** (было 126)
 - `no-unused-vars`: **0**
 - Дублирование `deepMerge` — в одном модуле (`src/utils/deepMerge.ts`)
 - Дублирование печати — общий хук `usePrintableOverrides.ts` + `printHelpers.ts`
+- Контексты разделены на `*Context.ts` + `use*.ts` + `*Provider.tsx` — **fast refresh для контекстов работает**
 
 **Осталось:**
-- 9 ошибок `react-refresh/only-export-components` (контексты)
+- 3 ошибки `react-refresh/only-export-components` (DatePickerField, NormalRange, OrgNavigation)
 - 7 ошибок `set-state-in-effect`
 - ~24 предупреждения `exhaustive-deps`
 - Магические строки-ключи (`"ОБП:печень"`) вместо типизированных констант
@@ -149,9 +150,16 @@ export function useOrganForm<T>(
 3. Перевести `protocols/catalog.ts` на константы.
 **Выход:** `tsc` 0 ошибок, поведение не меняется.
 
-### Этап B — Чистка контекстов (убирает 9 fast-refresh)
-4. Вынести хуки `useAuth`, `useResearch`, `useRightPanel`, `useDefaultValues` в отдельные файлы.
-5. Компоненты подключаются к Provider.
+### Этап B — Чистка контекстов (убирает 9 fast-refresh) ✅ СДЕЛАНО
+4. ✅ Вынести хуки `useAuth`, `useResearch`, `useRightPanel`, `useDefaultValues` в отдельные файлы.
+5. ✅ Компоненты подключаются к Provider.
+
+**Результат этапа B:**
+- Каждый контекст разбит на 3 файла: `*Context.ts` (createContext + типы), `use*.ts` (хук), `*Provider.tsx` (провайдер).
+- `src/contexts/index.ts` реэкспортирует провайдеры и хуки.
+- Прямые импорты `@contexts/AuthContext` и т.п. заменены на `@contexts/useAuth` / `@contexts/AuthProvider`.
+- `hooks/useDefaultValues.ts` реэкспортирует `useDefaultValuesContext` для обратной совместимости.
+- 6 ошибок `react-refresh/only-export-components` в контекстах устранены, `tsc` — 0 ошибок.
 
 ### Этап C — Декомпозиция органов (самый большой)
 6. Создать общий `useOrganForm<T>`.

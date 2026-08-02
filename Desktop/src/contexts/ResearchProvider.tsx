@@ -1,7 +1,5 @@
-import React, {
-  createContext,
+import {
   useCallback,
-  useContext,
   useMemo,
   useState,
 } from "react";
@@ -9,29 +7,8 @@ import type { ReactNode } from "react";
 import { createSyncTimestamp, type MobileSyncWireMessage } from "@/sync/mobileSync";
 import { useResearchMobileSync } from "@/hooks";
 import { deepMerge } from "@/utils/deepMerge";
-import type { DesktopStudiesDataMap, DesktopStudyData } from "@/researches/types";
-
-interface ResearchContextType {
-  patientFullName: string;
-  setPatientFullName: (name: string) => void;
-  patientDateOfBirth: string;
-  setPatientDateOfBirth: (dob: string) => void;
-  researchDate: string;
-  setResearchDate: (date: string) => void;
-
-  organization: string;
-  setOrganization: (org: string) => void;
-
-  studiesData: DesktopStudiesDataMap;
-  setStudyData: (studyType: string, data: DesktopStudyData) => void;
-  mergeStudyData: (studyType: string, partialData: Record<string, unknown>) => void;
-  clearStudyData: (studyType: string) => void;
-  clearStudiesData: () => void;
-
-  clearHeaderData: () => void;
-}
-
-const ResearchContext = createContext<ResearchContextType | undefined>(undefined);
+import type { DesktopStudyData } from "@/researches/types";
+import { ResearchContext, type ResearchContextType } from "./ResearchContext";
 
 export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const getCurrentDate = useCallback(() => {
@@ -47,10 +24,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [patientDateOfBirth, setPatientDateOfBirthState] = useState("");
   const [researchDate, setResearchDateState] = useState(getCurrentDate);
   const [organization, setOrganizationState] = useState("");
-  const [studiesData, setStudiesDataState] = useState<DesktopStudiesDataMap>({});
-
-
-
+  const [studiesData, setStudiesDataState] = useState<{ [key: string]: unknown }>({});
 
   const publishSyncMessage = useCallback((message: MobileSyncWireMessage) => {
     void window.mobileHostAPI?.publishSync(message);
@@ -96,7 +70,6 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
       };
     });
   }, []);
-
 
   const setPatientFullName = useCallback((value: string) => {
     setPatientFullNameState(value);
@@ -180,10 +153,10 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [publishSyncMessage]);
 
   const clearHeaderData = useCallback(() => {
-        setPatientFullNameState("");
-        setPatientDateOfBirthState("");
-        setResearchDateState(getCurrentDate());
-        setOrganizationState("");
+    setPatientFullNameState("");
+    setPatientDateOfBirthState("");
+    setResearchDateState(getCurrentDate());
+    setOrganizationState("");
 
     publishSyncMessage({
       type: "sync:update",
@@ -199,7 +172,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   }, [getCurrentDate, publishSyncMessage]);
 
-  const contextValue = useMemo(
+  const contextValue: ResearchContextType = useMemo(
     () => ({
       patientFullName,
       setPatientFullName,
@@ -235,12 +208,4 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 
   return <ResearchContext.Provider value={contextValue}>{children}</ResearchContext.Provider>;
-};
-
-export const useResearch = () => {
-  const context = useContext(ResearchContext);
-  if (!context) {
-    throw new Error("useResearch must be used within ResearchProvider");
-  }
-  return context;
 };

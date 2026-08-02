@@ -2,7 +2,7 @@
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
-import { useRightPanel } from "@contexts/RightPanelContext";
+import { useRightPanel } from "@contexts/useRightPanel";
 import { useResearchConclusionAddText } from "@hooks";
 import type {
   BreastStudyProtocol,

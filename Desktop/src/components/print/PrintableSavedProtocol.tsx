@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/useAuth";
 import { useResearch } from "@contexts";
 import { usePrintableOverrides } from "@/hooks";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";

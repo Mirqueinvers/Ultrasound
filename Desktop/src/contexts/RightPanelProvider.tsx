@@ -1,40 +1,20 @@
-// src/contexts/RightPanelContext.tsx
-import React, { createContext, useContext, useState } from "react";
-
-export type PanelMode = "none" | "normal-values" | "conclusion-samples" | "custom-text";
-
-export interface PanelData {
-  mode: PanelMode;
-  organ?: string;
-  field?: string;
-  title?: string;
-  content?: React.ReactNode;
-}
-
-interface RightPanelContextType {
-  panelData: PanelData;
-  showNormalValues: (organ: string, field?: string) => void;
-  showConclusionSamples: (organ: string) => void;
-  showCustomText: (title: string, content: React.ReactNode) => void;
-  hidePanel: () => void;
-  addText: (text: string) => void;
-  setCurrentOrgan: (organ: string | undefined) => void;
-}
-
-export const RightPanelContext = createContext<RightPanelContextType | undefined>(
-  undefined
-);
-
-export const useRightPanel = () => {
-  const context = useContext(RightPanelContext);
-  if (!context) {
-    throw new Error("useRightPanel must be used within RightPanelProvider");
-  }
-  return context;
-};
+import { useState } from "react";
+import { RightPanelContext, type PanelData } from "./RightPanelContext";
 
 interface RightPanelProviderProps {
   children: React.ReactNode;
+}
+
+function getOrganDisplayName(organ: string): string {
+  const displayNames: Record<string, string> = {
+    liver: "Печень",
+    gallbladder: "Желчный пузырь",
+    pancreas: "Поджелудочная железа",
+    spleen: "Селезенка",
+    kidneys: "Почки",
+    obp: "ОБП",
+  };
+  return displayNames[organ] || organ;
 }
 
 export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
@@ -78,12 +58,12 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
 
   const addText = (text: string) => {
     const studyId = currentOrgan ? `study-${currentOrgan}` : undefined;
-    
+
     const event = new CustomEvent("add-conclusion-text", {
-      detail: { 
-        text, 
-        organ: currentOrgan, 
-        studyId 
+      detail: {
+        text,
+        organ: currentOrgan,
+        studyId,
       },
     });
     window.dispatchEvent(event);
@@ -109,15 +89,3 @@ export const RightPanelProvider: React.FC<RightPanelProviderProps> = ({
     </RightPanelContext.Provider>
   );
 };
-
-function getOrganDisplayName(organ: string): string {
-  const displayNames: Record<string, string> = {
-    liver: "Печень",
-    gallbladder: "Желчный пузырь",
-    pancreas: "Поджелудочная железа",
-    spleen: "Селезенка",
-    kidneys: "Почки",
-    obp: "ОБП",
-  };
-  return displayNames[organ] || organ;
-}

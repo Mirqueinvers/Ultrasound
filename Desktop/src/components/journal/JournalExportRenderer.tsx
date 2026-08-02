@@ -1,6 +1,6 @@
 import React from "react";
 import PrintableSavedProtocol from "@/components/print/PrintableSavedProtocol";
-import { ResearchProvider } from "@contexts/ResearchContext";
+import { ResearchProvider } from "@contexts/ResearchProvider";
 import { getDefaultExportTargetIp } from "@/utils/exportTargetIps";
 
 export interface JournalExportRendererApi {
