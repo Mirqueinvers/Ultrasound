@@ -511,7 +511,28 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     try {
       const data = await fs.readFile(registryAddressesFilePath, "utf8");
       const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      // Миграция старого формата: массив строк -> [{ name, ip }]
+      return parsed.map((entry: unknown) => {
+        if (typeof entry === "string") {
+          return { name: entry, ip: entry };
+        }
+        if (
+          entry &&
+          typeof entry === "object" &&
+          typeof (entry as { ip?: unknown }).ip === "string"
+        ) {
+          const item = entry as { name?: unknown; ip: string };
+          return {
+            name:
+              typeof item.name === "string" && item.name.trim() !== ""
+                ? item.name
+                : item.ip,
+            ip: item.ip,
+          };
+        }
+        return null;
+      }).filter((entry: { name: string; ip: string } | null) => entry !== null);
     } catch {
       return [];
     }
@@ -519,7 +540,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
 
   ipcMain.handle(
     "registry:saveAddresses",
-    async (_, addresses: string[]) => {
+    async (_, addresses: { name: string; ip: string }[]) => {
       try {
         await fs.writeFile(
           registryAddressesFilePath,

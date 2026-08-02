@@ -283,9 +283,14 @@ export interface DefaultsAPI {
   reset: () => Promise<{ success: boolean; message?: string }>;
 }
 
+export interface RegistryAddress {
+  name: string;
+  ip: string;
+}
+
 export interface RegistryAPI {
-  getAddresses: () => Promise<string[]>;
-  saveAddresses: (addresses: string[]) => Promise<{ success: boolean; message?: string }>;
+  getAddresses: () => Promise<RegistryAddress[]>;
+  saveAddresses: (addresses: RegistryAddress[]) => Promise<{ success: boolean; message?: string }>;
 }
 
 export interface NetworkAPI {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, Settings, RefreshCw, WifiOff, User, Stethoscope } from "lucide-react";
+import type { RegistryAddress } from "../../../electron/preload";
 
 const REGISTRY_PORT = 3456;
 
@@ -63,8 +64,9 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [addresses, setAddresses] = useState<string[]>([]);
-  const [newAddressInput, setNewAddressInput] = useState("");
+  const [addresses, setAddresses] = useState<RegistryAddress[]>([]);
+  const [newAddressName, setNewAddressName] = useState("");
+  const [newAddressIp, setNewAddressIp] = useState("");
 
   // Загрузка сохраненных адресов из файла (userData)
   useEffect(() => {
@@ -78,7 +80,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
       .catch(() => {});
   }, []);
 
-  const persistAddresses = useCallback((updated: string[]) => {
+  const persistAddresses = useCallback((updated: RegistryAddress[]) => {
     window.registryAPI.saveAddresses(updated).catch(() => {});
   }, []);
 
@@ -97,9 +99,9 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
     for (const addr of addresses) {
       try {
-        const res = await fetch(`http://${addr}:${REGISTRY_PORT}/api/appointments?date=${date}`);
+        const res = await fetch(`http://${addr.ip}:${REGISTRY_PORT}/api/appointments?date=${date}`);
         if (!res.ok) {
-          lastError = `Ошибка сервера ${addr}: ${res.status}`;
+          lastError = `Ошибка сервера ${addr.name} (${addr.ip}): ${res.status}`;
           continue;
         }
         const data = await res.json();
@@ -107,7 +109,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         const items = Array.isArray(data) ? data : (data.value || []);
         allAppointments.push(...items);
       } catch (err: any) {
-        lastError = `Не удалось подключиться к ${addr}`;
+        lastError = `Не удалось подключиться к ${addr.name} (${addr.ip})`;
       }
     }
 
@@ -125,22 +127,24 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
   const handleAddAddress = () => {
     // Очистка ввода: убираем IP:, http://, слэши и порт :3456, оставляем только IP
-    const cleaned = newAddressInput
+    const cleanedIp = newAddressIp
       .replace(/^IP\s*:\s*/i, "")
       .replace(/^http:\/\//i, "")
       .replace(/\/+$/, "")
       .replace(/^(\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/, "$1")
       .trim();
-    if (!cleaned) return;
-    if (addresses.includes(cleaned)) return;
-    const updated = [...addresses, cleaned];
+    if (!cleanedIp) return;
+    if (addresses.some((a) => a.ip === cleanedIp)) return;
+    const name = newAddressName.trim() || cleanedIp;
+    const updated = [...addresses, { name, ip: cleanedIp }];
     setAddresses(updated);
     persistAddresses(updated);
-    setNewAddressInput("");
+    setNewAddressName("");
+    setNewAddressIp("");
   };
 
-  const handleRemoveAddress = (addr: string) => {
-    const updated = addresses.filter((a) => a !== addr);
+  const handleRemoveAddress = (addr: RegistryAddress) => {
+    const updated = addresses.filter((a) => a.ip !== addr.ip);
     setAddresses(updated);
     persistAddresses(updated);
   };
@@ -318,13 +322,16 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
               )}
               {addresses.map((addr) => (
                 <div
-                  key={addr}
+                  key={addr.ip}
                   className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
                 >
-                  <span className="text-sm text-slate-700 font-mono">{addr}</span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-700 truncate">{addr.name}</p>
+                    <p className="text-xs text-slate-400 font-mono">{addr.ip}</p>
+                  </div>
                   <button
                     onClick={() => handleRemoveAddress(addr)}
-                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md p-1 transition-all duration-200"
+                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md p-1 transition-all duration-200 shrink-0"
                     title="Удалить"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -337,11 +344,25 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
             </div>
 
             {/* Добавление нового адреса */}
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              Название
+            </label>
+            <input
+              type="text"
+              value={newAddressName}
+              onChange={(e) => setNewAddressName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
+              placeholder="Поликлиника №1"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200 mb-3"
+            />
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              IP-адрес
+            </label>
             <div className="flex items-center gap-2 mb-4">
               <input
                 type="text"
-                value={newAddressInput}
-                onChange={(e) => setNewAddressInput(e.target.value)}
+                value={newAddressIp}
+                onChange={(e) => setNewAddressIp(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
                 placeholder="192.168.1.100"
                 className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
