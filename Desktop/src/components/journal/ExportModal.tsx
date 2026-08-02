@@ -2,6 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import DatePickerField from "@/components/common/DatePickerField";
 import { JournalExportRenderer } from "@/components/journal/JournalExportRenderer";
 import type { JournalExportRendererApi } from "@/components/journal/JournalExportRenderer";
+import {
+  getExportTargetIps,
+  getDefaultExportTargetIp,
+} from "@/utils/exportTargetIps";
 
 type ExportMode = "date" | "period";
 
@@ -72,7 +76,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
   const [failedExports, setFailedExports] = useState<FailedExport[]>([]);
 
   // Локальный IP (синхронизируется с localStorage и ref)
-  const [targetIp, setTargetIp] = useState(() => localStorage.getItem("exportTargetIp") || "");
+  const [targetIps, setTargetIps] = useState<string[]>([]);
+  const [targetIp, setTargetIp] = useState(() => getDefaultExportTargetIp());
   const [networkStatus, setNetworkStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [networkMessage, setNetworkMessage] = useState("");
 
@@ -113,6 +118,12 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
       setExportFileName("uzi-protocols.html");
       setNetworkStatus("idle");
       setNetworkMessage("");
+
+      const storedIps = getExportTargetIps();
+      setTargetIps(storedIps);
+      setTargetIp((current) =>
+        storedIps.includes(current) ? current : storedIps[0] ?? "",
+      );
     }
   }, [isOpen, journalDate]);
 
@@ -379,20 +390,34 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
                 </span>
               </div>
 
-              {/* IP-адрес */}
+              {/* IP-адрес MyWorkSpace */}
               <label className="flex flex-col gap-1 text-sm text-slate-700">
                 <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   IP-адрес MyWorkSpace
                 </span>
-                <input
-                  type="text"
+                <select
                   value={targetIp}
                   onChange={(e) => handleIpChange(e.target.value)}
-                  placeholder="192.168.1.100"
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  disabled={networkStatus === "sending"}
-                />
+                  disabled={networkStatus === "sending" || targetIps.length === 0}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                >
+                  {targetIps.length === 0 && (
+                    <option value="">Не настроен</option>
+                  )}
+                  {targetIps.map((ip) => (
+                    <option key={ip} value={ip}>
+                      {ip}
+                    </option>
+                  ))}
+                </select>
               </label>
+
+              {targetIps.length === 0 && (
+                <p className="-mt-2 text-xs text-amber-600">
+                  Сохранённых адресов нет. Добавьте IP-адрес в настройках
+                  экспорта, чтобы отправлять протоколы по сети.
+                </p>
+              )}
 
               {/* Кнопки действий */}
               <div className="flex gap-2">

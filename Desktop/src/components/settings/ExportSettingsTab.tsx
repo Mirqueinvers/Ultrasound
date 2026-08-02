@@ -1,35 +1,46 @@
-import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "exportTargetIp";
+import { useState } from "react";
+import {
+  getExportTargetIps,
+  setExportTargetIps,
+} from "@/utils/exportTargetIps";
 
 const ExportSettingsTab: React.FC = () => {
-  const [ip, setIp] = useState("");
+  const [addresses, setAddresses] = useState<string[]>(() => {
+    const stored = getExportTargetIps();
+    return stored.length > 0 ? stored : [""];
+  });
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) || "";
-    setIp(stored);
-  }, []);
+  const handleAddressChange = (index: number, value: string) => {
+    setAddresses((current) =>
+      current.map((address, i) => (i === index ? value : address)),
+    );
+  };
+
+  const handleAddAddress = () => {
+    setAddresses((current) => [...current, ""]);
+  };
+
+  const handleRemoveAddress = (index: number) => {
+    setAddresses((current) =>
+      current.length === 1 ? [""] : current.filter((_, i) => i !== index),
+    );
+  };
 
   const handleSave = () => {
-    const trimmed = ip.trim();
-    if (!trimmed) {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
-      localStorage.setItem(STORAGE_KEY, trimmed);
-    }
+    setExportTargetIps(addresses);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const handleClear = () => {
-    setIp("");
-    localStorage.removeItem(STORAGE_KEY);
+    setAddresses([""]);
+    setExportTargetIps([]);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const storedIp = localStorage.getItem(STORAGE_KEY) || "";
+  const storedIps = getExportTargetIps();
 
   return (
     <div className="sync-tab">
@@ -41,24 +52,49 @@ const ExportSettingsTab: React.FC = () => {
       </div>
 
       <div className="sync-tab__section">
-        <h3>IP-адрес компьютера MyWorkSpace</h3>
+        <h3>IP-адреса компьютеров MyWorkSpace</h3>
         <p className="sync-tab__desc">
-          Этот адрес будет автоматически подставляться при экспорте журнала
-          протоколов по сети.
+          Сохраните несколько адресов, если компьютеры с MyWorkSpace могут быть
+          доступны по разным IP. При экспорте журнала протоколов по сети можно
+          будет выбрать нужный адрес.
         </p>
 
         <div className="sync-tab__grid">
-          <div className="sync-tab__field">
-            <label>IP-адрес:</label>
-            <input
-              type="text"
-              value={ip}
-              onChange={(e) => setIp(e.target.value)}
-              placeholder="192.168.1.100"
-              className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-            />
-          </div>
+          {addresses.map((address, index) => (
+            <div key={index} className="sync-tab__field">
+              <label>IP-адрес {addresses.length > 1 ? `№${index + 1}` : ""}:</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) =>
+                    handleAddressChange(index, e.target.value)
+                  }
+                  placeholder="192.168.1.100"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+                {addresses.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAddress(index)}
+                    className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-500 transition hover:bg-slate-50 hover:text-red-600"
+                    title="Удалить адрес"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
+
+        <button
+          type="button"
+          onClick={handleAddAddress}
+          className="mt-2 rounded-full border border-sky-300 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 shadow-sm transition hover:bg-sky-100"
+        >
+          + Добавить адрес
+        </button>
 
         <div className="sync-tab__actions">
           <button
@@ -70,21 +106,23 @@ const ExportSettingsTab: React.FC = () => {
           <button
             className="sync-tab__btn sync-tab__btn--secondary"
             onClick={handleClear}
-            disabled={!storedIp}
+            disabled={storedIps.length === 0}
           >
             Очистить
           </button>
         </div>
       </div>
 
-      {storedIp && (
+      {storedIps.length > 0 && (
         <div className="sync-tab__section">
-          <h3>Текущий сохранённый IP</h3>
+          <h3>Сохранённые адреса</h3>
           <div className="sync-tab__grid">
-            <div className="sync-tab__field">
-              <label>Адрес:</label>
-              <span className="sync-tab__code">{storedIp}</span>
-            </div>
+            {storedIps.map((ip) => (
+              <div key={ip} className="sync-tab__field">
+                <label>Адрес:</label>
+                <span className="sync-tab__code">{ip}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

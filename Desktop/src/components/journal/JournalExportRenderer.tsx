@@ -1,6 +1,7 @@
 import React from "react";
 import PrintableSavedProtocol from "@/components/print/PrintableSavedProtocol";
 import { ResearchProvider } from "@contexts/ResearchContext";
+import { getDefaultExportTargetIp } from "@/utils/exportTargetIps";
 
 export interface JournalExportRendererApi {
   handleSaveToFile: () => Promise<void>;
@@ -100,9 +101,7 @@ export const JournalExportRenderer = React.forwardRef<
     {},
   );
   const [hasTimedOut, setHasTimedOut] = React.useState(false);
-  const [targetIp, setTargetIp] = React.useState(() => {
-    return localStorage.getItem("exportTargetIp") || "";
-  });
+  const [targetIp, setTargetIp] = React.useState(() => getDefaultExportTargetIp());
   const [networkStatus, setNetworkStatus] = React.useState<NetworkStatus>("idle");
   const [networkMessage, setNetworkMessage] = React.useState("");
   const htmlRef = React.useRef<string>("");
