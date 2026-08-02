@@ -500,6 +500,43 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   });
 
+  // ==================== REGISTRY ADDRESSES HANDLERS ====================
+
+  const registryAddressesFilePath = path.join(
+    app.getPath("userData"),
+    "registry-addresses.json"
+  );
+
+  ipcMain.handle("registry:getAddresses", async () => {
+    try {
+      const data = await fs.readFile(registryAddressesFilePath, "utf8");
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  ipcMain.handle(
+    "registry:saveAddresses",
+    async (_, addresses: string[]) => {
+      try {
+        await fs.writeFile(
+          registryAddressesFilePath,
+          JSON.stringify(addresses, null, 2),
+          "utf8"
+        );
+        return { success: true };
+      } catch (error) {
+        console.error("Registry addresses save error:", error);
+        return {
+          success: false,
+          message: "Не удалось сохранить адреса регистратур",
+        };
+      }
+    }
+  );
+
   // ==================== NETWORK HANDLERS ====================
 
   ipcMain.handle(

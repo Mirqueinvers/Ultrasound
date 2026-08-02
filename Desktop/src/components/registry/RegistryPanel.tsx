@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, Settings, RefreshCw, WifiOff, User, Stethoscope } from "lucide-react";
 
+const REGISTRY_PORT = 3456;
+
 interface Patient {
   id: number;
   last_name: string;
@@ -23,23 +25,6 @@ interface Appointment {
   department?: string;
   created_at: string;
   patient?: Patient;
-}
-
-const REGISTRY_ADDRESSES_KEY = "registry_addresses";
-
-function getRegistryAddresses(): string[] {
-  try {
-    const stored = localStorage.getItem(REGISTRY_ADDRESSES_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return ["localhost:3456"];
-}
-
-function setRegistryAddresses(addresses: string[]) {
-  localStorage.setItem(REGISTRY_ADDRESSES_KEY, JSON.stringify(addresses));
 }
 
 function formatDate(dateStr: string): string {
@@ -78,10 +63,32 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [addresses, setAddresses] = useState<string[]>(getRegistryAddresses);
+  const [addresses, setAddresses] = useState<string[]>([]);
   const [newAddressInput, setNewAddressInput] = useState("");
 
+  // Загрузка сохраненных адресов из файла (userData)
+  useEffect(() => {
+    window.registryAPI
+      .getAddresses()
+      .then((stored) => {
+        if (Array.isArray(stored) && stored.length > 0) {
+          setAddresses(stored);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const persistAddresses = useCallback((updated: string[]) => {
+    window.registryAPI.saveAddresses(updated).catch(() => {});
+  }, []);
+
   const fetchAppointments = useCallback(async () => {
+    if (addresses.length === 0) {
+      setAppointments([]);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -90,7 +97,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
     for (const addr of addresses) {
       try {
-        const res = await fetch(`http://${addr}/api/appointments?date=${date}`);
+        const res = await fetch(`http://${addr}:${REGISTRY_PORT}/api/appointments?date=${date}`);
         if (!res.ok) {
           lastError = `Ошибка сервера ${addr}: ${res.status}`;
           continue;
@@ -117,25 +124,28 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   }, [fetchAppointments]);
 
   const handleAddAddress = () => {
+    // Очистка ввода: убираем IP:, http://, слэши и порт :3456, оставляем только IP
     const cleaned = newAddressInput
       .replace(/^IP\s*:\s*/i, "")
       .replace(/^http:\/\//i, "")
       .replace(/\/+$/, "")
+      .replace(/^(\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/, "$1")
       .trim();
     if (!cleaned) return;
     if (addresses.includes(cleaned)) return;
     const updated = [...addresses, cleaned];
     setAddresses(updated);
+    persistAddresses(updated);
     setNewAddressInput("");
   };
 
   const handleRemoveAddress = (addr: string) => {
     const updated = addresses.filter((a) => a !== addr);
-    setAddresses(updated.length > 0 ? updated : ["localhost:3456"]);
+    setAddresses(updated);
+    persistAddresses(updated);
   };
 
-  const handleSaveSettings = () => {
-    setRegistryAddresses(addresses);
+  const handleCloseSettings = () => {
     setShowSettings(false);
   };
 
@@ -184,8 +194,27 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         </div>
       </div>
 
+      {/* Нет подключенных регистратур */}
+      {addresses.length === 0 && (
+        <div className="flex items-center gap-3 p-4 mb-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-500">
+          <WifiOff size={20} className="shrink-0" />
+          <div>
+            <p className="font-medium text-sm">Подключенных регистратур нет</p>
+            <p className="text-xs mt-0.5 opacity-80">
+              Добавьте IP-адрес регистратуры в настройках
+            </p>
+          </div>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="ml-auto text-xs font-medium text-slate-600 underline hover:no-underline"
+          >
+            Настроить
+          </button>
+        </div>
+      )}
+
       {/* Ошибка подключения */}
-      {error && (
+      {error && addresses.length > 0 && (
         <div className="flex items-center gap-3 p-4 mb-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700">
           <WifiOff size={20} className="shrink-0" />
           <div>
@@ -202,7 +231,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
       )}
 
       {/* Загрузка */}
-      {loading && !error && (
+      {loading && !error && addresses.length > 0 && (
         <div className="flex items-center justify-center py-12">
           <RefreshCw size={24} className="animate-spin text-medical-400" />
           <span className="ml-3 text-sm text-slate-500">Загрузка...</span>
@@ -282,6 +311,11 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
             {/* Список адресов */}
             <div className="space-y-2 mb-4">
+              {addresses.length === 0 && (
+                <p className="text-sm text-slate-400">
+                  Список пуст. Добавьте IP-адрес регистратуры.
+                </p>
+              )}
               {addresses.map((addr) => (
                 <div
                   key={addr}
@@ -309,7 +343,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
                 value={newAddressInput}
                 onChange={(e) => setNewAddressInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
-                placeholder="192.168.1.100:3456"
+                placeholder="192.168.1.100"
                 className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
               />
               <button
@@ -320,18 +354,16 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
               </button>
             </div>
 
+            <p className="text-xs text-slate-400 mb-4">
+              Порт {REGISTRY_PORT} подставляется автоматически
+            </p>
+
             <div className="flex items-center justify-end gap-3">
               <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleSaveSettings}
+                onClick={handleCloseSettings}
                 className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200"
               >
-                Сохранить
+                Готово
               </button>
             </div>
           </div>

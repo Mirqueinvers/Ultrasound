@@ -11,6 +11,7 @@ import type {
   MedisonAPI,
   ImportMappingAPI,
   DefaultsAPI,
+  RegistryAPI,
 } from "../../electron/preload";
 
 declare global {
@@ -27,6 +28,7 @@ declare global {
     importMappingAPI: ImportMappingAPI;
     databaseAPI: DatabaseAPI;
     defaultsAPI: DefaultsAPI;
+    registryAPI: RegistryAPI;
   }
 }
 

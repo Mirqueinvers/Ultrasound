@@ -283,6 +283,11 @@ export interface DefaultsAPI {
   reset: () => Promise<{ success: boolean; message?: string }>;
 }
 
+export interface RegistryAPI {
+  getAddresses: () => Promise<string[]>;
+  saveAddresses: (addresses: string[]) => Promise<{ success: boolean; message?: string }>;
+}
+
 export interface NetworkAPI {
   sendExport: (data: {
     targetIp: string;
@@ -506,6 +511,11 @@ const defaultsAPI: DefaultsAPI = {
   reset: () => ipcRenderer.invoke("defaults:reset"),
 };
 
+const registryAPI: RegistryAPI = {
+  getAddresses: () => ipcRenderer.invoke("registry:getAddresses"),
+  saveAddresses: (addresses) => ipcRenderer.invoke("registry:saveAddresses", addresses),
+};
+
 const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
@@ -569,6 +579,7 @@ contextBridge.exposeInMainWorld("medisonAPI", medisonAPI);
 contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 contextBridge.exposeInMainWorld("defaultsAPI", defaultsAPI);
+contextBridge.exposeInMainWorld("registryAPI", registryAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);
 
