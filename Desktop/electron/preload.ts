@@ -527,10 +527,19 @@ const networkAPI: NetworkAPI = {
 
 // ========== UPDATE API ==========
 
+export interface UpdateServer {
+  name: string;
+  ip: string;
+}
+
 export interface UpdateAPI {
   check: () => Promise<void>;
   download: () => Promise<void>;
   install: () => Promise<void>;
+  getServers: () => Promise<UpdateServer[]>;
+  saveServers: (servers: UpdateServer[]) => Promise<{ success: boolean; message?: string }>;
+  getActiveServer: () => Promise<string>;
+  setActiveServer: (ip: string) => Promise<{ success: boolean; message?: string }>;
   onUpdateAvailable: (handler: (info: { version: string }) => void) => () => void;
   onUpdateNotAvailable: (handler: (info: { version: string }) => void) => () => void;
   onDownloadProgress: (handler: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
@@ -542,6 +551,10 @@ const updateAPI: UpdateAPI = {
   check: () => ipcRenderer.invoke("update:check"),
   download: () => ipcRenderer.invoke("update:download"),
   install: () => ipcRenderer.invoke("update:install"),
+  getServers: () => ipcRenderer.invoke("update:getServers"),
+  saveServers: (servers) => ipcRenderer.invoke("update:saveServers", servers),
+  getActiveServer: () => ipcRenderer.invoke("update:getActiveServer"),
+  setActiveServer: (ip) => ipcRenderer.invoke("update:setActiveServer", ip),
   onUpdateAvailable: (handler) => {
     const listener = (_event: unknown, info: { version: string }) => handler(info);
     ipcRenderer.on("update:available", listener);

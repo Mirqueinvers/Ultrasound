@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCw, Download, AlertCircle, CheckCircle, RotateCw } from "lucide-react";
+import { RefreshCw, Download, AlertCircle, CheckCircle, RotateCw, Server, Plus, Trash2 } from "lucide-react";
 import "./UpdateTab.css";
 
 declare global {
@@ -8,6 +8,10 @@ declare global {
       check: () => Promise<void>;
       download: () => Promise<void>;
       install: () => Promise<void>;
+      getServers: () => Promise<{ name: string; ip: string }[]>;
+      saveServers: (servers: { name: string; ip: string }[]) => Promise<{ success: boolean; message?: string }>;
+      getActiveServer: () => Promise<string>;
+      setActiveServer: (ip: string) => Promise<{ success: boolean; message?: string }>;
       onUpdateAvailable: (handler: (info: { version: string }) => void) => () => void;
       onUpdateNotAvailable: (handler: (info: { version: string }) => void) => () => void;
       onDownloadProgress: (handler: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
@@ -19,11 +23,79 @@ declare global {
 
 type UpdateState = "idle" | "checking" | "available" | "downloading" | "downloaded" | "error" | "not-available";
 
+interface UpdateServer {
+  name: string;
+  ip: string;
+}
+
+// Очистка ввода: убираем IP:, http://, слэши и порт :8080, оставляем только IP
+function cleanIpInput(raw: string): string {
+  return raw
+    .replace(/^IP\s*:\s*/i, "")
+    .replace(/^http:\/\//i, "")
+    .replace(/\/+$/, "")
+    .replace(/^(\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/, "$1")
+    .trim();
+}
+
 const UpdateTab: React.FC = () => {
   const [state, setState] = useState<UpdateState>("idle");
   const [progress, setProgress] = useState(0);
   const [version, setVersion] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Серверы обновлений
+  const [servers, setServers] = useState<UpdateServer[]>([]);
+  const [activeIp, setActiveIp] = useState("");
+  const [newServerName, setNewServerName] = useState("");
+  const [newServerIp, setNewServerIp] = useState("");
+
+  // Загрузка сохранённых серверов
+  useEffect(() => {
+    const api = window.updateAPI;
+    if (!api) return;
+
+    api.getServers().then((stored) => {
+      if (Array.isArray(stored)) {
+        setServers(stored);
+      }
+    }).catch(() => {});
+
+    api.getActiveServer().then((ip) => {
+      setActiveIp(ip || "");
+    }).catch(() => {});
+  }, []);
+
+  const persistServers = useCallback((updated: UpdateServer[]) => {
+    window.updateAPI.saveServers(updated).catch(() => {});
+  }, []);
+
+  const handleAddServer = () => {
+    const cleanedIp = cleanIpInput(newServerIp);
+    if (!cleanedIp) return;
+    if (servers.some((s) => s.ip === cleanedIp)) return;
+    const name = newServerName.trim() || cleanedIp;
+    const updated = [...servers, { name, ip: cleanedIp }];
+    setServers(updated);
+    persistServers(updated);
+    setNewServerName("");
+    setNewServerIp("");
+  };
+
+  const handleRemoveServer = (server: UpdateServer) => {
+    const updated = servers.filter((s) => s.ip !== server.ip);
+    setServers(updated);
+    persistServers(updated);
+    if (activeIp === server.ip) {
+      setActiveIp("");
+      window.updateAPI.setActiveServer("").catch(() => {});
+    }
+  };
+
+  const handleSelectActive = (server: UpdateServer) => {
+    setActiveIp(server.ip);
+    window.updateAPI.setActiveServer(server.ip).catch(() => {});
+  };
 
   useEffect(() => {
     const api = window.updateAPI;
@@ -83,6 +155,78 @@ const UpdateTab: React.FC = () => {
         <h3>Обновление программы</h3>
         <p className="update-tab__description">
           Проверьте наличие новой версии и установите обновление
+        </p>
+      </div>
+
+      {/* Блок выбора сервера обновлений */}
+      <div className="update-tab__servers">
+        <div className="update-tab__servers-header">
+          <Server size={16} />
+          <span>Сервер обновлений</span>
+        </div>
+
+        <div className="update-tab__servers-list">
+          {servers.length === 0 && (
+            <p className="update-tab__servers-empty">
+              Список пуст. Добавьте IP-адрес сервера обновлений.
+            </p>
+          )}
+          {servers.map((server) => (
+            <div
+              key={server.ip}
+              className={`update-tab__server-item ${
+                activeIp === server.ip ? "update-tab__server-item--active" : ""
+              }`}
+              onClick={() => handleSelectActive(server)}
+            >
+              <div className="update-tab__server-radio" />
+              <div className="update-tab__server-info">
+                <p className="update-tab__server-name">{server.name}</p>
+                <p className="update-tab__server-ip">{server.ip}</p>
+              </div>
+              <button
+                className="update-tab__server-remove"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveServer(server);
+                }}
+                title="Удалить"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="update-tab__server-add">
+          <input
+            type="text"
+            value={newServerName}
+            onChange={(e) => setNewServerName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddServer()}
+            placeholder="Название (необязательно)"
+            className="update-tab__input"
+          />
+          <input
+            type="text"
+            value={newServerIp}
+            onChange={(e) => setNewServerIp(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddServer()}
+            placeholder="192.168.1.100"
+            className="update-tab__input"
+          />
+          <button
+            className="update-tab__btn update-tab__btn--add"
+            onClick={handleAddServer}
+            title="Добавить сервер"
+          >
+            <Plus size={16} />
+            Добавить
+          </button>
+        </div>
+
+        <p className="update-tab__servers-hint">
+          Порт 8080 подставляется автоматически. Выбранный сервер используется при проверке обновлений.
         </p>
       </div>
 

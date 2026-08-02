@@ -63,6 +63,12 @@ export function initAutoUpdater() {
   });
 }
 
+export function setUpdateServer(ip: string) {
+  const serverUrl = `http://${ip}:8080/updates`;
+  console.log("[AutoUpdater] Set update server:", serverUrl);
+  autoUpdater.setFeedURL({ provider: "generic", url: serverUrl });
+}
+
 export function checkForUpdates() {
   autoUpdater.checkForUpdates().catch((err) => {
     console.error("[AutoUpdater] Check error:", err);

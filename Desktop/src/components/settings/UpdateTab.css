@@ -136,3 +136,160 @@
 .update-tab__btn--install:hover {
   background: #16a34a;
 }
+
+/* ========== Блок выбора сервера обновлений ========== */
+
+.update-tab__servers {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.update-tab__servers-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.update-tab__servers-header svg {
+  color: #3b82f6;
+}
+
+.update-tab__servers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.update-tab__servers-empty {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.update-tab__server-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.update-tab__server-item:hover {
+  border-color: #93c5fd;
+}
+
+.update-tab__server-item--active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.update-tab__server-radio {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.update-tab__server-item--active .update-tab__server-radio {
+  border-color: #3b82f6;
+  background: #3b82f6;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.update-tab__server-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.update-tab__server-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.update-tab__server-ip {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.update-tab__server-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.update-tab__server-remove:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.update-tab__server-add {
+  display: flex;
+  gap: 8px;
+}
+
+.update-tab__input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.update-tab__input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.update-tab__btn--add {
+  flex-shrink: 0;
+  background: #3b82f6;
+  color: #fff;
+  padding: 8px 14px;
+}
+
+.update-tab__btn--add:hover {
+  background: #2563eb;
+}
+
+.update-tab__servers-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
