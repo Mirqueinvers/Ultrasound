@@ -391,19 +391,19 @@ const PrintableSavedProtocol = React.forwardRef<
 
     },
     [
-      bladderStudyData,
-      brachioCephalicArteriesData,
-      breastData,
-      childDispensaryData,
-      kidneysData,
-      lymphNodesData,
-      obpData,
-      omtFemaleData,
-      omtMaleData,
-      salivaryData,
-      scrotumData,
-      softTissueData,
-      thyroidData,
+      bladderStudyProtocol,
+      brachioCephalicArteriesProtocol,
+      breastProtocol,
+      childDispensaryProtocol,
+      kidneysProtocol,
+      lymphNodesProtocol,
+      obpProtocol,
+      omtFemaleProtocol,
+      omtMaleProtocol,
+      salivaryProtocol,
+      scrotumProtocol,
+      softTissueProtocol,
+      thyroidProtocol,
       localStudiesData,
       studiesData,
     ],
@@ -450,6 +450,19 @@ const PrintableSavedProtocol = React.forwardRef<
     },
     [sourceBlockHtml, studyDefinitions],
   );
+
+  const handleStartEditing = React.useCallback(() => {
+    setDraftOverrides(buildDraftOverrides(persistedOverrides));
+    setIsEditMode(true);
+  }, [buildDraftOverrides, persistedOverrides]);
+
+  // Храним актуальную версию handleStartEditing в ref, чтобы не добавлять
+  // нестабильную функцию в зависимости эффекта (иначе ломается мемоизация).
+  const handleStartEditingRef = React.useRef(handleStartEditing);
+
+  React.useEffect(() => {
+    handleStartEditingRef.current = handleStartEditing;
+  });
 
   React.useLayoutEffect(() => {
     if (!sourceContainerRef.current || loading) {
@@ -567,11 +580,11 @@ const PrintableSavedProtocol = React.forwardRef<
 
   React.useEffect(() => {
     if (externalEditMode === true && !isEditMode) {
-      handleStartEditing();
+      handleStartEditingRef.current();
     } else if (externalEditMode === false && isEditMode) {
       setIsEditMode(false);
     }
-  }, [externalEditMode]);
+  }, [externalEditMode, isEditMode]);
 
   // При входе в режим редактирования убираем contenteditable="false" с внутренних элементов,
   // чтобы корневой contentEditable мог наследоваться на все дочерние блоки
@@ -586,11 +599,6 @@ const PrintableSavedProtocol = React.forwardRef<
       });
     }
   }, [isEditMode]);
-
-  const handleStartEditing = React.useCallback(() => {
-    setDraftOverrides(buildDraftOverrides(persistedOverrides));
-    setIsEditMode(true);
-  }, [buildDraftOverrides, persistedOverrides]);
 
   const handleSaveOverrides = React.useCallback(async () => {
     const nextOverrides: PrintOverrideMap = {};
@@ -646,9 +654,16 @@ const PrintableSavedProtocol = React.forwardRef<
     } catch {
       window.alert("Не удалось сохранить правки печатной версии.");
     }
-  }, [draftOverrides, researchId, studyDefinitions]);
+  }, [draftOverrides, onSave, researchId, studyDefinitions]);
 
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
+
+  // При входе в режим редактирования связываем editContentRef с корнем печати
+  React.useEffect(() => {
+    if (isEditMode && printRootRef.current) {
+      editContentRef.current = printRootRef.current;
+    }
+  }, [isEditMode]);
 
   React.useImperativeHandle(ref, () => ({
     saveOverrides: handleSaveOverrides,
@@ -668,12 +683,7 @@ const PrintableSavedProtocol = React.forwardRef<
   return (
     <div>
       <div
-        ref={(node) => {
-          printRootRef.current = node;
-          if (isEditMode) {
-            editContentRef.current = node;
-          }
-        }}
+        ref={printRootRef}
         id="print-root"
         contentEditable={isEditMode}
         suppressContentEditableWarning

@@ -1,5 +1,5 @@
 // src/components/researches/Obp.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
@@ -23,6 +23,7 @@ import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
 import { useRightPanel } from "@contexts/RightPanelContext";
+import { deepMerge } from "@/utils/deepMerge";
 
 const FREE_FLUID_OPTIONS = [
   { value: "не определяется", label: "не определяется" },
@@ -38,59 +39,6 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  /**
-   * Слияние двух массивов узлов по индексу: source-значения имеют приоритет,
-   * но только если поле в source не пустое. Аналог ResearchContext.mergeNodeArrays.
-   */
-  const mergeNodeArrays = useCallback((target: unknown[], source: unknown[]): unknown[] => {
-    return target.map((existingNode, i) => {
-      const sourceNode = source[i];
-      if (!sourceNode || typeof sourceNode !== "object") return existingNode;
-      if (typeof existingNode !== "object") return sourceNode;
-      const result = { ...(existingNode as Record<string, unknown>) };
-      for (const key of Object.keys(sourceNode as Record<string, unknown>)) {
-        const sourceVal = (sourceNode as Record<string, unknown>)[key];
-        if (sourceVal !== undefined && sourceVal !== null && sourceVal !== "") {
-          result[key] = sourceVal;
-        }
-      }
-      return result;
-    }).concat(
-      source.slice(target.length).map((n) => (typeof n === "object" ? { ...(n as Record<string, unknown>) } : n)),
-    );
-  }, []);
-
-  // Глубокое слияние — мержит вложенные объекты, а не заменяет целиком
-  const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
-    if (source === null || source === undefined) return target;
-    if (target === null || target === undefined) return source;
-    if (typeof target !== "object" || typeof source !== "object") return source;
-    if (Array.isArray(target) && Array.isArray(source)) {
-      // Если оба массива — сливаем по индексу для массивов с полем "number"
-      if (source.length > 0 && typeof source[0] === "object" && "number" in (source[0] as Record<string, unknown>)) {
-        return mergeNodeArrays(target, source);
-      }
-      return source;
-    }
-    if (Array.isArray(target) || Array.isArray(source)) return source;
-
-    const result = { ...(target as Record<string, unknown>) };
-    for (const key of Object.keys(source as Record<string, unknown>)) {
-      const targetVal = (target as Record<string, unknown>)[key];
-      const sourceVal = (source as Record<string, unknown>)[key];
-      if (
-        targetVal !== null && targetVal !== undefined &&
-        typeof targetVal === "object" && !Array.isArray(targetVal) &&
-        typeof sourceVal === "object" && !Array.isArray(sourceVal)
-      ) {
-        result[key] = deepMerge(targetVal, sourceVal);
-      } else if (sourceVal !== undefined) {
-        result[key] = sourceVal;
-      }
-    }
-    return result;
-  }, [mergeNodeArrays]);
-
   const { defaults, isLoaded } = useDefaultValues();
 
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);

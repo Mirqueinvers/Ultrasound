@@ -8,6 +8,7 @@ import React, {
 import type { ReactNode } from "react";
 import { createSyncTimestamp, type MobileSyncWireMessage } from "@/sync/mobileSync";
 import { useResearchMobileSync } from "@/hooks";
+import { deepMerge } from "@/utils/deepMerge";
 import type { DesktopStudiesDataMap, DesktopStudyData } from "@/researches/types";
 
 interface ResearchContextType {
@@ -83,60 +84,6 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   }, [publishSyncMessage]);
 
-  /** 
-   * Мержит два массива узлов по индексу: source-значения имеют приоритет,
-   * но только если поле в source не пустое. Это защищает селекты от затирания,
-   * когда source содержит неполные узлы (например, только size1/size2 с флешки).
-   */
-  const mergeNodeArrays = useCallback((target: unknown[], source: unknown[]): unknown[] => {
-    return target.map((existingNode, i) => {
-      const sourceNode = source[i];
-      if (!sourceNode || typeof sourceNode !== "object") return existingNode;
-      if (typeof existingNode !== "object") return sourceNode;
-      const result = { ...(existingNode as Record<string, unknown>) };
-      for (const key of Object.keys(sourceNode as Record<string, unknown>)) {
-        const sourceVal = (sourceNode as Record<string, unknown>)[key];
-        if (sourceVal !== undefined && sourceVal !== null && sourceVal !== "") {
-          result[key] = sourceVal;
-        }
-      }
-      return result;
-    }).concat(
-      source.slice(target.length).map((n) => (typeof n === "object" ? { ...(n as Record<string, unknown>) } : n)),
-    );
-  }, []);
-
-  // Глубокое рекурсивное слияние — мержит вложенные объекты, а не заменяет их
-  const deepMerge = useCallback((target: unknown, source: unknown): unknown => {
-    if (source === null || source === undefined) return target;
-    if (target === null || target === undefined) return source;
-    if (typeof target !== "object" || typeof source !== "object") return source;
-    if (Array.isArray(target) || Array.isArray(source)) return source;
-
-    const result = { ...(target as Record<string, unknown>) };
-    for (const key of Object.keys(source as Record<string, unknown>)) {
-      const targetVal = (target as Record<string, unknown>)[key];
-      const sourceVal = (source as Record<string, unknown>)[key];
-      if (
-        targetVal !== null && targetVal !== undefined &&
-        typeof targetVal === "object" && !Array.isArray(targetVal) &&
-        typeof sourceVal === "object" && !Array.isArray(sourceVal)
-      ) {
-        result[key] = deepMerge(targetVal, sourceVal);
-      } else if (
-        targetVal !== null && targetVal !== undefined &&
-        Array.isArray(targetVal) && Array.isArray(sourceVal) &&
-        sourceVal.length > 0 && typeof sourceVal[0] === "object" && "number" in (sourceVal[0] as Record<string, unknown>)
-      ) {
-        // Спецобработка для массивов с числовым полем "number" (nodesList, concretionsList и т.д.)
-        result[key] = mergeNodeArrays(targetVal, sourceVal);
-      } else {
-        result[key] = sourceVal;
-      }
-    }
-    return result;
-  }, []);
-
   const mergeStudyData = useCallback((studyType: string, partialData: Record<string, unknown>) => {
     setStudiesDataState((prev) => {
       const existing = prev[studyType];
@@ -148,7 +95,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
         [studyType]: merged,
       };
     });
-  }, [deepMerge]);
+  }, []);
 
 
   const setPatientFullName = useCallback((value: string) => {

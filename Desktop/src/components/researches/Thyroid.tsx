@@ -63,25 +63,6 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     }
   }, [value, isLoaded, defaults]);
 
-  // ref для отслеживания предыдущего value
-  const prevValueRef = useRef(value);
-
-  useEffect(() => {
-    if (value === prevValueRef.current) return;
-    prevValueRef.current = value;
-
-    if (!value) {
-      setForm(defaultThyroidStudyState);
-      return;
-    }
-
-    // Глубокое слияние: мержим только те поля, что пришли, не затирая уже заполненные
-    setForm((prev) => deepMergeThyroid(prev, value));
-  }, [value]);
-
-  const { setStudyData } = useResearch();
-  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
-
   /** Глубокое рекурсивное слияние для ThyroidStudyProtocol */
   function deepMergeThyroid(target: ThyroidStudyProtocol, source: ThyroidStudyProtocol): ThyroidStudyProtocol {
     const result: ThyroidStudyProtocol = {
@@ -152,6 +133,25 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
 
     return merged;
   }
+
+  // ref для отслеживания предыдущего value
+  const prevValueRef = useRef(value);
+
+  useEffect(() => {
+    if (value === prevValueRef.current) return;
+    prevValueRef.current = value;
+
+    if (!value) {
+      setForm(defaultThyroidStudyState);
+      return;
+    }
+
+    // Глубокое слияние: мержим только те поля, что пришли, не затирая уже заполненные
+    setForm((prev) => deepMergeThyroid(prev, value));
+  }, [value]);
+
+  const { setStudyData } = useResearch();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: ThyroidStudyProtocol) => {
     setForm(updated);

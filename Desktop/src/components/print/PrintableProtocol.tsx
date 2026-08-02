@@ -131,14 +131,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
   const [isEditMode, setIsEditMode] = React.useState(editMode ?? false);
 
-  React.useEffect(() => {
-    if (editMode && !isEditMode) {
-      handleStartEditing();
-    } else if (editMode === false && isEditMode) {
-      setIsEditMode(false);
-    }
-  }, [editMode]);
-
   const obpData = studiesData["ОБП"];
   const kidneysData = studiesData["Почки"];
   const bladderStudyData = studiesData["Мочевой пузырь"];
@@ -315,21 +307,21 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
         },
       ].filter((definition) => Boolean(definition.studyData)) as StudyDefinition[],
     [
-      obpData,
-      kidneysData,
-      bladderStudyData,
-      omtFemaleData,
-      omtMaleData,
-      thyroidData,
-      pleuralData,
-      salivaryData,
-      brachioData,
-      lowerExtremityVeinsData,
-      lymphNodesData,
-      breastData,
-      scrotumData,
-      childDispensaryData,
-      softTissueData,
+      obpProtocol,
+      kidneysProtocol,
+      bladderStudyProtocol,
+      omtFemaleProtocol,
+      omtMaleProtocol,
+      thyroidProtocol,
+      pleuralProtocol,
+      salivaryProtocol,
+      brachioProtocol,
+      lowerExtremityVeinsProtocol,
+      lymphNodesProtocol,
+      breastProtocol,
+      scrotumProtocol,
+      childDispensaryProtocol,
+      softTissueProtocol,
     ],
   );
 
@@ -372,6 +364,27 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     },
     [sourceBlockHtml, studyDefinitions],
   );
+
+  const handleStartEditing = React.useCallback(() => {
+    setDraftOverrides(buildDraftOverrides(appliedOverrides));
+    setIsEditMode(true);
+  }, [appliedOverrides, buildDraftOverrides]);
+
+  // Храним актуальную версию handleStartEditing в ref, чтобы не добавлять
+  // нестабильную функцию в зависимости эффекта (иначе ломается мемоизация).
+  const handleStartEditingRef = React.useRef(handleStartEditing);
+
+  React.useEffect(() => {
+    handleStartEditingRef.current = handleStartEditing;
+  });
+
+  React.useEffect(() => {
+    if (editMode && !isEditMode) {
+      handleStartEditingRef.current();
+    } else if (editMode === false && isEditMode) {
+      setIsEditMode(false);
+    }
+  }, [editMode, isEditMode]);
 
   /**
    * Захватывает innerHTML из скрытого source-контейнера.
@@ -578,16 +591,20 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   const editContentRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
 
+  // При входе в режим редактирования связываем editContentRef с корнем печати
+  React.useEffect(() => {
+    if (isEditMode && printRootRef.current) {
+      editContentRef.current = printRootRef.current;
+    }
+  }, [isEditMode]);
+
   React.useEffect(() => {
     if (studyPages.length > 0) {
       props.onReady?.();
     }
   }, [studyPages]);
 
-  const handleStartEditing = React.useCallback(() => {
-    setDraftOverrides(buildDraftOverrides(appliedOverrides));
-    setIsEditMode(true);
-  }, [appliedOverrides, buildDraftOverrides]);
+  const { researchId: propsResearchId, onSave: propsOnSave } = props;
 
   const handleSaveOverrides = React.useCallback(async () => {
     // Сначала читаем актуальный HTML из contentEditable блока
@@ -632,10 +649,10 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     });
 
     // Если есть researchId, сохраняем в БД
-    if (props.researchId) {
+    if (propsResearchId) {
       try {
         await window.protocolAPI.savePrintOverrides({
-          researchId: props.researchId,
+          researchId: propsResearchId,
           overrides: nextOverrides,
         });
       } catch {
@@ -645,8 +662,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
 
     setAppliedOverrides(nextOverrides);
     setIsEditMode(false);
-    props.onSave?.();
-  }, [draftOverrides, studyDefinitions, props.onSave, props.researchId]);
+    propsOnSave?.();
+  }, [draftOverrides, studyDefinitions, propsOnSave, propsResearchId]);
 
   React.useImperativeHandle(ref, () => ({
     saveOverrides: handleSaveOverrides,
@@ -675,12 +692,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
         ))}
       </div>
       <div
-        ref={(node) => {
-          printRootRef.current = node;
-          if (isEditMode) {
-            (editContentRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-          }
-        }}
+        ref={printRootRef}
         id="print-root"
         contentEditable={isEditMode}
         suppressContentEditableWarning
