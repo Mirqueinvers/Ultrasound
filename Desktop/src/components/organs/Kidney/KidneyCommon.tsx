@@ -1,57 +1,37 @@
 // /components/print/organs/kidney/KidneyCommon.tsx
-import React, { useEffect, useRef } from "react";
+// Презентационный компонент: вся логика вынесена в hooks/organs/useKidney.ts
+import React from "react";
 import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useKidney } from "@hooks/organs/useKidney";
 import { Concrements } from "./Concrements";
 import { Cysts } from "./Cysts";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
-import type { KidneyProtocol, KidneyCommonProps } from "@types";
-import { defaultKidneyState } from "@types";
+import type { KidneyCommonProps } from "@types";
 
 export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   side,
   value,
   onChange,
 }) => {
-  // Отслеживаем предыдущий value через ref, чтобы не пересоздавать форму на каждый render
-  const prevValueRef = useRef(value);
-  const initialValue: KidneyProtocol = {
-    ...defaultKidneyState,
-    ...(value || {}),
-    parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
-    parenchymaCystslist: value?.parenchymaCystslist || [],
-    parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
-    parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
-    pcsConcrementslist: value?.pcsConcrementslist || [],
-    pcsCystslist: value?.pcsCystslist || [],
-    pcsMultipleCysts: value?.pcsMultipleCysts || false,
-    pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
-  };
-
-  const [form, setForm] = useFormState<KidneyProtocol>(initialValue);
-
-  useEffect(() => {
-    if (value === prevValueRef.current) return;
-    prevValueRef.current = value;
-
-    setForm({
-      ...defaultKidneyState,
-      ...(value || {}),
-      parenchymaConcrementslist: value?.parenchymaConcrementslist || [],
-      parenchymaCystslist: value?.parenchymaCystslist || [],
-      parenchymaMultipleCysts: value?.parenchymaMultipleCysts || false,
-      parenchymaMultipleCystsSize: value?.parenchymaMultipleCystsSize || "",
-      pcsConcrementslist: value?.pcsConcrementslist || [],
-      pcsCystslist: value?.pcsCystslist || [],
-      pcsMultipleCysts: value?.pcsMultipleCysts || false,
-      pcsMultipleCystsSize: value?.pcsMultipleCystsSize || "",
-    });
-  }, [value, setForm]);
-
-  const updateField = useFieldUpdate(form, setForm, onChange);
+  const {
+    form,
+    updateField,
+    updateSelect,
+    parenchymaConcrementsManager,
+    parenchymaCystsManager,
+    pcsConcrementsManager,
+    pcsCystsManager,
+    addParenchymaConcrement,
+    addParenchymaCyst,
+    addPcsConcrement,
+    addPcsCyst,
+    toggleParenchymaMultipleCysts,
+    togglePcsMultipleCysts,
+  } = useKidney(side, value, onChange);
 
   const organName = side === "left" ? "leftKidney" : "rightKidney";
   const title = side === "left" ? "Левая почка" : "Правая почка";
@@ -63,400 +43,296 @@ export const KidneyCommon: React.FC<KidneyCommonProps> = ({
   const thicknessFocus = useFieldFocus(organName, "thickness");
   const parenchymaSizeFocus = useFieldFocus(organName, "parenchymaSize");
 
-  const parenchymaConcrementsManager = useListManager(
-    form.parenchymaConcrementslist,
-    form,
-    setForm,
-    "parenchymaConcrementslist",
-    onChange
-  );
-
-  const parenchymaCystsManager = useListManager(
-    form.parenchymaCystslist,
-    form,
-    setForm,
-    "parenchymaCystslist",
-    onChange
-  );
-
-  const pcsConcrementsManager = useListManager(
-    form.pcsConcrementslist,
-    form,
-    setForm,
-    "pcsConcrementslist",
-    onChange
-  );
-
-  const pcsCystsManager = useListManager(
-    form.pcsCystslist,
-    form,
-    setForm,
-    "pcsCystslist",
-    onChange
-  );
-
-  const updateSelect = (
-    field: keyof KidneyProtocol,
-    value: string,
-    cleanup?: (draft: KidneyProtocol) => void,
-  ) => {
-    const draft: KidneyProtocol = { ...form, [field]: value };
-
-    if (field === "parenchymaConcrements" && value === "не определяются") {
-      draft.parenchymaConcrementslist = [];
-    }
-    if (field === "parenchymaCysts" && value === "не определяются") {
-      draft.parenchymaCystslist = [];
-    }
-    if (field === "pcsConcrements" && value === "не определяются") {
-      draft.pcsConcrementslist = [];
-    }
-    if (field === "pcsCysts" && value === "не определяются") {
-      draft.pcsCystslist = [];
-    }
-
-    cleanup?.(draft);
-    setForm(draft);
-    onChange?.(draft);
-  };
-
-  const toggleParenchymaMultipleCysts = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      parenchymaMultipleCysts: !form.parenchymaMultipleCysts,
-      parenchymaMultipleCystsSize: !form.parenchymaMultipleCysts
-        ? form.parenchymaMultipleCystsSize
-        : "",
-    };
-    setForm(draft);
-    onChange?.(draft);
-  };
-
-  const togglePcsMultipleCysts = () => {
-    const draft: KidneyProtocol = {
-      ...form,
-      pcsMultipleCysts: !form.pcsMultipleCysts,
-      pcsMultipleCystsSize: !form.pcsMultipleCysts
-        ? form.pcsMultipleCystsSize
-        : "",
-    };
-    setForm(draft);
-    onChange?.(draft);
-  };
-
   const showMicrolithsSize = form.pcsMicroliths === "определяются";
-
   const isNephrectomy = form.position === "нефрэктомия";
 
   return (
-    <ResearchSectionCard title={title} >
+    <ResearchSectionCard title={title}>
       <div className="flex flex-col gap-6">
-<Fieldset title="Положение">
-  <div className="flex flex-col gap-3">
-    <ButtonSelect
-      label=""
-      value={form.position}
-      onChange={(val) => updateField("position", val)}
-      options={[
-        { value: "обычное", label: "Обычное" },
-        { value: "опущение", label: "Опущение" },
-        { value: "нефроптоз", label: "Нефроптоз" },
-        { value: "нефрэктомия", label: "Нефрэктомия" },
-      ]}
-    />
-
-    {(form.position === "опущение" ||
-      form.position === "нефроптоз" ||
-      form.position === "нефрэктомия") && (
-      <label className={labelClasses + " w-full"}>
-        Описание положения
-        <textarea
-          rows={2}
-          className={inputClasses + " resize-y"}
-          value={form.positionText || ""}
-          onChange={(e) => updateField("positionText", e.target.value)}
-        />
-      </label>
-    )}
-  </div>
-</Fieldset>
-
-        {isNephrectomy ? null : (
-        <>
-        <Fieldset title="Размеры">
-          <SizeRow
-            label="Длина (мм)"
-            value={form.length}
-            onChange={(val) => updateField("length", val)}
-            focus={lengthFocus}
-            range={ranges.length}
-          />
-          <SizeRow
-            label="Ширина (мм)"
-            value={form.width}
-            onChange={(val) => updateField("width", val)}
-            focus={widthFocus}
-            range={ranges.width}
-          />
-          <SizeRow
-            label="Толщина (мм)"
-            value={form.thickness}
-            onChange={(val) => updateField("thickness", val)}
-            focus={thicknessFocus}
-            range={ranges.thickness}
-          />
-        </Fieldset>
-
-        <Fieldset title="Контур почки">
-          <ButtonSelect
-            label=""
-            value={form.contour}
-            onChange={(val) => updateField("contour", val)}
-            options={[
-              { value: "четкий ровный", label: "четкий ровный" },
-              { value: "четкий неровный", label: "четкий неровный" },
-              { value: "нечеткий", label: "нечеткий" },
-            ]}
-          />
-        </Fieldset>
-
-        <Fieldset title="Паренхима">
-          <SizeRow
-            label="Размер паренхимы (мм)"
-            value={form.parenchymaSize}
-            onChange={(val) => updateField("parenchymaSize", val)}
-            focus={parenchymaSizeFocus}
-            range={ranges.parenchyma}
-          />
-
-          <ButtonSelect
-            label="Эхогенность"
-            value={form.parenchymaEchogenicity}
-            onChange={(val) => updateField("parenchymaEchogenicity", val)}
-            options={[
-              { value: "средняя", label: "средняя" },
-              { value: "повышена", label: "повышена" },
-              { value: "понижена", label: "понижена" },
-            ]}
-          />
-
-          <ButtonSelect
-            label="Структура"
-            value={form.parenchymaStructure}
-            onChange={(val) => updateField("parenchymaStructure", val)}
-            options={[
-              { value: "однородная", label: "однородная" },
-              { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
-            ]}
-          />
-
-          <ButtonSelect
-            label="Конкременты"
-            value={form.parenchymaConcrements}
-            onChange={(val) => updateSelect("parenchymaConcrements", val)}
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-          />
-
-          {form.parenchymaConcrements === "определяются" && (
-            <Concrements
-              items={form.parenchymaConcrementslist}
-              onAdd={() =>
-                parenchymaConcrementsManager.addItem({ size: "", location: "" })
-              }
-              onUpdate={parenchymaConcrementsManager.updateItem}
-              onRemove={parenchymaConcrementsManager.removeItem}
+        <Fieldset title="Положение">
+          <div className="flex flex-col gap-3">
+            <ButtonSelect
+              label=""
+              value={form.position}
+              onChange={(val) => updateField("position", val)}
+              options={[
+                { value: "обычное", label: "Обычное" },
+                { value: "опущение", label: "Опущение" },
+                { value: "нефроптоз", label: "Нефроптоз" },
+                { value: "нефрэктомия", label: "Нефрэктомия" },
+              ]}
             />
-          )}
 
-          <ButtonSelect
-            label="Кисты"
-            value={form.parenchymaCysts}
-            onChange={(val) => updateSelect("parenchymaCysts", val)}
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-          />
-
-          {form.parenchymaCysts === "определяются" && (
-            <Cysts
-              items={form.parenchymaCystslist}
-              onAdd={() =>
-                parenchymaCystsManager.addItem({ size: "", location: "" })
-              }
-              onUpdate={parenchymaCystsManager.updateItem}
-              onRemove={parenchymaCystsManager.removeItem}
-              multiple={form.parenchymaMultipleCysts}
-              multipleSize={form.parenchymaMultipleCystsSize}
-              onToggleMultiple={toggleParenchymaMultipleCysts}
-              onChangeMultipleSize={(value) =>
-                updateField("parenchymaMultipleCystsSize", value)
-              }
-            />
-          )}
-
-          <SelectWithTextarea
-            label="Патологические образования"
-            selectValue={form.parenchymaPathologicalFormations}
-            textareaValue={form.parenchymaPathologicalFormationsText}
-            onSelectChange={(val) =>
-              updateField("parenchymaPathologicalFormations", val)
-            }
-            onTextareaChange={(val) =>
-              updateField("parenchymaPathologicalFormationsText", val)
-            }
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-            triggerValue="определяются"
-            textareaLabel="Описание патологических образований"
-          />
-        </Fieldset>
-
-        <Fieldset title="Чашечно-лоханочная система">
-          <ButtonSelect
-            label="Размер"
-            value={form.pcsSize}
-            onChange={(val) => updateField("pcsSize", val)}
-            options={[
-              { value: "не расширена", label: "не расширена" },
-              { value: "расширена", label: "расширена" },
-            ]}
-          />
-
-          <ButtonSelect
-            label="Микролиты"
-            value={form.pcsMicroliths}
-            onChange={(val) =>
-              updateSelect("pcsMicroliths", val, (draft) => {
-                if (draft.pcsMicroliths === "не определяются") {
-                  draft.pcsMicrolithsSize = "";
-                }
-              })
-            }
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-          />
-
-          {showMicrolithsSize && (
-            <div>
-              <label className={labelClasses}>
-                Размером до (мм)
-                <input
-                  type="text"
-                  className={inputClasses}
-                  value={form.pcsMicrolithsSize}
-                  onChange={(e) =>
-                    updateField("pcsMicrolithsSize", e.target.value)
-                  }
+            {(form.position === "опущение" ||
+              form.position === "нефроптоз" ||
+              form.position === "нефрэктомия") && (
+              <label className={labelClasses + " w-full"}>
+                Описание положения
+                <textarea
+                  rows={2}
+                  className={inputClasses + " resize-y"}
+                  value={form.positionText || ""}
+                  onChange={(e) => updateField("positionText", e.target.value)}
                 />
               </label>
-            </div>
-          )}
-
-          <ButtonSelect
-            label="Конкременты"
-            value={form.pcsConcrements}
-            onChange={(val) => updateSelect("pcsConcrements", val)}
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-          />
-
-          {form.pcsConcrements === "определяются" && (
-            <Concrements
-              items={form.pcsConcrementslist}
-              onAdd={() =>
-                pcsConcrementsManager.addItem({ size: "", location: "" })
-              }
-              onUpdate={pcsConcrementsManager.updateItem}
-              onRemove={pcsConcrementsManager.removeItem}
-            />
-          )}
-
-          <ButtonSelect
-            label="Кисты"
-            value={form.pcsCysts}
-            onChange={(val) => updateSelect("pcsCysts", val)}
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-          />
-
-          {form.pcsCysts === "определяются" && (
-            <Cysts
-              items={form.pcsCystslist}
-              onAdd={() =>
-                pcsCystsManager.addItem({ size: "", location: "" })
-              }
-              onUpdate={pcsCystsManager.updateItem}
-              onRemove={pcsCystsManager.removeItem}
-              multiple={form.pcsMultipleCysts}
-              multipleSize={form.pcsMultipleCystsSize}
-              onToggleMultiple={togglePcsMultipleCysts}
-              onChangeMultipleSize={(value) =>
-                updateField("pcsMultipleCystsSize", value)
-              }
-            />
-          )}
-
-          <SelectWithTextarea
-            label="Патологические образования"
-            selectValue={form.pcsPathologicalFormations}
-            textareaValue={form.pcsPathologicalFormationsText}
-            onSelectChange={(val) =>
-              updateField("pcsPathologicalFormations", val)
-            }
-            onTextareaChange={(val) =>
-              updateField("pcsPathologicalFormationsText", val)
-            }
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
-            triggerValue="определяются"
-            textareaLabel="Описание патологических образований"
-          />
+            )}
+          </div>
         </Fieldset>
 
-        <Fieldset title="Синус">
-          <ButtonSelect
-            label=""
-            value={form.sinus}
-            onChange={(val) => updateField("sinus", val)}
-            options={[
-              { value: "без включений", label: "без включений" },
-              { value: "с включениями", label: "с включениями" },
-            ]}
-          />
-        </Fieldset>
+        {isNephrectomy ? null : (
+          <>
+            <Fieldset title="Размеры">
+              <SizeRow
+                label="Длина (мм)"
+                value={form.length}
+                onChange={(val) => updateField("length", val)}
+                focus={lengthFocus}
+                range={ranges.length}
+              />
+              <SizeRow
+                label="Ширина (мм)"
+                value={form.width}
+                onChange={(val) => updateField("width", val)}
+                focus={widthFocus}
+                range={ranges.width}
+              />
+              <SizeRow
+                label="Толщина (мм)"
+                value={form.thickness}
+                onChange={(val) => updateField("thickness", val)}
+                focus={thicknessFocus}
+                range={ranges.thickness}
+              />
+            </Fieldset>
 
-        <Fieldset title="Область надпочечников">
-          <SelectWithTextarea
-            label=""
-            selectValue={form.adrenalArea}
-            textareaValue={form.adrenalAreaText}
-            onSelectChange={(val) => updateField("adrenalArea", val)}
-            onTextareaChange={(val) => updateField("adrenalAreaText", val)}
-            options={[
-              { value: "не изменена", label: "не изменена" },
-              { value: "изменена", label: "изменена" },
-            ]}
-            triggerValue="изменена"
-            textareaLabel="Описание изменений"
-          />
-        </Fieldset>
+            <Fieldset title="Контур почки">
+              <ButtonSelect
+                label=""
+                value={form.contour}
+                onChange={(val) => updateField("contour", val)}
+                options={[
+                  { value: "четкий ровный", label: "четкий ровный" },
+                  { value: "четкий неровный", label: "четкий неровный" },
+                  { value: "нечеткий", label: "нечеткий" },
+                ]}
+              />
+            </Fieldset>
 
-        <Fieldset title="Дополнительно">
-          <textarea
-            rows={3}
-            className={inputClasses + " resize-y"}
-            value={form.additional}
-            onChange={(e) => updateField("additional", e.target.value)}
-          />
-        </Fieldset>
-        </>
+            <Fieldset title="Паренхима">
+              <SizeRow
+                label="Размер паренхимы (мм)"
+                value={form.parenchymaSize}
+                onChange={(val) => updateField("parenchymaSize", val)}
+                focus={parenchymaSizeFocus}
+                range={ranges.parenchyma}
+              />
+
+              <ButtonSelect
+                label="Эхогенность"
+                value={form.parenchymaEchogenicity}
+                onChange={(val) => updateField("parenchymaEchogenicity", val)}
+                options={[
+                  { value: "средняя", label: "средняя" },
+                  { value: "повышена", label: "повышена" },
+                  { value: "понижена", label: "понижена" },
+                ]}
+              />
+
+              <ButtonSelect
+                label="Структура"
+                value={form.parenchymaStructure}
+                onChange={(val) => updateField("parenchymaStructure", val)}
+                options={[
+                  { value: "однородная", label: "однородная" },
+                  { value: "диффузно-неоднородная", label: "диффузно-неоднородная" },
+                ]}
+              />
+
+              <ButtonSelect
+                label="Конкременты"
+                value={form.parenchymaConcrements}
+                onChange={(val) => updateSelect("parenchymaConcrements", val)}
+                options={[...DETECTION_OPTIONS]}
+              />
+
+              {form.parenchymaConcrements === "определяются" && (
+                <Concrements
+                  items={form.parenchymaConcrementslist}
+                  onAdd={addParenchymaConcrement}
+                  onUpdate={parenchymaConcrementsManager.updateItem}
+                  onRemove={parenchymaConcrementsManager.removeItem}
+                />
+              )}
+
+              <ButtonSelect
+                label="Кисты"
+                value={form.parenchymaCysts}
+                onChange={(val) => updateSelect("parenchymaCysts", val)}
+                options={[...DETECTION_OPTIONS]}
+              />
+
+              {form.parenchymaCysts === "определяются" && (
+                <Cysts
+                  items={form.parenchymaCystslist}
+                  onAdd={addParenchymaCyst}
+                  onUpdate={parenchymaCystsManager.updateItem}
+                  onRemove={parenchymaCystsManager.removeItem}
+                  multiple={form.parenchymaMultipleCysts}
+                  multipleSize={form.parenchymaMultipleCystsSize}
+                  onToggleMultiple={toggleParenchymaMultipleCysts}
+                  onChangeMultipleSize={(value) =>
+                    updateField("parenchymaMultipleCystsSize", value)
+                  }
+                />
+              )}
+
+              <SelectWithTextarea
+                label="Патологические образования"
+                selectValue={form.parenchymaPathologicalFormations}
+                textareaValue={form.parenchymaPathologicalFormationsText}
+                onSelectChange={(val) =>
+                  updateField("parenchymaPathologicalFormations", val)
+                }
+                onTextareaChange={(val) =>
+                  updateField("parenchymaPathologicalFormationsText", val)
+                }
+                options={[...DETECTION_OPTIONS]}
+                triggerValue="определяются"
+                textareaLabel="Описание патологических образований"
+              />
+            </Fieldset>
+
+            <Fieldset title="Чашечно-лоханочная система">
+              <ButtonSelect
+                label="Размер"
+                value={form.pcsSize}
+                onChange={(val) => updateField("pcsSize", val)}
+                options={[
+                  { value: "не расширена", label: "не расширена" },
+                  { value: "расширена", label: "расширена" },
+                ]}
+              />
+
+              <ButtonSelect
+                label="Микролиты"
+                value={form.pcsMicroliths}
+                onChange={(val) =>
+                  updateSelect("pcsMicroliths", val, (draft) => {
+                    if (draft.pcsMicroliths === "не определяются") {
+                      draft.pcsMicrolithsSize = "";
+                    }
+                  })
+                }
+                options={[...DETECTION_OPTIONS]}
+              />
+
+              {showMicrolithsSize && (
+                <div>
+                  <label className={labelClasses}>
+                    Размером до (мм)
+                    <input
+                      type="text"
+                      className={inputClasses}
+                      value={form.pcsMicrolithsSize}
+                      onChange={(e) =>
+                        updateField("pcsMicrolithsSize", e.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+              )}
+
+              <ButtonSelect
+                label="Конкременты"
+                value={form.pcsConcrements}
+                onChange={(val) => updateSelect("pcsConcrements", val)}
+                options={[...DETECTION_OPTIONS]}
+              />
+
+              {form.pcsConcrements === "определяются" && (
+                <Concrements
+                  items={form.pcsConcrementslist}
+                  onAdd={addPcsConcrement}
+                  onUpdate={pcsConcrementsManager.updateItem}
+                  onRemove={pcsConcrementsManager.removeItem}
+                />
+              )}
+
+              <ButtonSelect
+                label="Кисты"
+                value={form.pcsCysts}
+                onChange={(val) => updateSelect("pcsCysts", val)}
+                options={[...DETECTION_OPTIONS]}
+              />
+
+              {form.pcsCysts === "определяются" && (
+                <Cysts
+                  items={form.pcsCystslist}
+                  onAdd={addPcsCyst}
+                  onUpdate={pcsCystsManager.updateItem}
+                  onRemove={pcsCystsManager.removeItem}
+                  multiple={form.pcsMultipleCysts}
+                  multipleSize={form.pcsMultipleCystsSize}
+                  onToggleMultiple={togglePcsMultipleCysts}
+                  onChangeMultipleSize={(value) =>
+                    updateField("pcsMultipleCystsSize", value)
+                  }
+                />
+              )}
+
+              <SelectWithTextarea
+                label="Патологические образования"
+                selectValue={form.pcsPathologicalFormations}
+                textareaValue={form.pcsPathologicalFormationsText}
+                onSelectChange={(val) =>
+                  updateField("pcsPathologicalFormations", val)
+                }
+                onTextareaChange={(val) =>
+                  updateField("pcsPathologicalFormationsText", val)
+                }
+                options={[...DETECTION_OPTIONS]}
+                triggerValue="определяются"
+                textareaLabel="Описание патологических образований"
+              />
+            </Fieldset>
+
+            <Fieldset title="Синус">
+              <ButtonSelect
+                label=""
+                value={form.sinus}
+                onChange={(val) => updateField("sinus", val)}
+                options={[
+                  { value: "без включений", label: "без включений" },
+                  { value: "с включениями", label: "с включениями" },
+                ]}
+              />
+            </Fieldset>
+
+            <Fieldset title="Область надпочечников">
+              <SelectWithTextarea
+                label=""
+                selectValue={form.adrenalArea}
+                textareaValue={form.adrenalAreaText}
+                onSelectChange={(val) => updateField("adrenalArea", val)}
+                onTextareaChange={(val) => updateField("adrenalAreaText", val)}
+                options={[
+                  { value: "не изменена", label: "не изменена" },
+                  { value: "изменена", label: "изменена" },
+                ]}
+                triggerValue="изменена"
+                textareaLabel="Описание изменений"
+              />
+            </Fieldset>
+
+            <Fieldset title="Дополнительно">
+              <textarea
+                rows={3}
+                className={inputClasses + " resize-y"}
+                value={form.additional}
+                onChange={(e) => updateField("additional", e.target.value)}
+              />
+            </Fieldset>
+          </>
         )}
       </div>
     </ResearchSectionCard>

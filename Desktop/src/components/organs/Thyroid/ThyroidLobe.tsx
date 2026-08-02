@@ -1,19 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { normalRanges } from "@components/common";
 import { ButtonSelect, SizeRow, Fieldset } from "@/UI";
-import { useFormState, useFieldUpdate, useFieldFocus, useListManager } from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useThyroidLobe, THYROID_OPTIONS } from "@hooks/organs/useThyroidLobe";
 import { ThyroidNodeComponent } from "./ThyroidNode";
-import type { ThyroidLobeProtocol, ThyroidNode, ThyroidLobeProps } from "@/types/organs/thyroid";
-import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid";
+import type { ThyroidLobeProps } from "@/types/organs/thyroid";
 import { Plus, Trash2 } from "lucide-react";
 
-const DEFAULT_NODE_ECHOGENICITY = "изоэхогенный";
-const DEFAULT_NODE_ECHOSTRUCTURE = "однородная";
-const DEFAULT_NODE_CONTOUR = "четкий ровный";
-const DEFAULT_NODE_ORIENTATION = "горизонтальная";
-const DEFAULT_NODE_BLOOD_FLOW = "не изменен";
-const VOLUME_FORMATIONS_NONE = "не определяются";
-const VOLUME_FORMATIONS_PRESENT = "определяются";
 const LABEL_DIMENSIONS = "Размеры";
 const LABEL_LENGTH = "Длина (мм)";
 const LABEL_WIDTH = "Ширина (мм)";
@@ -32,82 +25,21 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
   value,
   onChange,
 }) => {
-  const initialValue: ThyroidLobeProtocol = {
-    ...defaultThyroidLobeState,
-    ...(value || {}),
-    nodesList: value?.nodesList || [],
-  };
-
-  const [form, setForm] = useFormState<ThyroidLobeProtocol>(initialValue);
-  const updateField = useFieldUpdate(form, setForm, onChange);
-
-  useEffect(() => {
-    setForm({
-      ...defaultThyroidLobeState,
-      ...(value || {}),
-      nodesList: value?.nodesList || [],
-    });
-  }, [value, setForm]);
+  const {
+    form,
+    updateField,
+    updateSelect,
+    nodesManager,
+    addNode,
+    removeNode,
+  } = useThyroidLobe(side, value, onChange);
 
   const organName = side === "left" ? "leftThyroidLobe" : "rightThyroidLobe";
 
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const depthFocus = useFieldFocus(organName, "depth");
-
-  useEffect(() => {
-    const length = parseFloat(form.length) || 0;
-    const width = parseFloat(form.width) || 0;
-    const depth = parseFloat(form.depth) || 0;
-
-    if (length > 0 && width > 0 && depth > 0) {
-      const volume = ((length * width * depth * 0.479) / 1000).toFixed(2);
-      if (form.volume !== volume) {
-        const draft = { ...form, volume };
-        setForm(draft);
-        onChange?.(draft);
-      }
-    } else if (form.volume !== "") {
-      const draft = { ...form, volume: "" };
-      setForm(draft);
-      onChange?.(draft);
-    }
-  }, [form.length, form.width, form.depth]);
-
-  const nodesManager = useListManager(
-    form.nodesList,
-    form,
-    setForm,
-    "nodesList",
-    onChange
-  );
-
-  const addNode = () => {
-    const newNode: ThyroidNode = {
-      number: form.nodesList.length + 1,
-      size1: "",
-      size2: "",
-      echogenicity: DEFAULT_NODE_ECHOGENICITY,
-      echostructure: DEFAULT_NODE_ECHOSTRUCTURE,
-      contour: DEFAULT_NODE_CONTOUR,
-      orientation: DEFAULT_NODE_ORIENTATION,
-      bloodFlow: DEFAULT_NODE_BLOOD_FLOW,
-      comment: "",
-      echogenicFoci: "",
-    };
-    nodesManager.addItem(newNode);
-  };
-
-  const updateSelect = (field: keyof ThyroidLobeProtocol, value: string) => {
-    const draft: ThyroidLobeProtocol = { ...form, [field]: value };
-
-    if (field === "volumeFormations" && value === VOLUME_FORMATIONS_NONE) {
-      draft.nodesList = [];
-    }
-
-    setForm(draft);
-    onChange?.(draft);
-  };
+  const volumeFocus = useFieldFocus(organName, "volume");
 
   return (
     <div className="flex flex-col gap-6">
@@ -138,7 +70,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
             label={LABEL_VOLUME}
             value={form.volume}
             onChange={(val) => updateField("volume", val)}
-            focus={useFieldFocus(organName, "volume")}
+            focus={volumeFocus}
             readOnly={true}
             autoCalculated={true}
             customInputClass="w-full px-4 py-2.5 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-300 rounded-lg font-semibold text-sky-900"
@@ -152,12 +84,12 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
           value={form.volumeFormations}
           onChange={(val) => updateSelect("volumeFormations", val)}
           options={[
-            { value: VOLUME_FORMATIONS_NONE, label: VOLUME_FORMATIONS_NONE },
-            { value: VOLUME_FORMATIONS_PRESENT, label: VOLUME_FORMATIONS_PRESENT },
+            { value: THYROID_OPTIONS.none, label: THYROID_OPTIONS.none },
+            { value: THYROID_OPTIONS.present, label: THYROID_OPTIONS.present },
           ]}
         />
 
-        {form.volumeFormations === VOLUME_FORMATIONS_PRESENT && (
+        {form.volumeFormations === THYROID_OPTIONS.present && (
           <div className="mt-6 space-y-4">
             {form.nodesList.length === 0 ? (
               <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
@@ -184,15 +116,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
                       </span>
                       <button
                         type="button"
-                        onClick={() => {
-                          nodesManager.removeItem(index);
-                          const updatedNodes = form.nodesList
-                            .filter((_, i) => i !== index)
-                            .map((n, i) => ({ ...n, number: i + 1 }));
-                          const draft = { ...form, nodesList: updatedNodes };
-                          setForm(draft);
-                          onChange?.(draft);
-                        }}
+                        onClick={() => removeNode(index)}
                         className="text-white hover:bg-white/20 p-1.5 rounded-lg transition-colors"
                         title={LABEL_DELETE_NODE}
                       >
@@ -205,15 +129,7 @@ export const ThyroidLobe: React.FC<ThyroidLobeProps> = ({
                         onUpdate={(field, value) => {
                           nodesManager.updateItem(index, field, value);
                         }}
-                        onRemove={() => {
-                          nodesManager.removeItem(index);
-                          const updatedNodes = form.nodesList
-                            .filter((_, i) => i !== index)
-                            .map((n, i) => ({ ...n, number: i + 1 }));
-                          const draft = { ...form, nodesList: updatedNodes };
-                          setForm(draft);
-                          onChange?.(draft);
-                        }}
+                        onRemove={() => removeNode(index)}
                       />
                     </div>
                   </div>

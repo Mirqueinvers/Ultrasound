@@ -162,10 +162,111 @@ export function useOrganForm<T>(
 - 6 ошибок `react-refresh/only-export-components` в контекстах устранены, `tsc` — 0 ошибок.
 
 ### Этап C — Декомпозиция органов (самый большой)
-6. Создать общий `useOrganForm<T>`.
-7. Вынести вычисления (объём, автоподстановки) в хуки.
-8. Переводить органы по одному: Testis → Thyroid → Uterus → Kidney → остальные.
-9. На каждый орган — `tsc` + проверка.
+
+**Принцип:** компонент органа становится презентационным (< 400 строк): получает `form`, `updateField`, `focus` и рендерит поля. Вся логика (sync с value, вычисления, списки, подписки) уходит в хуки.
+
+**Проблемы, которые решаем:**
+
+| Паттерн-дубликат | Где встречается |
+|---|---|
+| `value → initialValue(merge) → form → useEffect(sync)` | Каждый орган (8+ файлов) |
+| Объём эллипсоида `(l*w*d*0.523)/1000` | Testis, Uterus, Ovary, Prostate, UrinaryBladder, SalivaryGlands |
+| Объём щитовидки `(l*w*d*0.479)/1000` | ThyroidLobe |
+| Логика «при не определяются очистить список» | ThyroidLobe, Uterus, Kidney |
+| `useConclusion(setForm, organKey)` + подписка на `add-conclusion-text` | Почти все |
+| `useEffect` с setForm внутри (без `onChange`) — рассинхрон с родителем | Testis (стр. 93–95), ThyroidLobe |
+
+**Целевая структура:**
+```
+Desktop/src/hooks/
+├── useOrganForm.ts        // ОБЩИЙ: value → form, sync, updateField, conclusion
+├── useOrganVolume.ts      // ОБЩИЙ: расчёт объёма (коэф. 0.523 / 0.479)
+└── organs/
+    ├── useTestis.ts       // специфика яичка (2 стороны, объём)
+    ├── useThyroidLobe.ts  // специфика доли (узлы, объём 0.479)
+    ├── useUterus.ts       // специфика матки (миомы, cycleDay)
+    ├── useKidney.ts       // специфика почки (конкременты, кисты)
+    ├── useOvary.ts        // специфика яичника (фолликулы, объём)
+    ├── useProstate.ts     // специфика простаты (объём)
+    ├── useUrinaryBladder.ts
+    └── useSalivaryGland.ts
+```
+
+**Шаг 6. Общий `useOrganForm<T>`** (`hooks/useOrganForm.ts`) — заменяет ручной паттерн:
+```ts
+export function useOrganForm<T extends Record<string, any>>(options: {
+  value?: T;                    // из пропсов
+  defaults: T;                  // defaultState органа
+  organKey: string;             // для useConclusion ("uterus", "rightTestis")
+  mergeLists?: (v?: T) => Partial<T>;  // доп. слияние списков (nodesList и т.п.)
+}) {
+  // 1. initialValue = { ...defaults, ...value, ...mergeLists?.(value) }
+  // 2. form = useState(initialValue)
+  // 3. useEffect sync value → form (с prevValueRef, как в KidneyCommon)
+  // 4. updateField = useFieldUpdate(form, setForm, onChange) + commit
+  // 5. useConclusion(setForm, organKey)
+  // 6. focus = (field: string) => useFieldFocus(organKey, field)
+  // Возвращает: { form, setForm, updateField, focus, commit(draft) }
+}
+```
+Отдельно — `commit(draft)` для случаев, когда вычисления пишут в form **и** вызывают `onChange` (сейчас в Uterus/Kidney это дублируется вручную).
+
+**Шаг 7. Общий `useOrganVolume`** (`hooks/useOrganVolume.ts`) — выносит расчёт объёма из 8 органов:
+```ts
+export function useOrganVolume(options: {
+  length: string; width: string; depth: string;
+  volume: string;
+  coefficient?: number;          // 0.523 | 0.479
+  precision?: number;            // 2 (по умолчанию) | 0 (мочевой пузырь)
+  getVolumeField?: () => string; // для полей с префиксами (uterusVolume)
+  onVolumeChange: (volume: string) => void;  // updateField
+  enabled?: boolean;             // Uterus: isNormal
+}) { /* useEffect на [length, width, depth, enabled] — авто-расчёт + сброс при невалидных */ }
+```
+
+**Шаг 8. Специфичные хуки органов** (`hooks/organs/use<Organ>.ts`) — выносят:
+- `useTestis.ts` — два экземпляра `useOrganForm` (right/left), `useOrganVolume` (0.523), `updateRight/updateLeft`
+- `useThyroidLobe.ts` — `useOrganForm` + `useOrganVolume` (0.479) + `useListManager` для узлов + `addNode` с дефолтами + `updateSelect` (очистка nodesList при «не определяются»)
+- `useUterus.ts` — `useOrganForm` + `useOrganVolume` (0.523, `getVolumeField: () => form.uterusVolume`) + миомы через `useListManager` + `cycleDay` авто-расчёт + `updateMyomaPresence` (очистка при «не определяются»)
+- `useKidney.ts` — `useOrganForm` + 2× конкременты + 2× кисты (`useListManager`) + `parenchymaSize`
+- `useOvary.ts` / `useProstate.ts` / `useUrinaryBladder.ts` / `useSalivaryGland.ts` — `useOrganForm` + `useOrganVolume` + списки
+
+**Шаг 9. Перевод органов по одному** (в этом порядке):
+1. ✅ **Testis** (`Testis.tsx` 385 строк) — form + объём + 2 стороны. Переведён.
+2. ✅ **ThyroidLobe** (`ThyroidLobe.tsx` → ~230 строк) — узлы (`useListManager`) + очистка списка. Переведён.
+3. ✅ **Uterus** (`Uterus.tsx` 476 → 445 строк) — миомы, cycleDay, `enabled`. Переведён.
+4. ✅ **KidneyCommon** (`KidneyCommon.tsx` 467 → ~400 строк) — 4 списка (конкременты/кисты паренхимы и ЧЛС). Переведён.
+5. **Ovary, Prostate, UrinaryBladder, SalivaryGlands, Spleen, Pancreas, Hepat** — остальные (по тому же паттерну).
+
+**Правила перевода:**
+- Компонент держит только JSX: `form.*` + `updateField` + `focus` + менеджеры списков.
+- `useEffect` в компонентах органов — запрещён (всё в хуках).
+- setForm напрямую в компоненте — только через `commit`/менеджеры.
+- Вычисления объёма — только через `useOrganVolume`.
+- После каждого органа: `npx tsc --noEmit -p tsconfig.app.json && npx eslint src/components/organs/<Organ>` — 0 ошибок.
+- Цель: каждый файл органа < 400 строк.
+
+**Прогресс этапа C (сделано):**
+- ✅ `hooks/useOrganForm.ts` — общий хук: value → form, sync по reference (prevValueRef), `updateField`, `commit` (setForm + onChange), `useConclusion` (organKey: null = отключить).
+- ✅ `hooks/useConclusion.ts` — принимает `setForm: null | Dispatch` и `organ: string | null`, не подписывается, если null. Убран `no-explicit-any`.
+- ✅ `hooks/useOrganVolume.ts` — общий авто-расчёт объёма эллипсоида (коэф. 0.523/0.479, precision 2/0, `enabled`).
+- ✅ `hooks/organs/useTestis.ts` — `useTestisSide` (right/left) + `useTestis` (контейнер).
+- ✅ `hooks/organs/useThyroidLobe.ts` — `useOrganForm` + `useOrganVolume` (0.479) + `updateSelect` (очистка узлов) + `removeNode`.
+- ✅ `hooks/organs/useUterus.ts` — `useOrganForm` + cycleDay + `useOrganVolume` (`enabled: isNormal`) + миомы (`useListManager`).
+- ✅ `hooks/organs/useKidney.ts` — 4 списка (`useListManager`) + `updateSelect` (очистка при «не определяются») + toggle множественных кист.
+- ✅ `hooks/index.ts` — экспорты `useOrganForm`, `useOrganVolume`, `organs/*`.
+- `tsc --noEmit` — 0 ошибок.
+
+**Дальше (по этому же паттерну):**
+- `useOrganVolume` уже покрывает **Ovary, Prostate, UrinaryBladder, SalivaryGland** — остаётся подключить.
+- Spleen / Pancreas / Hepat — только `useOrganForm` + `useConclusion` (без объёма).
+- ВАЖНО: `useOrganVolume` при невалидных размерах очищает объём (Testis/Thyroid) — для **UrinaryBladder** `precision: 0` и авто-сброс; для **Uterus** уже реализован `enabled`.
+- Проверить `no-explicit-any`: сейчас вынесены `any` из `useConclusion`/`useOrganForm` (в реестре осталось 29).
+
+**Выход этапа C:**
+- `hooks/useOrganForm.ts`, `hooks/useOrganVolume.ts`, `hooks/organs/*` созданы.
+- 10+ компонентов органов декомпозированы, `useEffect` в них нет.
+- `tsc` — 0 ошибок, органы < 400 строк.
 
 ### Этап D — Рефакторинг Content/AppShell
 10. Выделить `ResearchWorkspace`, `JournalSection`, `SettingsSection` и т.д.

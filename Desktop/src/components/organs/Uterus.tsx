@@ -1,39 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { normalRanges } from "@components/common";
 import { ButtonSelect, Fieldset, SelectWithTextarea, SizeRow } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import {
-  useConclusion,
-  useFieldFocus,
-  useFieldUpdate,
-  useFormState,
-  useListManager,
-} from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useUterus, UTERUS_OPTIONS } from "@hooks/organs/useUterus";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
 import { UterusNodeComponent } from "./UterusNode";
-import type { UterusNode, UterusProps, UterusProtocol } from "@types";
-import { defaultUterusState } from "@types";
+import type { UterusProps } from "@types";
 
 export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
-  const initialValue: UterusProtocol = {
-    ...defaultUterusState,
-    ...(value || {}),
-    myomaNodesList: value?.myomaNodesList || [],
-  };
-
-  const [form, setForm] = useFormState<UterusProtocol>(initialValue);
-  useEffect(() => {
-    setForm({
-      ...defaultUterusState,
-      ...(value || {}),
-      myomaNodesList: value?.myomaNodesList || [],
-    });
-  }, [value, setForm]);
-
-  const updateField = useFieldUpdate(form, setForm, onChange);
-  useConclusion(setForm, "uterus");
+  const {
+    form,
+    updateField,
+    status,
+    isNormal,
+    isSubtotal,
+    myomaNodesManager,
+    addMyomaNode,
+    updateMyomaPresence,
+    removeMyomaNode,
+  } = useUterus(value, onChange);
 
   const lengthFocus = useFieldFocus("uterus", "uterusLength");
   const widthFocus = useFieldFocus("uterus", "uterusWidth");
@@ -42,95 +30,8 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
   const endometriumSizeFocus = useFieldFocus("uterus", "endometriumSize");
   const cervixSizeFocus = useFieldFocus("uterus", "cervixSize");
 
-  const status = form.uterusStatus || "обычное";
-  const isNormal = status === "обычное";
-  const isSubtotal = status === "субтотальная гистерэктомия";
-
-  useEffect(() => {
-    if (!isNormal || !form.lastMenstruationDate) return;
-
-    const lastMenstruation = new Date(form.lastMenstruationDate);
-    const today = new Date();
-    const diffTime = today.getTime() - lastMenstruation.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 0 && diffDays.toString() !== form.cycleDay) {
-      updateField("cycleDay", diffDays.toString());
-    }
-  }, [form.lastMenstruationDate, form.cycleDay, isNormal]);
-
-  useEffect(() => {
-    if (!isNormal) return;
-
-    const length = parseFloat(form.length);
-    const width = parseFloat(form.width);
-    const apDimension = parseFloat(form.apDimension);
-
-    if (
-      !isNaN(length) &&
-      !isNaN(width) &&
-      !isNaN(apDimension) &&
-      length > 0 &&
-      width > 0 &&
-      apDimension > 0
-    ) {
-      const volume = ((length * width * apDimension * 0.523) / 1000).toFixed(2);
-      if (volume !== form.volume) {
-        updateField("volume", volume);
-      }
-    }
-  }, [form.length, form.width, form.apDimension, form.volume, isNormal]);
-
-  const myomaNodesManager = useListManager(
-    form.myomaNodesList,
-    form,
-    setForm,
-    "myomaNodesList",
-    onChange
-  );
-
-  const addMyomaNode = () => {
-    const newNode: UterusNode = {
-      number: form.myomaNodesList.length + 1,
-      wallLocation: "задняя",
-      layerType: "интрамуральная",
-      size1: "",
-      size2: "",
-      contourClarity: "четкие",
-      contourEvenness: "ровные",
-      echogenicity: "гипоэхогенный",
-      structure: "однородная",
-      cavityImpact: "не деформирует",
-      bloodFlow: "не изменен",
-      comment: "",
-    };
-
-    myomaNodesManager.addItem(newNode);
-  };
-
-  const updateMyomaPresence = (nextValue: string) => {
-    const draft: UterusProtocol = { ...form, myomaNodesPresence: nextValue };
-    if (nextValue === "не определяются") {
-      draft.myomaNodesList = [];
-    }
-    setForm(draft);
-    onChange?.(draft);
-  };
-
-  const removeMyomaNode = (index: number) => {
-    myomaNodesManager.removeItem(index);
-
-    const updatedNodes = form.myomaNodesList
-      .filter((_, i) => i !== index)
-      .map((node, i) => ({ ...node, number: i + 1 }));
-
-    const draft: UterusProtocol = { ...form, myomaNodesList: updatedNodes };
-    setForm(draft);
-    onChange?.(draft);
-  };
-
   return (
-    <ResearchSectionCard title="Матка" >
+    <ResearchSectionCard title="Матка">
       <div className="flex flex-col gap-6">
         <Fieldset title="Положение">
           <ButtonSelect
@@ -317,12 +218,10 @@ export const Uterus: React.FC<UterusProps> = ({ value, onChange }) => {
                 label=""
                 value={form.myomaNodesPresence}
                 onChange={updateMyomaPresence}
-                options={[
-                  ...DETECTION_OPTIONS,
-                ]}
+                options={[...DETECTION_OPTIONS]}
               />
 
-              {form.myomaNodesPresence === "определяются" && (
+              {form.myomaNodesPresence === UTERUS_OPTIONS.myomaPresent && (
                 <div className="mt-6 space-y-4">
                   {form.myomaNodesList.length === 0 ? (
                     <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">

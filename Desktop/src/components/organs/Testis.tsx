@@ -1,5 +1,6 @@
 // Frontend/src/components/organs/Testis.tsx
-import React, { useEffect, useMemo } from "react";
+// Презентационный компонент: вся логика вынесена в hooks/organs/useTestis.ts
+import React from "react";
 import { normalRanges } from "@components/common";
 import {
   ButtonSelect,
@@ -8,21 +9,12 @@ import {
   SelectWithTextarea,
 } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import {
-  useFormState,
-  useFieldUpdate,
-  useFieldFocus,
-  useConclusion,
-} from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useTestis, useTestisSide } from "@hooks/organs/useTestis";
 import { inputClasses } from "@utils/formClasses";
 import type {
-  TestisProtocol,
   TestisProps,
   SingleTestisProtocol,
-} from "@types";
-import {
-  defaultTestisState,
-  defaultSingleTestisState,
 } from "@types";
 import type { SectionKey } from "@components/common/OrgNavigation";
 
@@ -48,53 +40,14 @@ export const TestisSide: React.FC<{
     React.RefObject<HTMLDivElement | null>
   >;
 }> = ({ side, value, onChange, sectionRefs }) => {
-  const initialValue: SingleTestisProtocol = useMemo(
-    () => ({
-      ...defaultSingleTestisState,
-      ...(value || {}),
-    }),
-    [value],
-  );
-
-  const [form, setForm] = useFormState<SingleTestisProtocol>(initialValue);
-
-  useEffect(() => {
-    setForm(initialValue);
-  }, [initialValue, setForm]);
-
-  const updateField = useFieldUpdate(form, setForm, onChange);
+  const { form, updateField } = useTestisSide(side, value, onChange);
 
   const key = side === "right" ? "rightTestis" : "leftTestis";
-
-  useConclusion(setForm, key);
 
   const lengthFocus = useFieldFocus(key, "length");
   const widthFocus = useFieldFocus(key, "width");
   const depthFocus = useFieldFocus(key, "depth");
   const volumeFocus = useFieldFocus(key, "volume");
-
-  useEffect(() => {
-    const length = parseFloat(form.length);
-    const width = parseFloat(form.width);
-    const depth = parseFloat(form.depth);
-
-    if (
-      !isNaN(length) &&
-      !isNaN(width) &&
-      !isNaN(depth) &&
-      length > 0 &&
-      width > 0 &&
-      depth > 0
-    ) {
-      const volume = (
-        (length * width * depth * 0.523) /
-        1000
-      ).toFixed(2);
-      if (volume !== form.volume) {
-        updateField("volume", volume);
-      }
-    }
-  }, [form.length, form.width, form.depth]);
 
   const title = side === "right" ? "Правое яичко" : "Левое яичко";
 
@@ -105,9 +58,7 @@ export const TestisSide: React.FC<{
 
   return (
     <div ref={sectionRefs?.[sectionKey]}>
-      <ResearchSectionCard
-        title={title}
-        >
+      <ResearchSectionCard title={title}>
         <div className="flex flex-col gap-6">
           {/* Размеры */}
           <Fieldset title="Размеры">
@@ -180,12 +131,8 @@ export const TestisSide: React.FC<{
               label=""
               selectValue={form.capsule}
               textareaValue={form.capsuleText}
-              onSelectChange={(val) =>
-                updateField("capsule", val)
-              }
-              onTextareaChange={(val) =>
-                updateField("capsuleText", val)
-              }
+              onSelectChange={(val) => updateField("capsule", val)}
+              onTextareaChange={(val) => updateField("capsuleText", val)}
               options={[
                 { value: "не изменена", label: "не изменена" },
                 { value: "изменена", label: "изменена" },
@@ -200,9 +147,7 @@ export const TestisSide: React.FC<{
             <ButtonSelect
               label=""
               value={form.echogenicity}
-              onChange={(val) =>
-                updateField("echogenicity", val)
-              }
+              onChange={(val) => updateField("echogenicity", val)}
               options={[
                 { value: "средняя", label: "средняя" },
                 { value: "повышена", label: "повышена" },
@@ -217,12 +162,8 @@ export const TestisSide: React.FC<{
               label=""
               selectValue={form.echotexture}
               textareaValue={form.echotextureText}
-              onSelectChange={(val) =>
-                updateField("echotexture", val)
-              }
-              onTextareaChange={(val) =>
-                updateField("echotextureText", val)
-              }
+              onSelectChange={(val) => updateField("echotexture", val)}
+              onTextareaChange={(val) => updateField("echotextureText", val)}
               options={[
                 { value: "однородная", label: "однородная" },
                 { value: "неоднородная", label: "неоднородная" },
@@ -242,12 +183,8 @@ export const TestisSide: React.FC<{
               label=""
               selectValue={form.mediastinum}
               textareaValue={form.mediastinumText}
-              onSelectChange={(val) =>
-                updateField("mediastinum", val)
-              }
-              onTextareaChange={(val) =>
-                updateField("mediastinumText", val)
-              }
+              onSelectChange={(val) => updateField("mediastinum", val)}
+              onTextareaChange={(val) => updateField("mediastinumText", val)}
               options={[
                 { value: "не изменена", label: "не изменена" },
                 { value: "изменена", label: "изменена" },
@@ -262,9 +199,7 @@ export const TestisSide: React.FC<{
             <ButtonSelect
               label=""
               value={form.bloodFlow}
-              onChange={(val) =>
-                updateField("bloodFlow", val)
-              }
+              onChange={(val) => updateField("bloodFlow", val)}
               options={[
                 { value: "не изменен", label: "не изменен" },
                 { value: "усилен", label: "усилен" },
@@ -279,12 +214,8 @@ export const TestisSide: React.FC<{
               label=""
               selectValue={form.appendage}
               textareaValue={form.appendageText}
-              onSelectChange={(val) =>
-                updateField("appendage", val)
-              }
-              onTextareaChange={(val) =>
-                updateField("appendageText", val)
-              }
+              onSelectChange={(val) => updateField("appendage", val)}
+              onTextareaChange={(val) => updateField("appendageText", val)}
               options={[
                 { value: "не изменен", label: "не изменен" },
                 { value: "изменен", label: "изменен" },
@@ -300,12 +231,8 @@ export const TestisSide: React.FC<{
               label=""
               selectValue={form.fluidAmount}
               textareaValue={form.fluidAmountText}
-              onSelectChange={(val) =>
-                updateField("fluidAmount", val)
-              }
-              onTextareaChange={(val) =>
-                updateField("fluidAmountText", val)
-              }
+              onSelectChange={(val) => updateField("fluidAmount", val)}
+              onTextareaChange={(val) => updateField("fluidAmountText", val)}
               options={[
                 { value: "не изменено", label: "не изменено" },
                 { value: "увеличено", label: "увеличено" },
@@ -321,9 +248,7 @@ export const TestisSide: React.FC<{
               rows={3}
               className={inputClasses + " resize-y"}
               value={form.additional}
-              onChange={(e) =>
-                updateField("additional", e.target.value)
-              }
+              onChange={(e) => updateField("additional", e.target.value)}
             />
           </Fieldset>
         </div>
@@ -337,31 +262,7 @@ export const Testis: React.FC<TestisWithSectionsProps> = ({
   onChange,
   sectionRefs,
 }) => {
-  const initialValue = useMemo(
-    () => ({
-      ...defaultTestisState,
-      ...(value ?? {}),
-    }),
-    [value],
-  );
-
-  const [form, setForm] = useFormState<TestisProtocol>(initialValue);
-
-  useEffect(() => {
-    setForm(initialValue);
-  }, [initialValue, setForm]);
-
-  const updateRight = (right: SingleTestisProtocol) => {
-    const updated: TestisProtocol = { ...form, rightTestis: right };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const updateLeft = (left: SingleTestisProtocol) => {
-    const updated: TestisProtocol = { ...form, leftTestis: left };
-    setForm(updated);
-    onChange?.(updated);
-  };
+  const { form, updateRight, updateLeft } = useTestis(value, onChange);
 
   return (
     <div className="flex flex-col gap-6">
