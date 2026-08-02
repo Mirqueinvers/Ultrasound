@@ -1,91 +1,37 @@
 // /components/organs/Ovary.tsx
-import React, { useEffect } from "react";
+// Презентационный компонент: вся логика вынесена в hooks/organs/useOvary.ts
+import React from "react";
 import { normalRanges } from "@components/common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import {
-  useFormState,
-  useFieldUpdate,
-  useFieldFocus,
-  useConclusion,
-  useListManager,
-} from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useOvary } from "@hooks/organs/useOvary";
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
 import { Plus, Trash2 } from "lucide-react";
-import type { OvaryProtocol, OvaryProps } from "@types";
-import { defaultOvaryState } from "@types";
+import type { OvaryProps } from "@types";
 
 export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
-  const initialValue: OvaryProtocol = {
-    ...defaultOvaryState,
-    ...(value || {}),
-  };
-
-  const [form, setForm] = useFormState<OvaryProtocol>(initialValue);
-  useEffect(() => {
-    setForm({
-      ...defaultOvaryState,
-      ...(value || {}),
-    });
-  }, [value, setForm]);
-
-  const updateField = useFieldUpdate(form, setForm, onChange);
+  const {
+    form,
+    updateField,
+    position,
+    isVisible,
+    cystsManager,
+    addCyst,
+    updateCystSize,
+  } = useOvary(side, value, onChange);
 
   const organName = side === "left" ? "leftOvary" : "rightOvary";
   const title = side === "left" ? "Левый яичник" : "Правый яичник";
-
-  useConclusion(setForm, organName);
 
   const lengthFocus = useFieldFocus(organName, "length");
   const widthFocus = useFieldFocus(organName, "width");
   const thicknessFocus = useFieldFocus(organName, "thickness");
   const volumeFocus = useFieldFocus(organName, "volume");
 
-  const cystsManager = useListManager(
-    form.cystsList,
-    form,
-    setForm,
-    "cystsList",
-    onChange
-  );
-
-  const position = form.position || "обычное";
-  const isVisible = position === "обычное";
-
-  // Автоматический расчет объема
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const length = parseFloat(form.length);
-    const width = parseFloat(form.width);
-    const thickness = parseFloat(form.thickness);
-
-    if (
-      !isNaN(length) &&
-      !isNaN(width) &&
-      !isNaN(thickness) &&
-      length > 0 &&
-      width > 0 &&
-      thickness > 0
-    ) {
-      const volume = (
-        (length * width * thickness * 0.523) /
-        1000
-      ).toFixed(2);
-      if (volume !== form.volume) {
-        updateField("volume", volume);
-      }
-    }
-  }, [form.length, form.width, form.thickness, isVisible]);
-
-  const splitSize = (size: string): [string, string] => {
-    const [s1 = "", s2 = ""] = size.split("x");
-    return [s1, s2];
-  };
-
   return (
-    <ResearchSectionCard title={title} >
+    <ResearchSectionCard title={title}>
       <div className="flex flex-col gap-6">
         {/* Положение (визуализация) */}
         <Fieldset title="Положение">
@@ -172,9 +118,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                 label=""
                 value={form.cysts}
                 onChange={(val) => updateField("cysts", val)}
-                options={[
-                  ...DETECTION_OPTIONS,
-                ]}
+                options={[...DETECTION_OPTIONS]}
               />
 
               {form.cysts === "определяются" && (
@@ -186,7 +130,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                       </p>
                       <button
                         type="button"
-                        onClick={() => cystsManager.addItem({ size: "" })}
+                        onClick={addCyst}
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-md hover:shadow-lg font-medium"
                       >
                         <Plus size={18} />
@@ -196,7 +140,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                   )}
 
                   {form.cystsList.map((cyst, index) => {
-                    const [size1, size2] = splitSize(cyst.size);
+                    const [size1, size2] = cyst.size.split("x");
 
                     return (
                       <div
@@ -220,22 +164,14 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                         <div className="p-4 flex flex-col gap-4">
                           <SizeRow
                             label="Размер 1 (мм)"
-                            value={size1}
-                            onChange={(val) => {
-                              const newSize =
-                                val + (size2 ? `x${size2}` : "");
-                              cystsManager.updateItem(index, "size", newSize);
-                            }}
+                            value={size1 ?? ""}
+                            onChange={(val) => updateCystSize(index, "size1", val)}
                           />
 
                           <SizeRow
                             label="Размер 2 (мм)"
-                            value={size2}
-                            onChange={(val) => {
-                              const newSize =
-                                size1 + (val ? `x${val}` : "");
-                              cystsManager.updateItem(index, "size", newSize);
-                            }}
+                            value={size2 ?? ""}
+                            onChange={(val) => updateCystSize(index, "size2", val)}
                           />
                         </div>
                       </div>
@@ -245,7 +181,7 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                   {form.cystsList.length > 0 && (
                     <button
                       type="button"
-                      onClick={() => cystsManager.addItem({ size: "" })}
+                      onClick={addCyst}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-sky-300 text-sky-600 rounded-xl hover:bg-sky-50 hover:border-sky-400 transition-all font-medium"
                     >
                       <Plus size={18} />
@@ -263,12 +199,8 @@ export const Ovary: React.FC<OvaryProps> = ({ value, onChange, side }) => {
                 selectValue={form.formations}
                 textareaValue={form.formationsText}
                 onSelectChange={(val) => updateField("formations", val)}
-                onTextareaChange={(val) =>
-                  updateField("formationsText", val)
-                }
-                options={[
-                  ...DETECTION_OPTIONS,
-                ]}
+                onTextareaChange={(val) => updateField("formationsText", val)}
+                options={[...DETECTION_OPTIONS]}
                 triggerValue="определяются"
                 textareaLabel="Описание"
               />

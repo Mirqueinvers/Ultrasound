@@ -257,16 +257,34 @@ export function useOrganVolume(options: {
 - ✅ `hooks/index.ts` — экспорты `useOrganForm`, `useOrganVolume`, `organs/*`.
 - `tsc --noEmit` — 0 ошибок.
 
-**Дальше (по этому же паттерну):**
-- `useOrganVolume` уже покрывает **Ovary, Prostate, UrinaryBladder, SalivaryGland** — остаётся подключить.
-- Spleen / Pancreas / Hepat — только `useOrganForm` + `useConclusion` (без объёма).
-- ВАЖНО: `useOrganVolume` при невалидных размерах очищает объём (Testis/Thyroid) — для **UrinaryBladder** `precision: 0` и авто-сброс; для **Uterus** уже реализован `enabled`.
-- Проверить `no-explicit-any`: сейчас вынесены `any` из `useConclusion`/`useOrganForm` (в реестре осталось 29).
+**Переведены ВСЕ органы:** Testis, ThyroidLobe, Uterus, KidneyCommon, Ovary, Prostate, UrinaryBladder, SalivaryGland, Spleen, Pancreas, Hepat. Все — презентационные (только JSX), логика в `hooks/organs/*`.
+
+**Итоговая структура `hooks/organs/`:**
+```
+Desktop/src/hooks/organs/
+├── useTestis.ts          // side right/left + контейнер
+├── useThyroidLobe.ts     // объём 0.479 + узлы + очистка списка
+├── useUterus.ts          // cycleDay + объём (enabled) + миомы
+├── useKidney.ts          // 4 списка + toggle кист + очистка при «не определяются»
+├── useOvary.ts           // объём (isVisible) + кисты (size "10x15")
+├── useProstate.ts        // объём (isPresent)
+├── useUrinaryBladder.ts  // 2 объёма (precision 0) + очистка contentsText
+├── useSalivaryGland.ts   // объём (showDepth) + лимфоузлы (вложенный объект) + ducts
+├── useSpleen.ts          // форма + conclusion + isSplenectomy
+├── usePancreas.ts        // форма + conclusion
+└── useHepat.ts           // форма + total долей (ККР+ПЗР автоподстановка)
+```
+
+**Проверки после полного этапа C:**
+- ✅ `npx tsc --noEmit -p tsconfig.app.json` — **0 ошибок**
+- ✅ `npx eslint` по всем 25 изменённым файлам — **0 errors, 0 warnings**
+- ✅ В компонентах органов нет `useEffect`/`setForm` — только `form.*` + `updateField` + `focus` + менеджеры
+- ✅ `useOrganVolume` покрывает: Testis (0.523), ThyroidLobe (0.479), Uterus (0.523+enabled), Ovary (0.523+isVisible), Prostate (0.523+isPresent), UrinaryBladder (2×0.523+precision 0), SalivaryGland (0.523+showDepth)
 
 **Выход этапа C:**
-- `hooks/useOrganForm.ts`, `hooks/useOrganVolume.ts`, `hooks/organs/*` созданы.
-- 10+ компонентов органов декомпозированы, `useEffect` в них нет.
-- `tsc` — 0 ошибок, органы < 400 строк.
+- ✅ `hooks/useOrganForm.ts`, `hooks/useOrganVolume.ts`, `hooks/organs/*` созданы.
+- ✅ 10+ компонентов органов декомпозированы, `useEffect` в них нет.
+- ✅ `tsc` — 0 ошибок, органы < 400 строк (кроме Uterus, но логика вынесена).
 
 ### Этап D — Рефакторинг Content/AppShell
 10. Выделить `ResearchWorkspace`, `JournalSection`, `SettingsSection` и т.д.

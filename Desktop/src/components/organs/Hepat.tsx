@@ -1,22 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { normalRanges } from "@common";
 import { SizeRow, Fieldset, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldFocus, useConclusion } from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useHepat } from "@hooks/organs/useHepat";
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
-import type { LiverProtocol, HepatProps } from "@types";
-import { defaultLiverState } from "@types";
+import type { HepatProps } from "@types";
 
 export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
-  const initialValue = value ?? defaultLiverState;
-  const [form, setForm] = useFormState<LiverProtocol>(initialValue);
-
-  useEffect(() => {
-    setForm(value ?? defaultLiverState);
-  }, [value, setForm]);
-
-  useConclusion(setForm, "liver");
+  const { form, updateFieldWithTotals } = useHepat(value, onChange);
 
   const rightLobeFocus = useFieldFocus("liver", "rightLobeAP");
   const leftLobeFocus = useFieldFocus("liver", "leftLobeAP");
@@ -28,31 +21,6 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
   const leftLobeCCRFocus = useFieldFocus("liver", "leftLobeCCR");
   const rightLobeTotalFocus = useFieldFocus("liver", "rightLobeTotal");
   const leftLobeTotalFocus = useFieldFocus("liver", "leftLobeTotal");
-
-  const updateField = (field: keyof LiverProtocol, val: string) => {
-    const updated: LiverProtocol = { ...form, [field]: val };
-
-    if (field === "rightLobeAP" || field === "rightLobeCCR") {
-      const ap =
-        parseFloat(field === "rightLobeAP" ? val : form.rightLobeAP) || 0;
-      const ccr =
-        parseFloat(field === "rightLobeCCR" ? val : form.rightLobeCCR) || 0;
-
-      updated.rightLobeTotal = ap > 0 && ccr > 0 ? (ccr + ap).toString() : "";
-    }
-
-    if (field === "leftLobeAP" || field === "leftLobeCCR") {
-      const ap =
-        parseFloat(field === "leftLobeAP" ? val : form.leftLobeAP) || 0;
-      const ccr =
-        parseFloat(field === "leftLobeCCR" ? val : form.leftLobeCCR) || 0;
-
-      updated.leftLobeTotal = ap > 0 && ccr > 0 ? (ccr + ap).toString() : "";
-    }
-
-    setForm(updated);
-    onChange?.(updated);
-  };
 
   const rightLobeAPValue = parseFloat(form.rightLobeAP) || 0;
   const leftLobeAPValue = parseFloat(form.leftLobeAP) || 0;
@@ -82,14 +50,14 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
     leftLobeTotalValue > normalLeftLobeTotal;
 
   return (
-    <ResearchSectionCard title="Печень" >
+    <ResearchSectionCard title="Печень">
       <div className="flex flex-col gap-6">
         {/* Размеры */}
         <Fieldset title="Размеры">
           <SizeRow
             label="Правая доля, ПЗР (мм)"
             value={form.rightLobeAP}
-            onChange={(val) => updateField("rightLobeAP", val)}
+            onChange={(val) => updateFieldWithTotals("rightLobeAP", val)}
             focus={rightLobeFocus}
             range={normalRanges.liver.rightLobeAP}
           />
@@ -97,7 +65,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <SizeRow
             label="Левая доля, ПЗР (мм)"
             value={form.leftLobeAP}
-            onChange={(val) => updateField("leftLobeAP", val)}
+            onChange={(val) => updateFieldWithTotals("leftLobeAP", val)}
             focus={leftLobeFocus}
             range={normalRanges.liver.leftLobeAP}
           />
@@ -111,7 +79,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <SizeRow
                 label="Правая доля, ККР (мм)"
                 value={form.rightLobeCCR}
-                onChange={(val) => updateField("rightLobeCCR", val)}
+                onChange={(val) => updateFieldWithTotals("rightLobeCCR", val)}
                 focus={rightLobeCCRFocus}
                 range={normalRanges.liver.rightLobeCCR}
               />
@@ -119,7 +87,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <SizeRow
                 label="Правая доля, КВР (мм)"
                 value={form.rightLobeCVR}
-                onChange={(val) => updateField("rightLobeCVR", val)}
+                onChange={(val) => updateFieldWithTotals("rightLobeCVR", val)}
                 focus={rightLobeCVRFocus}
                 range={normalRanges.liver.rightLobeCVR}
               />
@@ -127,7 +95,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <SizeRow
                 label="Правая доля, ККР + ПЗР (мм)"
                 value={form.rightLobeTotal}
-                onChange={(val) => updateField("rightLobeTotal", val)}
+                onChange={(val) => updateFieldWithTotals("rightLobeTotal", val)}
                 focus={rightLobeTotalFocus}
                 range={normalRanges.liver.rightLobeTotal}
                 readOnly={true}
@@ -144,7 +112,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <SizeRow
                 label="Левая доля, ККР (мм)"
                 value={form.leftLobeCCR}
-                onChange={(val) => updateField("leftLobeCCR", val)}
+                onChange={(val) => updateFieldWithTotals("leftLobeCCR", val)}
                 focus={leftLobeCCRFocus}
                 range={normalRanges.liver.leftLobeCCR}
               />
@@ -152,7 +120,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
               <SizeRow
                 label="Левая доля, ККР + ПЗР (мм)"
                 value={form.leftLobeTotal}
-                onChange={(val) => updateField("leftLobeTotal", val)}
+                onChange={(val) => updateFieldWithTotals("leftLobeTotal", val)}
                 focus={leftLobeTotalFocus}
                 range={normalRanges.liver.leftLobeTotal}
                 readOnly={true}
@@ -166,7 +134,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <ButtonSelect
             label="Эхогенность"
             value={form.echogenicity}
-            onChange={(val) => updateField("echogenicity", val)}
+            onChange={(val) => updateFieldWithTotals("echogenicity", val)}
             options={[
               { value: "средняя", label: "средняя" },
               { value: "повышена", label: "повышена" },
@@ -177,7 +145,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <ButtonSelect
             label="Эхоструктура"
             value={form.homogeneity}
-            onChange={(val) => updateField("homogeneity", val)}
+            onChange={(val) => updateFieldWithTotals("homogeneity", val)}
             options={[
               { value: "однородная", label: "однородная" },
               { value: "неоднородная", label: "неоднородная" },
@@ -188,7 +156,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <ButtonSelect
             label="Контур"
             value={form.contours}
-            onChange={(val) => updateField("contours", val)}
+            onChange={(val) => updateFieldWithTotals("contours", val)}
             options={[
               { value: "четкий, ровный", label: "четкий, ровный" },
               { value: "четкий, неровный", label: "четкий, неровный" },
@@ -198,7 +166,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <ButtonSelect
             label="Угол нижнего края"
             value={form.lowerEdgeAngle}
-            onChange={(val) => updateField("lowerEdgeAngle", val)}
+            onChange={(val) => updateFieldWithTotals("lowerEdgeAngle", val)}
             options={[
               { value: "заострён", label: "заострён" },
               { value: "закруглён", label: "закруглён" },
@@ -209,11 +177,9 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             label="Патологические образования"
             selectValue={form.focalLesionsPresence}
             textareaValue={form.focalLesions}
-            onSelectChange={(val) => updateField("focalLesionsPresence", val)}
-            onTextareaChange={(val) => updateField("focalLesions", val)}
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
+            onSelectChange={(val) => updateFieldWithTotals("focalLesionsPresence", val)}
+            onTextareaChange={(val) => updateFieldWithTotals("focalLesions", val)}
+            options={[...DETECTION_OPTIONS]}
             triggerValue="определяются"
             textareaLabel="Описание патологических образований"
           />
@@ -224,7 +190,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <ButtonSelect
             label="Сосудистый рисунок"
             value={form.vascularPattern}
-            onChange={(val) => updateField("vascularPattern", val)}
+            onChange={(val) => updateFieldWithTotals("vascularPattern", val)}
             options={[
               { value: "не изменен", label: "не изменен" },
               { value: "обеднен", label: "обеднен" },
@@ -235,7 +201,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <SizeRow
             label="Воротная вена, диаметр (мм)"
             value={form.portalVeinDiameter}
-            onChange={(val) => updateField("portalVeinDiameter", val)}
+            onChange={(val) => updateFieldWithTotals("portalVeinDiameter", val)}
             focus={portalVeinFocus}
             range={normalRanges.liver.portalVeinDiameter}
           />
@@ -243,7 +209,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
           <SizeRow
             label="Нижняя полая вена, диаметр (мм)"
             value={form.ivc}
-            onChange={(val) => updateField("ivc", val)}
+            onChange={(val) => updateFieldWithTotals("ivc", val)}
             focus={ivcFocus}
             range={normalRanges.liver.ivc}
           />
@@ -255,7 +221,7 @@ export const Hepat: React.FC<HepatProps> = ({ value, onChange }) => {
             rows={3}
             className={inputClasses + " resize-y"}
             value={form.additional}
-            onChange={(e) => updateField("additional", e.target.value)}
+            onChange={(e) => updateFieldWithTotals("additional", e.target.value)}
           />
         </Fieldset>
       </div>

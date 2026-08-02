@@ -1,30 +1,19 @@
 // /components/organs/UrinaryBladder.tsx
-import React, { useEffect } from "react";
+// Презентационный компонент: вся логика вынесена в hooks/organs/useUrinaryBladder.ts
+import React from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import { useFormState, useFieldFocus } from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useUrinaryBladder } from "@hooks/organs/useUrinaryBladder";
 import { inputClasses, labelClasses } from "@utils/formClasses";
-import type { UrinaryBladderProtocol, UrinaryBladderProps } from "@types";
-import { defaultUrinaryBladderState } from "@types";
+import type { UrinaryBladderProps } from "@types";
 
 export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   value,
   onChange,
 }) => {
-  const initialValue: UrinaryBladderProtocol = {
-    ...defaultUrinaryBladderState,
-    ...(value ?? {}),
-  };
-
-  const [form, setForm] = useFormState<UrinaryBladderProtocol>(initialValue);
-
-  useEffect(() => {
-    setForm({
-      ...defaultUrinaryBladderState,
-      ...(value ?? {}),
-    });
-  }, [value, setForm]);
+  const { form, updateField, updateContents } = useUrinaryBladder(value, onChange);
 
   const lengthFocus = useFieldFocus("urinaryBladder", "length");
   const widthFocus = useFieldFocus("urinaryBladder", "width");
@@ -36,68 +25,12 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
   const residualDepthFocus = useFieldFocus("urinaryBladder", "residualDepth");
   const residualVolumeFocus = useFieldFocus("urinaryBladder", "residualVolume");
 
-  const updateField = (field: keyof UrinaryBladderProtocol, val: string) => {
-    const updated: UrinaryBladderProtocol = { ...form, [field]: val };
-
-    // Пересчет объёма основного мочевого пузыря
-    if (field === "length" || field === "width" || field === "depth") {
-      const length = parseFloat(
-        field === "length" ? val : updated.length || "0"
-      );
-      const width = parseFloat(
-        field === "width" ? val : updated.width || "0"
-      );
-      const depth = parseFloat(
-        field === "depth" ? val : updated.depth || "0"
-      );
-
-      if (length > 0 && width > 0 && depth > 0) {
-        const volume = (length * width * depth * 0.523) / 1000;
-        updated.volume = volume.toFixed(0);
-      } else {
-        updated.volume = "";
-      }
-    }
-
-    // Пересчёт объёма остаточной мочи
-    if (
-      field === "residualLength" ||
-      field === "residualWidth" ||
-      field === "residualDepth"
-    ) {
-      const length = parseFloat(
-        field === "residualLength" ? val : updated.residualLength || "0"
-      );
-      const width = parseFloat(
-        field === "residualWidth" ? val : updated.residualWidth || "0"
-      );
-      const depth = parseFloat(
-        field === "residualDepth" ? val : updated.residualDepth || "0"
-      );
-
-      if (length > 0 && width > 0 && depth > 0) {
-        const volume = (length * width * depth * 0.523) / 1000;
-        updated.residualVolume = volume.toFixed(0);
-      } else {
-        updated.residualVolume = "";
-      }
-    }
-
-    // Если содержимое однородное – очищаем описание
-    if (field === "contents" && val === "однородное") {
-      updated.contentsText = "";
-    }
-
-    setForm(updated);
-    onChange?.(updated);
-  };
-
   const ranges = normalRanges.urinaryBladder;
   const showContentsText = form.contents === "неоднородное";
   const emptyRange = { min: 0, max: 999999, unit: "мм" };
 
   return (
-    <ResearchSectionCard title="Мочевой пузырь" >
+    <ResearchSectionCard title="Мочевой пузырь">
       <div className="flex flex-col gap-6">
         <Fieldset title="Размеры">
           <SizeRow
@@ -201,7 +134,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
           <ButtonSelect
             label="Характер содержимого"
             value={form.contents ?? ""}
-            onChange={(val) => updateField("contents", val)}
+            onChange={(val) => updateContents("contents", val)}
             options={[
               { value: "однородное", label: "однородное" },
               { value: "неоднородное", label: "неоднородное" },
@@ -216,7 +149,7 @@ export const UrinaryBladder: React.FC<UrinaryBladderProps> = ({
                   rows={3}
                   className={inputClasses + " w-full resize-y"}
                   value={form.contentsText}
-                  onChange={(e) => updateField("contentsText", e.target.value)}
+                  onChange={(e) => updateContents("contentsText", e.target.value)}
                 />
               </label>
             </div>

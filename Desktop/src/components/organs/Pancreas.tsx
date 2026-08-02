@@ -1,27 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { normalRanges } from "@common";
 import { SizeRow, ButtonSelect, SelectWithTextarea, Fieldset } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFieldFocus } from "@hooks/useFieldFocus";
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
+import { usePancreas } from "@hooks/organs/usePancreas";
 import type { PancreasProps } from "@types";
-import { defaultPancreasState } from "@types";
-import {
-  useFormState,
-  useFieldUpdate,
-  useConclusion,
-} from "@hooks";
 
 export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
-  const initialValue = value ?? defaultPancreasState;
-  const [form, setForm] = useFormState(initialValue);
-
-  useEffect(() => {
-    setForm(value ?? defaultPancreasState);
-  }, [value, setForm]);
-  const updateField = useFieldUpdate(form, setForm, onChange);
-  useConclusion(setForm, "pancreas");
+  const { form, updateField } = usePancreas(value, onChange);
 
   const pancreasRanges = normalRanges?.pancreas || {
     head: { min: 0, max: 32, unit: "мм" },
@@ -36,7 +24,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
   const wirsungDuctFocus = useFieldFocus("pancreas", "wirsungDuct");
 
   return (
-    <ResearchSectionCard title="Поджелудочная железа" >
+    <ResearchSectionCard title="Поджелудочная железа">
       <div className="flex flex-col gap-6">
         {/* Размеры */}
         <Fieldset title="Размеры">
@@ -109,9 +97,7 @@ export const Pancreas: React.FC<PancreasProps> = ({ value, onChange }) => {
             onTextareaChange={(val) =>
               updateField("pathologicalFormationsText", val)
             }
-            options={[
-              ...DETECTION_OPTIONS_CAPITALIZED,
-            ]}
+            options={[...DETECTION_OPTIONS_CAPITALIZED]}
             triggerValue="Определяются"
             textareaLabel="Описание патологических образований"
           />

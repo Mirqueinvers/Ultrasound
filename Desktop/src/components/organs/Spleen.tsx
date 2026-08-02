@@ -1,38 +1,23 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { normalRanges } from "@common";
 import { Fieldset, SizeRow, ButtonSelect, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import {
-  useFormState,
-  useFieldUpdate,
-  useFieldFocus,
-  useConclusion,
-} from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useSpleen } from "@hooks/organs/useSpleen";
 import { inputClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS_CAPITALIZED } from "@utils/constants";
-import type { SpleenProtocol, SpleenProps } from "@types";
-import { defaultSpleenState } from "@types";
+import type { SpleenProps } from "@types";
 
 export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
-  const initialValue = value ?? defaultSpleenState;
-  const [form, setForm] = useFormState<SpleenProtocol>(initialValue);
-
-  useEffect(() => {
-    setForm(value ?? defaultSpleenState);
-  }, [value, setForm]);
-
-  const updateField = useFieldUpdate(form, setForm, onChange);
-  useConclusion(setForm, "spleen");
+  const { form, updateField, isSplenectomy } = useSpleen(value, onChange);
 
   const lengthFocus = useFieldFocus("spleen", "spleenLength");
   const widthFocus = useFieldFocus("spleen", "spleenWidth");
   const splenicVeinFocus = useFieldFocus("spleen", "splenicVein");
   const splenicArteryFocus = useFieldFocus("spleen", "splenicArtery");
 
-  const isSplenectomy = form.position === "спленэктомия";
-
   return (
-    <ResearchSectionCard title="Селезенка" >
+    <ResearchSectionCard title="Селезенка">
       <div className="flex flex-col gap-6">
         {/* Положение */}
         <Fieldset title="Положение">
@@ -117,9 +102,7 @@ export const Spleen: React.FC<SpleenProps> = ({ value, onChange }) => {
                 onTextareaChange={(val) =>
                   updateField("pathologicalFormationsText", val)
                 }
-                options={[
-                  ...DETECTION_OPTIONS_CAPITALIZED,
-                ]}
+                options={[...DETECTION_OPTIONS_CAPITALIZED]}
                 triggerValue="Определяются"
                 textareaLabel="Описание патологических образований"
               />

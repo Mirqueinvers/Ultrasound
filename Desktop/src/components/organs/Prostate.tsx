@@ -1,70 +1,25 @@
 // /components/organs/Prostate.tsx
-import React, { useEffect } from "react";
+// Презентационный компонент: вся логика вынесена в hooks/organs/useProstate.ts
+import React from "react";
 import { normalRanges } from "@components/common";
 import { ButtonSelect, Fieldset, SizeRow, SelectWithTextarea } from "@/UI";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
-import {
-  useFormState,
-  useFieldUpdate,
-  useFieldFocus,
-  useConclusion,
-} from "@hooks";
+import { useFieldFocus } from "@hooks";
+import { useProstate } from "@hooks/organs/useProstate";
 import { inputClasses, labelClasses } from "@utils/formClasses";
 import { DETECTION_OPTIONS } from "@utils/constants";
-import type { ProstateProtocol, ProstateProps } from "@types";
-import { defaultProstateState } from "@types";
+import type { ProstateProps } from "@types";
 
 export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
-  const initialValue: ProstateProtocol = {
-    ...defaultProstateState,
-    ...(value || {}),
-  };
-
-  const [form, setForm] = useFormState<ProstateProtocol>(initialValue);
-  useEffect(() => {
-    setForm({
-      ...defaultProstateState,
-      ...(value || {}),
-    });
-  }, [value, setForm]);
-  const updateField = useFieldUpdate(form, setForm, onChange);
-  useConclusion(setForm, "prostate");
+  const { form, updateField, position, isPresent } = useProstate(value, onChange);
 
   const lengthFocus = useFieldFocus("prostate", "length");
   const widthFocus = useFieldFocus("prostate", "width");
   const apDimensionFocus = useFieldFocus("prostate", "apDimension");
   const volumeFocus = useFieldFocus("prostate", "volume");
 
-  const position = form.position || "обычное";
-  const isPresent = position === "обычное";
-
-  useEffect(() => {
-    if (!isPresent) return;
-
-    const length = parseFloat(form.length);
-    const width = parseFloat(form.width);
-    const apDimension = parseFloat(form.apDimension);
-
-    if (
-      !isNaN(length) &&
-      !isNaN(width) &&
-      !isNaN(apDimension) &&
-      length > 0 &&
-      width > 0 &&
-      apDimension > 0
-    ) {
-      const volume = (
-        (length * width * apDimension * 0.523) /
-        1000
-      ).toFixed(2);
-      if (volume !== form.volume) {
-        updateField("volume", volume);
-      }
-    }
-  }, [form.length, form.width, form.apDimension, isPresent]);
-
   return (
-    <ResearchSectionCard title="Простата" >
+    <ResearchSectionCard title="Простата">
       <div className="flex flex-col gap-6">
         {/* Информация об исследовании — всегда */}
         <Fieldset title="Информация об исследовании">
@@ -244,9 +199,7 @@ export const Prostate: React.FC<ProstateProps> = ({ value, onChange }) => {
                 onTextareaChange={(val) =>
                   updateField("pathologicLesionsText", val)
                 }
-                options={[
-                  ...DETECTION_OPTIONS,
-                ]}
+                options={[...DETECTION_OPTIONS]}
                 triggerValue="определяются"
                 textareaLabel="Описание"
               />

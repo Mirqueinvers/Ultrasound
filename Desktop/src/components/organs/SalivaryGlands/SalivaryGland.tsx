@@ -1,18 +1,12 @@
 // src/components/organs/SalivaryGlands/SalivaryGland.tsx
+// Презентационный компонент: вся логика вынесена в hooks/organs/useSalivaryGland.ts
 import React from "react";
 import { Fieldset, ButtonSelect, SizeRow, SelectWithTextarea } from "@/UI";
-import { useFormState, useFieldUpdate } from "@hooks";
+import { useSalivaryGland } from "@hooks/organs/useSalivaryGland";
 import { LymphNode } from "@/components/organs/LymphNodes/LymphNode";
 import type {
-  SalivaryGlandProtocol,
   SalivaryGlandProps,
 } from "@/types/organs/salivaryGlands";
-import type { LymphNodeProtocol } from "@/types/organs/lymphNodes";
-import { defaultSalivaryGlandState } from "@/types";
-import {
-  defaultLymphNodeRegionState,
-  defaultLymphNodeState,
-} from "@/types/organs/lymphNodes";
 import { Plus } from "lucide-react";
 import { DETECTION_OPTIONS } from "@utils/constants";
 
@@ -22,133 +16,21 @@ export const SalivaryGland: React.FC<SalivaryGlandProps> = ({
   value,
   onChange,
 }) => {
-  const initialValue: SalivaryGlandProtocol = {
-    ...defaultSalivaryGlandState,
-    ...(value || {}),
-    formationsList: value?.formationsList || [],
-    lymphNodes: value?.lymphNodes
-      ? {
-          ...value.lymphNodes,
-          nodes: value.lymphNodes.nodes || [],
-        }
-      : {
-          ...defaultLymphNodeRegionState,
-          nodes: [],
-        },
-  };
-
-  const [form, setForm] = useFormState<SalivaryGlandProtocol>(initialValue);
-  const updateField = useFieldUpdate(form, setForm, onChange);
-
-  React.useEffect(() => {
-    if (!showDepth) {
-      if (form.volume !== "") {
-        const updated = { ...form, volume: "" };
-        setForm(updated);
-        onChange?.(updated);
-      }
-      return;
-    }
-
-    const length = parseFloat(form.length) || 0;
-    const width = parseFloat(form.width) || 0;
-    const depth = parseFloat(form.depth) || 0;
-
-    if (length > 0 && width > 0 && depth > 0) {
-      const volume = ((length * width * depth * 0.523) / 1000).toFixed(2);
-      if (form.volume !== volume) {
-        const updated = { ...form, volume };
-        setForm(updated);
-        onChange?.(updated);
-      }
-    } else if (form.volume !== "") {
-      const updated = { ...form, volume: "" };
-      setForm(updated);
-      onChange?.(updated);
-    }
-  }, [showDepth, form.length, form.width, form.depth]);
-
-  const handleLymphNodesDetectionChange = (
-    detected: "not_detected" | "detected"
-  ) => {
-    const updated = {
-      ...form,
-      lymphNodes: {
-        ...form.lymphNodes,
-        detected,
-        nodes: detected === "not_detected" ? [] : form.lymphNodes.nodes,
-      },
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const handleAddLymphNode = () => {
-    const newNode: LymphNodeProtocol = {
-      ...defaultLymphNodeState,
-      id: `${Date.now()}-${Math.random()}`,
-      side: "right",
-    };
-
-    const updated = {
-      ...form,
-      lymphNodes: {
-        ...form.lymphNodes,
-        nodes: [...form.lymphNodes.nodes, newNode],
-      },
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const handleUpdateLymphNode = (index: number) => (
-    field: keyof LymphNodeProtocol,
-    value: string
-  ) => {
-    const updatedNodes = [...form.lymphNodes.nodes];
-    updatedNodes[index] = {
-      ...updatedNodes[index],
-      [field]: value,
-    };
-
-    const updated = {
-      ...form,
-      lymphNodes: {
-        ...form.lymphNodes,
-        nodes: updatedNodes,
-      },
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
-
-  const handleDeleteLymphNode = (index: number) => {
-    const updated = {
-      ...form,
-      lymphNodes: {
-        ...form.lymphNodes,
-        nodes: form.lymphNodes.nodes.filter((_, i) => i !== index),
-      },
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
+  const {
+    form,
+    updateField,
+    handleLymphNodesDetectionChange,
+    handleAddLymphNode,
+    handleUpdateLymphNode,
+    handleDeleteLymphNode,
+    handleDuctsChange,
+  } = useSalivaryGland(showDepth, value, onChange);
 
   const isParotid = gland === "parotidRight" || gland === "parotidLeft";
   const isSubmandibular =
     gland === "submandibularRight" || gland === "submandibularLeft";
   const shouldShowDuctDiameter = isParotid || isSubmandibular;
   const ductLabel = isParotid ? "Stensen duct (мм)" : "Wharton duct (мм)";
-
-  const handleDuctsChange = (val: string) => {
-    const updated = {
-      ...form,
-      ducts: val,
-      ductDiameter: val === "расширены" ? form.ductDiameter : "",
-    };
-    setForm(updated);
-    onChange?.(updated);
-  };
 
   return (
     <div className="space-y-6">
@@ -264,9 +146,7 @@ export const SalivaryGland: React.FC<SalivaryGlandProps> = ({
             onTextareaChange={(val) =>
               updateField("volumeFormationsDescription", val)
             }
-            options={[
-              ...DETECTION_OPTIONS,
-            ]}
+            options={[...DETECTION_OPTIONS]}
             triggerValue="определяются"
             textareaLabel="Описание объемных образований"
           />
