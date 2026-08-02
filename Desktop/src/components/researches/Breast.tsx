@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect } from "react";
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";

@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/Scrotum.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Testis from "@organs/Testis";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";

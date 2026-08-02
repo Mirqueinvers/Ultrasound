@@ -18,7 +18,7 @@ import { Artery } from "@/components/organs/BrachioCephalicArteries/Artery";
 import { useDefaultValues } from "@hooks";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
 import { SECTION_BY_KEY } from "@/protocols/catalog";
-import type { ProtocolDefinition, ProtocolSectionDefinition } from "@/protocols/types";
+import type { ProtocolSectionDefinition } from "@/protocols/types";
 import { defaultLiverState } from "@/types/defaultStates/organs/liver";
 import { defaultGallbladderState } from "@/types/defaultStates/organs/gallbladder";
 import { defaultPancreasState } from "@/types/defaultStates/organs/pancreas";

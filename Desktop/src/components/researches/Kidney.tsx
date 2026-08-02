@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Kidney.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";

@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/OmtMale.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 import Prostate from "@organs/Prostate";
 import UrinaryBladder from "@organs/UrinaryBladder";
