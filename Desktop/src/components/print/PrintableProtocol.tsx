@@ -1,6 +1,7 @@
 import React from "react";
 import { useResearch } from "@contexts";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrintableOverrides } from "@/hooks";
 import ResearchPrintHeader from "@components/print/ResearchPrintHeader";
 import ObpPrint from "@/components/print/researches/ObpPrint";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
@@ -18,6 +19,14 @@ import PleuralResearchPrint from "@/components/print/researches/PleuralPrint";
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
 import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
 import LowerExtremityVeinsResearchPrint from "@/components/print/researches/LowerExtremityVeinsPrint";
+import {
+  normalizeEditableText,
+  hasVisibleHtmlContent,
+  bodyOverrideKey,
+  conclusionOverrideKey,
+  recommendationOverrideKey,
+  type PrintOverrideMap,
+} from "@/utils/printHelpers";
 import type {
   ObpProtocol,
   KidneyStudyProtocol,
@@ -60,8 +69,6 @@ interface ResearchBlock {
   element: React.ReactNode;
 }
 
-type PrintOverrideMap = Record<string, string>;
-
 interface StudyDefinition {
   id: Exclude<BlockId, "header" | "conclusion">;
   key: string;
@@ -79,33 +86,6 @@ interface StudyConclusionSection {
   recommendations: string;
 }
 
-const normalizeEditableText = (value?: string) =>
-  (value ?? "")
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-const normalizeEditableHtml = (value?: string) => (value ?? "").replace(/\r\n/g, "\n").trim();
-
-const hasVisibleHtmlContent = (value?: string) => {
-  const html = (value ?? "").trim();
-  if (!html) {
-    return false;
-  }
-
-  if (typeof document === "undefined") {
-    return html.replace(/<[^>]+>/g, "").trim().length > 0;
-  }
-
-  const template = document.createElement("template");
-  template.innerHTML = html;
-  return (template.content.textContent ?? "").trim().length > 0;
-};
-
-const bodyOverrideKey = (id: StudyDefinition["id"]) => `block:${id}`;
-const conclusionOverrideKey = (key: string) => `conclusion:${key}`;
-const recommendationOverrideKey = (key: string) => `recommendation:${key}`;
 
 export interface PrintableProtocolHandle {
   saveOverrides: () => void;
@@ -128,8 +108,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   const lastCapturedHtmlRef = React.useRef<string>("");
   
   const [appliedOverrides, setAppliedOverrides] = React.useState<PrintOverrideMap>({});
-  const [draftOverrides, setDraftOverrides] = React.useState<PrintOverrideMap>({});
-  const [isEditMode, setIsEditMode] = React.useState(editMode ?? false);
 
   const obpData = studiesData["ОБП"];
   const kidneysData = studiesData["Почки"];
@@ -343,7 +321,6 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   );
 
   const doctorName = user?.name || "";
-  const previewOverrides = isEditMode ? draftOverrides : appliedOverrides;
 
   const buildDraftOverrides = React.useCallback(
     (baseOverrides: PrintOverrideMap) => {
@@ -365,10 +342,25 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     [sourceBlockHtml, studyDefinitions],
   );
 
-  const handleStartEditing = React.useCallback(() => {
-    setDraftOverrides(buildDraftOverrides(appliedOverrides));
-    setIsEditMode(true);
-  }, [appliedOverrides, buildDraftOverrides]);
+  const { researchId: propsResearchId, onSave: propsOnSave } = props;
+
+  const {
+    draftOverrides,
+    setDraftOverrides,
+    isEditMode,
+    setIsEditMode,
+    handleStartEditing,
+    handleSaveOverrides,
+    printRootRef,
+  } = usePrintableOverrides({
+    sourceOverrides: appliedOverrides,
+    setSourceOverrides: setAppliedOverrides,
+    buildDraftOverrides,
+    studyDefinitions,
+    researchId: propsResearchId,
+    onSave: propsOnSave,
+    initialEditMode: editMode ?? false,
+  });
 
   // Храним актуальную версию handleStartEditing в ref, чтобы не добавлять
   // нестабильную функцию в зависимости эффекта (иначе ломается мемоизация).
@@ -377,6 +369,8 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   React.useEffect(() => {
     handleStartEditingRef.current = handleStartEditing;
   });
+
+  const previewOverrides = isEditMode ? draftOverrides : appliedOverrides;
 
   React.useEffect(() => {
     if (editMode && !isEditMode) {
@@ -587,83 +581,13 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     return pages;
   }, [appliedConclusionSections, doctorName, previewOverrides, studyDefinitions]);
 
-  const printRootRef = React.useRef<HTMLDivElement | null>(null);
-  const editContentRef = React.useRef<HTMLDivElement | null>(null);
   const sourceContainerRef = React.useRef<HTMLDivElement | null>(null);
-
-  // При входе в режим редактирования связываем editContentRef с корнем печати
-  React.useEffect(() => {
-    if (isEditMode && printRootRef.current) {
-      editContentRef.current = printRootRef.current;
-    }
-  }, [isEditMode]);
 
   React.useEffect(() => {
     if (studyPages.length > 0) {
       props.onReady?.();
     }
   }, [studyPages]);
-
-  const { researchId: propsResearchId, onSave: propsOnSave } = props;
-
-  const handleSaveOverrides = React.useCallback(async () => {
-    // Сначала читаем актуальный HTML из contentEditable блока
-    const editRoot = editContentRef.current;
-    const editHtml = editRoot?.innerHTML ?? "";
-
-    // Парсим HTML, чтобы извлечь блоки по их id
-    const nextOverrides: PrintOverrideMap = {};
-
-    if (editHtml) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(editHtml, "text/html");
-      const pageBlocks = doc.querySelectorAll("[data-block-id]");
-      pageBlocks.forEach((el) => {
-        const blockId = el.getAttribute("data-block-id");
-        if (blockId) {
-          nextOverrides[blockId] = normalizeEditableHtml(el.innerHTML);
-        }
-      });
-    }
-
-    // Для блоков, которые не удалось распарсить, используем draftOverrides
-    studyDefinitions.forEach((definition) => {
-      const bodyKey = bodyOverrideKey(definition.id);
-      if (!nextOverrides[bodyKey]) {
-        nextOverrides[bodyKey] = normalizeEditableHtml(
-          draftOverrides[bodyKey],
-        );
-      }
-      const conKey = conclusionOverrideKey(definition.key);
-      if (!nextOverrides[conKey]) {
-        nextOverrides[conKey] = normalizeEditableText(
-          draftOverrides[conKey],
-        );
-      }
-      const recKey = recommendationOverrideKey(definition.key);
-      if (!nextOverrides[recKey]) {
-        nextOverrides[recKey] = normalizeEditableText(
-          draftOverrides[recKey],
-        );
-      }
-    });
-
-    // Если есть researchId, сохраняем в БД
-    if (propsResearchId) {
-      try {
-        await window.protocolAPI.savePrintOverrides({
-          researchId: propsResearchId,
-          overrides: nextOverrides,
-        });
-      } catch {
-        // Если не удалось сохранить в БД, продолжаем с локальным сохранением
-      }
-    }
-
-    setAppliedOverrides(nextOverrides);
-    setIsEditMode(false);
-    propsOnSave?.();
-  }, [draftOverrides, studyDefinitions, propsOnSave, propsResearchId]);
 
   React.useImperativeHandle(ref, () => ({
     saveOverrides: handleSaveOverrides,
