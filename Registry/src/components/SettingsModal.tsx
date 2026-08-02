@@ -1,19 +1,43 @@
-import { X, Plus, Pencil, Trash2 } from "lucide-react";
+import { X, Plus, Pencil, Trash2, RefreshCw, Download, CheckCircle, AlertCircle, RotateCw, Server, Upload } from "lucide-react";
 import { DAY_NAMES, DAY_NAMES_FULL } from "../constants";
 import { btnClass } from "../constants";
 import type { Doctor } from "../types";
 
+export type UpdateState = "idle" | "checking" | "available" | "downloading" | "downloaded" | "error" | "not-available";
+
+interface UpdateServer {
+  name: string;
+  ip: string;
+}
+
 interface SettingsModalProps {
   departmentInput: string;
-  settingsTab: "department" | "doctors";
+  settingsTab: "department" | "doctors" | "update";
   doctors: Doctor[];
   showDoctorForm: boolean;
   editingDoctor: Doctor | null;
   doctorName: string;
   doctorMaxPatients: string;
   doctorWorkDays: number[];
+  // Update state
+  updateState: UpdateState;
+  updateProgress: number;
+  updateVersion: string;
+  updateErrorMsg: string;
+  updateServers: UpdateServer[];
+  updateActiveIp: string;
+  updateNewName: string;
+  updateNewIp: string;
+  onUpdateNewNameChange: (val: string) => void;
+  onUpdateNewIpChange: (val: string) => void;
+  onUpdateAddServer: () => void;
+  onUpdateRemoveServer: (server: UpdateServer) => void;
+  onUpdateSelectServer: (server: UpdateServer) => void;
+  onUpdateCheck: () => void;
+  onUpdateDownload: () => void;
+  onUpdateInstall: () => void;
   onDepartmentChange: (val: string) => void;
-  onSettingsTabChange: (tab: "department" | "doctors") => void;
+  onSettingsTabChange: (tab: "department" | "doctors" | "update") => void;
   onSaveDepartment: () => void;
   onClose: () => void;
   onAddDoctor: () => void;
@@ -26,6 +50,16 @@ interface SettingsModalProps {
   onCancelDoctorForm: () => void;
 }
 
+// Очистка ввода: убираем IP:, http://, слэши и порт :8080, оставляем только IP
+export function cleanIpInput(raw: string): string {
+  return raw
+    .replace(/^IP\s*:\s*/i, "")
+    .replace(/^http:\/\//i, "")
+    .replace(/\/+$/, "")
+    .replace(/^(\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/, "$1")
+    .trim();
+}
+
 export default function SettingsModal({
   departmentInput,
   settingsTab,
@@ -35,6 +69,22 @@ export default function SettingsModal({
   doctorName,
   doctorMaxPatients,
   doctorWorkDays,
+  updateState,
+  updateProgress,
+  updateVersion,
+  updateErrorMsg,
+  updateServers,
+  updateActiveIp,
+  updateNewName,
+  updateNewIp,
+  onUpdateNewNameChange,
+  onUpdateNewIpChange,
+  onUpdateAddServer,
+  onUpdateRemoveServer,
+  onUpdateSelectServer,
+  onUpdateCheck,
+  onUpdateDownload,
+  onUpdateInstall,
   onDepartmentChange,
   onSettingsTabChange,
   onSaveDepartment,
@@ -50,7 +100,7 @@ export default function SettingsModal({
 }: SettingsModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] flex flex-col">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-base font-semibold text-slate-800">Настройки</h3>
           <button
@@ -82,6 +132,16 @@ export default function SettingsModal({
             }`}
           >
             Врачи
+          </button>
+          <button
+            onClick={() => onSettingsTabChange("update")}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+              settingsTab === "update"
+                ? "bg-medical-50 text-medical-700 border-b-2 border-medical-500"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Обновление
           </button>
         </div>
 
@@ -246,6 +306,186 @@ export default function SettingsModal({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Вкладка "Обновление" */}
+        {settingsTab === "update" && (
+          <div className="overflow-y-auto min-h-0">
+            {/* Блок выбора сервера обновлений */}
+            <div className="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Server size={16} className="text-medical-600" />
+                <span className="text-sm font-semibold text-slate-700">
+                  Сервер обновлений
+                </span>
+              </div>
+
+              {/* Список серверов */}
+              <div className="space-y-2 mb-3">
+                {updateServers.length === 0 && (
+                  <p className="text-sm text-slate-400">
+                    Список пуст. Добавьте IP-адрес сервера обновлений.
+                  </p>
+                )}
+                {updateServers.map((server) => (
+                  <div
+                    key={server.ip}
+                    onClick={() => onUpdateSelectServer(server)}
+                    className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 cursor-pointer transition-all duration-200 ${
+                      updateActiveIp === server.ip
+                        ? "border-medical-500 ring-1 ring-medical-500"
+                        : "border-slate-200 hover:border-medical-300"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 shrink-0 ${
+                        updateActiveIp === server.ip
+                          ? "border-medical-500 bg-medical-500"
+                          : "border-slate-300"
+                      }`}
+                      style={
+                        updateActiveIp === server.ip
+                          ? { boxShadow: "inset 0 0 0 3px #fff" }
+                          : undefined
+                      }
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-700 truncate">
+                        {server.name}
+                      </p>
+                      <p className="text-xs text-slate-400 font-mono">{server.ip}</p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateRemoveServer(server);
+                      }}
+                      className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all shrink-0"
+                      title="Удалить"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Добавление нового сервера */}
+              <input
+                type="text"
+                value={updateNewName}
+                onChange={(e) => onUpdateNewNameChange(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onUpdateAddServer()}
+                placeholder="Название (необязательно)"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200 mb-2"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={updateNewIp}
+                  onChange={(e) => onUpdateNewIpChange(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onUpdateAddServer()}
+                  placeholder="192.168.1.100"
+                  className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
+                />
+                <button
+                  onClick={onUpdateAddServer}
+                  className={`${btnClass} shrink-0`}
+                >
+                  <Plus size={16} />
+                  Добавить
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-400 mt-3">
+                Порт 8080 подставляется автоматически. Выбранный сервер используется при проверке обновлений.
+              </p>
+            </div>
+
+            {/* Статус обновления */}
+            <div className="flex flex-col items-center gap-3 py-2">
+              <div className="flex flex-col items-center gap-2">
+                {(updateState === "idle" || updateState === "not-available") && (
+                  <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+                    <RefreshCw size={32} />
+                  </div>
+                )}
+                {updateState === "checking" && (
+                  <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                    <RotateCw size={32} className="animate-spin" />
+                  </div>
+                )}
+                {updateState === "available" && (
+                  <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center">
+                    <Download size={32} />
+                  </div>
+                )}
+                {updateState === "downloading" && (
+                  <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                    <Download size={32} />
+                  </div>
+                )}
+                {(updateState === "downloaded") && (
+                  <div className="w-16 h-16 rounded-full bg-green-50 text-green-500 flex items-center justify-center">
+                    <CheckCircle size={32} />
+                  </div>
+                )}
+                {updateState === "error" && (
+                  <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center">
+                    <AlertCircle size={32} />
+                  </div>
+                )}
+
+                <p className="text-sm text-slate-600 text-center">
+                  {updateState === "idle" && "Нажмите «Проверить», чтобы узнать о наличии обновлений"}
+                  {updateState === "checking" && "Проверка обновлений..."}
+                  {updateState === "available" && `Доступна версия ${updateVersion}`}
+                  {updateState === "downloading" && `Загрузка... ${updateProgress}%`}
+                  {updateState === "downloaded" && `Версия ${updateVersion} загружена. Установить?`}
+                  {updateState === "error" && `Ошибка: ${updateErrorMsg}`}
+                  {updateState === "not-available" && "У вас актуальная версия"}
+                </p>
+
+                {updateState === "downloading" && (
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-medical-500 rounded-full transition-all duration-300"
+                      style={{ width: `${updateProgress}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                {(updateState === "idle" || updateState === "error" || updateState === "not-available") && (
+                  <button
+                    onClick={onUpdateCheck}
+                    className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200 flex items-center gap-2"
+                  >
+                    <RefreshCw size={16} />
+                    Проверить
+                  </button>
+                )}
+                {updateState === "available" && (
+                  <button
+                    onClick={onUpdateDownload}
+                    className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200 flex items-center gap-2"
+                  >
+                    <Download size={16} />
+                    Скачать
+                  </button>
+                )}
+                {updateState === "downloaded" && (
+                  <button
+                    onClick={onUpdateInstall}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-all duration-200 flex items-center gap-2"
+                  >
+                    <Upload size={16} />
+                    Установить
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

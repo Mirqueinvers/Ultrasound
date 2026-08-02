@@ -1,6 +1,6 @@
 {
   "name": "registry",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "dist-electron/main.js",
   "build": {
@@ -26,7 +26,13 @@
       "deleteAppDataOnUninstall": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://192.168.0.87:8080/registry-updates"
+      }
+    ]
   },
   "scripts": {
     "dev": "vite",
@@ -59,6 +65,7 @@
     "vite-plugin-electron-renderer": "^1.0.0"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "express": "^5.2.1",
     "lucide-react": "^1.17.0",
     "react": "^19.2.7",

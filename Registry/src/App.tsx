@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Calendar, Loader2 } from "lucide-react";
 import { getTodayString } from "./utils/date";
 import { getDepartment, setDepartment } from "./utils/patient";
@@ -12,9 +12,14 @@ import CalendarView from "./components/CalendarView";
 import AllDoctorsView from "./components/AllDoctorsView";
 import AppointmentList from "./components/AppointmentList";
 import AppointmentModal from "./components/AppointmentModal";
-import SettingsModal from "./components/SettingsModal";
+import SettingsModal, { cleanIpInput, type UpdateState } from "./components/SettingsModal";
 import ToastContainer from "./components/Toast";
 import ConfirmDialog from "./components/ConfirmDialog";
+
+interface UpdateServer {
+  name: string;
+  ip: string;
+}
 
 export default function App() {
   const [date, setDate] = useState(getTodayString());
@@ -49,7 +54,7 @@ export default function App() {
   // Модалка настроек
   const [showSettings, setShowSettings] = useState(false);
   const [departmentInput, setDepartmentInput] = useState(getDepartment());
-  const [settingsTab, setSettingsTab] = useState<"department" | "doctors">("department");
+  const [settingsTab, setSettingsTab] = useState<"department" | "doctors" | "update">("department");
 
   // Врачи UI
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
@@ -62,6 +67,116 @@ export default function App() {
   const [doctorName, setDoctorName] = useState("");
   const [doctorMaxPatients, setDoctorMaxPatients] = useState("15");
   const [doctorWorkDays, setDoctorWorkDays] = useState<number[]>([1, 2, 3, 4, 5]);
+
+  // Обновление программы
+  const [updateState, setUpdateState] = useState<UpdateState>("idle");
+  const [updateProgress, setUpdateProgress] = useState(0);
+  const [updateVersion, setUpdateVersion] = useState("");
+  const [updateErrorMsg, setUpdateErrorMsg] = useState("");
+  const [updateServers, setUpdateServers] = useState<UpdateServer[]>([]);
+  const [updateActiveIp, setUpdateActiveIp] = useState("");
+  const [updateNewName, setUpdateNewName] = useState("");
+  const [updateNewIp, setUpdateNewIp] = useState("");
+
+  // Загрузка сохранённых серверов обновлений
+  useEffect(() => {
+    const api = window.updateAPI;
+    if (!api) return;
+
+    api.getServers().then((stored) => {
+      if (Array.isArray(stored)) {
+        setUpdateServers(stored);
+      }
+    }).catch(() => {});
+
+    api.getActiveServer().then((ip) => {
+      setUpdateActiveIp(ip || "");
+    }).catch(() => {});
+  }, []);
+
+  // Подписка на события обновления
+  useEffect(() => {
+    const api = window.updateAPI;
+    if (!api) return;
+
+    const unsub1 = api.onUpdateAvailable((info) => {
+      setUpdateState("available");
+      setUpdateVersion(info.version);
+      setUpdateProgress(0);
+    });
+    const unsub2 = api.onUpdateNotAvailable(() => {
+      setUpdateState("not-available");
+    });
+    const unsub3 = api.onDownloadProgress((p) => {
+      setUpdateState("downloading");
+      setUpdateProgress(Math.round(p.percent));
+    });
+    const unsub4 = api.onUpdateDownloaded((info) => {
+      setUpdateState("downloaded");
+      setUpdateVersion(info.version);
+      setUpdateProgress(100);
+    });
+    const unsub5 = api.onUpdateError((err) => {
+      setUpdateState("error");
+      setUpdateErrorMsg(err.message);
+    });
+
+    return () => {
+      unsub1();
+      unsub2();
+      unsub3();
+      unsub4();
+      unsub5();
+    };
+  }, []);
+
+  const persistUpdateServers = useCallback((updated: UpdateServer[]) => {
+    window.updateAPI?.saveServers(updated).catch(() => {});
+  }, []);
+
+  const handleUpdateAddServer = useCallback(() => {
+    const cleanedIp = cleanIpInput(updateNewIp);
+    if (!cleanedIp) return;
+    if (updateServers.some((s) => s.ip === cleanedIp)) return;
+    const name = updateNewName.trim() || cleanedIp;
+    const updated = [...updateServers, { name, ip: cleanedIp }];
+    setUpdateServers(updated);
+    persistUpdateServers(updated);
+    setUpdateNewName("");
+    setUpdateNewIp("");
+  }, [updateNewIp, updateNewName, updateServers, persistUpdateServers]);
+
+  const handleUpdateRemoveServer = useCallback((server: UpdateServer) => {
+    const updated = updateServers.filter((s) => s.ip !== server.ip);
+    setUpdateServers(updated);
+    persistUpdateServers(updated);
+    if (updateActiveIp === server.ip) {
+      setUpdateActiveIp("");
+      window.updateAPI?.setActiveServer("").catch(() => {});
+    }
+  }, [updateServers, persistUpdateServers, updateActiveIp]);
+
+  const handleUpdateSelectServer = useCallback((server: UpdateServer) => {
+    setUpdateActiveIp(server.ip);
+    window.updateAPI?.setActiveServer(server.ip).catch(() => {});
+  }, []);
+
+  const handleUpdateCheck = useCallback(() => {
+    if (!window.updateAPI) return;
+    setUpdateState("checking");
+    setUpdateErrorMsg("");
+    window.updateAPI.check();
+  }, []);
+
+  const handleUpdateDownload = useCallback(() => {
+    if (!window.updateAPI) return;
+    window.updateAPI.download();
+  }, []);
+
+  const handleUpdateInstall = useCallback(() => {
+    if (!window.updateAPI) return;
+    window.updateAPI.install();
+  }, []);
 
   // Confirm диалог
   const [confirm, setConfirm] = useState<{
@@ -392,6 +507,22 @@ export default function App() {
           doctorName={doctorName}
           doctorMaxPatients={doctorMaxPatients}
           doctorWorkDays={doctorWorkDays}
+          updateState={updateState}
+          updateProgress={updateProgress}
+          updateVersion={updateVersion}
+          updateErrorMsg={updateErrorMsg}
+          updateServers={updateServers}
+          updateActiveIp={updateActiveIp}
+          updateNewName={updateNewName}
+          updateNewIp={updateNewIp}
+          onUpdateNewNameChange={setUpdateNewName}
+          onUpdateNewIpChange={setUpdateNewIp}
+          onUpdateAddServer={handleUpdateAddServer}
+          onUpdateRemoveServer={handleUpdateRemoveServer}
+          onUpdateSelectServer={handleUpdateSelectServer}
+          onUpdateCheck={handleUpdateCheck}
+          onUpdateDownload={handleUpdateDownload}
+          onUpdateInstall={handleUpdateInstall}
           onDepartmentChange={setDepartmentInput}
           onSettingsTabChange={setSettingsTab}
           onSaveDepartment={() => {
