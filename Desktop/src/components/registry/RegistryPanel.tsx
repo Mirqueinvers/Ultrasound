@@ -99,37 +99,91 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
     setLoading(true);
     setError(null);
+    setAppointments([]);
 
-    // Записи, сгруппированные по источнику (IP регистратуры)
-    const onlineBySource = new Map<string, Appointment[]>();
-    const failedSources: string[] = [];
-    let lastError: string | null = null;
-
-    for (const addr of addresses) {
-      try {
-        const res = await fetch(`http://${addr.ip}:${REGISTRY_PORT}/api/appointments?date=${date}`);
-        if (!res.ok) {
-          lastError = `Ошибка сервера ${addr.name} (${addr.ip}): ${res.status}`;
-          failedSources.push(addr.ip);
-          continue;
-        }
-        const data = await res.json();
-        // data может быть массивом или объектом {value: [...], Count: ...}
-        const items = Array.isArray(data) ? data : (data.value || []);
-        onlineBySource.set(addr.ip, items);
-      } catch {
-        lastError = `Не удалось подключиться к ${addr.name} (${addr.ip})`;
-        failedSources.push(addr.ip);
-      }
-    }
-
-    // Текущий локальный кэш записей регистратур
+    // Текущий локальный кэш записей регистратур (для офлайн-источников)
     const cached = await window.registryAPI
       .getCachedAppointments()
       .catch(() => [] as CachedRegistryAppointment[]);
 
-    // Обновляем кэш свежими данными из успешно опрошенных регистратур:
-    // записи из доступных источников перезаписываются актуальными,
+    // Результаты онлайн-опросов по источникам
+    const onlineBySource = new Map<string, Appointment[]>();
+    const failedSources: string[] = [];
+    let lastError: string | null = null;
+
+    // Добавление записей из локального кэша для конкретного недоступного источника
+    const applyCacheForSource = (addr: RegistryAddress) => {
+      const cachedForAddr = cached.filter(
+        (c) =>
+          c.appointment &&
+          c.appointment.appointment_date === date &&
+          c.sourceIp === addr.ip,
+      );
+      if (cachedForAddr.length === 0) return;
+      setAppointments((prev) => {
+        const existingKeys = new Set(prev.map((a) => `${a._sourceName}:${a.id}`));
+        const additional = cachedForAddr
+          .filter((c) => !existingKeys.has(`${c.sourceName || c.sourceIp}:${c.appointment.id}`))
+          .map((c) => ({
+            ...c.appointment,
+            _sourceName: c.sourceName || c.sourceIp,
+            _fromCache: true,
+          }));
+        return [...prev, ...additional];
+      });
+    };
+
+    // Инкрементальное добавление записей от успешно опрошенной регистратуры
+    const applyOnlineSource = (addr: RegistryAddress, items: Appointment[]) => {
+      onlineBySource.set(addr.ip, items);
+      const markupItems = items.map((appt) => ({
+        ...appt,
+        _sourceName: addr.name,
+        _fromCache: false,
+      }));
+      setAppointments((prev) => {
+        const existingKeys = new Set(prev.map((a) => `${a._sourceName}:${a.id}`));
+        return [
+          ...prev,
+          ...markupItems.filter((a) => !existingKeys.has(`${a._sourceName}:${a.id}`)),
+        ];
+      });
+    };
+
+    // Запускаем опрос всех регистратур параллельно.
+    // Результаты каждой применяются сразу по мере ответа, а не в конце.
+    const REQUEST_TIMEOUT_MS = 5000;
+    const promises = addresses.map(async (addr) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const res = await fetch(`http://${addr.ip}:${REGISTRY_PORT}/api/appointments?date=${date}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          throw new Error(`Ошибка сервера ${addr.name} (${addr.ip}): ${res.status}`);
+        }
+        const data = await res.json();
+        // data может быть массивом или объектом {value: [...], Count: ...}
+        const items = Array.isArray(data) ? data : (data.value || []);
+        applyOnlineSource(addr, items);
+      } catch (err) {
+        lastError =
+          err instanceof Error && err.name === "AbortError"
+            ? `Не удалось подключиться к ${addr.name} (${addr.ip}) — таймаут`
+            : err instanceof Error
+              ? err.message
+              : `Не удалось подключиться к ${addr.name} (${addr.ip})`;
+        failedSources.push(addr.ip);
+        applyCacheForSource(addr);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    });
+
+    await Promise.allSettled(promises);
+
+    // Обновляем кэш: записи из доступных источников заменяются свежими,
     // записи из недоступных источников сохраняются в кэше
     if (onlineBySource.size > 0) {
       const freshEntries: CachedRegistryAppointment[] = [];
@@ -170,43 +224,11 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
       await window.registryAPI.saveCachedAppointments(merged).catch(() => {});
     }
 
-    // Итоговый список на экран: online-записи + записи из кэша для недоступных источников
-    const finalAppointments: Appointment[] = [];
-
-    // Проставляем метку источника для online-записей
-    for (const [sourceIp, items] of onlineBySource.entries()) {
-      const sourceName = addresses.find((a) => a.ip === sourceIp)?.name ?? sourceIp;
-      for (const appt of items) {
-        finalAppointments.push({
-          ...appt,
-          _sourceName: sourceName,
-          _fromCache: false,
-        });
-      }
-    }
-
-    // Добавляем записи из локального кэша для недоступных источников
-    if (failedSources.length > 0) {
-      const cachedForDate = cached
-        .filter(
-          (c) =>
-            c.appointment &&
-            c.appointment.appointment_date === date &&
-            failedSources.includes(c.sourceIp),
-        )
-        .map((c) => ({
-          ...c.appointment,
-          _sourceName: c.sourceName || c.sourceIp,
-          _fromCache: true,
-        }));
-      finalAppointments.push(...cachedForDate);
-    }
-
-    if (finalAppointments.length === 0 && lastError) {
+    // Ошибку показываем только если вообще нет живых регистратур
+    if (onlineBySource.size === 0 && failedSources.length > 0) {
       setError(lastError);
     }
 
-    setAppointments(finalAppointments);
     setLoading(false);
   }, [date, addresses]);
 
@@ -323,8 +345,8 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         </div>
       )}
 
-      {/* Загрузка */}
-      {loading && !error && addresses.length > 0 && (
+      {/* Загрузка (пока не пришли данные ни от одной регистратуры) */}
+      {loading && !error && addresses.length > 0 && appointments.length === 0 && (
         <div className="flex items-center justify-center py-12">
           <RefreshCw size={24} className="animate-spin text-medical-400" />
           <span className="ml-3 text-sm text-slate-500">Загрузка...</span>
@@ -340,7 +362,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         </div>
       )}
 
-      {!loading && appointments.length > 0 && (
+      {appointments.length > 0 && (
         <div className="space-y-3">
           <p className="text-sm text-slate-500">
             Записей на {formatDate(date)}: <strong>{appointments.length}</strong>
