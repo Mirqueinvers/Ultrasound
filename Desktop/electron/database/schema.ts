@@ -156,3 +156,32 @@ export const CREATE_MEDISON_MAPPINGS_INDEX = `
 export const CREATE_USERNAME_INDEX = `
   CREATE UNIQUE INDEX IF NOT EXISTS idx_username ON users(username)
 `;
+
+// ========== REGISTRY APPOINTMENTS CACHE ==========
+
+export const CREATE_REGISTRY_APPOINTMENTS_TABLE = `
+  CREATE TABLE IF NOT EXISTS registry_appointments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_ip TEXT NOT NULL,
+    source_name TEXT NOT NULL,
+    appointment_id INTEGER NOT NULL,
+    appointment_date TEXT NOT NULL,
+    studies TEXT NOT NULL,
+    department TEXT,
+    patient_id INTEGER,
+    patient_last_name TEXT,
+    patient_first_name TEXT,
+    patient_middle_name TEXT,
+    patient_date_of_birth TEXT,
+    cached_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (source_ip, appointment_id)
+  )
+`;
+
+export const CREATE_REGISTRY_APPOINTMENTS_INDEXES = `
+  CREATE INDEX IF NOT EXISTS idx_registry_appointments_date
+  ON registry_appointments(appointment_date);
+
+  CREATE INDEX IF NOT EXISTS idx_registry_appointments_source
+  ON registry_appointments(source_ip);
+`;

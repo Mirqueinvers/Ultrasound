@@ -288,9 +288,32 @@ export interface RegistryAddress {
   ip: string;
 }
 
+export interface CachedRegistryAppointment {
+  sourceIp: string;
+  sourceName: string;
+  appointment: {
+    id: number;
+    patient_id: number;
+    appointment_date: string;
+    studies: string[];
+    department?: string;
+    created_at: string;
+    patient?: {
+      id: number;
+      last_name: string;
+      first_name: string;
+      middle_name: string;
+      date_of_birth: string;
+    };
+  };
+  cachedAt: string;
+}
+
 export interface RegistryAPI {
   getAddresses: () => Promise<RegistryAddress[]>;
   saveAddresses: (addresses: RegistryAddress[]) => Promise<{ success: boolean; message?: string }>;
+  getCachedAppointments: () => Promise<CachedRegistryAppointment[]>;
+  saveCachedAppointments: (appointments: CachedRegistryAppointment[]) => Promise<{ success: boolean; message?: string }>;
 }
 
 export interface NetworkAPI {
@@ -519,6 +542,9 @@ const defaultsAPI: DefaultsAPI = {
 const registryAPI: RegistryAPI = {
   getAddresses: () => ipcRenderer.invoke("registry:getAddresses"),
   saveAddresses: (addresses) => ipcRenderer.invoke("registry:saveAddresses", addresses),
+  getCachedAppointments: () => ipcRenderer.invoke("registry:getCachedAppointments"),
+  saveCachedAppointments: (appointments) =>
+    ipcRenderer.invoke("registry:saveCachedAppointments", appointments),
 };
 
 const networkAPI: NetworkAPI = {

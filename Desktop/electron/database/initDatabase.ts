@@ -10,6 +10,8 @@ import {
   CREATE_RESEARCHES_INDEXES,
   CREATE_MEDISON_MAPPINGS_TABLE,
   CREATE_MEDISON_MAPPINGS_INDEX,
+  CREATE_REGISTRY_APPOINTMENTS_TABLE,
+  CREATE_REGISTRY_APPOINTMENTS_INDEXES,
 } from "./schema";
 
 export const initializeDatabase = (db: Database.Database): void => {
@@ -23,6 +25,8 @@ export const initializeDatabase = (db: Database.Database): void => {
   db.exec(CREATE_RESEARCHES_INDEXES);
   db.exec(CREATE_MEDISON_MAPPINGS_TABLE);
   db.exec(CREATE_MEDISON_MAPPINGS_INDEX);
+  db.exec(CREATE_REGISTRY_APPOINTMENTS_TABLE);
+  db.exec(CREATE_REGISTRY_APPOINTMENTS_INDEXES);
 };
 
 export const runMigrations = (db: Database.Database): void => {

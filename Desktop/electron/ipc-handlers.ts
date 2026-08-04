@@ -5,6 +5,7 @@ import http from "node:http";
 import path from "node:path";
 import { URL } from "node:url";
 import { DatabaseManager } from "./database/database";
+import type { CachedRegistryAppointment } from "./database/registryAppointmentRepository";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   const db = DatabaseManager.getInstance();
@@ -553,6 +554,36 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         return {
           success: false,
           message: "Не удалось сохранить адреса регистратур",
+        };
+      }
+    }
+  );
+
+  // ==================== REGISTRY APPOINTMENTS CACHE HANDLERS ====================
+
+  ipcMain.handle("registry:getCachedAppointments", async () => {
+    try {
+      return db.registryAppointments.getAll();
+    } catch (error) {
+      console.error("Registry appointments cache load error:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle(
+    "registry:saveCachedAppointments",
+    async (_, appointments: CachedRegistryAppointment[]) => {
+      try {
+        if (!Array.isArray(appointments)) {
+          return { success: false, message: "Некорректные данные для кэша" };
+        }
+        db.registryAppointments.replaceAll(appointments);
+        return { success: true };
+      } catch (error) {
+        console.error("Registry appointments cache save error:", error);
+        return {
+          success: false,
+          message: "Не удалось сохранить кэш записей регистратур",
         };
       }
     }

@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, Settings, RefreshCw, WifiOff, User, Stethoscope } from "lucide-react";
-import type { RegistryAddress } from "../../../electron/preload";
+import type {
+  CachedRegistryAppointment,
+  RegistryAddress,
+} from "../../../electron/preload";
 
 const REGISTRY_PORT = 3456;
 
@@ -26,6 +29,9 @@ interface Appointment {
   department?: string;
   created_at: string;
   patient?: Patient;
+  // Локальная метка источника (какая регистратура предоставила запись)
+  _sourceName?: string;
+  _fromCache?: boolean;
 }
 
 function formatDate(dateStr: string): string {
@@ -94,7 +100,9 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
     setLoading(true);
     setError(null);
 
-    const allAppointments: Appointment[] = [];
+    // Записи, сгруппированные по источнику (IP регистратуры)
+    const onlineBySource = new Map<string, Appointment[]>();
+    const failedSources: string[] = [];
     let lastError: string | null = null;
 
     for (const addr of addresses) {
@@ -102,22 +110,103 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         const res = await fetch(`http://${addr.ip}:${REGISTRY_PORT}/api/appointments?date=${date}`);
         if (!res.ok) {
           lastError = `Ошибка сервера ${addr.name} (${addr.ip}): ${res.status}`;
+          failedSources.push(addr.ip);
           continue;
         }
         const data = await res.json();
         // data может быть массивом или объектом {value: [...], Count: ...}
         const items = Array.isArray(data) ? data : (data.value || []);
-        allAppointments.push(...items);
+        onlineBySource.set(addr.ip, items);
       } catch {
         lastError = `Не удалось подключиться к ${addr.name} (${addr.ip})`;
+        failedSources.push(addr.ip);
       }
     }
 
-    if (allAppointments.length === 0 && lastError) {
+    // Текущий локальный кэш записей регистратур
+    const cached = await window.registryAPI
+      .getCachedAppointments()
+      .catch(() => [] as CachedRegistryAppointment[]);
+
+    // Обновляем кэш свежими данными из успешно опрошенных регистратур:
+    // записи из доступных источников перезаписываются актуальными,
+    // записи из недоступных источников сохраняются в кэше
+    if (onlineBySource.size > 0) {
+      const freshEntries: CachedRegistryAppointment[] = [];
+      for (const [sourceIp, items] of onlineBySource.entries()) {
+        const sourceName = addresses.find((a) => a.ip === sourceIp)?.name ?? sourceIp;
+        for (const appt of items) {
+          freshEntries.push({
+            sourceIp,
+            sourceName,
+            appointment: appt,
+            cachedAt: new Date().toISOString(),
+          });
+        }
+      }
+
+      const merged: CachedRegistryAppointment[] = [];
+      const keySet = new Set<string>();
+
+      // Сохраняем старые записи только из источников, которые сейчас недоступны
+      for (const entry of cached) {
+        if (!onlineBySource.has(entry.sourceIp)) {
+          const key = `${entry.sourceIp}:${entry.appointment.id}`;
+          if (!keySet.has(key)) {
+            keySet.add(key);
+            merged.push(entry);
+          }
+        }
+      }
+      // Добавляем свежие записи из доступных источников
+      for (const entry of freshEntries) {
+        const key = `${entry.sourceIp}:${entry.appointment.id}`;
+        if (!keySet.has(key)) {
+          keySet.add(key);
+          merged.push(entry);
+        }
+      }
+
+      await window.registryAPI.saveCachedAppointments(merged).catch(() => {});
+    }
+
+    // Итоговый список на экран: online-записи + записи из кэша для недоступных источников
+    const finalAppointments: Appointment[] = [];
+
+    // Проставляем метку источника для online-записей
+    for (const [sourceIp, items] of onlineBySource.entries()) {
+      const sourceName = addresses.find((a) => a.ip === sourceIp)?.name ?? sourceIp;
+      for (const appt of items) {
+        finalAppointments.push({
+          ...appt,
+          _sourceName: sourceName,
+          _fromCache: false,
+        });
+      }
+    }
+
+    // Добавляем записи из локального кэша для недоступных источников
+    if (failedSources.length > 0) {
+      const cachedForDate = cached
+        .filter(
+          (c) =>
+            c.appointment &&
+            c.appointment.appointment_date === date &&
+            failedSources.includes(c.sourceIp),
+        )
+        .map((c) => ({
+          ...c.appointment,
+          _sourceName: c.sourceName || c.sourceIp,
+          _fromCache: true,
+        }));
+      finalAppointments.push(...cachedForDate);
+    }
+
+    if (finalAppointments.length === 0 && lastError) {
       setError(lastError);
     }
 
-    setAppointments(allAppointments);
+    setAppointments(finalAppointments);
     setLoading(false);
   }, [date, addresses]);
 
@@ -256,9 +345,9 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
           <p className="text-sm text-slate-500">
             Записей на {formatDate(date)}: <strong>{appointments.length}</strong>
           </p>
-          {appointments.map((appt) => (
+          {appointments.map((appt, index) => (
             <div
-              key={appt.id}
+              key={`${appt._sourceName ?? "unknown"}:${appt.id}:${index}`}
               onClick={() => handlePatientClick(appt)}
               className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow duration-200 cursor-pointer"
             >
@@ -288,6 +377,22 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
                         {study}
                       </span>
                     ))}
+                    {appt._fromCache && (
+                      <span
+                        className="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200"
+                        title="Данные из локального кэша, регистратура сейчас недоступна"
+                      >
+                        💾 из кэша
+                      </span>
+                    )}
+                    {appt._sourceName && (
+                      <span
+                        className="text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full border border-slate-200"
+                        title={`Источник: ${appt._sourceName}`}
+                      >
+                        🖥 {appt._sourceName}
+                      </span>
+                    )}
                     {appt.department && (
                       <span className="text-xs bg-sky-50 text-sky-600 px-2.5 py-1 rounded-full border border-sky-200 ml-auto">
                         🏥 {appt.department}

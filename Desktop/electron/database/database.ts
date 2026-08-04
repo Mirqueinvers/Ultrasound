@@ -11,6 +11,7 @@ import { JournalRepository } from "./journalRepository";
 import { ProtocolRepository } from "./protocolRepository";
 import { StatisticsRepository } from "./statisticsRepository";
 import { MedisonMappingRepository } from "./medisonMappingRepository";
+import { RegistryAppointmentRepository } from "./registryAppointmentRepository";
 import type { Patient, Research } from "./schema";
 
 export interface JournalEntry {
@@ -29,6 +30,7 @@ export class DatabaseManager {
   public protocol: ProtocolRepository;
   public statistics: StatisticsRepository;
   public medisonMappings: MedisonMappingRepository;
+  public registryAppointments: RegistryAppointmentRepository;
 
   private constructor() {
     const userDataPath = app.getPath("userData");
@@ -47,6 +49,7 @@ export class DatabaseManager {
     this.protocol = new ProtocolRepository(this.db);
     this.statistics = new StatisticsRepository(this.db);
     this.medisonMappings = new MedisonMappingRepository(this.db);
+    this.registryAppointments = new RegistryAppointmentRepository(this.db);
   }
 
   public static getInstance(): DatabaseManager {
