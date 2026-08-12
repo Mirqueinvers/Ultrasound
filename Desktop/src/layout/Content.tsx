@@ -1,204 +1,104 @@
-﻿import React from "react";
+import React from "react";
 
-import ResearchHeader from "@components/common/ResearchHeader";
-import { useResearch } from "@contexts";
-import { useAuth } from "@contexts/useAuth";
-import { Directory } from "@components/directory";
+import JournalSection from "@/features/journal/JournalSection";
+import StatisticsSection from "@/features/statistics/StatisticsSection";
+import ProfileSection from "@/features/profile/ProfileSection";
+import SettingsSection from "@/features/settings/SettingsSection";
+import RegistrySection from "@/features/registry/RegistrySection";
+import SearchSection from "@/features/search/SearchSection";
+import DirectorySection from "@/features/directory/DirectorySection";
+import ResearchSection from "@/features/research/ResearchSection";
 
-import PrintModal from "@components/print/PrintModal";
-import {
-  useSaveResearch,
-  useMobileDraftCommands,
-  useClearResearchDraft,
-  useClearStaleStudies,
-} from "@hooks";
-import {
-  ResearchActions,
-  SaveMessageAlert,
-} from "@/UI";
-import { SearchSection } from "@/components/search/SearchSection";
-import { renderDesktopResearch } from "../researches/desktopResearchRenderers";
-import { mobileHostService } from "@services";
+import { APP_SECTIONS, type AppSectionId } from "@/domain/appSections";
 
 import type { SectionKey } from "@/protocols";
 
 interface ContentProps {
   activeSection: string;
+  selectedStudy: string;
+  onStudySelect: (value: string) => void;
+  isMultiSelectMode: boolean;
   selectedStudies: string[];
+  onToggleStudy: (value: string) => void;
+  selectedDirectoryItem: string;
+  onDirectoryItemSelect: (value: string) => void;
+  sectionRefs: React.MutableRefObject<
+    Record<SectionKey, React.RefObject<HTMLDivElement | null>>
+  >;
   isDraftActive: boolean;
   mobileSaveRequestAt: string | null;
   mobilePrintRequestAt: string | null;
   mobileClearRequestAt: string | null;
   onClearResearch: () => void;
-  selectedDirectoryItem: string;
-  sectionRefs: React.MutableRefObject<
-    Record<SectionKey, React.RefObject<HTMLDivElement | null>>
-  >;
+  onSelectStudies: (studies: string[]) => void;
 }
 
 const Content: React.FC<ContentProps> = ({
   activeSection,
+  selectedStudy,
+  onStudySelect,
+  isMultiSelectMode,
   selectedStudies,
+  onToggleStudy,
+  selectedDirectoryItem,
+  onDirectoryItemSelect,
+  sectionRefs,
   isDraftActive,
   mobileSaveRequestAt,
   mobilePrintRequestAt,
   mobileClearRequestAt,
   onClearResearch,
-  selectedDirectoryItem,
-  sectionRefs,
+  onSelectStudies,
 }) => {
-  const { user } = useAuth();
-  const {
-    patientFullName,
-    patientDateOfBirth,
-    researchDate,
-    studiesData,
-    clearStudyData,
-    clearStudiesData,
-    setStudyData,
-    clearHeaderData,
-    setOrganization,
-  } = useResearch();
-
-  const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
-  const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
-  const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
-  const [currentResearchId, setCurrentResearchId] = React.useState<number | null>(null);
-
-  useClearStaleStudies(selectedStudies, studiesData, clearStudyData);
-
-  React.useEffect(() => {
-    if (user?.organization) {
-      setOrganization(user.organization);
-    }
-  }, [setOrganization, user?.organization]);
-
-  const {
-    isSaving,
-    saveMessage,
-    saveResearch,
-    isSavedSuccessfully,
-    setSaveMessage,
-  } = useSaveResearch({
-    patientFullName,
-    patientDateOfBirth,
-    researchDate,
+  const section = activeSection as AppSectionId;
+  const layoutProps = {
+    activeSection,
+    selectedStudy,
+    onStudySelect,
+    isMultiSelectMode,
     selectedStudies,
-    studiesData,
-    onSaved: (researchId: number) => {
-      setCurrentResearchId(researchId);
-      if (mobileSaveRequestAt) {
-        void mobileHostService.publishSync({
-          type: "sync:command",
-          command: "draft:saved",
-          origin: "desktop",
-          updatedAt: new Date().toISOString(),
-        });
-      }
-    },
-  });
-
-  const handleSaveResearch = () => {
-    saveResearch(paymentType);
+    onToggleStudy,
+    selectedDirectoryItem,
+    onDirectoryItemSelect,
+    sectionRefs,
   };
 
-  const { clearResearchDraft } = useClearResearchDraft({
-    clearHeaderData,
-    clearStudiesData,
-    setOrganization,
-    userOrganization: user?.organization,
-    onClearResearch,
-  });
+  switch (section) {
+    case APP_SECTIONS.JOURNAL:
+      return <JournalSection {...layoutProps} />;
 
-  useMobileDraftCommands({
-    isDraftActive,
-    isSaving,
-    mobileSaveRequestAt,
-    mobilePrintRequestAt,
-    mobileClearRequestAt,
-    paymentType,
-    saveResearch,
-    onPrintRequest: (token) => {
-      setPrintAutoToken(token);
-      setIsPrintModalOpen(true);
-    },
-    onClearRequest: clearResearchDraft,
-  });
+    case APP_SECTIONS.STATISTICS:
+      return <StatisticsSection {...layoutProps} />;
 
-  if (activeSection === "search") {
-    return <SearchSection />;
+    case APP_SECTIONS.PROFILE:
+      return <ProfileSection {...layoutProps} />;
+
+    case APP_SECTIONS.SEARCH:
+      return <SearchSection {...layoutProps} />;
+
+    case APP_SECTIONS.DIRECTORY:
+      return <DirectorySection {...layoutProps} />;
+
+    case APP_SECTIONS.REGISTRY:
+      return <RegistrySection onSelectStudies={onSelectStudies} />;
+
+    case APP_SECTIONS.SETTINGS:
+      return <SettingsSection />;
+
+    case APP_SECTIONS.UZI_PROTOCOLS:
+    default:
+      return (
+        <ResearchSection
+          {...layoutProps}
+          selectedStudies={selectedStudies}
+          isDraftActive={isDraftActive}
+          mobileSaveRequestAt={mobileSaveRequestAt}
+          mobilePrintRequestAt={mobilePrintRequestAt}
+          mobileClearRequestAt={mobileClearRequestAt}
+          onClearResearch={onClearResearch}
+        />
+      );
   }
-
-  if (activeSection === "directory") {
-    return <Directory selectedDirectoryItem={selectedDirectoryItem} />;
-  }
-
-  if (activeSection !== "uzi-protocols") {
-    return (
-      <div className="content">
-        <h2 className="text-slate-800 mt-0">Основной контент</h2>
-        <p className="text-slate-600">
-          Выберите "УЗИ протоколы" в меню для просмотра исследований
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="content relative">
-      <div className="mt-6">
-        <ResearchHeader
-          paymentType={paymentType}
-          setPaymentType={setPaymentType}
-        />
-
-        <SaveMessageAlert
-          message={saveMessage}
-          onClose={() => setSaveMessage(null)}
-        />
-
-        <div className="mt-6 space-y-6">
-          {selectedStudies.map((study, index) => (
-            <div
-              key={index}
-              className="rounded-lg"
-            >
-              {renderDesktopResearch({
-                study,
-                studiesData,
-                setStudyData,
-                sectionRefs,
-              })}
-            </div>
-          ))}
-        </div>
-
-        <div
-          ref={sectionRefs.current["Заключение"]}
-          data-section-key="Заключение"
-        />
-
-        <ResearchActions
-          isSaving={isSaving}
-          hasSelectedStudies={selectedStudies.length > 0}
-          onClear={clearResearchDraft}
-          onPrint={() => setIsPrintModalOpen(true)}
-          onSave={handleSaveResearch}
-          isPrintEnabled={isSavedSuccessfully}
-        />
-      </div>
-
-      <PrintModal
-        isOpen={isPrintModalOpen}
-        onClose={() => {
-          setIsPrintModalOpen(false);
-          setPrintAutoToken(null);
-        }}
-        autoPrintToken={printAutoToken}
-        researchId={currentResearchId}
-      />
-    </div>
-  );
 };
 
 export default Content;
