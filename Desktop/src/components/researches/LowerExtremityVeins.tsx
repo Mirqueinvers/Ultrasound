@@ -11,7 +11,7 @@ import type {
   LowerExtremityVeinsProtocol,
 } from "@/types";
 import { defaultLowerExtremityVeinsStudyState } from "@/types";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 

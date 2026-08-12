@@ -16,7 +16,7 @@ import type {
   TestisProps,
   SingleTestisProtocol,
 } from "@types";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 type ScrotumSectionKey = Extract<

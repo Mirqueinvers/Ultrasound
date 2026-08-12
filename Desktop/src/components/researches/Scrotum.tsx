@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/Scrotum.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Testis from "@organs/Testis";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -12,7 +12,7 @@ import type {
 } from "@/types";
 import { defaultScrotumState } from "@/types";
 import { useDefaultValues } from "@hooks";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -40,27 +40,31 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
     value ?? defaultScrotumState
   );
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const rightDefault = defaults[SECTION_KEYS.SCROTUM_RIGHT_TESTIS] as unknown as TestisProtocol["rightTestis"] | undefined;
-      const leftDefault = defaults[SECTION_KEYS.SCROTUM_LEFT_TESTIS] as unknown as TestisProtocol["leftTestis"] | undefined;
-      const hasAnyDefault = rightDefault || leftDefault;
-      setForm({
-        ...defaultScrotumState,
-        testis: hasAnyDefault
-          ? {
-              rightTestis: rightDefault ?? null,
-              leftTestis: leftDefault ?? null,
-            }
-          : null,
-      });
-    }
-  }, [value, isLoaded, defaults]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const rightDefault = defaults[SECTION_KEYS.SCROTUM_RIGHT_TESTIS] as unknown as TestisProtocol["rightTestis"] | undefined;
+    const leftDefault = defaults[SECTION_KEYS.SCROTUM_LEFT_TESTIS] as unknown as TestisProtocol["leftTestis"] | undefined;
+    const hasAnyDefault = rightDefault || leftDefault;
+    setForm({
+      ...defaultScrotumState,
+      testis: hasAnyDefault
+        ? {
+            rightTestis: rightDefault ?? null,
+            leftTestis: leftDefault ?? null,
+          }
+        : null,
+    });
+  }
 
-  useEffect(() => {
+  // Синхронизация с внешним value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setForm(value ?? defaultScrotumState);
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

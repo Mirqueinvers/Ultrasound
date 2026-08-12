@@ -37,7 +37,10 @@ export const ChildDispensary: React.FC<ChildDispensaryProps> = ({
     onChange?.(updated);
   };
 
-  const updateField = (field: keyof ChildDispensaryProtocol, value: any) => {
+  const updateField = (
+    field: keyof ChildDispensaryProtocol,
+    value: ChildDispensaryProtocol[keyof ChildDispensaryProtocol],
+  ) => {
     sync({ ...form, [field]: value });
   };
 

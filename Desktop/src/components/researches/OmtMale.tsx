@@ -1,5 +1,5 @@
 // Frontend/src/components/organs/OmtMale.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import Prostate from "@organs/Prostate";
 import UrinaryBladder from "@organs/UrinaryBladder";
@@ -17,7 +17,7 @@ import type {
 import { defaultOmtMaleState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -36,20 +36,24 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
     value ?? defaultOmtMaleState
   );
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские
-  useEffect(() => {
-    if (!value && isLoaded) {
-      setForm({
-        ...defaultOmtMaleState,
-        prostate: (defaults[SECTION_KEYS.OMT_MALE_PROSTATE] as unknown as ProstateProtocol) ?? null,
-        urinaryBladder: (defaults[SECTION_KEYS.OMT_MALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
-      });
-    }
-  }, [value, isLoaded, defaults]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    setForm({
+      ...defaultOmtMaleState,
+      prostate: (defaults[SECTION_KEYS.OMT_MALE_PROSTATE] as unknown as ProstateProtocol) ?? null,
+      urinaryBladder: (defaults[SECTION_KEYS.OMT_MALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
+    });
+  }
 
-  useEffect(() => {
+  // Синхронизация с внешним value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setForm(value ?? defaultOmtMaleState);
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

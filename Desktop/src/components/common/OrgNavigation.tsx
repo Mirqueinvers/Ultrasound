@@ -1,10 +1,6 @@
 import React from "react";
 
-import { PROTOCOL_SECTION_LABELS, type SectionKey } from "@/protocols";
-
-export type { SectionKey } from "@/protocols";
-
-export const ORG_LABELS: Record<SectionKey, string> = PROTOCOL_SECTION_LABELS;
+import { ORG_LABELS, type SectionKey } from "./orgLabels";
 
 interface OrgNavigationProps {
   availableSectionKeys: SectionKey[];

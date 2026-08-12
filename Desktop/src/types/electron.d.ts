@@ -14,7 +14,7 @@ export interface ResearchStudy {
   id: number;
   research_id: number;
   study_type: string;
-  study_data: any;
+  study_data: unknown;
   created_at: string;
 }
 
@@ -35,7 +35,7 @@ export interface Research {
 
 export interface SavedProtocol {
   researchId: number;
-  studies: { [studyType: string]: any };
+  studies: { [studyType: string]: unknown };
   printOverrides: Record<string, string>;
 }
 
@@ -210,8 +210,6 @@ declare global {
     protocolAPI: ProtocolAPI;
     fileAPI: FileAPI;
     networkAPI: NetworkAPI;
-    authAPI: any;
-    windowAPI: any;
     mobileHostAPI: MobileHostAPI;
   }
 }

@@ -1,6 +1,6 @@
 // src/components/settings/DefaultValuesTab.tsx
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useDefaultValues } from "@hooks";
 import { ORGAN_EDITORS } from "@/utils/organEditor";
 import { PROTOCOL_BY_ID, SECTION_KEYS_BY_PROTOCOL } from "@/protocols/catalog";
@@ -71,8 +71,11 @@ const DefaultValuesTab: React.FC = () => {
   // Если у протокола нет секций — используем виртуальную секцию с desktopKey = id протокола
   const sectionKeys = rawSectionKeys.length > 0 ? rawSectionKeys : [selectedProtocolId];
 
-  // При смене секции загружаем её значения
-  useEffect(() => {
+  // Паттерн «adjust state during render»: при смене секции загружаем её значения
+  // (guard — prevSectionKey).
+  const [prevSectionKey, setPrevSectionKey] = useState(selectedSectionKey);
+  if (selectedSectionKey !== prevSectionKey) {
+    setPrevSectionKey(selectedSectionKey);
     if (selectedSectionKey) {
       const saved = defaults[selectedSectionKey];
       const systemDefault = DEFAULT_STATES[selectedSectionKey];
@@ -80,16 +83,18 @@ const DefaultValuesTab: React.FC = () => {
     } else {
       setLocalValues(null);
     }
-  }, [selectedSectionKey, defaults]);
+  }
 
-  // При смене протокола выбираем первую секцию
-  useEffect(() => {
+  // При смене протокола выбираем первую секцию (guard — prevProtocolId).
+  const [prevProtocolId, setPrevProtocolId] = useState(selectedProtocolId);
+  if (selectedProtocolId !== prevProtocolId) {
+    setPrevProtocolId(selectedProtocolId);
     if (sectionKeys.length > 0) {
       setSelectedSectionKey(sectionKeys[0]);
     } else {
       setSelectedSectionKey(null);
     }
-  }, [selectedProtocolId, sectionKeys]);
+  }
 
   const handleChange = useCallback(
     (newValue: Record<string, unknown>) => {

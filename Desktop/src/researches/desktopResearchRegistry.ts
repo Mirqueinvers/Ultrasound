@@ -23,6 +23,7 @@ import {
 export interface DesktopResearchRegistryItem {
   studyKey: string;
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- динамический реестр: каждый компонент принимает свои типизированные props
   component: ComponentType<any>;
   supportsSectionRefs?: boolean;
   aliases?: string[];

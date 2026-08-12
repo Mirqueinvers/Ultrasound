@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Kidney.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import KidneyCommon from "@organs/Kidney/KidneyCommon";
 import UrinaryBladder from "@organs/UrinaryBladder";
@@ -17,7 +17,7 @@ import type {
 import { defaultKidneyStudyState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -95,25 +95,28 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     value ?? defaultKidneyStudyState
   );
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const merged = {
-        ...defaultKidneyStudyState,
-        rightKidney: (defaults[SECTION_KEYS.KIDNEY_RIGHT] as unknown as KidneyCommonProtocol) ?? null,
-        leftKidney: (defaults[SECTION_KEYS.KIDNEY_LEFT] as unknown as KidneyCommonProtocol) ?? null,
-        urinaryBladder: (defaults[SECTION_KEYS.KIDNEY_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
-      };
-      setForm(merged);
-    }
-  }, [value, isLoaded, defaults]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const merged = {
+      ...defaultKidneyStudyState,
+      rightKidney: (defaults[SECTION_KEYS.KIDNEY_RIGHT] as unknown as KidneyCommonProtocol) ?? null,
+      leftKidney: (defaults[SECTION_KEYS.KIDNEY_LEFT] as unknown as KidneyCommonProtocol) ?? null,
+      urinaryBladder: (defaults[SECTION_KEYS.KIDNEY_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
+    };
+    setForm(merged);
+  }
 
-  // Глубокое слияние — не затирает уже заполненные поля
-  useEffect(() => {
+  // Глубокое слияние при изменении внешнего value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) {
       setForm((prev) => deepMerge(prev, value));
     }
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

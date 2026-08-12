@@ -75,6 +75,7 @@ interface StudyEditorSection extends ConclusionPrintSection {
 }
 
 interface StudyBlockDefinition extends StudyEditorSection {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- данные исследования на печати динамические (любой протокол)
   studyData: any;
   element: React.ReactNode;
 }

@@ -1,5 +1,5 @@
 // src/types/organs/brachioCephalicArteries.ts
-import type { SectionKey } from "@/components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 
 export interface BrachioCephalicFormation {
   number: number;

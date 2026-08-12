@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useAuth } from "@/contexts/useAuth";
 import { useMedisonImport } from "@/hooks/useMedisonImport";
 import { useResearch } from "@/contexts/useResearch";
@@ -40,13 +40,15 @@ export default function MedisonAutoImport() {
     mergeStudyData,
   });
 
-  // Обновляем ref при каждом рендере
-  callbacksRef.current = {
-    setPatientFullName,
-    setPatientDateOfBirth,
-    setResearchDate,
-    mergeStudyData,
-  };
+  useLayoutEffect(() => {
+    // Обновляем ref после каждого рендера, чтобы onDataReady видел актуальные функции
+    callbacksRef.current = {
+      setPatientFullName,
+      setPatientDateOfBirth,
+      setResearchDate,
+      mergeStudyData,
+    };
+  });
 
   useMedisonImport({
     userId: user ? parseInt(user.id) : undefined,

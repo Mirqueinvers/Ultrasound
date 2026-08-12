@@ -84,7 +84,10 @@ const Journal: React.FC = () => {
   const totalResearches = useMemo(
     () => entries.reduce(
       (count, entry) => count + entry.researches.reduce(
-        (sum, r) => sum + ((r as any).study_types?.length ?? 0), 0
+        (sum, r) =>
+          sum +
+          ((r as { study_types?: unknown[] }).study_types?.length ?? 0),
+        0
       ), 0
     ),
     [entries],

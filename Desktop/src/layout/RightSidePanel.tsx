@@ -3,7 +3,7 @@ import React from "react";
 
 import { useRightPanel } from "@contexts/useRightPanel";
 import { useAvailableSectionKeys } from "@hooks";
-import { ORG_LABELS } from "@components/common/OrgNavigation";
+import { ORG_LABELS } from "@components/common/orgLabels";
 import NormalValuesPanel from "@components/hints/NormalValuesPanel";
 import ObpHints from "@components/hints/ObpHints";
 import KidneysHints from "@components/hints/KidneysHints";

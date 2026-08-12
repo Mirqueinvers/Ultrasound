@@ -1,5 +1,5 @@
 // Frontend/src/components/journal/EditPatientModal.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import type { Patient } from "@/types";
 import DatePickerField from "@/components/common/DatePickerField";
 
@@ -28,14 +28,19 @@ export const EditPatientModal: React.FC<Props> = ({
     updated_at: "",
   });
 
-  useEffect(() => {
-    if (isOpen && patient) {
-      setForm({
-        ...patient,
-        middle_name: patient.middle_name ?? "",
-      });
-    }
-  }, [isOpen, patient]);
+  // Паттерн «adjust state during render»: при открытии модалки
+  // синхронизируем form с patient (guard — prevIsOpen).
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen && patient && !prevIsOpen) {
+    setPrevIsOpen(true);
+    setForm({
+      ...patient,
+      middle_name: patient.middle_name ?? "",
+    });
+  }
+  if (!isOpen && prevIsOpen) {
+    setPrevIsOpen(false);
+  }
 
   if (!isOpen || !patient) return null;
 

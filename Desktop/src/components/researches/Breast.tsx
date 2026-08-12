@@ -13,7 +13,7 @@ import type {
 import { defaultBreastStudyState, defaultBreastState } from "@types";
 import { defaultBreastSideState } from "@/types/defaultStates/organs/breast";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -41,33 +41,37 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
     value ?? defaultBreastStudyState
   );
 
-  // Применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const rightDefault = getOrganOrDefault<BreastSideProtocol>(
-        SECTION_KEYS.BREAST_RIGHT,
-        { ...defaultBreastSideState },
-      );
-      const leftDefault = getOrganOrDefault<BreastSideProtocol>(
-        SECTION_KEYS.BREAST_LEFT,
-        { ...defaultBreastSideState },
-      );
-      setForm({
-        ...defaultBreastStudyState,
-        breast: {
-          lastMenstruationDate: "",
-          cycleDay: "",
-          rightBreast: rightDefault ?? { ...defaultBreastSideState },
-          leftBreast: leftDefault ?? { ...defaultBreastSideState },
-          structure: "",
-        },
-      });
-    }
-  }, [value, isLoaded, getOrganOrDefault]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const rightDefault = getOrganOrDefault<BreastSideProtocol>(
+      SECTION_KEYS.BREAST_RIGHT,
+      { ...defaultBreastSideState },
+    );
+    const leftDefault = getOrganOrDefault<BreastSideProtocol>(
+      SECTION_KEYS.BREAST_LEFT,
+      { ...defaultBreastSideState },
+    );
+    setForm({
+      ...defaultBreastStudyState,
+      breast: {
+        lastMenstruationDate: "",
+        cycleDay: "",
+        rightBreast: rightDefault ?? { ...defaultBreastSideState },
+        leftBreast: leftDefault ?? { ...defaultBreastSideState },
+        structure: "",
+      },
+    });
+  }
 
-  useEffect(() => {
+  // Синхронизация с внешним value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setForm(value ?? defaultBreastStudyState);
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
 

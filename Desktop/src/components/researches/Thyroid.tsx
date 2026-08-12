@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/Thyroid.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import ThyroidCommon from "@organs/Thyroid/ThyroidCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -14,7 +14,7 @@ import type {
 import { defaultThyroidStudyState } from "@/types";
 import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -42,34 +42,35 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     value ?? defaultThyroidStudyState
   );
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const rightDefault = getOrganOrDefault<ThyroidLobeProtocol>(
-        SECTION_KEYS.THYROID_RIGHT_LOBE,
-        { ...defaultThyroidLobeState },
-      );
-      const leftDefault = getOrganOrDefault<ThyroidLobeProtocol>(
-        SECTION_KEYS.THYROID_LEFT_LOBE,
-        { ...defaultThyroidLobeState },
-      );
-      setForm({
-        ...defaultThyroidStudyState,
-        thyroid: {
-          rightLobe: rightDefault ?? { ...defaultThyroidLobeState },
-          leftLobe: leftDefault ?? { ...defaultThyroidLobeState },
-          isthmusSize: "",
-          totalVolume: "",
-          rightToLeftRatio: "",
-          echogenicity: "",
-          echostructure: "",
-          contour: "",
-          symmetry: "",
-          position: "",
-        },
-      });
-    }
-  }, [value, isLoaded, getOrganOrDefault]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const rightDefault = getOrganOrDefault<ThyroidLobeProtocol>(
+      SECTION_KEYS.THYROID_RIGHT_LOBE,
+      { ...defaultThyroidLobeState },
+    );
+    const leftDefault = getOrganOrDefault<ThyroidLobeProtocol>(
+      SECTION_KEYS.THYROID_LEFT_LOBE,
+      { ...defaultThyroidLobeState },
+    );
+    setForm({
+      ...defaultThyroidStudyState,
+      thyroid: {
+        rightLobe: rightDefault ?? { ...defaultThyroidLobeState },
+        leftLobe: leftDefault ?? { ...defaultThyroidLobeState },
+        isthmusSize: "",
+        totalVolume: "",
+        rightToLeftRatio: "",
+        echogenicity: "",
+        echostructure: "",
+        contour: "",
+        symmetry: "",
+        position: "",
+      },
+    });
+  }
 
   /** Глубокое рекурсивное слияние для ThyroidStudyProtocol */
   function deepMergeThyroid(target: ThyroidStudyProtocol, source: ThyroidStudyProtocol): ThyroidStudyProtocol {
@@ -142,21 +143,17 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     return merged;
   }
 
-  // ref для отслеживания предыдущего value
-  const prevValueRef = useRef(value);
-
-  useEffect(() => {
-    if (value === prevValueRef.current) return;
-    prevValueRef.current = value;
-
+  // Глубокое слияние при изменении внешнего value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (!value) {
       setForm(defaultThyroidStudyState);
-      return;
+    } else {
+      // Глубокое слияние: мержим только те поля, что пришли, не затирая уже заполненные
+      setForm((prev) => deepMergeThyroid(prev, value));
     }
-
-    // Глубокое слияние: мержим только те поля, что пришли, не затирая уже заполненные
-    setForm((prev) => deepMergeThyroid(prev, value));
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

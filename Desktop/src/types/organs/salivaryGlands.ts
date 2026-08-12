@@ -1,5 +1,5 @@
 // src/types/organs/salivaryGlands.ts
-import type { SectionKey } from "@/components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import type { LymphNodeRegionProtocol } from "./lymphNodes";
 
 export interface SalivaryGlandFormation {

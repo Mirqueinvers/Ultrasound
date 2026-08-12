@@ -1,5 +1,5 @@
 // src/components/common/Conclusion.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 
 export interface ConclusionData {
@@ -25,12 +25,21 @@ export const Conclusion: React.FC<ConclusionProps> = ({
     value?.recommendations ?? ""
   );
 
-  useEffect(() => {
-    if (value) {
-      setConclusion(value.conclusion ?? "");
-      setRecommendations(value.recommendations ?? "");
-    }
-  }, [value?.conclusion, value?.recommendations]);
+  // Синхронизация с внешним value (guard — prevConclusion).
+  const prevConclusion = value?.conclusion;
+  const prevRecommendations = value?.recommendations;
+  const [lastSyncedConclusion, setLastSyncedConclusion] = useState(prevConclusion);
+  const [lastSyncedRecommendations, setLastSyncedRecommendations] = useState(prevRecommendations);
+  if (
+    value &&
+    (prevConclusion !== lastSyncedConclusion ||
+      prevRecommendations !== lastSyncedRecommendations)
+  ) {
+    setLastSyncedConclusion(prevConclusion);
+    setLastSyncedRecommendations(prevRecommendations);
+    setConclusion(value.conclusion ?? "");
+    setRecommendations(value.recommendations ?? "");
+  }
 
   const handleConclusionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>

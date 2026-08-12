@@ -1,5 +1,5 @@
 // src/components/researches/Obp.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import Hepat from "@organs/Hepat";
 import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
@@ -21,7 +21,7 @@ import type {
 import { defaultObpState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { useRightPanel } from "@contexts/useRightPanel";
 import { deepMerge } from "@/utils/deepMerge";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
@@ -45,27 +45,32 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
 
   const [form, setForm] = useState<ObpProtocol>(value ?? defaultObpState);
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const merged: ObpProtocol = {
-        ...defaultObpState,
-        liver: (defaults[SECTION_KEYS.OBP_LIVER] as unknown as LiverProtocol) ?? null,
-        gallbladder: (defaults[SECTION_KEYS.OBP_GALLBLADDER] as unknown as GallbladderProtocol) ?? null,
-        pancreas: (defaults[SECTION_KEYS.OBP_PANCREAS] as unknown as PancreasProtocol) ?? null,
-        spleen: (defaults[SECTION_KEYS.OBP_SPLEEN] as unknown as SpleenProtocol) ?? null,
-      };
-      setForm(merged);
-    }
-  }, [value, isLoaded, defaults]);
-  const { setStudyData } = useResearch();
-  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const merged: ObpProtocol = {
+      ...defaultObpState,
+      liver: (defaults[SECTION_KEYS.OBP_LIVER] as unknown as LiverProtocol) ?? null,
+      gallbladder: (defaults[SECTION_KEYS.OBP_GALLBLADDER] as unknown as GallbladderProtocol) ?? null,
+      pancreas: (defaults[SECTION_KEYS.OBP_PANCREAS] as unknown as PancreasProtocol) ?? null,
+      spleen: (defaults[SECTION_KEYS.OBP_SPLEEN] as unknown as SpleenProtocol) ?? null,
+    };
+    setForm(merged);
+  }
 
-  useEffect(() => {
+  // Глубокое слияние при изменении внешнего value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) {
       setForm((prev) => deepMerge(prev, value) as ObpProtocol);
     }
-  }, [value, deepMerge]);
+  }
+
+  const { setStudyData } = useResearch();
+  const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);

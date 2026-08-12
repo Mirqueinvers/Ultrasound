@@ -7,7 +7,7 @@ import { inputClasses, labelClasses } from "@utils/formClasses";
 import { useResearch } from "@contexts";
 import type { SoftTissueProtocol, SoftTissueProps } from "@types";
 import { defaultSoftTissueState } from "@types";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 

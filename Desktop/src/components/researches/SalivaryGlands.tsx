@@ -1,5 +1,5 @@
 // src/components/researches/SalivaryGlands.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import SalivaryCommon from "@organs/SalivaryGlands/SalivaryCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -14,7 +14,7 @@ import type {
 import { defaultSalivaryGlandsStudyState } from "@/types";
 import { defaultSalivaryGlandState } from "@/types";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -46,32 +46,33 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
     value ?? defaultSalivaryGlandsStudyState
   );
 
-  // Применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const anyDefaults = [
-        SECTION_KEYS.SALIVARY_RIGHT_PAROTID,
-        SECTION_KEYS.SALIVARY_LEFT_PAROTID,
-        SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR,
-        SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR,
-        SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL,
-        SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL,
-      ].some((key) => hasOrgan(key));
-      if (anyDefaults) {
-        setForm({
-          ...defaultSalivaryGlandsStudyState,
-          salivaryGlands: {
-            parotidRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_PAROTID, { ...defaultSalivaryGlandState }),
-            parotidLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_PAROTID, { ...defaultSalivaryGlandState }),
-            submandibularRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
-            submandibularLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
-            sublingualRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
-            sublingualLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
-          },
-        });
-      }
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const anyDefaults = [
+      SECTION_KEYS.SALIVARY_RIGHT_PAROTID,
+      SECTION_KEYS.SALIVARY_LEFT_PAROTID,
+      SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR,
+      SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR,
+      SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL,
+      SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL,
+    ].some((key) => hasOrgan(key));
+    if (anyDefaults) {
+      setForm({
+        ...defaultSalivaryGlandsStudyState,
+        salivaryGlands: {
+          parotidRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_PAROTID, { ...defaultSalivaryGlandState }),
+          parotidLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_PAROTID, { ...defaultSalivaryGlandState }),
+          submandibularRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
+          submandibularLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
+          sublingualRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
+          sublingualLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
+        },
+      });
     }
-  }, [value, isLoaded, hasOrgan, getOrganOrDefault]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

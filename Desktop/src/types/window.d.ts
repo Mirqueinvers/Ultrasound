@@ -1,3 +1,10 @@
+export interface AuthUser {
+  id: number;
+  username: string;
+  name: string;
+  organization?: string | null;
+}
+
 export interface AuthAPI {
   register: (data: { 
     username: string; 
@@ -15,9 +22,9 @@ export interface AuthAPI {
   }) => Promise<{
     success: boolean;
     message: string;
-    user?: any;
+    user?: AuthUser | null;
   }>;
-  getUser: (userId: number) => Promise<any>;
+  getUser: (userId: number) => Promise<AuthUser | null>;
   updateUser: (data: { 
     id: number; 
     name: string; 
@@ -66,18 +73,24 @@ export interface MobileHostAPI {
   onSyncMessage: (handler: (message: unknown) => void) => () => void;
 }
 
+import type { Patient, Research } from "./electron";
+
 export interface PatientAPI {
-  getById: (id: number) => Promise<any>;
+  getById: (id: number) => Promise<Patient | undefined>;
   findOrCreate: (patientData: {
     lastName: string;
     firstName: string;
     middleName: string | null;
     dateOfBirth: string;
-  }) => Promise<any>;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+    patient?: Patient;
+  }>;
 }
 
 export interface ResearchAPI {
-  getById: (id: number) => Promise<any>;
+  getById: (id: number) => Promise<Research | null>;
   create: (researchData: {
     patientId: number;
     researchDate: string;
@@ -85,18 +98,26 @@ export interface ResearchAPI {
     organization?: string | null;
     doctorName?: string;
     notes?: string;
-  }) => Promise<any>;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+    researchId?: number;
+  }>;
   addStudy: (studyData: {
     researchId: number;
     studyType: string;
     studyData: object;
-  }) => Promise<any>;
+  }) => Promise<{
+    success: boolean;
+    message: string;
+    studyId?: number;
+  }>;
 }
 
 export interface DatabaseAPI {
   getStatistics: (startDate?: string, endDate?: string) => Promise<{
     success: boolean;
-    data?: any;
+    data?: unknown;
     message?: string;
   }>;
 }

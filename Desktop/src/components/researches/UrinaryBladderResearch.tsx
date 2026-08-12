@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import UrinaryBladder from "@organs/UrinaryBladder";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -23,19 +23,20 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
     value ?? defaultUrinaryBladderStudyState,
   );
 
-  // Применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const key = "urinary_bladder";
-      const saved = defaults[key] as Record<string, unknown> | undefined;
-      if (saved) {
-        setForm({
-          ...defaultUrinaryBladderStudyState,
-          urinaryBladder: saved as unknown as UrinaryBladderProtocol,
-        });
-      }
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const key = "urinary_bladder";
+    const saved = defaults[key] as Record<string, unknown> | undefined;
+    if (saved) {
+      setForm({
+        ...defaultUrinaryBladderStudyState,
+        urinaryBladder: saved as unknown as UrinaryBladderProtocol,
+      });
     }
-  }, [value, isLoaded, defaults]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

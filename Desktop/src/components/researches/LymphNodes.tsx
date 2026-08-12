@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/LymphNodes.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LymphNodesCommon from "@organs/LymphNodes/LymphNodesCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -11,7 +11,7 @@ import type {
   LymphNodesProtocol,
 } from "@/types";
 import { defaultLymphNodesStudyState } from "@/types";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
 interface LymphNodesWithSectionsProps extends LymphNodesStudyProps {
@@ -27,9 +27,12 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
     value ?? defaultLymphNodesStudyState,
   );
 
-  useEffect(() => {
+  // Синхронизация с внешним value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setForm(value ?? defaultLymphNodesStudyState);
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

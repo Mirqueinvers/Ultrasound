@@ -1,5 +1,5 @@
 // src/components/researches/BrachioCephalicArteries.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BrachioCephalicCommon from "@organs/BrachioCephalicArteries/BrachioCephalicCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -14,7 +14,7 @@ import type {
 import { defaultBrachioCephalicArteriesStudyState } from "@/types";
 import { defaultArteryState } from "@/types/defaultStates/organs/brachioCephalicArteries";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -51,40 +51,41 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
   );
   const [version, setVersion] = useState(0);
 
-  // Применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      const arteryKeys = [
-        SECTION_KEYS.BCA_RIGHT_OSA, SECTION_KEYS.BCA_LEFT_OSA,
-        SECTION_KEYS.BCA_RIGHT_VSA, SECTION_KEYS.BCA_LEFT_VSA,
-        SECTION_KEYS.BCA_RIGHT_NSA, SECTION_KEYS.BCA_LEFT_NSA,
-        SECTION_KEYS.BCA_RIGHT_VERTEBRAL, SECTION_KEYS.BCA_LEFT_VERTEBRAL,
-        SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, SECTION_KEYS.BCA_LEFT_SUBCLAVIAN,
-      ];
-      const anyDefaults = arteryKeys.some((key) => hasOrgan(key));
-      if (anyDefaults) {
-        setForm({
-          ...defaultBrachioCephalicArteriesStudyState,
-          brachioCephalicArteries: {
-            brachiocephalicTrunkRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
-            brachiocephalicTrunkLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
-            commonCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_OSA, { ...defaultArteryState }),
-            commonCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_OSA, { ...defaultArteryState }),
-            internalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VSA, { ...defaultArteryState }),
-            internalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VSA, { ...defaultArteryState }),
-            externalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_NSA, { ...defaultArteryState }),
-            externalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_NSA, { ...defaultArteryState }),
-            vertebralRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VERTEBRAL, { ...defaultArteryState }),
-            vertebralLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VERTEBRAL, { ...defaultArteryState }),
-            subclavianRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
-            subclavianLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
-            overallFindings: "",
-          },
-        });
-        setVersion((v) => v + 1);
-      }
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    const arteryKeys = [
+      SECTION_KEYS.BCA_RIGHT_OSA, SECTION_KEYS.BCA_LEFT_OSA,
+      SECTION_KEYS.BCA_RIGHT_VSA, SECTION_KEYS.BCA_LEFT_VSA,
+      SECTION_KEYS.BCA_RIGHT_NSA, SECTION_KEYS.BCA_LEFT_NSA,
+      SECTION_KEYS.BCA_RIGHT_VERTEBRAL, SECTION_KEYS.BCA_LEFT_VERTEBRAL,
+      SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, SECTION_KEYS.BCA_LEFT_SUBCLAVIAN,
+    ];
+    const anyDefaults = arteryKeys.some((key) => hasOrgan(key));
+    if (anyDefaults) {
+      setForm({
+        ...defaultBrachioCephalicArteriesStudyState,
+        brachioCephalicArteries: {
+          brachiocephalicTrunkRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
+          brachiocephalicTrunkLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
+          commonCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_OSA, { ...defaultArteryState }),
+          commonCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_OSA, { ...defaultArteryState }),
+          internalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VSA, { ...defaultArteryState }),
+          internalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VSA, { ...defaultArteryState }),
+          externalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_NSA, { ...defaultArteryState }),
+          externalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_NSA, { ...defaultArteryState }),
+          vertebralRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VERTEBRAL, { ...defaultArteryState }),
+          vertebralLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VERTEBRAL, { ...defaultArteryState }),
+          subclavianRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
+          subclavianLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
+          overallFindings: "",
+        },
+      });
+      setVersion((v) => v + 1);
     }
-  }, [value, isLoaded, hasOrgan, getOrganOrDefault]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();

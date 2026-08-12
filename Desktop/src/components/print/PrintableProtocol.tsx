@@ -74,6 +74,7 @@ interface StudyDefinition {
   id: Exclude<BlockId, "header" | "conclusion">;
   key: string;
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- данные исследования на печати динамические (любой протокол)
   studyData: any;
   conclusion: string;
   recommendations: string;

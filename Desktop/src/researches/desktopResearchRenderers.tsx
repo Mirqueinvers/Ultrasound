@@ -22,7 +22,13 @@ export function renderDesktopResearch({
     return null;
   }
 
+  // Данные исследования и props динамические — каждый компонент реестра
+  // принимает свои типизированные props через `value`/`onChange`.
+  // Используем any здесь намеренно: это граница типизированного реестра,
+  // где тип конкретного протокола известен только в самом компоненте.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Component = item.component as ComponentType<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const componentProps: Record<string, any> = {
     value: studiesData[item.studyKey],
     onChange: (updated: DesktopStudyData) => setStudyData(item.studyKey, updated),

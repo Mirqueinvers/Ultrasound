@@ -336,5 +336,4 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({ value, onChange, plac
   );
 };
 
-export { DatePickerField, parseDate };
 export default DatePickerField;

@@ -71,8 +71,27 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [defaults]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await defaultsService.load();
+        if (cancelled) return;
+        if (result.success && result.data) {
+          setDefaults(result.data as DefaultValuesMap);
+        }
+        setIsLoaded(true);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load defaults:", err);
+        if (cancelled) return;
+        setError("Не удалось загрузить значения по умолчанию");
+        setIsLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const value: DefaultValuesContextType = useMemo(
     () => ({ defaults, isLoaded, error, saveDefaults, resetDefaults, reload: load }),

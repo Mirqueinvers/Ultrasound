@@ -1,5 +1,5 @@
 // src/types/organs/lowerExtremityVeins.ts
-import type { SectionKey } from "@/components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 
 export interface VenousThrombus {
   number: number;

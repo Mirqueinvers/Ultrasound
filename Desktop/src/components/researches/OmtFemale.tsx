@@ -1,5 +1,5 @@
 // Frontend/src/components/researches/OmtFemale.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 
 import Uterus from "@organs/Uterus";
 import Ovary from "@organs/Ovary";
@@ -19,7 +19,7 @@ import type {
 import { defaultOmtFemaleState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
-import type { SectionKey } from "@components/common/OrgNavigation";
+import type { SectionKey } from "@/protocols";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import { STUDY_KEYS } from "@/domain/studyKeys";
 
@@ -38,40 +38,38 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     value ?? defaultOmtFemaleState
   );
 
-  // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
-  useEffect(() => {
-    if (!value && isLoaded) {
-      setForm({
-        ...defaultOmtFemaleState,
-        uterus: (defaults[SECTION_KEYS.OMT_FEMALE_UTERUS] as unknown as UterusProtocol) ?? null,
-        rightOvary: (defaults[SECTION_KEYS.OMT_FEMALE_RIGHT_OVARY] as unknown as OvaryProtocol) ?? null,
-        leftOvary: (defaults[SECTION_KEYS.OMT_FEMALE_LEFT_OVARY] as unknown as OvaryProtocol) ?? null,
-        urinaryBladder: (defaults[SECTION_KEYS.OMT_FEMALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
-      });
-    }
-  }, [value, isLoaded, defaults]);
+  // Паттерн «adjust state during render»: применяем пользовательские дефолты,
+  // когда они загружены и внешнего value ещё нет (guard — prevIsLoaded).
+  const [prevIsLoaded, setPrevIsLoaded] = useState(isLoaded);
+  if (isLoaded && !prevIsLoaded && !value) {
+    setPrevIsLoaded(true);
+    setForm({
+      ...defaultOmtFemaleState,
+      uterus: (defaults[SECTION_KEYS.OMT_FEMALE_UTERUS] as unknown as UterusProtocol) ?? null,
+      rightOvary: (defaults[SECTION_KEYS.OMT_FEMALE_RIGHT_OVARY] as unknown as OvaryProtocol) ?? null,
+      leftOvary: (defaults[SECTION_KEYS.OMT_FEMALE_LEFT_OVARY] as unknown as OvaryProtocol) ?? null,
+      urinaryBladder: (defaults[SECTION_KEYS.OMT_FEMALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
+    });
+  }
 
-  const prevValueRef = useRef(value);
-
-  useEffect(() => {
-    if (value === prevValueRef.current) return;
-    prevValueRef.current = value;
-
+  // Глубокое слияние при изменении внешнего value (guard — prevValue).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (!value) {
       setForm(defaultOmtFemaleState);
-      return;
+    } else {
+      // Глубокое слияние — мержим только то, что пришло, не затираем массивы/селекты
+      setForm((prev) => ({
+        ...prev,
+        ...value,
+        uterus: value.uterus ? { ...prev.uterus, ...value.uterus } : prev.uterus,
+        leftOvary: value.leftOvary ? { ...prev.leftOvary, ...value.leftOvary } : prev.leftOvary,
+        rightOvary: value.rightOvary ? { ...prev.rightOvary, ...value.rightOvary } : prev.rightOvary,
+        urinaryBladder: value.urinaryBladder ? { ...prev.urinaryBladder, ...value.urinaryBladder } : prev.urinaryBladder,
+      }));
     }
-
-    // Глубокое слияние — мержим только то, что пришло, не затираем массивы/селекты
-    setForm((prev) => ({
-      ...prev,
-      ...value,
-      uterus: value.uterus ? { ...prev.uterus, ...value.uterus } : prev.uterus,
-      leftOvary: value.leftOvary ? { ...prev.leftOvary, ...value.leftOvary } : prev.leftOvary,
-      rightOvary: value.rightOvary ? { ...prev.rightOvary, ...value.rightOvary } : prev.rightOvary,
-      urinaryBladder: value.urinaryBladder ? { ...prev.urinaryBladder, ...value.urinaryBladder } : prev.urinaryBladder,
-    }));
-  }, [value]);
+  }
 
   const { setStudyData } = useResearch();
   const { showConclusionSamples, setCurrentOrgan } = useRightPanel();
