@@ -76,7 +76,7 @@ describe("usePrintableOverrides", () => {
     const setSourceOverrides = vi.fn();
     const onSave = vi.fn();
 
-    const harness = () => {
+    const useHarness = () => {
       const h = usePrintableOverrides({
         ...baseOptions,
         setSourceOverrides,
@@ -86,7 +86,7 @@ describe("usePrintableOverrides", () => {
       return h;
     };
 
-    const { result } = renderHook(harness);
+    const { result } = renderHook(useHarness);
 
     // Сначала handleStartEditing: setState → перерендер hook'а с заполненным черновиком.
     act(() => {

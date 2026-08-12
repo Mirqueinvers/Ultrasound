@@ -21,13 +21,13 @@ describe("useFieldUpdate", () => {
   it("обновляет поле и вызывает onChange", () => {
     const onChange = vi.fn();
 
-    const harness = () => {
+    const useHarness = () => {
       const [state, setState] = useState({ name: "", age: "" });
       const updateField = useFieldUpdate(state, setState, onChange);
       return { state, updateField };
     };
 
-    const { result } = renderHook(harness);
+    const { result } = renderHook(useHarness);
     act(() => {
       result.current.updateField("name", "Иван");
     });
@@ -40,7 +40,7 @@ describe("useListManager", () => {
   it("добавляет, обновляет и удаляет элементы списка", () => {
     const onChange = vi.fn();
 
-    const harness = () => {
+    const useHarness = () => {
       const [state, setState] = useState<{
         list: { number: number; size: string }[];
       }>({
@@ -50,7 +50,7 @@ describe("useListManager", () => {
       return { state, ...manager };
     };
 
-    const { result } = renderHook(harness);
+    const { result } = renderHook(useHarness);
 
     act(() => {
       result.current.addItem({ number: 2, size: "20" });

@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, beforeEach } from "vitest";
 import { ResearchRepository } from "../researchRepository";
-import { PatientRepository } from "../patientRepository";
 import {
   createInMemoryDatabase,
   createTestPatient,
@@ -13,13 +12,11 @@ import type Database from "better-sqlite3";
 describe("ResearchRepository", () => {
   let db: Database.Database;
   let repo: ResearchRepository;
-  let patientRepo: PatientRepository;
   let patientId: number;
 
   beforeEach(() => {
     db = createInMemoryDatabase();
     repo = new ResearchRepository(db);
-    patientRepo = new PatientRepository(db);
     patientId = createTestPatient(db);
   });
 
