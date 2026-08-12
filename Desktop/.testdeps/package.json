@@ -1,0 +1,9 @@
+{
+  "name": "testdeps",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Изолированные нативные зависимости для тестов (better-sqlite3 под системный Node ABI).",
+  "dependencies": {
+    "better-sqlite3": "^12.5.0"
+  }
+}

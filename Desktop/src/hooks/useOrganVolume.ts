@@ -1,5 +1,6 @@
 // src/hooks/useOrganVolume.ts
 import { useEffect } from "react";
+import { calculateEllipsoidVolume } from "@/utils/volume";
 
 export interface UseOrganVolumeOptions {
   /** Текущие размеры (строки из формы) */
@@ -39,16 +40,14 @@ export const useOrganVolume = ({
   onVolumeChange,
 }: UseOrganVolumeOptions) => {
   useEffect(() => {
-    const l = parseFloat(length);
-    const w = parseFloat(width);
-    const d = parseFloat(depth);
-
-    if (
-      enabled &&
-      !isNaN(l) && !isNaN(w) && !isNaN(d) &&
-      l > 0 && w > 0 && d > 0
-    ) {
-      const next = ((l * w * d * coefficient) / 1000).toFixed(precision);
+    if (enabled) {
+      const next = calculateEllipsoidVolume(
+        length,
+        width,
+        depth,
+        coefficient,
+        precision,
+      );
       if (next !== volume) {
         onVolumeChange(next);
       }
