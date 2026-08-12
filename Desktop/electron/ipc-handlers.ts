@@ -1,7 +1,6 @@
 // ultrasound/frontend/electron/ipc-handlers.ts
 import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { promises as fs } from "node:fs";
-import http from "node:http";
 import path from "node:path";
 import { URL } from "node:url";
 import { DatabaseManager } from "./database/database";

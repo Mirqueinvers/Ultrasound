@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
 import { mobileHostService } from '@services';
-import type { MobileHostStatus } from '@/types/electron';
+import type { MobileHostStatus } from '../../../electron/contracts';
 import './MobileSyncTab.css';
 
 const MobileSyncTab: React.FC = () => {

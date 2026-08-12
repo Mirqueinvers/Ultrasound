@@ -3,6 +3,24 @@ import type Database from "better-sqlite3";
 import type { JournalEntry } from "./database";
 import type { Patient, Research } from "./schema";
 
+interface JournalRow {
+  patient_id: number;
+  p_last_name: string;
+  p_first_name: string;
+  p_middle_name: string | null;
+  p_date_of_birth: string;
+  p_created_at: string;
+  p_updated_at: string;
+  research_id: number;
+  r_patient_id: number;
+  r_research_date: string;
+  r_payment_type: "oms" | "paid";
+  r_doctor_name: string | null;
+  r_notes: string | null;
+  r_created_at: string;
+  r_updated_at: string;
+}
+
 export class JournalRepository {
   constructor(private db: Database.Database) {}
 
@@ -36,7 +54,7 @@ export class JournalRepository {
         ORDER BY DATE(r.research_date), p.last_name, p.first_name, r.research_date
       `
       )
-      .all(startDate, endDate) as any[];
+      .all(startDate, endDate) as JournalRow[];
 
     const map = new Map<number, JournalEntry>();
 
@@ -69,7 +87,7 @@ export class JournalRepository {
         )
         .all(row.research_id) as { study_type: string }[];
 
-      (entry.researches as any as Research[]).push({
+      entry.researches.push({
         id: row.research_id,
         patient_id: row.r_patient_id,
         research_date: row.r_research_date,
@@ -80,7 +98,7 @@ export class JournalRepository {
         updated_at: row.r_updated_at,
         // дополнительное поле
         study_types: studies.map((s) => s.study_type),
-      } as any);
+      } as Research);
     }
 
     return Array.from(map.values());

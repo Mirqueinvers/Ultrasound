@@ -70,7 +70,13 @@ export class UserRepository {
         .prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?")
         .run(user.id);
 
-      const { password: _pw, ...userWithoutPassword } = user;
+      const userWithoutPassword = {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        organization: user.organization,
+        created_at: user.created_at,
+      };
       return {
         success: true,
         message: "Вход выполнен успешно",

@@ -1,384 +1,31 @@
 // // ultrasound/frontend/electron/preload.ts
 import { contextBridge, ipcRenderer } from "electron";
 
-// ========== AUTH API ==========
+// Все IPC-контракты (интерфейсы API и доменные типы) — в ./contracts.
+// Этот файл содержит только реализации и реэкспорт типов наружу,
+// чтобы существующие импорты из "../../electron/preload" продолжали работать.
+import type {
+  AuthAPI,
+  PatientAPI,
+  ResearchAPI,
+  JournalAPI,
+  WindowAPI,
+  MobileHostAPI,
+  MedisonAPI,
+  ImportMappingAPI,
+  ProtocolAPI,
+  FileAPI,
+  PatientSearchAPI,
+  DatabaseAPI,
+  DefaultsAPI,
+  RegistryAPI,
+  NetworkAPI,
+  UpdateAPI,
+  Research,
+  PatientSearchEntry,
+} from "./contracts";
 
-export interface AuthAPI {
-  register: (data: {
-    username: string;
-    password: string;
-    name: string;
-    organization?: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-    userId?: number;
-  }>;
-  login: (data: {
-    username: string;
-    password: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-    user?: any;
-  }>;
-  getUser: (userId: number) => Promise<any>;
-  updateUser: (data: {
-    id: number;
-    name: string;
-    username: string;
-    organization?: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-  changePassword: (data: {
-    userId: number;
-    currentPassword: string;
-    newPassword: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-}
-
-// ========== DOMAIN TYPES ==========
-
-export interface Patient {
-  id: number;
-  last_name: string;
-  first_name: string;
-  middle_name?: string;
-  date_of_birth: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Research {
-  id: number;
-  patient_id: number;
-  research_date: string;
-  payment_type: "oms" | "paid";
-  organization?: string | null;
-  doctor_name?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ResearchStudy {
-  id: number;
-  research_id: number;
-  study_type: string;
-  study_data: any;
-  created_at: string;
-}
-
-export interface JournalEntry {
-  patient: Patient;
-  researches: Research[];
-}
-
-// ========== PATIENT / RESEARCH / JOURNAL API ==========
-
-export interface PatientAPI {
-  findOrCreate: (data: {
-    lastName: string;
-    firstName: string;
-    middleName: string | null;
-    dateOfBirth: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-    patient?: Patient;
-  }>;
-  search: (query: string, limit?: number) => Promise<any>;
-  getAll: (limit?: number, offset?: number) => Promise<any>;
-  getById: (id: number) => Promise<any>;
-  update: (data: {
-    id: number;
-    lastName: string;
-    firstName: string;
-    middleName: string | null;
-    dateOfBirth: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-  delete: (id: number) => Promise<{         // ← ДОБАВИЛИ
-    success: boolean;
-    message: string;
-  }>;
-}
-
-export interface ResearchAPI {
-  create: (data: {
-    patientId: number;
-    researchDate: string;
-    paymentType: "oms" | "paid";
-    organization?: string | null;
-    doctorName?: string;
-    notes?: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-    researchId?: number;
-  }>;
-  addStudy: (data: {
-    researchId: number;
-    studyType: string;
-    studyData: object;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-    studyId?: number;
-  }>;
-  getById: (id: number) => Promise<any>;
-  getByPatientId: (
-    patientId: number,
-    limit?: number,
-    offset?: number,
-  ) => Promise<any>;
-  getAll: (limit?: number, offset?: number) => Promise<any>;
-  update: (data: {
-    id: number;
-    researchDate?: string;
-    paymentType?: "oms" | "paid";
-    organization?: string | null;
-    doctorName?: string;
-    notes?: string;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-  delete: (id: number) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-  search: (query: string, limit?: number) => Promise<any>;
-}
-
-export interface JournalAPI {
-  getByDate: (date: string) => Promise<JournalEntry[]>;
-  getByPeriod: (startDate: string, endDate: string) => Promise<JournalEntry[]>;
-  getDoctorNames: () => Promise<string[]>;
-}
-
-export interface WindowAPI {
-  focus: () => void;
-  minimize: () => void;
-  maximize: () => void;
-  close: () => void;
-}
-
-export interface MobileHostStatus {
-  running: boolean;
-  port: number | null;
-  sessionId: string | null;
-  draftActive: boolean;
-  activeStudyLabel: string;
-  organization: string | null;
-  pairingCode: string | null;
-  startedAt: string | null;
-  clients: number;
-  addresses: string[];
-  httpUrl: string | null;
-  wsUrl: string | null;
-}
-
-export interface MedisonAPI {
-  startWatching: () => Promise<{ success: boolean }>;
-  stopWatching: () => Promise<{ success: boolean }>;
-  scanAndRead: () => Promise<{ success: boolean; content?: string; filePath?: string; filename?: string; message?: string }>;
-  onXmlFound: (handler: (data: { filePath: string; filename: string; content: string }) => void) => () => void;
-}
-
-export interface MedisonMappingRow {
-  id: number;
-  user_id: number;
-  measurement_id: string;
-  target_study_type: string;
-  target_field: string;
-  transform: string;
-  is_enabled: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ImportMappingAPI {
-  getMappings: (userId: number) => Promise<{ success: boolean; mappings?: MedisonMappingRow[]; message?: string }>;
-  upsertMapping: (data: {
-    userId: number;
-    measurementId: string;
-    targetStudyType: string;
-    targetField: string;
-    transform: string;
-    isEnabled: boolean;
-  }) => Promise<{ success: boolean; id?: number; message?: string }>;
-  deleteMapping: (id: number) => Promise<{ success: boolean; message?: string }>;
-  resetDefaultMappings: (userId: number) => Promise<{ success: boolean; message?: string }>;
-}
-
-export interface MobileHostAPI {
-  getStatus: () => Promise<MobileHostStatus>;
-  start: () => Promise<MobileHostStatus>;
-  stop: () => Promise<MobileHostStatus>;
-  restart: () => Promise<MobileHostStatus>;
-  setProfile: (profile: { organization?: string | null }) => Promise<MobileHostStatus>;
-  publishSync: (message: unknown) => Promise<MobileHostStatus>;
-  onSyncMessage: (handler: (message: unknown) => void) => () => void;
-}
-
-// ========== PROTOCOL API ==========
-
-export interface SavedProtocol {
-  researchId: number;
-  studies: { [studyType: string]: any };
-  printOverrides: Record<string, string>;
-}
-
-export interface PrinterInfo {
-  name: string;
-  isDefault: boolean;
-  status?: number;
-  options?: Record<string, unknown>;
-}
-
-export interface ProtocolAPI {
-  getPrinters: () => Promise<{
-    success: boolean;
-    printers: PrinterInfo[];
-    message?: string;
-  }>;
-  getByResearchId: (id: number) => Promise<SavedProtocol | null>;
-  printHtml: (data: {
-    content: string;
-    title?: string;
-    printerName?: string;
-  }) => Promise<{
-    success: boolean;
-    message?: string;
-  }>;
-  savePrintOverrides: (data: {
-    researchId: number;
-    overrides: Record<string, string>;
-  }) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
-}
-
-export interface FileAPI {
-  saveHtml: (data: {
-    content: string;
-    defaultPath?: string;
-  }) => Promise<{
-    success: boolean;
-    canceled?: boolean;
-    filePath?: string;
-    message?: string;
-  }>;
-}
-
-export interface DefaultsAPI {
-  load: () => Promise<{ success: boolean; data?: Record<string, unknown>; message?: string }>;
-  save: (updates: Record<string, unknown>) => Promise<{ success: boolean; message?: string }>;
-  reset: () => Promise<{ success: boolean; message?: string }>;
-}
-
-export interface RegistryAddress {
-  name: string;
-  ip: string;
-}
-
-export interface CachedRegistryAppointment {
-  sourceIp: string;
-  sourceName: string;
-  appointment: {
-    id: number;
-    patient_id: number;
-    appointment_date: string;
-    studies: string[];
-    department?: string;
-    created_at: string;
-    patient?: {
-      id: number;
-      last_name: string;
-      first_name: string;
-      middle_name: string;
-      date_of_birth: string;
-    };
-  };
-  cachedAt: string;
-}
-
-export interface RegistryAPI {
-  getAddresses: () => Promise<RegistryAddress[]>;
-  saveAddresses: (addresses: RegistryAddress[]) => Promise<{ success: boolean; message?: string }>;
-  getCachedAppointments: () => Promise<CachedRegistryAppointment[]>;
-  saveCachedAppointments: (appointments: CachedRegistryAppointment[]) => Promise<{ success: boolean; message?: string }>;
-}
-
-export interface NetworkAPI {
-  sendExport: (data: {
-    targetIp: string;
-    html: string;
-    fileName?: string;
-  }) => Promise<{
-    success: boolean;
-    imported?: number;
-    skipped?: number;
-    message?: string;
-  }>;
-}
-
-// ========== PATIENT SEARCH API (для SearchSection) ==========
-
-export interface PatientSearchEntry {
-  patient: Patient;
-  researches: (Research & { study_types?: string[] })[];
-}
-
-export interface PatientSearchAPI {
-  search: (query: string) => Promise<PatientSearchEntry[]>;
-}
-
-// ========== DATABASE API ==========
-
-export interface DatabaseAPI {
-  getStatistics: (startDate?: string, endDate?: string, doctorName?: string) => Promise<{
-    success: boolean;
-    message?: string;
-    data?: {
-      totalPatients: number;
-      totalResearches: number;
-      totalStudies: number;
-      researchesInPeriod: number;
-      patientsInPeriod: number;
-      studiesInPeriod: number;
-      paymentStats: {
-        oms: number;
-        paid: number;
-      };
-      studiesByType: { [key: string]: number };
-      monthlyResearches: { month: string; count: number }[];
-      recentActivity: {
-        date: string;
-        patientName: string;
-        studyType: string;
-      }[];
-      doctorsStats: {
-        doctorName: string;
-        patientCount: number;
-        researchCount: number;
-      }[];
-      paidStudiesDetail: {
-        studyType: string;
-        count: number;
-      }[];
-    };
-  }>;
-}
+export type * from "./contracts";
 
 // ========== Реализации API ==========
 
@@ -501,7 +148,7 @@ const patientSearchAPI: PatientSearchAPI = {
         notes: r.notes,
         created_at: r.created_at,
         updated_at: r.updated_at,
-        study_types: (r.studies || []).map((s: any) => s.study_type),
+        study_types: (r.studies || []).map((s: { study_type: string }) => s.study_type),
       });
     }
 
@@ -553,28 +200,6 @@ const registryAPI: RegistryAPI = {
 const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
-
-// ========== UPDATE API ==========
-
-export interface UpdateServer {
-  name: string;
-  ip: string;
-}
-
-export interface UpdateAPI {
-  check: () => Promise<void>;
-  download: () => Promise<void>;
-  install: () => Promise<void>;
-  getServers: () => Promise<UpdateServer[]>;
-  saveServers: (servers: UpdateServer[]) => Promise<{ success: boolean; message?: string }>;
-  getActiveServer: () => Promise<string>;
-  setActiveServer: (ip: string) => Promise<{ success: boolean; message?: string }>;
-  onUpdateAvailable: (handler: (info: { version: string }) => void) => () => void;
-  onUpdateNotAvailable: (handler: (info: { version: string }) => void) => () => void;
-  onDownloadProgress: (handler: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
-  onUpdateDownloaded: (handler: (info: { version: string }) => void) => () => void;
-  onUpdateError: (handler: (error: { message: string }) => void) => () => void;
-}
 
 const updateAPI: UpdateAPI = {
   check: () => ipcRenderer.invoke("update:check"),
@@ -629,4 +254,3 @@ contextBridge.exposeInMainWorld("defaultsAPI", defaultsAPI);
 contextBridge.exposeInMainWorld("registryAPI", registryAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);
-

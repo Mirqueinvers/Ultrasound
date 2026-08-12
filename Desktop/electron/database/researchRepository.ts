@@ -68,7 +68,7 @@ export class ResearchRepository {
 
   getResearchById(
     id: number
-  ): (Research & { studies: Array<ResearchStudy & { study_data: any }> }) | null {
+  ): (Research & { studies: Array<ResearchStudy & { study_data: unknown }> }) | null {
     const research = this.db
       .prepare("SELECT * FROM researches WHERE id = ?")
       .get(id) as Research | undefined;
@@ -92,7 +92,7 @@ export class ResearchRepository {
     patientId: number,
     limit: number = 50,
     offset: number = 0
-  ): Array<Research & { studies: Array<ResearchStudy & { study_data: any }> }> {
+  ): Array<Research & { studies: Array<ResearchStudy & { study_data: unknown }> }> {
     const researches = this.db
       .prepare(
         `
@@ -128,7 +128,7 @@ export class ResearchRepository {
       first_name: string;
       middle_name: string | null;
       date_of_birth: string;
-      studies: Array<ResearchStudy & { study_data: any }>;
+      studies: Array<ResearchStudy & { study_data: unknown }>;
     }
   > {
     const researches = this.db
@@ -180,7 +180,7 @@ export class ResearchRepository {
   ): { success: boolean; message: string } {
     try {
       const fields: string[] = [];
-      const values: any[] = [];
+      const values: (string | number | null)[] = [];
 
       if (researchDate !== undefined) {
         fields.push("research_date = ?");
@@ -258,7 +258,7 @@ export class ResearchRepository {
       first_name: string;
       middle_name: string | null;
       date_of_birth: string;
-      studies: Array<ResearchStudy & { study_data: any }>;
+      studies: Array<ResearchStudy & { study_data: unknown }>;
     }
   > {
     const raw = query.trim().toLowerCase();

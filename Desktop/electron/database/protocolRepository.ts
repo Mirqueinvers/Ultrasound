@@ -6,7 +6,7 @@ export type PrintBlockOverrides = Record<string, string>;
 export interface SavedProtocol {
   researchId: number;
   studies: {
-    [studyType: string]: any;
+    [studyType: string]: unknown;
   };
   printOverrides: PrintBlockOverrides;
 }

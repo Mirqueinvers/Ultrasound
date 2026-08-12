@@ -101,9 +101,9 @@ export class StatisticsRepository {
   }
 
   /** Добавляет фильтр по врачу и датам к запросу, возвращает { clause, params } */
-  private buildWhereClause(startDate?: string, endDate?: string, doctorName?: string): { clause: string; params: any[] } {
+  private buildWhereClause(startDate?: string, endDate?: string, doctorName?: string): { clause: string; params: string[] } {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: string[] = [];
 
     if (startDate && endDate) {
       conditions.push("r.research_date BETWEEN ? AND ?");
@@ -127,7 +127,7 @@ export class StatisticsRepository {
     }
     
     let query = "SELECT COUNT(*) as count FROM researches r WHERE r.research_date BETWEEN ? AND ?";
-    const params: any[] = [startDate, endDate];
+    const params: string[] = [startDate, endDate];
 
     if (doctorName) {
       query += " AND r.doctor_name = ?";
@@ -146,7 +146,7 @@ export class StatisticsRepository {
     }
     
     let query = "SELECT COUNT(DISTINCT r.patient_id) as count FROM researches r WHERE r.research_date BETWEEN ? AND ?";
-    const params: any[] = [startDate, endDate];
+    const params: string[] = [startDate, endDate];
 
     if (doctorName) {
       query += " AND r.doctor_name = ?";
@@ -170,7 +170,7 @@ export class StatisticsRepository {
       JOIN researches r ON rs.research_id = r.id
       WHERE r.research_date BETWEEN ? AND ?
     `;
-    const params: any[] = [startDate, endDate];
+    const params: string[] = [startDate, endDate];
 
     if (doctorName) {
       query += " AND r.doctor_name = ?";
@@ -184,14 +184,14 @@ export class StatisticsRepository {
   }
 
   private getPaymentStats(startDate?: string, endDate?: string, doctorName?: string): { oms: number; paid: number } {
-    const buildQuery = (paymentType: string): { query: string; params: any[] } => {
+    const buildQuery = (paymentType: string): { query: string; params: string[] } => {
       let query = `
         SELECT COUNT(*) as count 
         FROM research_studies rs
         JOIN researches r ON rs.research_id = r.id
         WHERE r.payment_type = ?
       `;
-      const params: any[] = [paymentType];
+      const params: string[] = [paymentType];
 
       if (startDate && endDate) {
         query += " AND r.research_date BETWEEN ? AND ?";
@@ -359,7 +359,7 @@ export class StatisticsRepository {
       JOIN researches r ON rs.research_id = r.id
       WHERE r.payment_type = 'paid'
     `;
-    const params: any[] = [];
+    const params: string[] = [];
 
     if (startDate && endDate) {
       query += " AND r.research_date BETWEEN ? AND ?";

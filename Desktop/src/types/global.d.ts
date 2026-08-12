@@ -14,7 +14,8 @@ import type {
   RegistryAPI,
   MobileHostAPI,
   UpdateAPI,
-} from "../../electron/preload";
+  NetworkAPI,
+} from "../../electron/contracts";
 
 declare global {
   interface Window {
@@ -33,6 +34,7 @@ declare global {
     registryAPI: RegistryAPI;
     mobileHostAPI: MobileHostAPI;
     updateAPI: UpdateAPI;
+    networkAPI: NetworkAPI;
   }
 }
 
