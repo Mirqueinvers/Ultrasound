@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 import Hepat from "@organs/Hepat";
-import Gallbladder from "@/components/organs/Gallbladder/Gallbladder";
+import Gallbladder from "@/features/organs/Gallbladder/Gallbladder";
 import Pancreas from "@organs/Pancreas";
 import Spleen from "@organs/Spleen";
 import { Conclusion } from "@common";

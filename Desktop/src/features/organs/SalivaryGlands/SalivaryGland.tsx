@@ -3,7 +3,7 @@
 import React from "react";
 import { Fieldset, ButtonSelect, SizeRow, SelectWithTextarea } from "@/UI";
 import { useSalivaryGland } from "@hooks/organs/useSalivaryGland";
-import { LymphNode } from "@/components/organs/LymphNodes/LymphNode";
+import { LymphNode } from "@/features/organs/LymphNodes/LymphNode";
 import type {
   SalivaryGlandProps,
 } from "@/types/organs/salivaryGlands";

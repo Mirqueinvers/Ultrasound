@@ -11,20 +11,20 @@
  */
 import React from "react";
 
-import { Hepat } from "@/components/organs/Hepat";
-import { Gallbladder } from "@/components/organs/Gallbladder/Gallbladder";
-import { Pancreas } from "@/components/organs/Pancreas";
-import { Spleen } from "@/components/organs/Spleen";
-import { KidneyCommon } from "@/components/organs/Kidney/KidneyCommon";
-import { UrinaryBladder } from "@/components/organs/UrinaryBladder";
-import { TestisSide } from "@/components/organs/Testis";
-import { Uterus } from "@/components/organs/Uterus";
-import { Ovary } from "@/components/organs/Ovary";
-import { Prostate } from "@/components/organs/Prostate";
-import { ThyroidLobe } from "@/components/organs/Thyroid/ThyroidLobe";
-import { BreastSide } from "@/components/organs/Breast/BreastSide";
-import { SalivaryGland } from "@/components/organs/SalivaryGlands/SalivaryGland";
-import { Artery } from "@/components/organs/BrachioCephalicArteries/Artery";
+import { Hepat } from "@/features/organs/Hepat";
+import { Gallbladder } from "@/features/organs/Gallbladder/Gallbladder";
+import { Pancreas } from "@/features/organs/Pancreas";
+import { Spleen } from "@/features/organs/Spleen";
+import { KidneyCommon } from "@/features/organs/Kidney/KidneyCommon";
+import { UrinaryBladder } from "@/features/organs/UrinaryBladder";
+import { TestisSide } from "@/features/organs/Testis";
+import { Uterus } from "@/features/organs/Uterus";
+import { Ovary } from "@/features/organs/Ovary";
+import { Prostate } from "@/features/organs/Prostate";
+import { ThyroidLobe } from "@/features/organs/Thyroid/ThyroidLobe";
+import { BreastSide } from "@/features/organs/Breast/BreastSide";
+import { SalivaryGland } from "@/features/organs/SalivaryGlands/SalivaryGland";
+import { Artery } from "@/features/organs/BrachioCephalicArteries/Artery";
 
 import type { LiverProtocol } from "@/types";
 import type { GallbladderProtocol } from "@/types";

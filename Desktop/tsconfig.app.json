@@ -40,7 +40,7 @@
       "@layout/*": ["./src/layout/*"],
       "@utils/*": ["./src/utils/*"],
       "@assets/*": ["./src/assets/*"],
-      "@organs/*": ["./src/components/organs/*"],
+      "@organs/*": ["./src/features/organs/*"],
       "@types": ["./src/types/index.ts"],
       "@types/*": ["./src/types/*"]
     }

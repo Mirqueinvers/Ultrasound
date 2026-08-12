@@ -18,7 +18,7 @@ import {
   SoftTissue,
   UrinaryBladderResearch,
   LymphNodes,
-} from "@components/researches";
+} from "@/features/research";
 
 export interface DesktopResearchRegistryItem {
   studyKey: string;
