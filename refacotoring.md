@@ -111,28 +111,73 @@ Ultrasound/
 
 ---
 
-### ШАГ 2. Тестовая страховка (до любых крупных перестроек)
+### ШАГ 2. Тестовая страховка (до любых крупных перестроек) — РАСШИРЕННЫЙ
 
-**Цель:** покрыть тестами критичные чистые функции, чтобы рефакторинг форм и парсеров не ломал логику незаметно.
+**Цель:** покрыть тестами все критические слои (утилиты, медицинские расчёты, БД, хуки, формы, печать), чтобы рефакторинг Шагов 3–5 не ломал логику незаметно. Это **самый важный шаг** для уверенности, что проект не «сломается».
+
+> Стратегия: не гнаться за 100% покрытием (355 файлов — нереально и не нужно), а закрыть **критичные риски**: медицинские расчёты, парсинг XML, сохранение данных, печать, типовые сценарии форм. 80% пользы дают ~20% тестов.
 
 **Действия:**
+
+#### Этап 2.1 — Инфраструктура
 1. Установи тестовый стек в `Desktop/`:
-   - `vitest` + `@testing-library/react` + `@testing-library/jest-dom` + `jsdom` (в devDependencies).
-   - Добавь скрипт `"test": "vitest run"` и `"test:watch": "vitest"` в `Desktop/package.json`.
-   - Создай `Desktop/vitest.config.ts` (на базе `vite.config.ts`, с теми же алиасами).
-2. Напиши unit-тесты для (минимум):
-   - `src/utils/deepMerge.ts` — слияние вложенных объектов, массивы, `null`.
-   - `src/sync/medisonXmlParser.ts` — парсинг XML-строки в структуру измерений.
-   - `src/utils/normalizeSelectValue.ts`.
-   - Органных калькуляторов: `src/components/print/organs/Kidney/kidneyHelpers.ts` (расчёт объёмов).
-   - `src/utils/defaultsAccess.ts`.
-3. Напиши тесты на хук-логику (опционально, при наличии времени):
-   - `useSaveResearch` (мок `patientService`/`researchService`).
-   - `useOrganForm` (мок `useConclusion`).
+   - devDependencies: `vitest`, `@vitest/coverage-v8`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`.
+   - Скрипты в `Desktop/package.json`: `"test": "vitest run"`, `"test:watch": "vitest"`, `"test:coverage": "vitest run --coverage"`.
+   - Создай `Desktop/vitest.config.ts` (на базе `vite.config.ts`, те же алиасы, `environment: "jsdom"`, `setupFiles: "./src/test/setup.ts"`).
+   - Создай `Desktop/src/test/setup.ts` (подключение `@testing-library/jest-dom`).
+   - Создай `Desktop/src/test/mocks/electron.ts` — моки **всех** `window.*API` (`authAPI`, `patientAPI`, `researchAPI`, `journalAPI`, `protocolAPI`, `fileAPI`, `defaultsAPI`, `networkAPI`, `mobileHostAPI`, `registryAPI`, `updateAPI`, `databaseAPI`, `medisonAPI`, `importMappingAPI`, `windowAPI`) через `vi.stubGlobal`. Моки базируются на типах из `contracts.ts` (после Шага 1), чтобы тесты не отставали от реальных контрактов.
+
+#### Этап 2.2 — Unit-тесты чистых функций (обязательно)
+2. `src/utils/deepMerge.ts` — вложенные объекты, массивы, `null`, `undefined`.
+3. `src/utils/normalizeSelectValue.ts`.
+4. `src/utils/defaultsAccess.ts`.
+5. `src/utils/printHelpers.ts`.
+6. `src/sync/medisonXmlParser.ts` — парсинг XML → структура измерений (несколько фикстур: полный XML, пустой, с пропущенными полями).
+7. **Все органы-калькуляторы (медицинские расчёты)**:
+   - `src/components/print/organs/Kidney/kidneyHelpers.ts` — расчёт объёмов почек.
+   - `src/hooks/useOrganVolume.ts` — формулы объёмов (щитовидка, простата, яичники, матка, селезёнка и т.д.).
+   - Пройдись по `src/hooks/organs/use*.ts`: если внутри есть чистые вычисления — вынеси их в тестируемые функции в `src/utils/` (или `src/domain/`) и покрой тестами (`useThyroidLobe`, `useProstate`, `useUterus`, `useOvary` и т.д.).
+   - **Правило:** любую расчётную формулу (объём, ИМТ, индексы) держи в чистой функции, а не внутри JSX/эффекта — так её можно протестировать.
+
+#### Этап 2.3 — Тесты репозиториев БД (обязательно)
+8. Тесты для `electron/database/*Repository.ts` на **in-memory SQLite** (`better-sqlite3` с `:memory:` + применение `schema.ts`):
+   - `patientRepository` — findOrCreate (создание и повторный поиск), поиск, обновление, удаление.
+   - `researchRepository` — create, addStudy, getById (с studies), update, delete, search.
+   - `journalRepository` — getByDate, getByPeriod, getDoctorNames.
+   - `userRepository` — register, login (проверка bcrypt), changePassword, updateUser.
+   - `statisticsRepository` — статистика по периодам/врачам.
+   - `protocolRepository` — savePrintOverrides/getByResearchId.
+   > Это защита от случайной поломки схемы/запросов при рефакторинге `ipc-handlers.ts` (Шаг 5) и любых правок слоя данных.
+
+#### Этап 2.4 — Тесты хуков (обязательно)
+9. `useSaveResearch` — мок `patientService`/`researchService`: успешное сохранение, валидация (пустая фамилия/имя/дата/исследования), ошибка сервиса.
+10. `useOrganForm` — мок `useConclusion`: синхронизация `value → form`, `updateField`, `commit`, применение дефолтов через `mergeLists`.
+11. `useFormState`, `useFieldUpdate`, `useListManager` — базовые сценарии.
+12. `usePrintableOverrides` — мок `protocolService`: load/save/reset.
+
+#### Этап 2.5 — Смоук-тесты ключевых форм (обязательно)
+13. `features/research/Obp.tsx` — рендер, изменение поля вызывает `onChange`, применение дефолтов.
+14. `features/research/Kidney.tsx` — то же.
+15. `features/research/Thyroid.tsx` — то же.
+> Формы обернуть в `DefaultValuesProvider` (или замокать `useDefaultValues`) + `ResearchProvider`. Это прямая страховка для Шага 3 (унификация форм на `useOrganForm`).
+
+#### Этап 2.6 — Snapshot-тесты печати (обязательно)
+16. `components/print/PrintableProtocol.tsx` — рендер с фикстурой протокола → snapshot.
+17. `components/print/PrintableSavedProtocol.tsx` — то же.
+> Snapshot-тесты ловят любое неожиданное изменение HTML при рефакторинге печати (Шаг 4). При осознанном изменении разметки снапшоты обновляются: `npm run test -- -u`.
+
+#### Этап 2.7 — Консистентность IPC-контрактов (обязательно после Шага 1)
+18. Type-level тест с `expectTypeOf` из vitest: импортировать типы из `contracts.ts` и проверить структуру ключевых функций (`authAPI`, `researchService` и т.д.) — защищает от расхождения типов между `preload.ts`, `services/` и `electron.d.ts` в будущем.
+
+#### Этап 2.8 — Смоук-тест всего приложения (рекомендуется)
+19. Минимальный e2e/смоук: после `npm run build` запустить Electron в тестовом режиме и проверить, что окно создаётся и `App` рендерится без ошибок (можно через Playwright `_electron` — отдельная задача; если слишком сложно — пропустить, но тогда **ОБЯЗАТЕЛЬНО** вручную прогнать сценарий «авторизация → создание исследования → заполнение формы → сохранение → печать» после каждого шага рефакторинга).
 
 **Критерий готовности:**
-- `npm test` в `Desktop/` выполняется и все тесты зелёные.
-- Покрыты файлы из списка выше (минимум 5 файлов).
+- `npm test` в `Desktop/` — все тесты зелёные.
+- Покрыты **минимум**: `deepMerge`, `medisonXmlParser`, все органы-калькуляторы, `useSaveResearch`, `useOrganForm`, репозитории БД (6 шт.), смоук `Obp`/`Kidney`/`Thyroid`, снапшоты печати (2 шт.).
+- `npm run test:coverage` — на целевых модулях (из списка) покрытие > 70%.
+- Ни один тест не обращается к реальной БД, сети или файлам пользователя (только моки/in-memory SQLite).
+- После каждого последующего шага рефакторинга `npm test` остаётся зелёным.
 
 ---
 
@@ -333,7 +378,9 @@ if (value !== prevValue) { setForm(deepMerge(prev, value)); }
 - [ ] `Desktop/electron/preload.ts` и `Desktop/src/types/` не содержат дублей интерфейсов.
 - [ ] `npm run build` в `Desktop/` — без ошибок.
 - [ ] `npm run lint` в `Desktop/` — без ошибок (допустимы 0 новых).
-- [ ] `npm test` в `Desktop/` — зелёный.
+- [ ] `npm test` в `Desktop/` — зелёный (утилиты, медизрасчёты, репозитории БД на in-memory SQLite, хуки, смоук-тесты Obp/Kidney/Thyroid, снапшоты печати).
+- [ ] `npm run test:coverage` — на целевых модулях (из Шага 2) покрытие > 70%.
+- [ ] Ни один тест не обращается к реальной БД, сети или файлам пользователя (только моки / in-memory SQLite).
 - [ ] Нет файлов `> 600 строк` в `Desktop/src` и `Desktop/electron` (кроме контрактов/данных).
 - [ ] В `Desktop/src/features/research/` нет «adjust state during render».
 - [ ] `RightSidePanel.tsx` без цепочки `panelData.organ === ...`.
