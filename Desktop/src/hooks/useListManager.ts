@@ -12,7 +12,6 @@ export const useListManager = <T, F>(
     const updated = { ...form, [listKey]: [...list, newItem] as unknown as F[keyof F] };
     setForm(updated as F);
     onChange?.(updated as F);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list, form, setForm, onChange, listKey]);
 
   const updateItem = useCallback((
@@ -26,7 +25,6 @@ export const useListManager = <T, F>(
     const updated = { ...form, [listKey]: updatedList as unknown as F[keyof F] };
     setForm(updated as F);
     onChange?.(updated as F);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list, form, setForm, onChange, listKey]);
 
   const removeItem = useCallback((index: number) => {
@@ -34,7 +32,6 @@ export const useListManager = <T, F>(
     const updated = { ...form, [listKey]: updatedList as unknown as F[keyof F] };
     setForm(updated as F);
     onChange?.(updated as F);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list, form, setForm, onChange, listKey]);
 
   return { addItem, updateItem, removeItem };

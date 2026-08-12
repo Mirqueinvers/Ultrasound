@@ -83,12 +83,12 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
       sinusPlaquesList: value?.sinusPlaquesList || [],
     };
 
-    const currentSerialized = JSON.stringify(form);
-    const nextSerialized = JSON.stringify(nextValue);
-    if (currentSerialized !== nextSerialized) {
-      setForm(nextValue);
-    }
-  }, [value]);
+    setForm((prev) => {
+      const currentSerialized = JSON.stringify(prev);
+      const nextSerialized = JSON.stringify(nextValue);
+      return currentSerialized !== nextSerialized ? nextValue : prev;
+    });
+  }, [value, setForm]);
 
   const isCommonCarotid =
     artery === "commonCarotidRight" || artery === "commonCarotidLeft";
@@ -159,12 +159,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
       setForm(updated);
       onChange?.(updated);
     }
-  }, [
-    form.peakSystolicVelocity,
-    form.endDiastolicVelocity,
-    mode,
-    isSubclavian,
-  ]);
+  }, [form, onChange, setForm, mode, isSubclavian]);
 
   React.useEffect(() => {
     if (mode !== "main" || !isInternalCarotid) return;
@@ -177,7 +172,7 @@ export const Artery: React.FC<ArteryProps & { commonCarotidPsv?: string }> = ({
       setForm(updated);
       onChange?.(updated);
     }
-  }, [form.peakSystolicVelocity, commonCarotidPsv, isInternalCarotid, mode]);
+  }, [form, onChange, setForm, commonCarotidPsv, isInternalCarotid, mode]);
 
   const handlePlaquesToggle = (val: string) => {
     const updated = {

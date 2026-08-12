@@ -98,8 +98,17 @@ const Statistics: React.FC = () => {
   const [doctorList, setDoctorList] = useState<string[]>([]);
   const [paidExpanded, setPaidExpanded] = useState(false);
 
+  // Загрузка при монтировании намеренная (один раз). Актуальную версию
+  // loadStatistics держим в ref, чтобы не дублировать запросы при смене
+  // дат/врача (там вызовы идут явно через handlePeriodChange/setTimeout).
+  const loadStatisticsRef = React.useRef<() => void>(() => {});
+
   useEffect(() => {
-    loadStatistics();
+    loadStatisticsRef.current = loadStatistics;
+  });
+
+  useEffect(() => {
+    loadStatisticsRef.current();
     loadDoctorList();
   }, []);
 

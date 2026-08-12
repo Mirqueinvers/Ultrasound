@@ -345,7 +345,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     [sourceBlockHtml, studyDefinitions],
   );
 
-  const { researchId: propsResearchId, onSave: propsOnSave } = props;
+  const { researchId: propsResearchId, onSave: propsOnSave, onReady: propsOnReady } = props;
 
   const {
     draftOverrides,
@@ -369,6 +369,13 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   // нестабильную функцию в зависимости эффекта (иначе ломается мемоизация).
   const handleStartEditingRef = React.useRef(handleStartEditing);
 
+  // onReady тоже храним в ref: эффект срабатывает только по studyPages,
+  // не вызывая onReady повторно при пересоздании колбэка родителем.
+  const onReadyRef = React.useRef<(() => void) | undefined>(propsOnReady);
+  React.useEffect(() => {
+    onReadyRef.current = propsOnReady;
+  });
+
   React.useEffect(() => {
     handleStartEditingRef.current = handleStartEditing;
   });
@@ -381,7 +388,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     } else if (editMode === false && isEditMode) {
       setIsEditMode(false);
     }
-  }, [editMode, isEditMode]);
+  }, [editMode, isEditMode, setIsEditMode]);
 
   /**
    * Захватывает innerHTML из скрытого source-контейнера.
@@ -434,7 +441,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
     }
 
     setDraftOverrides(buildDraftOverrides(appliedOverrides));
-  }, [appliedOverrides, buildDraftOverrides, sourceBlockHtml]);
+  }, [appliedOverrides, buildDraftOverrides, setDraftOverrides, sourceBlockHtml]);
 
   const studyPages = React.useMemo<ResearchBlock[][]>(() => {
     const obpDef = studyDefinitions.find((d) => d.id === "obp");
@@ -588,7 +595,7 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
 
   React.useEffect(() => {
     if (studyPages.length > 0) {
-      props.onReady?.();
+      onReadyRef.current?.();
     }
   }, [studyPages]);
 

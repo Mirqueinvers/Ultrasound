@@ -383,8 +383,6 @@ const PrintableSavedProtocol = React.forwardRef<
       scrotumProtocol,
       softTissueProtocol,
       thyroidProtocol,
-      localStudiesData,
-      studiesData,
     ],
 
   );
@@ -480,7 +478,7 @@ const PrintableSavedProtocol = React.forwardRef<
     }
 
     setDraftOverrides(buildDraftOverrides(persistedOverrides));
-  }, [buildDraftOverrides, loading, persistedOverrides]);
+  }, [buildDraftOverrides, loading, persistedOverrides, setDraftOverrides]);
 
   const studyPages = React.useMemo<ResearchBlock[][]>(() => {
     const obpDef = studyDefinitions.find((d) => d.id === "obp");
@@ -575,7 +573,7 @@ const PrintableSavedProtocol = React.forwardRef<
     } else if (externalEditMode === false && isEditMode) {
       setIsEditMode(false);
     }
-  }, [externalEditMode, isEditMode]);
+  }, [externalEditMode, isEditMode, setIsEditMode]);
 
   // При входе в режим редактирования убираем contenteditable="false" с внутренних элементов,
   // чтобы корневой contentEditable мог наследоваться на все дочерние блоки
@@ -589,12 +587,12 @@ const PrintableSavedProtocol = React.forwardRef<
         el.removeAttribute("contenteditable");
       });
     }
-  }, [isEditMode]);
+  }, [isEditMode, printRootRef]);
 
   React.useImperativeHandle(ref, () => ({
     saveOverrides: handleSaveOverrides,
     getPrintRoot: () => printRootRef.current,
-  }), [handleSaveOverrides]);
+  }), [handleSaveOverrides, printRootRef]);
 
   if (loading) {
     return (

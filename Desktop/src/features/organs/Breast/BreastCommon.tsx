@@ -60,7 +60,7 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
     if (nextCycleDay !== form.cycleDay) {
       updateField("cycleDay", nextCycleDay);
     }
-  }, [form.lastMenstruationDate, form.cycleDay]);
+  }, [form.lastMenstruationDate, form.cycleDay, updateField]);
 
   return (
     <div className="flex flex-col gap-6">

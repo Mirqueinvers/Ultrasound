@@ -50,7 +50,5 @@ export function useResearchConclusionAddText<T extends { conclusion?: string; re
     return () => {
       window.removeEventListener('add-conclusion-text', handleAddConclusionText as EventListener);
     };
-    // form в зависимостях, чтобы всегда использовать актуальное значение
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studyId, studyKey, form, setForm, onChange, setStudyData]);
 }
