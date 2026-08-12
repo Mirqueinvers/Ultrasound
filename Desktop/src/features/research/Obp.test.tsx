@@ -11,7 +11,7 @@ import {
   windowMocks,
 } from "@/test/mocks/electron";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
-import { defaultLiverState, type ObpProtocol } from "@/types";
+import { defaultObpState, defaultLiverState, type ObpProtocol } from "@/types";
 
 describe("Obp (смоук-тест формы)", () => {
   beforeEach(() => {
@@ -54,6 +54,31 @@ describe("Obp (смоук-тест формы)", () => {
     expect(handleChange).toHaveBeenCalled();
     const lastCall = handleChange.mock.lastCall?.[0] as ObpProtocol;
     expect(lastCall.liver?.rightLobeAP).toBe("150");
+  });
+
+  it("обновляется при изменении внешнего value (rerender)", () => {
+    const { rerender } = renderWithResearchProviders(
+      <Obp
+        value={{
+          ...defaultObpState,
+          liver: { ...defaultLiverState, rightLobeAP: "150" },
+        }}
+      />
+    );
+
+    const rightLobeInput = screen.getByLabelText("Правая доля, ПЗР (мм)");
+    expect(rightLobeInput).toHaveValue("150");
+
+    rerender(
+      <Obp
+        value={{
+          ...defaultObpState,
+          liver: { ...defaultLiverState, rightLobeAP: "160" },
+        }}
+      />
+    );
+
+    expect(screen.getByLabelText("Правая доля, ПЗР (мм)")).toHaveValue("160");
   });
 
   it("применяет пользовательские дефолты после загрузки", async () => {

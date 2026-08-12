@@ -11,7 +11,11 @@ import {
   windowMocks,
 } from "@/test/mocks/electron";
 import { SECTION_KEYS } from "@/domain/sectionKeys";
-import { defaultKidneyState, type KidneyStudyProtocol } from "@/types";
+import {
+  defaultKidneyState,
+  defaultKidneyStudyState,
+  type KidneyStudyProtocol,
+} from "@/types";
 
 describe("Kidney (смоук-тест формы)", () => {
   beforeEach(() => {
@@ -51,6 +55,31 @@ describe("Kidney (смоук-тест формы)", () => {
     expect(handleChange).toHaveBeenCalled();
     const lastCall = handleChange.mock.lastCall?.[0] as KidneyStudyProtocol;
     expect(lastCall.rightKidney?.length).toBe("110");
+  });
+
+  it("обновляется при изменении внешнего value (rerender)", () => {
+    const { rerender } = renderWithResearchProviders(
+      <Kidney
+        value={{
+          ...defaultKidneyStudyState,
+          rightKidney: { ...defaultKidneyState, length: "110" },
+        }}
+      />
+    );
+
+    const rightKidneyLength = screen.getAllByLabelText("Длина (мм)")[0];
+    expect(rightKidneyLength).toHaveValue("110");
+
+    rerender(
+      <Kidney
+        value={{
+          ...defaultKidneyStudyState,
+          rightKidney: { ...defaultKidneyState, length: "118" },
+        }}
+      />
+    );
+
+    expect(screen.getAllByLabelText("Длина (мм)")[0]).toHaveValue("118");
   });
 
   it("применяет пользовательские дефолты после загрузки", async () => {

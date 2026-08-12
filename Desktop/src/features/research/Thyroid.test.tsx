@@ -13,6 +13,8 @@ import {
 import { SECTION_KEYS } from "@/domain/sectionKeys";
 import {
   defaultThyroidLobeState,
+  defaultThyroidStudyState,
+  defaultThyroidState,
   type ThyroidStudyProtocol,
 } from "@/types";
 
@@ -55,6 +57,37 @@ describe("Thyroid (смоук-тест формы)", () => {
     expect(handleChange).toHaveBeenCalled();
     const lastCall = handleChange.mock.lastCall?.[0] as ThyroidStudyProtocol;
     expect(lastCall.thyroid?.rightLobe.length).toBe("50");
+  });
+
+  it("обновляется при изменении внешнего value (rerender)", () => {
+    const { rerender } = renderWithResearchProviders(
+      <Thyroid
+        value={{
+          ...defaultThyroidStudyState,
+          thyroid: {
+            ...defaultThyroidState,
+            rightLobe: { ...defaultThyroidLobeState, length: "50" },
+          },
+        }}
+      />
+    );
+
+    const rightLobeLength = screen.getAllByLabelText("Длина (мм)")[0];
+    expect(rightLobeLength).toHaveValue("50");
+
+    rerender(
+      <Thyroid
+        value={{
+          ...defaultThyroidStudyState,
+          thyroid: {
+            ...defaultThyroidState,
+            rightLobe: { ...defaultThyroidLobeState, length: "58" },
+          },
+        }}
+      />
+    );
+
+    expect(screen.getAllByLabelText("Длина (мм)")[0]).toHaveValue("58");
   });
 
   it("применяет пользовательские дефолты после загрузки", async () => {
