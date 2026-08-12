@@ -8,6 +8,7 @@ import type {
   LymphNodeRegionProtocol,
 } from "@/types/organs/lymphNodes";
 import { defaultLymphNodesState } from "@/types/organs/lymphNodes";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 export const LymphNodesCommon: React.FC<LymphNodesCommonProps> = ({
   value,
@@ -37,32 +38,32 @@ export const LymphNodesCommon: React.FC<LymphNodesCommonProps> = ({
     {
       key: "submandibular" as const,
       title: "Поднижнечелюстные",
-      sectionKey: "Лимфатические узлы:Поднижнечелюстные" as const,
+      sectionKey: SECTION_KEYS.LYMPH_SUBMANDIBULAR,
     },
     {
       key: "cervical" as const,
       title: "Шейные",
-      sectionKey: "Лимфатические узлы:Шейные" as const,
+      sectionKey: SECTION_KEYS.LYMPH_CERVICAL,
     },
     {
       key: "subclavian" as const,
       title: "Подключичные",
-      sectionKey: "Лимфатические узлы:Подключичные" as const,
+      sectionKey: SECTION_KEYS.LYMPH_SUPRACLAVICULAR,
     },
     {
       key: "supraclavicular" as const,
       title: "Надключичные",
-      sectionKey: "Лимфатические узлы:Надключичные" as const,
+      sectionKey: SECTION_KEYS.LYMPH_SUBCLAVIAN,
     },
     {
       key: "axillary" as const,
       title: "Подмышечные",
-      sectionKey: "Лимфатические узлы:Подмышечные" as const,
+      sectionKey: SECTION_KEYS.LYMPH_AXILLARY,
     },
     {
       key: "inguinal" as const,
       title: "Паховые",
-      sectionKey: "Лимфатические узлы:Паховые" as const,
+      sectionKey: SECTION_KEYS.LYMPH_INGUINAL,
     },
   ];
 

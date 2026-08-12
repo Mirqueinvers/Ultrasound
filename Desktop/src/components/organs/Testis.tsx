@@ -17,11 +17,12 @@ import type {
   SingleTestisProtocol,
 } from "@types";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 type ScrotumSectionKey = Extract<
   SectionKey,
-  | "Органы мошонки:правое яичко"
-  | "Органы мошонки:левое яичко"
+  | typeof SECTION_KEYS.SCROTUM_RIGHT_TESTIS
+  | typeof SECTION_KEYS.SCROTUM_LEFT_TESTIS
 >;
 
 interface TestisWithSectionsProps extends TestisProps {
@@ -53,8 +54,8 @@ export const TestisSide: React.FC<{
 
   const sectionKey: ScrotumSectionKey =
     side === "right"
-      ? "Органы мошонки:правое яичко"
-      : "Органы мошонки:левое яичко";
+      ? SECTION_KEYS.SCROTUM_RIGHT_TESTIS
+      : SECTION_KEYS.SCROTUM_LEFT_TESTIS;
 
   return (
     <div ref={sectionRefs?.[sectionKey]}>

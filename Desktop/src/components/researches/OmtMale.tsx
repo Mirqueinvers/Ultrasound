@@ -18,6 +18,8 @@ import { defaultOmtMaleState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 interface OmtMaleWithSectionsProps extends OmtMaleProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
@@ -39,8 +41,8 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
     if (!value && isLoaded) {
       setForm({
         ...defaultOmtMaleState,
-        prostate: (defaults["ОМТ (М):простата"] as unknown as ProstateProtocol) ?? null,
-        urinaryBladder: (defaults["ОМТ (М):мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+        prostate: (defaults[SECTION_KEYS.OMT_MALE_PROSTATE] as unknown as ProstateProtocol) ?? null,
+        urinaryBladder: (defaults[SECTION_KEYS.OMT_MALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
       });
     }
   }, [value, isLoaded, defaults]);
@@ -54,7 +56,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
 
   const sync = (updated: OmtMaleProtocol) => {
     setForm(updated);
-    setStudyData("ОМТ (М)", updated);
+    setStudyData(STUDY_KEYS.OMT_MALE, updated);
     onChange?.(updated);
   };
 
@@ -84,7 +86,7 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
     setCurrentOrgan("omt_male");
   };
 
-  useResearchConclusionAddText('study-omt_male', 'ОМТ (М)', form, setForm, onChange);
+  useResearchConclusionAddText("study-omt_male", STUDY_KEYS.OMT_MALE, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,14 +94,14 @@ export const OmtMale: React.FC<OmtMaleWithSectionsProps> = ({
         Ультразвуковое исследование органов малого таза
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (М):простата"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_MALE_PROSTATE]}>
         <Prostate
           value={form.prostate ?? undefined}
           onChange={updateProstate}
         />
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (М):мочевой пузырь"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_MALE_BLADDER]}>
         <UrinaryBladder
           value={form.urinaryBladder ?? undefined}
           onChange={updateUrinaryBladder}

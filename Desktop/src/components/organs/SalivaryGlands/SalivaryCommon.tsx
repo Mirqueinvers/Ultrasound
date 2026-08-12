@@ -8,6 +8,7 @@ import type {
   SalivaryCommonProps,
 } from "@/types/organs/salivaryGlands";
 import { defaultSalivaryGlandsState } from "@/types";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 type SalivaryGlandKey =
   | "parotidRight"
@@ -26,20 +27,21 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
     value ?? defaultSalivaryGlandsState
   );
 
-  const handleGlandChange = (gland: SalivaryGlandKey) => (updatedGland: any) => {
-    const draft = {
-      ...form,
-      [gland]: updatedGland,
+  const handleGlandChange =
+    (gland: SalivaryGlandKey) => (updatedGland: unknown) => {
+      const draft = {
+        ...form,
+        [gland]: updatedGland,
+      };
+      setForm(draft);
+      onChange?.(draft);
     };
-    setForm(draft);
-    onChange?.(draft);
-  };
 
   return (
     <div className="flex flex-col gap-6">
       <div
-        ref={sectionRefs?.["Слюнные железы:околоушная правая"]}
-        data-section-key="Слюнные железы:околоушная правая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_RIGHT_PAROTID]}
+        data-section-key={SECTION_KEYS.SALIVARY_RIGHT_PAROTID}
       >
         <ResearchSectionCard
           title="Правая околоушная слюнная железа"
@@ -54,8 +56,8 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       </div>
 
       <div
-        ref={sectionRefs?.["Слюнные железы:околоушная левая"]}
-        data-section-key="Слюнные железы:околоушная левая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_LEFT_PAROTID]}
+        data-section-key={SECTION_KEYS.SALIVARY_LEFT_PAROTID}
       >
         <ResearchSectionCard
           title="Левая околоушная слюнная железа"
@@ -70,8 +72,8 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       </div>
 
       <div
-        ref={sectionRefs?.["Слюнные железы:подчелюстная правая"]}
-        data-section-key="Слюнные железы:подчелюстная правая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR]}
+        data-section-key={SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR}
       >
         <ResearchSectionCard
           title="Правая подчелюстная слюнная железа"
@@ -86,8 +88,8 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       </div>
 
       <div
-        ref={sectionRefs?.["Слюнные железы:подчелюстная левая"]}
-        data-section-key="Слюнные железы:подчелюстная левая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR]}
+        data-section-key={SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR}
       >
         <ResearchSectionCard
           title="Левая подчелюстная слюнная железа"
@@ -102,8 +104,8 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       </div>
 
       <div
-        ref={sectionRefs?.["Слюнные железы:подъязычная правая"]}
-        data-section-key="Слюнные железы:подъязычная правая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL]}
+        data-section-key={SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL}
       >
         <ResearchSectionCard
           title="Правая подъязычная слюнная железа"
@@ -118,8 +120,8 @@ export const SalivaryCommon: React.FC<SalivaryCommonProps> = ({
       </div>
 
       <div
-        ref={sectionRefs?.["Слюнные железы:подъязычная левая"]}
-        data-section-key="Слюнные железы:подъязычная левая"
+        ref={sectionRefs?.[SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL]}
+        data-section-key={SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL}
       >
         <ResearchSectionCard
           title="Левая подъязычная слюнная железа"

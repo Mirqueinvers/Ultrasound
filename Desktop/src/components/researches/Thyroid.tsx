@@ -15,11 +15,13 @@ import { defaultThyroidStudyState } from "@/types";
 import { defaultThyroidLobeState } from "@/types/defaultStates/organs/thyroid";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type ThyroidSectionKey = Extract<
   SectionKey,
-  | "Щитовидная железа:правая доля"
-  | "Щитовидная железа:левая доля"
+  | typeof SECTION_KEYS.THYROID_RIGHT_LOBE
+  | typeof SECTION_KEYS.THYROID_LEFT_LOBE
 >;
 
 interface ThyroidWithSectionsProps extends ThyroidStudyProps {
@@ -44,11 +46,11 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
   useEffect(() => {
     if (!value && isLoaded) {
       const rightDefault = getOrganOrDefault<ThyroidLobeProtocol>(
-        "Щитовидная железа:правая доля",
+        SECTION_KEYS.THYROID_RIGHT_LOBE,
         { ...defaultThyroidLobeState },
       );
       const leftDefault = getOrganOrDefault<ThyroidLobeProtocol>(
-        "Щитовидная железа:левая доля",
+        SECTION_KEYS.THYROID_LEFT_LOBE,
         { ...defaultThyroidLobeState },
       );
       setForm({
@@ -161,7 +163,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
 
   const sync = (updated: ThyroidStudyProtocol) => {
     setForm(updated);
-    setStudyData("Щитовидная железа", updated);
+    setStudyData(STUDY_KEYS.THYROID, updated);
     onChange?.(updated);
   };
 
@@ -185,7 +187,7 @@ export const Thyroid: React.FC<ThyroidWithSectionsProps> = ({
     setCurrentOrgan("thyroid");
   };
 
-  useResearchConclusionAddText('study-thyroid', 'Щитовидная железа', form, setForm, onChange);
+  useResearchConclusionAddText("study-thyroid", STUDY_KEYS.THYROID, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import BreastCommon from "@organs/Breast/BreastCommon";
 import { Conclusion } from "@common";
 import { useResearch } from "@contexts";
@@ -14,11 +14,13 @@ import { defaultBreastStudyState, defaultBreastState } from "@types";
 import { defaultBreastSideState } from "@/types/defaultStates/organs/breast";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type BreastSectionKey = Extract<
   SectionKey,
-  | "Молочные железы:правая железа"
-  | "Молочные железы:левая железа"
+  | typeof SECTION_KEYS.BREAST_RIGHT
+  | typeof SECTION_KEYS.BREAST_LEFT
 >;
 
 interface BreastWithSectionsProps extends BreastStudyProps {
@@ -43,11 +45,11 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
   useEffect(() => {
     if (!value && isLoaded) {
       const rightDefault = getOrganOrDefault<BreastSideProtocol>(
-        "Молочные железы:правая железа",
+        SECTION_KEYS.BREAST_RIGHT,
         { ...defaultBreastSideState },
       );
       const leftDefault = getOrganOrDefault<BreastSideProtocol>(
-        "Молочные железы:левая железа",
+        SECTION_KEYS.BREAST_LEFT,
         { ...defaultBreastSideState },
       );
       setForm({
@@ -73,7 +75,7 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
   // чтобы протокол отображался на печати даже без изменений
   useEffect(() => {
     if (!value) {
-      setStudyData("Молочные железы", {
+      setStudyData(STUDY_KEYS.BREAST, {
         ...defaultBreastStudyState,
         breast: defaultBreastState,
       });
@@ -83,7 +85,7 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
 
   const sync = (updated: BreastStudyProtocol) => {
     setForm(updated);
-    setStudyData("Молочные железы", updated);
+    setStudyData(STUDY_KEYS.BREAST, updated);
     onChange?.(updated);
   };
 
@@ -107,7 +109,7 @@ const Breast: React.FC<BreastWithSectionsProps> = ({
     setCurrentOrgan("breast");
   };
 
-  useResearchConclusionAddText('study-breast', 'Молочные железы', form, setForm, onChange);
+  useResearchConclusionAddText("study-breast", STUDY_KEYS.BREAST, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

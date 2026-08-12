@@ -26,21 +26,22 @@ import type {
   ChildDispensaryProtocol,
   SoftTissueProtocol,
 } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const PrintTestSection: React.FC = () => {
   const { studiesData } = useResearch();
   const { user } = useAuth();
 
-  const obpData = studiesData["ОБП"];
-  const kidneysData = studiesData["Почки"];
-  const bladderStudyData = studiesData["Мочевой пузырь"];
-  const omtFemaleData = studiesData["ОМТ (Ж)"];
-  const omtMaleData = studiesData["ОМТ (М)"];
-  const thyroidData = studiesData["Щитовидная железа"];
-  const breastData = studiesData["Молочные железы"];
-  const scrotumData = studiesData["Органы мошонки"];
-  const childDispensaryData = studiesData["Детская диспансеризация"];
-  const softTissueData = studiesData["Мягких тканей"];
+  const obpData = studiesData[STUDY_KEYS.OBP];
+  const kidneysData = studiesData[STUDY_KEYS.KIDNEYS];
+  const bladderStudyData = studiesData[STUDY_KEYS.URINARY_BLADDER];
+  const omtFemaleData = studiesData[STUDY_KEYS.OMT_FEMALE];
+  const omtMaleData = studiesData[STUDY_KEYS.OMT_MALE];
+  const thyroidData = studiesData[STUDY_KEYS.THYROID];
+  const breastData = studiesData[STUDY_KEYS.BREAST];
+  const scrotumData = studiesData[STUDY_KEYS.SCROTUM];
+  const childDispensaryData = studiesData[STUDY_KEYS.CHILD_DISPENSARY];
+  const softTissueData = studiesData[STUDY_KEYS.SOFT_TISSUE];
 
   const obpProtocol = obpData as ObpProtocol | undefined;
   const kidneysProtocol = kidneysData as KidneyStudyProtocol | undefined;

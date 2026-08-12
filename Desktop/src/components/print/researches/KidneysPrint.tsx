@@ -6,11 +6,12 @@ import type { KidneyStudyProtocol } from "@types";
 import RightKidneyPrint from "@/components/print/organs/Kidney/RightKidneyPrint";
 import LeftKidneyPrint from "@/components/print/organs/Kidney/LeftKidneyPrint";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const KidneysPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const kidneysData = studiesData["Почки"] as KidneyStudyProtocol | undefined;
+  const kidneysData = studiesData[STUDY_KEYS.KIDNEYS] as KidneyStudyProtocol | undefined;
   const rightKidneyData = kidneysData?.rightKidney;
   const leftKidneyData = kidneysData?.leftKidney;
   const bladderData = kidneysData?.urinaryBladder;

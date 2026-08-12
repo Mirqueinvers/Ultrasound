@@ -10,6 +10,7 @@ import type {
   ThyroidLobeProtocol,
 } from "@/types/organs/thyroid";
 import { defaultThyroidState } from "@types";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 const RIGHT_LOBE_TITLE = "\u041f\u0440\u0430\u0432\u0430\u044f \u0434\u043e\u043b\u044f";
 const LEFT_LOBE_TITLE = "\u041b\u0435\u0432\u0430\u044f \u0434\u043e\u043b\u044f";
@@ -109,7 +110,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div ref={sectionRefs?.["Щитовидная железа:правая доля"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.THYROID_RIGHT_LOBE]}>
         <ResearchSectionCard
           title={RIGHT_LOBE_TITLE}
           >
@@ -121,7 +122,7 @@ export const ThyroidCommon: React.FC<ThyroidCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Щитовидная железа:левая доля"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.THYROID_LEFT_LOBE]}>
         <ResearchSectionCard
           title={LEFT_LOBE_TITLE}
           >

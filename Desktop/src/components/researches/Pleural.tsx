@@ -12,11 +12,13 @@ import type {
 } from "@/types";
 import { defaultPleuralStudyState } from "@/types";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type PleuralSectionKey = Extract<
   SectionKey,
-  | "Плевральная полость:правая"
-  | "Плевральная полость:левая"
+  | typeof SECTION_KEYS.PLEURAL_RIGHT
+  | typeof SECTION_KEYS.PLEURAL_LEFT
 >;
 
 interface PleuralWithSectionsProps extends PleuralStudyProps {
@@ -40,7 +42,7 @@ export const Pleural: React.FC<PleuralWithSectionsProps> = ({
 
   const sync = (updated: PleuralStudyProtocol) => {
     setForm(updated);
-    setStudyData("Плевральные полости", updated);
+    setStudyData(STUDY_KEYS.PLEURAL, updated);
     onChange?.(updated);
   };
 
@@ -64,7 +66,7 @@ export const Pleural: React.FC<PleuralWithSectionsProps> = ({
     setCurrentOrgan("pleural");
   };
 
-  useResearchConclusionAddText('study-pleural', 'Плевральные полости', form, setForm, onChange);
+  useResearchConclusionAddText("study-pleural", STUDY_KEYS.PLEURAL, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

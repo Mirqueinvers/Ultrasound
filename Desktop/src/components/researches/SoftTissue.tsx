@@ -8,10 +8,12 @@ import { useResearch } from "@contexts";
 import type { SoftTissueProtocol, SoftTissueProps } from "@types";
 import { defaultSoftTissueState } from "@types";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type SoftTissueSectionKey = Extract<
   SectionKey,
-  "Мягкие ткани:основной блок"
+  typeof SECTION_KEYS.SOFT_TISSUE_MAIN
 >;
 
 interface SoftTissueWithSectionsProps extends SoftTissueProps {
@@ -34,7 +36,7 @@ export const SoftTissue: React.FC<SoftTissueWithSectionsProps> = ({
 
   const sync = (updated: SoftTissueProtocol) => {
     setForm(updated);
-    setStudyData("Мягких тканей", updated);
+    setStudyData(STUDY_KEYS.SOFT_TISSUE, updated);
     onChange?.(updated);
   };
 
@@ -59,7 +61,7 @@ export const SoftTissue: React.FC<SoftTissueWithSectionsProps> = ({
   return (
     <div className="flex flex-col gap-6">
       <div
-        ref={sectionRefs?.["Мягкие ткани:основной блок"]}
+        ref={sectionRefs?.[SECTION_KEYS.SOFT_TISSUE_MAIN]}
         className="text-2xl font-semibold text-center mt-2 mb-4"
       >
         Ультразвуковое исследование мягких тканей

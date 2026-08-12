@@ -4,11 +4,12 @@ import React from "react";
 import { useResearch } from "@contexts";
 import type { UrinaryBladderProtocol, UrinaryBladderStudyProtocol } from "@types";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const UrinaryBladderStudyPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const bladderStudyData = studiesData["Мочевой пузырь"] as
+  const bladderStudyData = studiesData[STUDY_KEYS.URINARY_BLADDER] as
     | UrinaryBladderStudyProtocol
     | undefined;
   const bladderProtocol = bladderStudyData?.urinaryBladder as UrinaryBladderProtocol | undefined;

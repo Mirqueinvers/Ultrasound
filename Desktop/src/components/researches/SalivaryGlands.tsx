@@ -15,15 +15,17 @@ import { defaultSalivaryGlandsStudyState } from "@/types";
 import { defaultSalivaryGlandState } from "@/types";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type SalivarySectionKey = Extract<
   SectionKey,
-  | "Слюнные железы:околоушная правая"
-  | "Слюнные железы:околоушная левая"
-  | "Слюнные железы:подчелюстная правая"
-  | "Слюнные железы:подчелюстная левая"
-  | "Слюнные железы:подъязычная правая"
-  | "Слюнные железы:подъязычная левая"
+  | typeof SECTION_KEYS.SALIVARY_RIGHT_PAROTID
+  | typeof SECTION_KEYS.SALIVARY_LEFT_PAROTID
+  | typeof SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR
+  | typeof SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR
+  | typeof SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL
+  | typeof SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL
 >;
 
 interface SalivaryWithSectionsProps extends SalivaryGlandsStudyProps {
@@ -48,23 +50,23 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
   useEffect(() => {
     if (!value && isLoaded) {
       const anyDefaults = [
-        "Слюнные железы:околоушная правая",
-        "Слюнные железы:околоушная левая",
-        "Слюнные железы:подчелюстная правая",
-        "Слюнные железы:подчелюстная левая",
-        "Слюнные железы:подъязычная правая",
-        "Слюнные железы:подъязычная левая",
+        SECTION_KEYS.SALIVARY_RIGHT_PAROTID,
+        SECTION_KEYS.SALIVARY_LEFT_PAROTID,
+        SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR,
+        SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR,
+        SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL,
+        SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL,
       ].some((key) => hasOrgan(key));
       if (anyDefaults) {
         setForm({
           ...defaultSalivaryGlandsStudyState,
           salivaryGlands: {
-            parotidRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:околоушная правая", { ...defaultSalivaryGlandState }),
-            parotidLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:околоушная левая", { ...defaultSalivaryGlandState }),
-            submandibularRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подчелюстная правая", { ...defaultSalivaryGlandState }),
-            submandibularLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подчелюстная левая", { ...defaultSalivaryGlandState }),
-            sublingualRight: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подъязычная правая", { ...defaultSalivaryGlandState }),
-            sublingualLeft: getOrganOrDefault<SalivaryGlandProtocol>("Слюнные железы:подъязычная левая", { ...defaultSalivaryGlandState }),
+            parotidRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_PAROTID, { ...defaultSalivaryGlandState }),
+            parotidLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_PAROTID, { ...defaultSalivaryGlandState }),
+            submandibularRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
+            submandibularLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBMANDIBULAR, { ...defaultSalivaryGlandState }),
+            sublingualRight: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_RIGHT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
+            sublingualLeft: getOrganOrDefault<SalivaryGlandProtocol>(SECTION_KEYS.SALIVARY_LEFT_SUBLINGUAL, { ...defaultSalivaryGlandState }),
           },
         });
       }
@@ -76,7 +78,7 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
 
   const sync = (updated: SalivaryGlandsStudyProtocol) => {
     setForm(updated);
-    setStudyData("Слюнные железы", updated);
+    setStudyData(STUDY_KEYS.SALIVARY_GLANDS, updated);
     onChange?.(updated);
   };
 
@@ -100,7 +102,7 @@ export const SalivaryGlands: React.FC<SalivaryWithSectionsProps> = ({
     setCurrentOrgan("salivaryGlands");
   };
 
-  useResearchConclusionAddText('study-salivaryGlands', 'Слюнные железы', form, setForm, onChange);
+  useResearchConclusionAddText("study-salivaryGlands", STUDY_KEYS.SALIVARY_GLANDS, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

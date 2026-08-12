@@ -15,19 +15,21 @@ import { defaultBrachioCephalicArteriesStudyState } from "@/types";
 import { defaultArteryState } from "@/types/defaultStates/organs/brachioCephalicArteries";
 import { useDefaultOrganValues } from "@/utils/defaultsAccess";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type BrachioCephalicSectionKey = Extract<
   SectionKey,
-  | "БЦА:ОСА правая"
-  | "БЦА:ОСА левая"
-  | "БЦА:ВСА правая"
-  | "БЦА:ВСА левая"
-  | "БЦА:НСА правая"
-  | "БЦА:НСА левая"
-  | "БЦА:позвоночная правая"
-  | "БЦА:позвоночная левая"
-  | "БЦА:подключичная правая"
-  | "БЦА:подключичная левая"
+  | typeof SECTION_KEYS.BCA_RIGHT_OSA
+  | typeof SECTION_KEYS.BCA_LEFT_OSA
+  | typeof SECTION_KEYS.BCA_RIGHT_VSA
+  | typeof SECTION_KEYS.BCA_LEFT_VSA
+  | typeof SECTION_KEYS.BCA_RIGHT_NSA
+  | typeof SECTION_KEYS.BCA_LEFT_NSA
+  | typeof SECTION_KEYS.BCA_RIGHT_VERTEBRAL
+  | typeof SECTION_KEYS.BCA_LEFT_VERTEBRAL
+  | typeof SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN
+  | typeof SECTION_KEYS.BCA_LEFT_SUBCLAVIAN
 >;
 
 interface BrachioCephalicWithSectionsProps extends BrachioCephalicArteriesStudyProps {
@@ -53,29 +55,29 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
   useEffect(() => {
     if (!value && isLoaded) {
       const arteryKeys = [
-        "БЦА:ОСА правая", "БЦА:ОСА левая",
-        "БЦА:ВСА правая", "БЦА:ВСА левая",
-        "БЦА:НСА правая", "БЦА:НСА левая",
-        "БЦА:позвоночная правая", "БЦА:позвоночная левая",
-        "БЦА:подключичная правая", "БЦА:подключичная левая",
+        SECTION_KEYS.BCA_RIGHT_OSA, SECTION_KEYS.BCA_LEFT_OSA,
+        SECTION_KEYS.BCA_RIGHT_VSA, SECTION_KEYS.BCA_LEFT_VSA,
+        SECTION_KEYS.BCA_RIGHT_NSA, SECTION_KEYS.BCA_LEFT_NSA,
+        SECTION_KEYS.BCA_RIGHT_VERTEBRAL, SECTION_KEYS.BCA_LEFT_VERTEBRAL,
+        SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, SECTION_KEYS.BCA_LEFT_SUBCLAVIAN,
       ];
       const anyDefaults = arteryKeys.some((key) => hasOrgan(key));
       if (anyDefaults) {
         setForm({
           ...defaultBrachioCephalicArteriesStudyState,
           brachioCephalicArteries: {
-            brachiocephalicTrunkRight: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная правая", { ...defaultArteryState }),
-            brachiocephalicTrunkLeft: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная левая", { ...defaultArteryState }),
-            commonCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:ОСА правая", { ...defaultArteryState }),
-            commonCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:ОСА левая", { ...defaultArteryState }),
-            internalCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:ВСА правая", { ...defaultArteryState }),
-            internalCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:ВСА левая", { ...defaultArteryState }),
-            externalCarotidRight: getOrganOrDefault<ArteryProtocol>("БЦА:НСА правая", { ...defaultArteryState }),
-            externalCarotidLeft: getOrganOrDefault<ArteryProtocol>("БЦА:НСА левая", { ...defaultArteryState }),
-            vertebralRight: getOrganOrDefault<ArteryProtocol>("БЦА:позвоночная правая", { ...defaultArteryState }),
-            vertebralLeft: getOrganOrDefault<ArteryProtocol>("БЦА:позвоночная левая", { ...defaultArteryState }),
-            subclavianRight: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная правая", { ...defaultArteryState }),
-            subclavianLeft: getOrganOrDefault<ArteryProtocol>("БЦА:подключичная левая", { ...defaultArteryState }),
+            brachiocephalicTrunkRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
+            brachiocephalicTrunkLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
+            commonCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_OSA, { ...defaultArteryState }),
+            commonCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_OSA, { ...defaultArteryState }),
+            internalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VSA, { ...defaultArteryState }),
+            internalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VSA, { ...defaultArteryState }),
+            externalCarotidRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_NSA, { ...defaultArteryState }),
+            externalCarotidLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_NSA, { ...defaultArteryState }),
+            vertebralRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_VERTEBRAL, { ...defaultArteryState }),
+            vertebralLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_VERTEBRAL, { ...defaultArteryState }),
+            subclavianRight: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN, { ...defaultArteryState }),
+            subclavianLeft: getOrganOrDefault<ArteryProtocol>(SECTION_KEYS.BCA_LEFT_SUBCLAVIAN, { ...defaultArteryState }),
             overallFindings: "",
           },
         });
@@ -89,7 +91,7 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
 
   const sync = (updated: BrachioCephalicArteriesStudyProtocol) => {
     setForm(updated);
-    setStudyData("БЦА", updated);
+    setStudyData(STUDY_KEYS.BCA, updated);
     onChange?.(updated);
   };
 
@@ -113,7 +115,7 @@ export const BrachioCephalicArteries: React.FC<BrachioCephalicWithSectionsProps>
     setCurrentOrgan("brachioCephalicArteries");
   };
 
-  useResearchConclusionAddText('study-brachioCephalicArteries', 'БЦА', form, setForm, onChange);
+  useResearchConclusionAddText("study-brachioCephalicArteries", STUDY_KEYS.BCA, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

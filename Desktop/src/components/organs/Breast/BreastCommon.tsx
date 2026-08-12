@@ -5,6 +5,7 @@ import { inputClasses, labelClasses } from "@utils/formClasses";
 import { BreastSide } from "./BreastSide";
 import type { BreastCommonProps, BreastProtocol } from "@types";
 import { defaultBreastState } from "@/types/defaultStates";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 const STRUCTURE_OPTIONS = [
   { value: "преимущественно жировая ткань", label: "преимущественно жировая ткань" },
@@ -94,7 +95,7 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
         />
       </Fieldset>
 
-      <div ref={sectionRefs?.["Молочные железы:правая железа"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BREAST_RIGHT]}>
         <BreastSide
           side="right"
           value={form.rightBreast}
@@ -106,7 +107,7 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
         />
       </div>
 
-      <div ref={sectionRefs?.["Молочные железы:левая железа"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BREAST_LEFT]}>
         <BreastSide
           side="left"
           value={form.leftBreast}
@@ -122,7 +123,4 @@ const BreastCommon: React.FC<BreastCommonProps> = ({
 };
 
 export default BreastCommon;
-
-
-
 

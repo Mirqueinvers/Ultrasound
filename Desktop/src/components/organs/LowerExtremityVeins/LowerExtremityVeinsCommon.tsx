@@ -5,11 +5,44 @@ import { ResearchSectionCard } from "@/UI/ResearchSectionCard";
 import { useFormState, useFieldUpdate } from "@/hooks";
 import { DeepVein } from "./DeepVein";
 import { SuperficialVein } from "./SuperficialVein";
-import type { 
-  LowerExtremityVeinsProtocol, 
-  LowerExtremityVeinsCommonProps 
+import type {
+  LowerExtremityVeinsProtocol,
+  LowerExtremityVeinsCommonProps,
+  LowerExtremityVeinsSectionKey,
+  DeepVeinProtocol,
+  SuperficialVeinProtocol,
 } from "@/types/organs/lowerExtremityVeins";
 import { defaultLowerExtremityVeinsState } from "@/types";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+
+type DeepVeinKey = "femoral" | "popliteal" | "posteriorTibial" | "anteriorTibial";
+type SuperficialVeinKey = "greatSaphenous" | "smallSaphenous";
+
+const DEEP_VEIN_SECTION_KEYS: Record<"right" | "left", Record<DeepVeinKey, LowerExtremityVeinsSectionKey>> = {
+  right: {
+    femoral: SECTION_KEYS.LEV_RIGHT_FEMORAL,
+    popliteal: SECTION_KEYS.LEV_RIGHT_POPLITEAL,
+    posteriorTibial: SECTION_KEYS.LEV_RIGHT_TIBIAL,
+    anteriorTibial: SECTION_KEYS.LEV_RIGHT_TIBIAL,
+  },
+  left: {
+    femoral: SECTION_KEYS.LEV_LEFT_FEMORAL,
+    popliteal: SECTION_KEYS.LEV_LEFT_POPLITEAL,
+    posteriorTibial: SECTION_KEYS.LEV_LEFT_TIBIAL,
+    anteriorTibial: SECTION_KEYS.LEV_LEFT_TIBIAL,
+  },
+};
+
+const SUPERFICIAL_VEIN_SECTION_KEYS: Record<"right" | "left", Record<SuperficialVeinKey, LowerExtremityVeinsSectionKey>> = {
+  right: {
+    greatSaphenous: SECTION_KEYS.LEV_RIGHT_PV,
+    smallSaphenous: SECTION_KEYS.LEV_RIGHT_MV,
+  },
+  left: {
+    greatSaphenous: SECTION_KEYS.LEV_LEFT_PV,
+    smallSaphenous: SECTION_KEYS.LEV_LEFT_MV,
+  },
+};
 
 export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps> = ({
   value,
@@ -22,8 +55,8 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
   const updateField = useFieldUpdate(form, setForm, onChange);
 
   const handleDeepVeinChange =
-    (side: "right" | "left", vein: "femoral" | "popliteal" | "posteriorTibial" | "anteriorTibial") => 
-    (value: any) => {
+    (side: "right" | "left", vein: DeepVeinKey) =>
+    (value: DeepVeinProtocol) => {
       const draft = {
         ...form,
         [side === "right" ? "rightDeepVeins" : "leftDeepVeins"]: {
@@ -36,8 +69,8 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
     };
 
   const handleSuperficialVeinChange =
-    (side: "right" | "left", vein: "greatSaphenous" | "smallSaphenous") => 
-    (value: any) => {
+    (side: "right" | "left", vein: SuperficialVeinKey) =>
+    (value: SuperficialVeinProtocol) => {
       const draft = {
         ...form,
         [side === "right" ? "rightSuperficialVeins" : "leftSuperficialVeins"]: {
@@ -52,7 +85,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
   return (
     <div className="flex flex-col gap-6">
       {/* Глубокие вены - правая нога */}
-      <div ref={sectionRefs?.["Вены НК:бедренная правая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.right.femoral]}>
         <ResearchSectionCard
           title="Глубокие вены правой нижней конечности"
           >
@@ -67,7 +100,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:подколенная правая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.right.popliteal]}>
         <ResearchSectionCard
           title=""
           >
@@ -82,7 +115,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:большеберцовая правая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.right.posteriorTibial]}>
         <ResearchSectionCard
           title=""
           >
@@ -98,7 +131,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       </div>
 
       {/* Глубокие вены - левая нога */}
-      <div ref={sectionRefs?.["Вены НК:бедренная левая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.left.femoral]}>
         <ResearchSectionCard
           title="Глубокие вены левой нижней конечности"
           >
@@ -113,7 +146,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:подколенная левая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.left.popliteal]}>
         <ResearchSectionCard
           title=""
           >
@@ -128,7 +161,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:большеберцовая левая"]}>
+      <div ref={sectionRefs?.[DEEP_VEIN_SECTION_KEYS.left.posteriorTibial]}>
         <ResearchSectionCard
           title=""
           >
@@ -144,7 +177,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       </div>
 
       {/* Поверхностные вены - правая нога */}
-      <div ref={sectionRefs?.["Вены НК:БПВ правая"]}>
+      <div ref={sectionRefs?.[SUPERFICIAL_VEIN_SECTION_KEYS.right.greatSaphenous]}>
         <ResearchSectionCard
           title="Поверхностные вены правой нижней конечности"
           >
@@ -159,7 +192,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:МПВ правая"]}>
+      <div ref={sectionRefs?.[SUPERFICIAL_VEIN_SECTION_KEYS.right.smallSaphenous]}>
         <ResearchSectionCard
           title=""
           >
@@ -175,7 +208,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
       </div>
 
       {/* Поверхностные вены - левая нога */}
-      <div ref={sectionRefs?.["Вены НК:БПВ левая"]}>
+      <div ref={sectionRefs?.[SUPERFICIAL_VEIN_SECTION_KEYS.left.greatSaphenous]}>
         <ResearchSectionCard
           title="Поверхностные вены левой нижней конечности"
           >
@@ -190,7 +223,7 @@ export const LowerExtremityVeinsCommon: React.FC<LowerExtremityVeinsCommonProps>
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["Вены НК:МПВ левая"]}>
+      <div ref={sectionRefs?.[SUPERFICIAL_VEIN_SECTION_KEYS.left.smallSaphenous]}>
         <ResearchSectionCard
           title=""
           >

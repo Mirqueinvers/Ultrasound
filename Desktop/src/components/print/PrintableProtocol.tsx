@@ -19,6 +19,7 @@ import PleuralResearchPrint from "@/components/print/researches/PleuralPrint";
 import SalivaryGlandsResearchPrint from "@/components/print/researches/SalivaryGlandsPrint";
 import BrachioCephalicArteriesResearchPrint from "@/components/print/researches/BrachioCephalicArteriesPrint";
 import LowerExtremityVeinsResearchPrint from "@/components/print/researches/LowerExtremityVeinsPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 import {
   normalizeEditableText,
   hasVisibleHtmlContent,
@@ -109,23 +110,24 @@ const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintablePro
   
   const [appliedOverrides, setAppliedOverrides] = React.useState<PrintOverrideMap>({});
 
-  const obpData = studiesData["ОБП"];
-  const kidneysData = studiesData["Почки"];
-  const bladderStudyData = studiesData["Мочевой пузырь"];
-  const omtFemaleData = studiesData["ОМТ (Ж)"];
-  const omtMaleData = studiesData["ОМТ (М)"];
-  const thyroidData = studiesData["Щитовидная железа"];
-  const pleuralData = studiesData["Плевральные полости"];
-  const salivaryData = studiesData["Слюнные железы"];
-  const brachioData = studiesData["БЦА"];
-  const lowerExtremityVeinsData = studiesData["УВНК"];
-  const breastData = studiesData["Молочные железы"];
-  const scrotumData = studiesData["Органы мошонки"];
-  const childDispensaryData = studiesData["Детская диспансеризация"];
-  const softTissueData = studiesData["Мягких тканей"];
+  const obpData = studiesData[STUDY_KEYS.OBP];
+  const kidneysData = studiesData[STUDY_KEYS.KIDNEYS];
+  const bladderStudyData = studiesData[STUDY_KEYS.URINARY_BLADDER];
+  const omtFemaleData = studiesData[STUDY_KEYS.OMT_FEMALE];
+  const omtMaleData = studiesData[STUDY_KEYS.OMT_MALE];
+  const thyroidData = studiesData[STUDY_KEYS.THYROID];
+  const pleuralData = studiesData[STUDY_KEYS.PLEURAL];
+  const salivaryData = studiesData[STUDY_KEYS.SALIVARY_GLANDS];
+  const brachioData = studiesData[STUDY_KEYS.BCA];
+  const lowerExtremityVeinsData = studiesData[STUDY_KEYS.LOWER_EXTREMITY_VEINS];
+  const breastData = studiesData[STUDY_KEYS.BREAST];
+  const scrotumData = studiesData[STUDY_KEYS.SCROTUM];
+  const childDispensaryData = studiesData[STUDY_KEYS.CHILD_DISPENSARY];
+  const softTissueData = studiesData[STUDY_KEYS.SOFT_TISSUE];
   const lymphNodesData =
-    studiesData["Лимфоузлы"] ||
-    studiesData["Лимфатические узлы"] ||
+    studiesData[STUDY_KEYS.LYMPH_NODES] ||
+    // legacy-алиасы: совместимость со старыми сохранёнными протоколами
+    studiesData[STUDY_KEYS.LYMPH_NODES_ALT] ||
     studiesData["lymphNodes"];
 
   const obpProtocol = obpData as ObpProtocol | undefined;

@@ -4,10 +4,11 @@ import { useResearch } from "@contexts";
 import ProstatePrint from "@/components/print/organs/ProstatePrint";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 import type { OmtMaleProtocol } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const OmtMalePrint: React.FC = () => {
   const { studiesData } = useResearch();
-  const omtData = studiesData["ОМТ (М)"] as OmtMaleProtocol | undefined;
+  const omtData = studiesData[STUDY_KEYS.OMT_MALE] as OmtMaleProtocol | undefined;
 
   if (!omtData) return null;
 

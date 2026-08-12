@@ -3,11 +3,12 @@ import React from "react";
 import { useResearch } from "@contexts";
 import { SalivaryGlandsPrint as SalivaryGlandsPrintComponent } from "@/components/print/organs/SalivaryGlandsPrint";
 import type { SalivaryGlandsProtocol, SalivaryGlandsStudyProtocol } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const SalivaryGlandsResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const salivaryData = studiesData["Слюнные железы"];
+  const salivaryData = studiesData[STUDY_KEYS.SALIVARY_GLANDS];
   const salivaryStudy = salivaryData as SalivaryGlandsStudyProtocol | undefined;
   const salivaryProtocol = salivaryStudy?.salivaryGlands as SalivaryGlandsProtocol | undefined;
 

@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useAuth } from "@/contexts/useAuth";
 import { useMedisonImport } from "@/hooks/useMedisonImport";
 import { useResearch } from "@/contexts/useResearch";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 /**
  * Компонент-обёртка для автоматического импорта данных с флешки.
@@ -86,49 +87,49 @@ export default function MedisonAutoImport() {
 
       // Заполняем данные протокола ОБП — только те поля, что пришли из XML
       if (data.obpStudyData) {
-        mergeStudy("ОБП", data.obpStudyData);
+        mergeStudy(STUDY_KEYS.OBP, data.obpStudyData);
       }
 
       // Заполняем данные протокола Почки — только те поля, что пришли из XML
       if (data.kidneyStudyData) {
-        mergeStudy("Почки", data.kidneyStudyData);
+        mergeStudy(STUDY_KEYS.KIDNEYS, data.kidneyStudyData);
       }
 
       // Заполняем данные протокола ОМТ (Ж) — только те поля, что пришли из XML
       if (data.omtFemaleStudyData) {
-        mergeStudy("ОМТ (Ж)", data.omtFemaleStudyData);
+        mergeStudy(STUDY_KEYS.OMT_FEMALE, data.omtFemaleStudyData);
       }
 
       // Заполняем данные протокола Мочевой пузырь — только те поля, что пришли из XML
       if (data.bladderStudyData) {
-        mergeStudy("Мочевой пузырь", data.bladderStudyData);
+        mergeStudy(STUDY_KEYS.URINARY_BLADDER, data.bladderStudyData);
       }
 
       // Также мержим urinaryBladder как подполе в Почки, ОМТ (Ж), ОМТ (М)
       if (data.bladderPartial) {
-        mergeStudy("Почки", data.bladderPartial);
-        mergeStudy("ОМТ (Ж)", data.bladderPartial);
-        mergeStudy("ОМТ (М)", data.bladderPartial);
+        mergeStudy(STUDY_KEYS.KIDNEYS, data.bladderPartial);
+        mergeStudy(STUDY_KEYS.OMT_FEMALE, data.bladderPartial);
+        mergeStudy(STUDY_KEYS.OMT_MALE, data.bladderPartial);
       }
 
       // Заполняем данные протокола Щитовидная железа — только те поля, что пришли из XML
       if (data.thyroidStudyData) {
-        mergeStudy("Щитовидная железа", data.thyroidStudyData);
+        mergeStudy(STUDY_KEYS.THYROID, data.thyroidStudyData);
       }
 
       // Заполняем данные протокола ОМТ (М) — только те поля, что пришли из XML
       if (data.prostateStudyData) {
-        mergeStudy("ОМТ (М)", data.prostateStudyData);
+        mergeStudy(STUDY_KEYS.OMT_MALE, data.prostateStudyData);
       }
 
       // Заполняем данные протокола Молочные железы — только те поля, что пришли из XML
       if (data.breastStudyData) {
-        mergeStudy("Молочные железы", data.breastStudyData);
+        mergeStudy(STUDY_KEYS.BREAST, data.breastStudyData);
       }
 
       // Заполняем данные протокола Органы мошонки — только те поля, что пришли из XML
       if (data.testisStudyData) {
-        mergeStudy("Органы мошонки", data.testisStudyData);
+        mergeStudy(STUDY_KEYS.SCROTUM, data.testisStudyData);
       }
 
       console.log("MedisonAutoImport: данные импортированы", data);

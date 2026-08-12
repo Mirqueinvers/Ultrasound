@@ -12,19 +12,21 @@ import type {
 } from "@/types";
 import { defaultLowerExtremityVeinsStudyState } from "@/types";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type LowerExtremityVeinsSectionKey = Extract<
   SectionKey,
-  | "Вены НК:бедренная правая"
-  | "Вены НК:бедренная левая"
-  | "Вены НК:подколенная правая"
-  | "Вены НК:подколенная левая"
-  | "Вены НК:большеберцовая правая"
-  | "Вены НК:большеберцовая левая"
-  | "Вены НК:БПВ правая"
-  | "Вены НК:БПВ левая"
-  | "Вены НК:МПВ правая"
-  | "Вены НК:МПВ левая"
+  | typeof SECTION_KEYS.LEV_RIGHT_FEMORAL
+  | typeof SECTION_KEYS.LEV_LEFT_FEMORAL
+  | typeof SECTION_KEYS.LEV_RIGHT_POPLITEAL
+  | typeof SECTION_KEYS.LEV_LEFT_POPLITEAL
+  | typeof SECTION_KEYS.LEV_RIGHT_TIBIAL
+  | typeof SECTION_KEYS.LEV_LEFT_TIBIAL
+  | typeof SECTION_KEYS.LEV_RIGHT_PV
+  | typeof SECTION_KEYS.LEV_LEFT_PV
+  | typeof SECTION_KEYS.LEV_RIGHT_MV
+  | typeof SECTION_KEYS.LEV_LEFT_MV
 >;
 
 interface LowerExtremityVeinsWithSectionsProps extends LowerExtremityVeinsStudyProps {
@@ -48,7 +50,7 @@ export const LowerExtremityVeins: React.FC<LowerExtremityVeinsWithSectionsProps>
 
   const sync = (updated: LowerExtremityVeinsStudyProtocol) => {
     setForm(updated);
-    setStudyData("УВНК", updated);
+    setStudyData(STUDY_KEYS.LOWER_EXTREMITY_VEINS, updated);
     onChange?.(updated);
   };
 
@@ -72,7 +74,7 @@ export const LowerExtremityVeins: React.FC<LowerExtremityVeinsWithSectionsProps>
     setCurrentOrgan("lowerExtremityVeins");
   };
 
-  useResearchConclusionAddText('study-lowerExtremityVeins', 'УВНК', form, setForm, onChange);
+  useResearchConclusionAddText("study-lowerExtremityVeins", STUDY_KEYS.LOWER_EXTREMITY_VEINS, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

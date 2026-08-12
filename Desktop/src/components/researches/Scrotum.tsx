@@ -13,11 +13,13 @@ import type {
 import { defaultScrotumState } from "@/types";
 import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 type ScrotumSectionKey = Extract<
   SectionKey,
-  | "Органы мошонки:правое яичко"
-  | "Органы мошонки:левое яичко"
+  | typeof SECTION_KEYS.SCROTUM_RIGHT_TESTIS
+  | typeof SECTION_KEYS.SCROTUM_LEFT_TESTIS
 >;
 
 interface ScrotumWithSectionsProps extends ScrotumProps {
@@ -41,8 +43,8 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
   // Когда дефолты загружены и нет value извне — применяем пользовательские дефолты
   useEffect(() => {
     if (!value && isLoaded) {
-      const rightDefault = defaults["Органы мошонки:правое яичко"] as unknown as TestisProtocol["rightTestis"] | undefined;
-      const leftDefault = defaults["Органы мошонки:левое яичко"] as unknown as TestisProtocol["leftTestis"] | undefined;
+      const rightDefault = defaults[SECTION_KEYS.SCROTUM_RIGHT_TESTIS] as unknown as TestisProtocol["rightTestis"] | undefined;
+      const leftDefault = defaults[SECTION_KEYS.SCROTUM_LEFT_TESTIS] as unknown as TestisProtocol["leftTestis"] | undefined;
       const hasAnyDefault = rightDefault || leftDefault;
       setForm({
         ...defaultScrotumState,
@@ -65,7 +67,7 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
 
   const sync = (updated: ScrotumProtocol) => {
     setForm(updated);
-    setStudyData("Органы мошонки", updated);
+    setStudyData(STUDY_KEYS.SCROTUM, updated);
     onChange?.(updated);
   };
 
@@ -89,7 +91,7 @@ export const Scrotum: React.FC<ScrotumWithSectionsProps> = ({
     setCurrentOrgan("scrotum");
   };
 
-  useResearchConclusionAddText('study-scrotum', 'Органы мошонки', form, setForm, onChange);
+  useResearchConclusionAddText("study-scrotum", STUDY_KEYS.SCROTUM, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

@@ -1,5 +1,7 @@
 import type { ComponentType } from "react";
 
+import { STUDY_KEYS } from "@/domain/studyKeys";
+
 import {
   Obp,
   Kidney,
@@ -28,91 +30,91 @@ export interface DesktopResearchRegistryItem {
 
 export const desktopResearchRegistry: DesktopResearchRegistryItem[] = [
   {
-    studyKey: "Почки",
+    studyKey: STUDY_KEYS.KIDNEYS,
     title: "Почки",
     component: Kidney,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "ОБП",
+    studyKey: STUDY_KEYS.OBP,
     title: "ОБП",
     component: Obp,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "ОМТ (Ж)",
+    studyKey: STUDY_KEYS.OMT_FEMALE,
     title: "ОМТ (Ж)",
     component: OmtFemale,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "ОМТ (М)",
+    studyKey: STUDY_KEYS.OMT_MALE,
     title: "ОМТ (М)",
     component: OmtMale,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Органы мошонки",
+    studyKey: STUDY_KEYS.SCROTUM,
     title: "Органы мошонки",
     component: Scrotum,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Щитовидная железа",
+    studyKey: STUDY_KEYS.THYROID,
     title: "Щитовидная железа",
     component: Thyroid,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Слюнные железы",
+    studyKey: STUDY_KEYS.SALIVARY_GLANDS,
     title: "Слюнные железы",
     component: SalivaryGlands,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "БЦА",
+    studyKey: STUDY_KEYS.BCA,
     title: "БЦА",
     component: BrachioCephalicArteries,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "УВНК",
+    studyKey: STUDY_KEYS.LOWER_EXTREMITY_VEINS,
     title: "УВНК",
     component: LowerExtremityVeins,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Плевральные полости",
+    studyKey: STUDY_KEYS.PLEURAL,
     title: "Плевральные полости",
     component: Pleural,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Молочные железы",
+    studyKey: STUDY_KEYS.BREAST,
     title: "Молочные железы",
     component: Breast,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Лимфоузлы",
+    studyKey: STUDY_KEYS.LYMPH_NODES,
     title: "Лимфоузлы",
     component: LymphNodes,
     supportsSectionRefs: true,
-    aliases: ["Лимфатические узлы"],
+    aliases: [STUDY_KEYS.LYMPH_NODES_ALT],
   },
   {
-    studyKey: "Детская диспансеризация",
+    studyKey: STUDY_KEYS.CHILD_DISPENSARY,
     title: "Детская диспансеризация",
     component: ChildDispensary,
   },
   {
-    studyKey: "Мягких тканей",
+    studyKey: STUDY_KEYS.SOFT_TISSUE,
     title: "Мягких тканей",
     component: SoftTissue,
     supportsSectionRefs: true,
   },
   {
-    studyKey: "Мочевой пузырь",
+    studyKey: STUDY_KEYS.URINARY_BLADDER,
     title: "Мочевой пузырь",
     component: UrinaryBladderResearch,
   },

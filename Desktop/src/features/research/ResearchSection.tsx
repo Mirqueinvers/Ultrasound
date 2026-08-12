@@ -30,7 +30,7 @@ const ResearchSection: React.FC<ResearchSectionProps> = ({
   return (
     <ResearchProvider>
       <MedisonAutoImport />
-      <SectionLayout {...layoutProps}>
+      <SectionLayout {...layoutProps} selectedStudies={selectedStudies}>
         <ResearchWorkspace
           selectedStudies={selectedStudies}
           isDraftActive={isDraftActive}

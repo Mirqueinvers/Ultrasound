@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { defaultLymphNodesStudyState } from "@/types";
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 interface LymphNodesWithSectionsProps extends LymphNodesStudyProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
@@ -35,7 +36,7 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
 
   const sync = (updated: LymphNodesStudyProtocol) => {
     setForm(updated);
-    setStudyData("Лимфоузлы", updated);
+    setStudyData(STUDY_KEYS.LYMPH_NODES, updated);
     onChange?.(updated);
   };
 
@@ -59,7 +60,7 @@ export const LymphNodes: React.FC<LymphNodesWithSectionsProps> = ({
     setCurrentOrgan("lymphNodes");
   };
 
-  useResearchConclusionAddText('study-lymphNodes', 'Лимфоузлы', form, setForm, onChange);
+  useResearchConclusionAddText("study-lymphNodes", STUDY_KEYS.LYMPH_NODES, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

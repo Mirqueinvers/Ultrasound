@@ -11,6 +11,7 @@ import type {
 } from "@/types";
 import { defaultUrinaryBladderStudyState } from "@/types";
 import { useDefaultValues } from "@hooks";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   value,
@@ -42,7 +43,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
   const syncBoth = (updated: UrinaryBladderStudyProtocol) => {
     setForm(updated);
     onChange?.(updated);
-    setStudyData("Мочевой пузырь", updated);
+    setStudyData(STUDY_KEYS.URINARY_BLADDER, updated);
   };
 
   const updateUrinaryBladder = (bladderData: UrinaryBladderProtocol) => {
@@ -70,7 +71,7 @@ export const UrinaryBladderResearch: React.FC<UrinaryBladderStudyProps> = ({
     setCurrentOrgan("urinary_bladder");
   };
 
-  useResearchConclusionAddText('study-urinary_bladder', 'Мочевой пузырь', form, setForm, onChange);
+  useResearchConclusionAddText("study-urinary_bladder", STUDY_KEYS.URINARY_BLADDER, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">

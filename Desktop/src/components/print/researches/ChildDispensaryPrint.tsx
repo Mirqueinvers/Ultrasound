@@ -6,10 +6,11 @@ import PancreasPrint from "@/components/print/organs/PancreasPrint";
 import SpleenPrint from "@/components/print/organs/SpleenPrint";
 import KidneysPrint from "@/components/print/researches/KidneysPrint";
 import type { ChildDispensaryProtocol } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const ChildDispensaryPrint: React.FC = () => {
   const { studiesData } = useResearch();
-  const data = studiesData["Детская диспансеризация"] as
+  const data = studiesData[STUDY_KEYS.CHILD_DISPENSARY] as
     | ChildDispensaryProtocol
     | undefined;
 

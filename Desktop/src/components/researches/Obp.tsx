@@ -24,6 +24,8 @@ import { useDefaultValues } from "@hooks";
 import type { SectionKey } from "@components/common/OrgNavigation";
 import { useRightPanel } from "@contexts/useRightPanel";
 import { deepMerge } from "@/utils/deepMerge";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 const FREE_FLUID_OPTIONS = [
   { value: "не определяется", label: "не определяется" },
@@ -48,10 +50,10 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
     if (!value && isLoaded) {
       const merged: ObpProtocol = {
         ...defaultObpState,
-        liver: (defaults["ОБП:печень"] as unknown as LiverProtocol) ?? null,
-        gallbladder: (defaults["ОБП:желчный"] as unknown as GallbladderProtocol) ?? null,
-        pancreas: (defaults["ОБП:поджелудочная"] as unknown as PancreasProtocol) ?? null,
-        spleen: (defaults["ОБП:селезёнка"] as unknown as SpleenProtocol) ?? null,
+        liver: (defaults[SECTION_KEYS.OBP_LIVER] as unknown as LiverProtocol) ?? null,
+        gallbladder: (defaults[SECTION_KEYS.OBP_GALLBLADDER] as unknown as GallbladderProtocol) ?? null,
+        pancreas: (defaults[SECTION_KEYS.OBP_PANCREAS] as unknown as PancreasProtocol) ?? null,
+        spleen: (defaults[SECTION_KEYS.OBP_SPLEEN] as unknown as SpleenProtocol) ?? null,
       };
       setForm(merged);
     }
@@ -67,7 +69,7 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
 
   const sync = (updated: ObpProtocol) => {
     setForm(updated);
-    setStudyData("ОБП", updated);
+    setStudyData(STUDY_KEYS.OBP, updated);
     onChange?.(updated);
   };
 
@@ -112,14 +114,12 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
   };
 
   // Обработка добавления текста образца заключения
-  useResearchConclusionAddText('study-obp', 'ОБП', form, setForm, onChange);
+  useResearchConclusionAddText("study-obp", STUDY_KEYS.OBP, form, setForm, onChange);
 
   const handleConclusionBlur = () => {
     // если нужно скрывать панель после выхода из поля, раскомментируй
     // hidePanel();
   };
-
-
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,25 +127,25 @@ export const Obp: React.FC<ObpWithSectionsProps> = ({
         Ультразвуковое исследование органов брюшной полости
       </div>
 
-      <div ref={sectionRefs?.["ОБП:печень"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OBP_LIVER]}>
         <Hepat value={form.liver ?? undefined} onChange={updateLiver} />
       </div>
 
-      <div ref={sectionRefs?.["ОБП:желчный"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OBP_GALLBLADDER]}>
         <Gallbladder
           value={form.gallbladder ?? undefined}
           onChange={updateGallbladder}
         />
       </div>
 
-      <div ref={sectionRefs?.["ОБП:поджелудочная"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OBP_PANCREAS]}>
         <Pancreas
           value={form.pancreas ?? undefined}
           onChange={updatePancreas}
         />
       </div>
 
-      <div ref={sectionRefs?.["ОБП:селезёнка"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OBP_SPLEEN]}>
         <Spleen value={form.spleen ?? undefined} onChange={updateSpleen} />
       </div>
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { useResearch } from "@contexts";
 import type { SoftTissueProtocol } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const SoftTissuePrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const data = studiesData["Мягких тканей"] as SoftTissueProtocol | undefined;
+  const data = studiesData[STUDY_KEYS.SOFT_TISSUE] as SoftTissueProtocol | undefined;
 
   if (!data) return null;
 

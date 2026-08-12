@@ -3,11 +3,12 @@ import React from "react";
 import { useResearch } from "@contexts";
 import type { PleuralStudyProtocol } from "@types";
 import { PleuralPrint as PleuralPrintComponent } from "@/components/print/organs/PleuralPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const PleuralResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const pleuralData = studiesData["Плевральные полости"] as
+  const pleuralData = studiesData[STUDY_KEYS.PLEURAL] as
     | PleuralStudyProtocol
     | undefined;
   const pleuralProtocol = pleuralData?.pleural;

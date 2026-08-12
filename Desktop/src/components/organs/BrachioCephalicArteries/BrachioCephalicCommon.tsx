@@ -9,6 +9,7 @@ import type {
   BrachioCephalicCommonProps,
 } from "@/types/organs/brachioCephalicArteries";
 import { defaultBrachioCephalicArteriesState } from "@/types";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
   value,
@@ -45,7 +46,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div ref={sectionRefs?.["БЦА:ОСА правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_RIGHT_OSA]}>
         <ResearchSectionCard
           title="Правая общая сонная артерия"
           >
@@ -66,7 +67,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         />
       </ResearchSectionCard>
 
-      <div ref={sectionRefs?.["БЦА:ВСА правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_RIGHT_VSA]}>
         <ResearchSectionCard
           title="Правая внутренняя сонная артерия"
           >
@@ -79,7 +80,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:НСА правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_RIGHT_NSA]}>
         <ResearchSectionCard
           title="Правая наружная сонная артерия"
           >
@@ -91,7 +92,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:позвоночная правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_RIGHT_VERTEBRAL]}>
         <ResearchSectionCard
           title="Правая позвоночная артерия"
           >
@@ -103,7 +104,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:подключичная правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_RIGHT_SUBCLAVIAN]}>
         <ResearchSectionCard title="Правая подключичная артерия" >
           <Artery
             artery="subclavianRight"
@@ -123,7 +124,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         />
       </ResearchSectionCard>
 
-      <div ref={sectionRefs?.["БЦА:ОСА левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_LEFT_OSA]}>
         <ResearchSectionCard
           title="Левая общая сонная артерия"
           >
@@ -144,7 +145,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         />
       </ResearchSectionCard>
 
-      <div ref={sectionRefs?.["БЦА:ВСА левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_LEFT_VSA]}>
         <ResearchSectionCard
           title="Левая внутренняя сонная артерия"
           >
@@ -157,7 +158,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:НСА левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_LEFT_NSA]}>
         <ResearchSectionCard
           title="Левая наружная сонная артерия"
           >
@@ -169,7 +170,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:позвоночная левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_LEFT_VERTEBRAL]}>
         <ResearchSectionCard
           title="Левая позвоночная артерия"
           >
@@ -181,7 +182,7 @@ export const BrachioCephalicCommon: React.FC<BrachioCephalicCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={sectionRefs?.["БЦА:подключичная левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.BCA_LEFT_SUBCLAVIAN]}>
         <ResearchSectionCard title="Левая подключичная артерия" >
           <Artery
             artery="subclavianLeft"

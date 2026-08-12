@@ -36,6 +36,7 @@ import type {
 } from "@types";
 import type { DesktopStudiesDataMap } from "@/researches/types";
 import { patientService, protocolService, researchService } from "@services";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 import {
   normalizeEditableText,
   hasVisibleHtmlContent,
@@ -204,21 +205,22 @@ const PrintableSavedProtocol = React.forwardRef<
     : studiesData;
 
 
-  const obpData = effectiveStudiesData["ОБП"];
-  const kidneysData = effectiveStudiesData["Почки"];
-  const bladderStudyData = effectiveStudiesData["Мочевой пузырь"];
-  const omtFemaleData = effectiveStudiesData["ОМТ (Ж)"];
-  const omtMaleData = effectiveStudiesData["ОМТ (М)"];
-  const thyroidData = effectiveStudiesData["Щитовидная железа"];
-  const breastData = effectiveStudiesData["Молочные железы"];
-  const scrotumData = effectiveStudiesData["Органы мошонки"];
-  const childDispensaryData = effectiveStudiesData["Детская диспансеризация"];
-  const softTissueData = effectiveStudiesData["Мягких тканей"];
-  const salivaryData = effectiveStudiesData["Слюнные железы"];
-  const brachioCephalicArteriesData = effectiveStudiesData["БЦА"];
+  const obpData = effectiveStudiesData[STUDY_KEYS.OBP];
+  const kidneysData = effectiveStudiesData[STUDY_KEYS.KIDNEYS];
+  const bladderStudyData = effectiveStudiesData[STUDY_KEYS.URINARY_BLADDER];
+  const omtFemaleData = effectiveStudiesData[STUDY_KEYS.OMT_FEMALE];
+  const omtMaleData = effectiveStudiesData[STUDY_KEYS.OMT_MALE];
+  const thyroidData = effectiveStudiesData[STUDY_KEYS.THYROID];
+  const breastData = effectiveStudiesData[STUDY_KEYS.BREAST];
+  const scrotumData = effectiveStudiesData[STUDY_KEYS.SCROTUM];
+  const childDispensaryData = effectiveStudiesData[STUDY_KEYS.CHILD_DISPENSARY];
+  const softTissueData = effectiveStudiesData[STUDY_KEYS.SOFT_TISSUE];
+  const salivaryData = effectiveStudiesData[STUDY_KEYS.SALIVARY_GLANDS];
+  const brachioCephalicArteriesData = effectiveStudiesData[STUDY_KEYS.BCA];
   const lymphNodesData =
-    effectiveStudiesData["Лимфатические узлы"] ||
-    effectiveStudiesData["Лимфоузлы"] ||
+    // legacy-алиасы: совместимость со старыми сохранёнными протоколами
+    effectiveStudiesData[STUDY_KEYS.LYMPH_NODES_ALT] ||
+    effectiveStudiesData[STUDY_KEYS.LYMPH_NODES] ||
     effectiveStudiesData["lymphNodes"];
 
 

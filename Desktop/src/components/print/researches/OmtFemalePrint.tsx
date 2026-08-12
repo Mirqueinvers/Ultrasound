@@ -5,6 +5,7 @@ import UterusPrint from "@/components/print/organs/UterusPrint";
 import OvaryPrint from "@/components/print/organs/OvaryPrint";
 import UrinaryBladderPrint from "@/components/print/organs/UrinaryBladderPrint";
 import type { OmtFemaleProtocol } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 const formatDateRu = (iso?: string): string | undefined => {
   if (!iso) return undefined;
@@ -19,7 +20,7 @@ const formatDateRu = (iso?: string): string | undefined => {
 
 export const OmtFemalePrint: React.FC = () => {
   const { studiesData } = useResearch();
-  const omtData = studiesData["ОМТ (Ж)"] as OmtFemaleProtocol | undefined;
+  const omtData = studiesData[STUDY_KEYS.OMT_FEMALE] as OmtFemaleProtocol | undefined;
   const uterus = omtData?.uterus;
   const rightOvary = omtData?.rightOvary;
   const leftOvary = omtData?.leftOvary;

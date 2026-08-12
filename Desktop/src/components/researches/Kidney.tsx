@@ -18,6 +18,8 @@ import { defaultKidneyStudyState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 interface KidneyWithSectionsProps extends KidneyStudyProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
@@ -98,9 +100,9 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     if (!value && isLoaded) {
       const merged = {
         ...defaultKidneyStudyState,
-        rightKidney: (defaults["Почки:правая"] as unknown as KidneyCommonProtocol) ?? null,
-        leftKidney: (defaults["Почки:левая"] as unknown as KidneyCommonProtocol) ?? null,
-        urinaryBladder: (defaults["Почки:мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+        rightKidney: (defaults[SECTION_KEYS.KIDNEY_RIGHT] as unknown as KidneyCommonProtocol) ?? null,
+        leftKidney: (defaults[SECTION_KEYS.KIDNEY_LEFT] as unknown as KidneyCommonProtocol) ?? null,
+        urinaryBladder: (defaults[SECTION_KEYS.KIDNEY_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
       };
       setForm(merged);
     }
@@ -120,14 +122,14 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     const updated = { ...form, rightKidney: rightKidneyData };
     setForm(updated);
     onChange?.(updated);
-    setStudyData("Почки", updated);
+    setStudyData(STUDY_KEYS.KIDNEYS, updated);
   };
 
   const updateLeftKidney = (leftKidneyData: KidneyCommonProtocol) => {
     const updated = { ...form, leftKidney: leftKidneyData };
     setForm(updated);
     onChange?.(updated);
-    setStudyData("Почки", updated);
+    setStudyData(STUDY_KEYS.KIDNEYS, updated);
   };
 
   const updateUrinaryBladder = (
@@ -139,7 +141,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     };
     setForm(updated);
     onChange?.(updated);
-    setStudyData("Почки", updated);
+    setStudyData(STUDY_KEYS.KIDNEYS, updated);
   };
 
   const updateConclusion = (conclusionData: {
@@ -153,7 +155,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
     };
     setForm(updated);
     onChange?.(updated);
-    setStudyData("Почки", updated);
+    setStudyData(STUDY_KEYS.KIDNEYS, updated);
   };
 
   const handleConclusionFocus = () => {
@@ -162,7 +164,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
   };
 
   // Обработка добавления текста образца заключения
-  useResearchConclusionAddText('study-kidneys', 'Почки', form, setForm, onChange);
+  useResearchConclusionAddText("study-kidneys", STUDY_KEYS.KIDNEYS, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">
@@ -170,7 +172,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
         Ультразвуковое исследование почек
       </div>
 
-      <div ref={sectionRefs?.["Почки:правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.KIDNEY_RIGHT]}>
         <KidneyCommon
           side="right"
           value={form.rightKidney ?? undefined}
@@ -178,7 +180,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
         />
       </div>
 
-      <div ref={sectionRefs?.["Почки:левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.KIDNEY_LEFT]}>
         <KidneyCommon
           side="left"
           value={form.leftKidney ?? undefined}
@@ -186,7 +188,7 @@ export const Kidney: React.FC<KidneyWithSectionsProps> = ({
         />
       </div>
 
-      <div ref={sectionRefs?.["Почки:мочевой пузырь"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.KIDNEY_BLADDER]}>
         <UrinaryBladder
           value={form.urinaryBladder ?? undefined}
           onChange={updateUrinaryBladder}

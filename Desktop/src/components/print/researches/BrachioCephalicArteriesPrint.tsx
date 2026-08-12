@@ -3,11 +3,12 @@ import React from "react";
 import { useResearch } from "@contexts";
 import type { BrachioCephalicArteriesStudyProtocol } from "@types";
 import { BrachioCephalicArteriesPrint as BrachioCephalicArteriesPrintComponent } from "@/components/print/organs/BrachioCephalicArteriesPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const BrachioCephalicArteriesResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const brachioData = studiesData["БЦА"] as
+  const brachioData = studiesData[STUDY_KEYS.BCA] as
     | BrachioCephalicArteriesStudyProtocol
     | undefined;
   const brachioProtocol = brachioData?.brachioCephalicArteries;

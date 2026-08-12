@@ -19,6 +19,7 @@ import type {
   KidneyProtocol,
 } from "@types";
 import { defaultChildDispensaryState } from "@types";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const ChildDispensary: React.FC<ChildDispensaryProps> = ({
   value,
@@ -32,7 +33,7 @@ export const ChildDispensary: React.FC<ChildDispensaryProps> = ({
 
   const sync = (updated: ChildDispensaryProtocol) => {
     setForm(updated);
-    setStudyData("Детская диспансеризация", updated);
+    setStudyData(STUDY_KEYS.CHILD_DISPENSARY, updated);
     onChange?.(updated);
   };
 

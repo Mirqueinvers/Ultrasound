@@ -5,6 +5,7 @@ import DatePickerField from "./DatePickerField";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
 import { makeObpStudyData, makeKidneyStudyData, makeOmtFemaleStudyData, makeBladderStudyData, makeUrinaryBladderPartial, makeThyroidStudyData, makeProstateStudyData, makeBreastStudyData, makeTestisStudyData } from "@/hooks/useMedisonImport";
 import { medisonService } from "@services";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 /** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
 const isoToRu = (iso: string): string => {
@@ -69,50 +70,50 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
       if (parsed.obp) {
         const obpData = makeObpStudyData(parsed.obp) as unknown as Record<string, unknown>;
         if (Object.keys(obpData).length > 0) {
-          mergeStudyData("ОБП", obpData);
+          mergeStudyData(STUDY_KEYS.OBP, obpData);
         }
       }
 
       if (parsed.kidneys) {
         const kidneyData = makeKidneyStudyData(parsed.kidneys) as unknown as Record<string, unknown>;
         if (Object.keys(kidneyData).length > 0) {
-          mergeStudyData("Почки", kidneyData);
+          mergeStudyData(STUDY_KEYS.KIDNEYS, kidneyData);
         }
       }
 
       if (parsed.gyn) {
         const omtFemaleData = makeOmtFemaleStudyData(parsed.gyn) as unknown as Record<string, unknown>;
         if (Object.keys(omtFemaleData).length > 0) {
-          mergeStudyData("ОМТ (Ж)", omtFemaleData);
+          mergeStudyData(STUDY_KEYS.OMT_FEMALE, omtFemaleData);
         }
       }
 
       if (parsed.uro) {
         const bladderData = makeBladderStudyData(parsed.uro) as unknown as Record<string, unknown>;
         if (Object.keys(bladderData).length > 0) {
-          mergeStudyData("Мочевой пузырь", bladderData);
+          mergeStudyData(STUDY_KEYS.URINARY_BLADDER, bladderData);
         }
 
         // Также мержим urinaryBladder как подполе в Почки, ОМТ (Ж), ОМТ (М)
         const bladderPartial = makeUrinaryBladderPartial(parsed.uro) as Record<string, unknown> | undefined;
         if (bladderPartial) {
-          mergeStudyData("Почки", bladderPartial);
-          mergeStudyData("ОМТ (Ж)", bladderPartial);
-          mergeStudyData("ОМТ (М)", bladderPartial);
+          mergeStudyData(STUDY_KEYS.KIDNEYS, bladderPartial);
+          mergeStudyData(STUDY_KEYS.OMT_FEMALE, bladderPartial);
+          mergeStudyData(STUDY_KEYS.OMT_MALE, bladderPartial);
         }
       }
 
       if (parsed.thyroid) {
         const thyroidData = makeThyroidStudyData(parsed.thyroid) as unknown as Record<string, unknown>;
         if (Object.keys(thyroidData).length > 0) {
-          mergeStudyData("Щитовидная железа", thyroidData);
+          mergeStudyData(STUDY_KEYS.THYROID, thyroidData);
         }
       }
 
       if (parsed.uro?.prostate) {
         const prostateData = makeProstateStudyData(parsed.uro) as unknown as Record<string, unknown>;
         if (Object.keys(prostateData).length > 0) {
-          mergeStudyData("ОМТ (М)", prostateData);
+          mergeStudyData(STUDY_KEYS.OMT_MALE, prostateData);
         }
       }
 
@@ -120,7 +121,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
       if (parsed.breast) {
         const breastData = makeBreastStudyData(parsed.breast) as unknown as Record<string, unknown>;
         if (Object.keys(breastData).length > 0) {
-          mergeStudyData("Молочные железы", breastData);
+          mergeStudyData(STUDY_KEYS.BREAST, breastData);
         }
       }
 
@@ -128,7 +129,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
       if (parsed.testis) {
         const testisData = makeTestisStudyData(parsed.testis) as unknown as Record<string, unknown>;
         if (Object.keys(testisData).length > 0) {
-          mergeStudyData("Органы мошонки", testisData);
+          mergeStudyData(STUDY_KEYS.SCROTUM, testisData);
         }
       }
 

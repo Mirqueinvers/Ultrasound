@@ -2,11 +2,12 @@ import React from "react";
 import { useResearch } from "@contexts";
 import type { ScrotumProtocol } from "@types";
 import TestisPrint from "@/components/print/organs/TestisPrint";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 export const ScrotumResearchPrint: React.FC = () => {
   const { studiesData } = useResearch();
 
-  const scrotumData = studiesData["Органы мошонки"] as ScrotumProtocol | undefined;
+  const scrotumData = studiesData[STUDY_KEYS.SCROTUM] as ScrotumProtocol | undefined;
   const testisProtocol = scrotumData?.testis as unknown as
     | import("@types").TestisProtocol
     | undefined;

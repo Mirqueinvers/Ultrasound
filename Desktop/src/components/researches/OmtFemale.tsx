@@ -20,6 +20,8 @@ import { defaultOmtFemaleState } from "@/types";
 import { useDefaultValues } from "@hooks";
 
 import type { SectionKey } from "@components/common/OrgNavigation";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
+import { STUDY_KEYS } from "@/domain/studyKeys";
 
 interface OmtFemaleWithSectionsProps extends OmtFemaleProps {
   sectionRefs?: Record<SectionKey, React.RefObject<HTMLDivElement | null>>;
@@ -41,10 +43,10 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     if (!value && isLoaded) {
       setForm({
         ...defaultOmtFemaleState,
-        uterus: (defaults["ОМТ (Ж):матка"] as unknown as UterusProtocol) ?? null,
-        rightOvary: (defaults["ОМТ (Ж):правый яичник"] as unknown as OvaryProtocol) ?? null,
-        leftOvary: (defaults["ОМТ (Ж):левый яичник"] as unknown as OvaryProtocol) ?? null,
-        urinaryBladder: (defaults["ОМТ (Ж):мочевой пузырь"] as unknown as UrinaryBladderProtocol) ?? null,
+        uterus: (defaults[SECTION_KEYS.OMT_FEMALE_UTERUS] as unknown as UterusProtocol) ?? null,
+        rightOvary: (defaults[SECTION_KEYS.OMT_FEMALE_RIGHT_OVARY] as unknown as OvaryProtocol) ?? null,
+        leftOvary: (defaults[SECTION_KEYS.OMT_FEMALE_LEFT_OVARY] as unknown as OvaryProtocol) ?? null,
+        urinaryBladder: (defaults[SECTION_KEYS.OMT_FEMALE_BLADDER] as unknown as UrinaryBladderProtocol) ?? null,
       });
     }
   }, [value, isLoaded, defaults]);
@@ -76,7 +78,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
 
   const sync = (updated: OmtFemaleProtocol) => {
     setForm(updated);
-    setStudyData("ОМТ (Ж)", updated);
+    setStudyData(STUDY_KEYS.OMT_FEMALE, updated);
     onChange?.(updated);
   };
 
@@ -114,7 +116,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
     setCurrentOrgan("omt_female");
   };
 
-  useResearchConclusionAddText('study-omt_female', 'ОМТ (Ж)', form, setForm, onChange);
+  useResearchConclusionAddText("study-omt_female", STUDY_KEYS.OMT_FEMALE, form, setForm, onChange);
 
   return (
     <div className="flex flex-col gap-6">
@@ -122,11 +124,11 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
         Ультразвуковое исследование органов малого таза
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (Ж):матка"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_FEMALE_UTERUS]}>
         <Uterus value={form.uterus ?? undefined} onChange={updateUterus} />
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (Ж):правый яичник"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_FEMALE_RIGHT_OVARY]}>
         <Ovary
           value={form.rightOvary ?? undefined}
           onChange={updateRightOvary}
@@ -134,7 +136,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
         />
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (Ж):левый яичник"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_FEMALE_LEFT_OVARY]}>
         <Ovary
           value={form.leftOvary ?? undefined}
           onChange={updateLeftOvary}
@@ -142,7 +144,7 @@ export const OmtFemale: React.FC<OmtFemaleWithSectionsProps> = ({
         />
       </div>
 
-      <div ref={sectionRefs?.["ОМТ (Ж):мочевой пузырь"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.OMT_FEMALE_BLADDER]}>
         <UrinaryBladder
           value={form.urinaryBladder ?? undefined}
           onChange={updateUrinaryBladder}

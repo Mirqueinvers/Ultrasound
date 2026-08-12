@@ -9,6 +9,7 @@ import type {
   PleuralSideProtocol,
 } from "@/types/organs/pleural";
 import { defaultPleuralState } from "@/types";
+import { SECTION_KEYS } from "@/domain/sectionKeys";
 
 export const PleuralCommon: React.FC<PleuralCommonProps> = ({
   value,
@@ -31,7 +32,7 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div ref={(sectionRefs as any)?.["Плевральная полость:правая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.PLEURAL_RIGHT]}>
         <ResearchSectionCard
           title="Правая плевральная полость"
           >
@@ -43,7 +44,7 @@ export const PleuralCommon: React.FC<PleuralCommonProps> = ({
         </ResearchSectionCard>
       </div>
 
-      <div ref={(sectionRefs as any)?.["Плевральная полость:левая"]}>
+      <div ref={sectionRefs?.[SECTION_KEYS.PLEURAL_LEFT]}>
         <ResearchSectionCard
           title="Левая плевральная полость"
           >
