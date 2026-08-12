@@ -96,7 +96,7 @@ export type SectionKeyValue = (typeof SECTION_KEYS)[keyof typeof SECTION_KEYS];
 
 Затем `protocols/catalog.ts` переводится на эти константы, и постепенно компоненты заменяют строки на `SECTION_KEYS.OBP_LIVER`.
 
-### 3.2. Слой services (адаптер electron API)
+### 3.2. Слой services (адаптер electron API) ✅ ПОДКЛЮЧЁН
 
 **Проблема:** `window.protocolAPI.savePrintOverrides(...)` вызывается прямо из компонентов/хуков.
 
@@ -109,6 +109,18 @@ export const researchService = {
 };
 ```
 Компоненты импортируют `researchService`, а не трогают `window.*` напрямую.
+
+**Результат подключения (этап «Подключение сервисов»):**
+- ✅ Добавлен alias `@services` → `src/services/electron/index.ts` в `tsconfig.app.json`.
+- ✅ 72 прямых вызова `window.*API` в компонентах заменены на сервисы: AppShell, Content, Statistics, ProfilePage, Journal, ExportModal, JournalExportRenderer, AuthProvider, ResearchProvider, RegistryPanel, DefaultValuesProvider, ImportMappingTab, UpdateTab, PrintModal, PrintSavedModal, PrintableSavedProtocol, SearchSection, ResearchHeader, MobileSyncTab, MedisonAutoImport.
+- ✅ Хуки переведены на сервисы: useSaveResearch, usePrintableOverrides, useResearchMobileSync, useDesktopAppSelection, useMedisonImport.
+- ✅ `registryService` дополнен методами `getCachedAppointments`/`saveCachedAppointments`.
+- ✅ В сервисы добавлен `isAvailable()` для браузерной среды (auth, mobileHost, database, update).
+- ✅ Типы `window.mobileHostAPI`, `window.updateAPI` добавлены в `src/types/global.d.ts`.
+- ✅ Исправлен `MobileHostStatus` в preload (добавлены `draftActive`, `activeStudyLabel`, `organization`).
+- ✅ Убраны мёртвые `as any` (MedisonAutoImport — `__medisonLastContent` заменён на `data._xmlContent`).
+- ✅ `tsc --noEmit` — **0 ошибок**.
+- Проверка: `window.*API` встречается только в `src/services/electron/*` (88 совпадений — все в обёртках).
 
 ### 3.3. Декомпозиция «божественных» компонентов
 

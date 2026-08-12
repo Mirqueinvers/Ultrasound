@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import PrintSavedModal from "@/components/print/PrintSavedModal";
 import { PatientCard } from "@/components/common/PatientCard";
 import { PatientSearchInput } from "@/UI/PatientSearchInput";
+import { patientSearchService } from "@services";
 import type { Patient, Research, JournalEntry } from "@/types";
 
 const formatPatientName = (p: Patient) =>
@@ -56,7 +57,7 @@ export function SearchSection() {
     setExpandedPatientIds([]);
     setHasSearched(true);
     try {
-      const result = await window.patientSearchAPI.search(query);
+      const result = await patientSearchService.search(query);
       setEntries(result);
     } catch (e) {
       console.error("Ошибка поиска пациента", e);

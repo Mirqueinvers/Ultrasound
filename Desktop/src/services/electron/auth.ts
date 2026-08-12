@@ -21,4 +21,5 @@ export const authService = {
     currentPassword: string;
     newPassword: string;
   }) => window.authAPI.changePassword(data),
-};
+  isAvailable: () => !!window.authAPI,
+} satisfies AuthAPI & { isAvailable: () => boolean };

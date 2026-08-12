@@ -16,18 +16,19 @@ import RegistryPanel, { type PatientSelectData } from "@/components/registry/Reg
 import { useResearch } from "@contexts/useResearch";
 import { useDesktopAppSelection, useSectionRefs } from "@hooks";
 import MedisonAutoImport from "@/components/registry/MedisonAutoImport";
+import { windowService } from "@services";
 
 export function AppTitlebar() {
   const handleMinimize = () => {
-    window.windowAPI?.minimize();
+    windowService.minimize();
   };
 
   const handleMaximize = () => {
-    window.windowAPI?.maximize();
+    windowService.maximize();
   };
 
   const handleClose = () => {
-    window.windowAPI?.close();
+    windowService.close();
   };
 
   return (

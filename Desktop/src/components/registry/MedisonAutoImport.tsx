@@ -56,9 +56,8 @@ export default function MedisonAutoImport() {
       });
 
       // Проверяем по hash содержимого — не импортировали ли этот файл ранее
-      const content = (window as any).__medisonLastContent as string | undefined;
-      if (content) {
-        const hash = simpleHash(content);
+      if (data._xmlContent) {
+        const hash = simpleHash(data._xmlContent);
         if (sessionStorage.getItem(IMPORTED_KEY) === hash) {
           console.log("MedisonAutoImport: файл уже импортирован ранее, пропускаем. Очистите sessionStorage чтобы импортировать снова.");
           return;

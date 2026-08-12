@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
+import { mobileHostService } from '@services';
 import type { MobileHostStatus } from '@/types/electron';
 import './MobileSyncTab.css';
 
@@ -25,11 +26,11 @@ const MobileSyncTab: React.FC = () => {
 
     const loadStatus = async () => {
       try {
-        if (!window.mobileHostAPI) {
+        if (!mobileHostService.isAvailable()) {
           return;
         }
 
-        const status = await window.mobileHostAPI.getStatus();
+        const status = await mobileHostService.getStatus();
         if (!cancelled) {
           setMobileHostStatus(status);
           setMobileHostError('');
@@ -92,11 +93,11 @@ const MobileSyncTab: React.FC = () => {
       setIsMobileHostBusy(true);
       setMobileHostError('');
 
-      if (!window.mobileHostAPI) {
+      if (!mobileHostService.isAvailable()) {
         throw new Error('Mobile host API недоступен');
       }
 
-      const status = await window.mobileHostAPI.restart();
+      const status = await mobileHostService.restart();
       setMobileHostStatus(status);
     } catch (err) {
       setMobileHostError(err instanceof Error ? err.message : 'Не удалось перезапустить mobile host');

@@ -1,5 +1,6 @@
 import React from "react";
 import PrintableSavedProtocol, { type PrintableSavedProtocolHandle } from "@/components/print/PrintableSavedProtocol";
+import { protocolService } from "@services";
 
 interface PrintSavedModalProps {
   isOpen: boolean;
@@ -119,7 +120,7 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
       setPrinterError(null);
 
       try {
-        const result = await window.protocolAPI.getPrinters();
+        const result = await protocolService.getPrinters();
 
         if (cancelled) {
           return;
@@ -168,7 +169,7 @@ const PrintSavedModal: React.FC<PrintSavedModalProps> = ({
     }
 
     const html = buildPrintableHtml(root, "УЗИ-протокол");
-    const result = await window.protocolAPI.printHtml({
+    const result = await protocolService.printHtml({
       content: html,
       title: "УЗИ-протокол",
       printerName: selectedPrinter || undefined,

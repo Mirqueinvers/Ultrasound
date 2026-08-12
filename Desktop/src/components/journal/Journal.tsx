@@ -4,6 +4,7 @@ import { EditPatientModal } from "@/components/journal/EditPatientModal";
 import PrintSavedModal from "@/components/print/PrintSavedModal";
 import ExportModal from "@/components/journal/ExportModal";
 import DatePickerField from "@/components/common/DatePickerField";
+import { journalService, patientService, researchService } from "@services";
 import type { JournalEntry, Patient, Research } from "@/types";
 
 const formatPatientName = (patient: Patient) =>
@@ -91,7 +92,7 @@ const Journal: React.FC = () => {
 
   const handleDeleteResearch = async (researchId: number) => {
     try {
-      await window.researchAPI.delete(researchId);
+      await researchService.delete(researchId);
 
       setEntries((prevEntries) =>
         prevEntries
@@ -120,7 +121,7 @@ const Journal: React.FC = () => {
 
   const handleSavePatient = async (updatedPatient: Patient) => {
     try {
-      await window.patientAPI.update({
+      await patientService.update({
         id: updatedPatient.id,
         lastName: updatedPatient.last_name,
         firstName: updatedPatient.first_name,
@@ -149,7 +150,7 @@ const Journal: React.FC = () => {
     }
 
     try {
-      await window.patientAPI.delete(patient.id);
+      await patientService.delete(patient.id);
 
       setEntries((prevEntries) =>
         prevEntries.filter((entry) => entry.patient.id !== patient.id),
@@ -166,7 +167,7 @@ const Journal: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await window.journalAPI.getByDate(targetDate);
+      const result = await journalService.getByDate(targetDate);
       setEntries(result);
     } catch (error) {
       console.error("Ошибка загрузки журнала", error);

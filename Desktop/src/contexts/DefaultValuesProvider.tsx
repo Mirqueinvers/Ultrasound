@@ -4,6 +4,7 @@ import {
   type DefaultValuesMap,
   type DefaultValuesContextType,
 } from "./DefaultValuesContext";
+import { defaultsService } from "@services";
 
 export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [defaults, setDefaults] = useState<DefaultValuesMap>({});
@@ -12,7 +13,7 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const load = useCallback(async () => {
     try {
-      const result = await window.defaultsAPI.load();
+      const result = await defaultsService.load();
       if (result.success && result.data) {
         setDefaults(result.data as DefaultValuesMap);
       }
@@ -28,7 +29,7 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
   const saveDefaults = useCallback(async (desktopKey: string, values: Record<string, unknown>) => {
     try {
       const update = { [desktopKey]: values };
-      const result = await window.defaultsAPI.save(update);
+      const result = await defaultsService.save(update);
       if (result.success) {
         setDefaults((prev) => ({ ...prev, [desktopKey]: values }));
         setError(null);
@@ -46,7 +47,7 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const newDefaults = { ...defaults };
         delete newDefaults[desktopKey];
-        const result = await window.defaultsAPI.save(newDefaults);
+        const result = await defaultsService.save(newDefaults);
         if (result.success) {
           setDefaults(newDefaults);
           setError(null);
@@ -57,7 +58,7 @@ export const DefaultValuesProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } else {
       try {
-        const result = await window.defaultsAPI.reset();
+        const result = await defaultsService.reset();
         if (result.success) {
           setDefaults({});
           setError(null);

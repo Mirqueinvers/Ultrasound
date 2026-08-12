@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, Settings, RefreshCw, WifiOff, User, Stethoscope } from "lucide-react";
+import { registryService } from "@services";
 import type {
   CachedRegistryAppointment,
   RegistryAddress,
@@ -76,7 +77,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
 
   // Загрузка сохраненных адресов из файла (userData)
   useEffect(() => {
-    window.registryAPI
+    registryService
       .getAddresses()
       .then((stored) => {
         if (Array.isArray(stored) && stored.length > 0) {
@@ -87,7 +88,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   }, []);
 
   const persistAddresses = useCallback((updated: RegistryAddress[]) => {
-    window.registryAPI.saveAddresses(updated).catch(() => {});
+    registryService.saveAddresses(updated).catch(() => {});
   }, []);
 
   const fetchAppointments = useCallback(async () => {
@@ -102,7 +103,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
     setAppointments([]);
 
     // Текущий локальный кэш записей регистратур (для офлайн-источников)
-    const cached = await window.registryAPI
+    const cached = await registryService
       .getCachedAppointments()
       .catch(() => [] as CachedRegistryAppointment[]);
 
@@ -221,7 +222,7 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
         }
       }
 
-      await window.registryAPI.saveCachedAppointments(merged).catch(() => {});
+      await registryService.saveCachedAppointments(merged).catch(() => {});
     }
 
     // Ошибку показываем только если вообще нет живых регистратур

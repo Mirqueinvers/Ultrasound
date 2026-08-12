@@ -4,6 +4,7 @@ import { useResearch } from "@contexts";
 import DatePickerField from "./DatePickerField";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
 import { makeObpStudyData, makeKidneyStudyData, makeOmtFemaleStudyData, makeBladderStudyData, makeUrinaryBladderPartial, makeThyroidStudyData, makeProstateStudyData, makeBreastStudyData, makeTestisStudyData } from "@/hooks/useMedisonImport";
+import { medisonService } from "@services";
 
 /** Конвертирует "гггг-мм-дд" в "дд.мм.гггг" */
 const isoToRu = (iso: string): string => {
@@ -40,7 +41,7 @@ export const ResearchHeader: React.FC<ResearchHeaderProps> = ({ paymentType, set
   // Обработчик ручного импорта с флешки
   const handleMedisonImport = useCallback(async () => {
     try {
-      const result = await window.medisonAPI?.scanAndRead();
+      const result = await medisonService.scanAndRead();
       if (!result?.success || !result.content) {
         console.warn("ResearchHeader: флешка не найдена", result?.message);
         return;

@@ -1,5 +1,6 @@
 import React from "react";
 
+import { mobileHostService } from "@services";
 import type { DesktopStudiesDataMap } from "@/researches/types";
 import type { MobileSyncWireMessage } from "@/sync/mobileSync";
 
@@ -21,11 +22,11 @@ export const useResearchMobileSync = ({
   getCurrentDate,
 }: UseResearchMobileSyncParams) => {
   React.useEffect(() => {
-    if (!window.mobileHostAPI) {
+    if (!mobileHostService.isAvailable()) {
       return undefined;
     }
 
-    return window.mobileHostAPI.onSyncMessage((message) => {
+    return mobileHostService.onSyncMessage((message) => {
       const syncMessage = message as MobileSyncWireMessage | undefined;
       if (!syncMessage || typeof syncMessage !== "object" || !("type" in syncMessage)) {
         return;

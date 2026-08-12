@@ -1,5 +1,6 @@
- import React from "react";
+import React from "react";
 import PrintableProtocol, { type PrintableProtocolHandle } from "@/components/print/PrintableProtocol";
+import { protocolService } from "@services";
 
 interface PrintModalProps {
   isOpen: boolean;
@@ -93,7 +94,7 @@ const PrintModal: React.FC<PrintModalProps> = ({
       setPrinterError(null);
 
       try {
-        const result = await window.protocolAPI.getPrinters();
+        const result = await protocolService.getPrinters();
 
         if (cancelled) {
           return;
@@ -142,7 +143,7 @@ const PrintModal: React.FC<PrintModalProps> = ({
     }
 
     const html = buildPrintableHtml(root, "УЗИ-протокол");
-    const result = await window.protocolAPI.printHtml({
+    const result = await protocolService.printHtml({
       content: html,
       title: "УЗИ-протокол",
       printerName: selectedPrinter || undefined,

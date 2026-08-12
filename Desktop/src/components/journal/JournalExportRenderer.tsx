@@ -2,6 +2,7 @@ import React from "react";
 import PrintableSavedProtocol from "@/components/print/PrintableSavedProtocol";
 import { ResearchProvider } from "@contexts/ResearchProvider";
 import { getDefaultExportTargetIp } from "@/utils/exportTargetIps";
+import { fileService, networkService } from "@services";
 
 export interface JournalExportRendererApi {
   handleSaveToFile: () => Promise<void>;
@@ -281,7 +282,7 @@ body {
         );
       }
 
-      const result = await window.fileAPI.saveHtml({
+      const result = await fileService.saveHtml({
         content: html,
         defaultPath: fileName,
       });
@@ -317,7 +318,7 @@ body {
     setNetworkMessage("");
 
     try {
-      const result = await window.networkAPI.sendExport({
+      const result = await networkService.sendExport({
         targetIp: normalizedIp,
         html,
         fileName,

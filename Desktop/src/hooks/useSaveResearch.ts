@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/useAuth";
+import { patientService, researchService } from "@services";
 
 interface UseSaveResearchParams {
   patientFullName: string;
@@ -79,7 +80,7 @@ export const useSaveResearch = ({
     setSaveMessage(null);
 
     try {
-      const patientResult = await window.patientAPI.findOrCreate({
+      const patientResult = await patientService.findOrCreate({
         lastName: lastName.trim(),
         firstName: firstName.trim(),
         middleName: middleName.trim() || null,
@@ -96,7 +97,7 @@ export const useSaveResearch = ({
 
       const patientId = patientResult.patient.id;
 
-      const researchResult = await window.researchAPI.create({
+      const researchResult = await researchService.create({
         patientId,
         researchDate,
         paymentType,
@@ -119,7 +120,7 @@ export const useSaveResearch = ({
 
         console.log(`Сохранение ${studyType}:`, studyData);
 
-        const studyResult = await window.researchAPI.addStudy({
+        const studyResult = await researchService.addStudy({
           researchId,
           studyType,
           studyData,

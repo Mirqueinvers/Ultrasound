@@ -5,6 +5,7 @@
  * дублирования логики редактирования HTML-блоков печатной версии.
  */
 import React from "react";
+import { protocolService } from "@services";
 import {
   normalizeEditableText,
   normalizeEditableHtml,
@@ -106,7 +107,7 @@ export function usePrintableOverrides(options: UsePrintableOverridesOptions) {
 
     if (researchId) {
       try {
-        const result = await window.protocolAPI.savePrintOverrides({
+        const result = await protocolService.savePrintOverrides({
           researchId,
           overrides: nextOverrides,
         });

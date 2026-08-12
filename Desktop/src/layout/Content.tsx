@@ -18,6 +18,7 @@ import {
 } from "@/UI";
 import { SearchSection } from "@/components/search/SearchSection";
 import { renderDesktopResearch } from "../researches/desktopResearchRenderers";
+import { mobileHostService } from "@services";
 
 import type { SectionKey } from "@/protocols";
 
@@ -87,7 +88,7 @@ const Content: React.FC<ContentProps> = ({
     onSaved: (researchId: number) => {
       setCurrentResearchId(researchId);
       if (mobileSaveRequestAt) {
-        void window.mobileHostAPI?.publishSync({
+        void mobileHostService.publishSync({
           type: "sync:command",
           command: "draft:saved",
           origin: "desktop",

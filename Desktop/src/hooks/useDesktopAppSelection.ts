@@ -1,5 +1,6 @@
 import React from "react";
 
+import { mobileHostService } from "@services";
 import {
   createSyncTimestamp,
   type MobileSyncWireMessage,
@@ -24,7 +25,7 @@ export const useDesktopAppSelection = () => {
       isMultiSelectMode: boolean;
       selectedDirectoryItem: string;
     }) => {
-      void window.mobileHostAPI?.publishSync({
+      void mobileHostService.publishSync({
         type: "sync:update",
         fragment: "selection",
         data: selection,
@@ -36,11 +37,11 @@ export const useDesktopAppSelection = () => {
   );
 
   React.useEffect(() => {
-    if (!window.mobileHostAPI) {
+    if (!mobileHostService.isAvailable()) {
       return undefined;
     }
 
-    return window.mobileHostAPI.onSyncMessage((message) => {
+    return mobileHostService.onSyncMessage((message) => {
       const syncMessage = message as MobileSyncWireMessage | undefined;
       if (!syncMessage || typeof syncMessage !== "object" || !("type" in syncMessage)) {
         return;

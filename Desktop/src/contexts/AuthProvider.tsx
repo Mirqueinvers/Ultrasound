@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { User, LoginFormData, RegisterFormData } from '@/types/auth';
 import { AuthContext, type AuthContextType } from './AuthContext';
+import { authService, mobileHostService, windowService } from '@services';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,9 +13,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const storedUserId = localStorage.getItem('userId');
 
-        if (storedUserId && window.authAPI) {
+        if (storedUserId && authService.isAvailable()) {
           // Загружаем данные пользователя из БД
-          const userData = await window.authAPI.getUser(parseInt(storedUserId));
+          const userData = await authService.getUser(parseInt(storedUserId));
 
           if (userData) {
             const user: User = {
@@ -46,22 +47,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    if (!window.mobileHostAPI) {
+    if (!mobileHostService.isAvailable()) {
       return;
     }
 
-    void window.mobileHostAPI.setProfile({
+    void mobileHostService.setProfile({
       organization: user?.organization || null,
     });
   }, [isLoading, user?.organization]);
 
   const login = async (data: LoginFormData): Promise<void> => {
     try {
-      if (!window.authAPI) {
+      if (!authService.isAvailable()) {
         throw new Error('Auth API недоступен');
       }
 
-      const response = await window.authAPI.login({
+      const response = await authService.login({
         username: data.email, // используем email как username
         password: data.password,
       });
@@ -94,11 +95,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData): Promise<void> => {
     try {
-      if (!window.authAPI) {
+      if (!authService.isAvailable()) {
         throw new Error('Auth API недоступен');
       }
 
-      const response = await window.authAPI.register({
+      const response = await authService.register({
         username: data.email, // используем email как username
         password: data.password,
         name: data.name,
@@ -114,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // После регистрации загружаем данные пользователя
-      const userData = await window.authAPI.getUser(response.userId);
+      const userData = await authService.getUser(response.userId);
 
       if (!userData) {
         throw new Error('Не удалось загрузить данные пользователя');
@@ -144,9 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Принудительно фокусируем окно после выхода
     setTimeout(() => {
-      if (window.windowAPI) {
-        window.windowAPI.focus();
-      }
+      windowService.focus();
     }, 100);
   };
 
@@ -155,9 +154,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
 
     // Перезагружаем данные из БД для синхронизации
-    if (window.authAPI && updatedUser.id) {
+    if (authService.isAvailable() && updatedUser.id) {
       try {
-        const userData = await window.authAPI.getUser(parseInt(updatedUser.id));
+        const userData = await authService.getUser(parseInt(updatedUser.id));
         if (userData) {
           const freshUser: User = {
             id: userData.id.toString(),

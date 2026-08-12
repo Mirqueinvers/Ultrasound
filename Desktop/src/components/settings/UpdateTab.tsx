@@ -1,25 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Download, AlertCircle, CheckCircle, RotateCw, Server, Plus, Trash2 } from "lucide-react";
+import { updateService } from "@services";
 import "./UpdateTab.css";
-
-declare global {
-  interface Window {
-    updateAPI: {
-      check: () => Promise<void>;
-      download: () => Promise<void>;
-      install: () => Promise<void>;
-      getServers: () => Promise<{ name: string; ip: string }[]>;
-      saveServers: (servers: { name: string; ip: string }[]) => Promise<{ success: boolean; message?: string }>;
-      getActiveServer: () => Promise<string>;
-      setActiveServer: (ip: string) => Promise<{ success: boolean; message?: string }>;
-      onUpdateAvailable: (handler: (info: { version: string }) => void) => () => void;
-      onUpdateNotAvailable: (handler: (info: { version: string }) => void) => () => void;
-      onDownloadProgress: (handler: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
-      onUpdateDownloaded: (handler: (info: { version: string }) => void) => () => void;
-      onUpdateError: (handler: (error: { message: string }) => void) => () => void;
-    };
-  }
-}
 
 type UpdateState = "idle" | "checking" | "available" | "downloading" | "downloaded" | "error" | "not-available";
 
@@ -52,22 +34,21 @@ const UpdateTab: React.FC = () => {
 
   // Загрузка сохранённых серверов
   useEffect(() => {
-    const api = window.updateAPI;
-    if (!api) return;
+    if (!updateService.isAvailable()) return;
 
-    api.getServers().then((stored) => {
+    updateService.getServers().then((stored) => {
       if (Array.isArray(stored)) {
         setServers(stored);
       }
     }).catch(() => {});
 
-    api.getActiveServer().then((ip) => {
+    updateService.getActiveServer().then((ip) => {
       setActiveIp(ip || "");
     }).catch(() => {});
   }, []);
 
   const persistServers = useCallback((updated: UpdateServer[]) => {
-    window.updateAPI.saveServers(updated).catch(() => {});
+    updateService.saveServers(updated).catch(() => {});
   }, []);
 
   const handleAddServer = () => {
@@ -88,37 +69,36 @@ const UpdateTab: React.FC = () => {
     persistServers(updated);
     if (activeIp === server.ip) {
       setActiveIp("");
-      window.updateAPI.setActiveServer("").catch(() => {});
+      updateService.setActiveServer("").catch(() => {});
     }
   };
 
   const handleSelectActive = (server: UpdateServer) => {
     setActiveIp(server.ip);
-    window.updateAPI.setActiveServer(server.ip).catch(() => {});
+    updateService.setActiveServer(server.ip).catch(() => {});
   };
 
   useEffect(() => {
-    const api = window.updateAPI;
-    if (!api) return;
+    if (!updateService.isAvailable()) return;
 
-    const unsub1 = api.onUpdateAvailable((info) => {
+    const unsub1 = updateService.onUpdateAvailable((info) => {
       setState("available");
       setVersion(info.version);
       setProgress(0);
     });
-    const unsub2 = api.onUpdateNotAvailable(() => {
+    const unsub2 = updateService.onUpdateNotAvailable(() => {
       setState("not-available");
     });
-    const unsub3 = api.onDownloadProgress((p) => {
+    const unsub3 = updateService.onDownloadProgress((p) => {
       setState("downloading");
       setProgress(Math.round(p.percent));
     });
-    const unsub4 = api.onUpdateDownloaded((info) => {
+    const unsub4 = updateService.onUpdateDownloaded((info) => {
       setState("downloaded");
       setVersion(info.version);
       setProgress(100);
     });
-    const unsub5 = api.onUpdateError((err) => {
+    const unsub5 = updateService.onUpdateError((err) => {
       setState("error");
       setErrorMsg(err.message);
     });
@@ -133,20 +113,20 @@ const UpdateTab: React.FC = () => {
   }, []);
 
   const handleCheck = useCallback(() => {
-    if (!window.updateAPI) return;
+    if (!updateService.isAvailable()) return;
     setState("checking");
     setErrorMsg("");
-    window.updateAPI.check();
+    updateService.check();
   }, []);
 
   const handleDownload = useCallback(() => {
-    if (!window.updateAPI) return;
-    window.updateAPI.download();
+    if (!updateService.isAvailable()) return;
+    updateService.download();
   }, []);
 
   const handleInstall = useCallback(() => {
-    if (!window.updateAPI) return;
-    window.updateAPI.install();
+    if (!updateService.isAvailable()) return;
+    updateService.install();
   }, []);
 
   return (

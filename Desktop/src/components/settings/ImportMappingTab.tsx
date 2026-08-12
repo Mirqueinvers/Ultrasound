@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/useAuth";
 import { STUDY_SCHEMAS } from "@/sync/medisonMappingTypes";
+import { importMappingService } from "@services";
 import type { MedisonMappingRow } from "../../../electron/preload";
 import "./ImportMappingTab.css";
 
@@ -34,13 +35,13 @@ const ImportMappingTab: React.FC = () => {
     if (!user) return;
     setLoading(true);
     try {
-      const result = await window.importMappingAPI.getMappings(parseInt(user.id));
+      const result = await importMappingService.getMappings(parseInt(user.id));
       let dbMappings = result.success && result.mappings ? result.mappings : [];
 
       // Если маппингов нет — сбрасываем на дефолтные
       if (dbMappings.length === 0) {
-        await window.importMappingAPI.resetDefaultMappings(parseInt(user.id));
-        const retry = await window.importMappingAPI.getMappings(parseInt(user.id));
+        await importMappingService.resetDefaultMappings(parseInt(user.id));
+        const retry = await importMappingService.getMappings(parseInt(user.id));
         dbMappings = retry.success && retry.mappings ? retry.mappings : [];
       }
 
@@ -70,7 +71,7 @@ const ImportMappingTab: React.FC = () => {
     if (!user) return false;
     setSaving(entry.measurementId || "new");
     try {
-      const result = await window.importMappingAPI.upsertMapping({
+      const result = await importMappingService.upsertMapping({
         userId: parseInt(user.id),
         measurementId: entry.measurementId,
         targetStudyType: entry.targetStudyType,
@@ -120,7 +121,7 @@ const ImportMappingTab: React.FC = () => {
 
     if (entry.id) {
       // Уже сохранена в БД — удаляем через API
-      const result = await window.importMappingAPI.deleteMapping(entry.id);
+      const result = await importMappingService.deleteMapping(entry.id);
       if (!result.success) {
         setMessage({ type: "error", text: "Ошибка удаления" });
         return;
@@ -167,7 +168,7 @@ const ImportMappingTab: React.FC = () => {
   const handleResetDefaults = async () => {
     if (!user) return;
     try {
-      const result = await window.importMappingAPI.resetDefaultMappings(parseInt(user.id));
+      const result = await importMappingService.resetDefaultMappings(parseInt(user.id));
       if (result.success) {
         await loadMappings();
         setMessage({ type: "success", text: "Маппинги сброшены на умолчания" });

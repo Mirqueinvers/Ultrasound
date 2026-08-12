@@ -12,6 +12,8 @@ import type {
   ImportMappingAPI,
   DefaultsAPI,
   RegistryAPI,
+  MobileHostAPI,
+  UpdateAPI,
 } from "../../electron/preload";
 
 declare global {
@@ -29,6 +31,8 @@ declare global {
     databaseAPI: DatabaseAPI;
     defaultsAPI: DefaultsAPI;
     registryAPI: RegistryAPI;
+    mobileHostAPI: MobileHostAPI;
+    updateAPI: UpdateAPI;
   }
 }
 

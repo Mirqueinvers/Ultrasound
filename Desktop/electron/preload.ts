@@ -175,6 +175,9 @@ export interface MobileHostStatus {
   running: boolean;
   port: number | null;
   sessionId: string | null;
+  draftActive: boolean;
+  activeStudyLabel: string;
+  organization: string | null;
   pairingCode: string | null;
   startedAt: string | null;
   clients: number;

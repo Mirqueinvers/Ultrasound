@@ -2,6 +2,7 @@ import type { MobileHostStatus } from "../../../electron/preload";
 
 /**
  * Адаптер над window.mobileHostAPI.
+ * API доступен только в Electron (в браузере может отсутствовать).
  */
 export const mobileHostService = {
   getStatus: (): Promise<MobileHostStatus> =>
@@ -18,4 +19,5 @@ export const mobileHostService = {
     window.mobileHostAPI?.publishSync(message) ?? Promise.resolve({} as MobileHostStatus),
   onSyncMessage: (handler: (message: unknown) => void): (() => void) =>
     window.mobileHostAPI?.onSyncMessage(handler) ?? (() => {}),
+  isAvailable: () => !!window.mobileHostAPI,
 };

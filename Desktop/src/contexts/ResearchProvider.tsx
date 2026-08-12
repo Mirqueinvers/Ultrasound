@@ -8,6 +8,7 @@ import { createSyncTimestamp, type MobileSyncWireMessage } from "@/sync/mobileSy
 import { useResearchMobileSync } from "@/hooks";
 import { deepMerge } from "@/utils/deepMerge";
 import type { DesktopStudyData } from "@/researches/types";
+import { mobileHostService } from "@services";
 import { ResearchContext, type ResearchContextType } from "./ResearchContext";
 
 export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -27,7 +28,7 @@ export const ResearchProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [studiesData, setStudiesDataState] = useState<{ [key: string]: unknown }>({});
 
   const publishSyncMessage = useCallback((message: MobileSyncWireMessage) => {
-    void window.mobileHostAPI?.publishSync(message);
+    void mobileHostService.publishSync(message);
   }, []);
 
   useResearchMobileSync({

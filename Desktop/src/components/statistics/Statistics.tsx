@@ -22,6 +22,7 @@ import {
   Legend,
 } from "chart.js";
 import DatePickerField from "@/components/common/DatePickerField";
+import { databaseService, journalService } from "@services";
 
 ChartJS.register(
   CategoryScale,
@@ -104,7 +105,7 @@ const Statistics: React.FC = () => {
 
   const loadDoctorList = async () => {
     try {
-      const doctors = await window.journalAPI.getDoctorNames();
+      const doctors = await journalService.getDoctorNames();
       setDoctorList(doctors);
     } catch {
       // ignore
@@ -116,12 +117,12 @@ const Statistics: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      if (!window.databaseAPI) {
+      if (!databaseService.isAvailable()) {
         setError("API статистики недоступно. Возможно, приложение запущено не в Electron.");
         return;
       }
 
-      const result = await window.databaseAPI.getStatistics(
+      const result = await databaseService.getStatistics(
         ruToIso(startDate),
         ruToIso(endDate),
         selectedDoctor || undefined

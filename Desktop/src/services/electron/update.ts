@@ -35,4 +35,5 @@ export const updateService = {
     window.updateAPI?.onUpdateDownloaded(handler) ?? (() => {}),
   onUpdateError: (handler: (error: { message: string }) => void) =>
     window.updateAPI?.onUpdateError(handler) ?? (() => {}),
+  isAvailable: () => !!window.updateAPI,
 };

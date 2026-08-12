@@ -6,6 +6,7 @@ import {
   getExportTargetIps,
   getDefaultExportTargetIp,
 } from "@/utils/exportTargetIps";
+import { journalService } from "@services";
 
 type ExportMode = "date" | "period";
 
@@ -86,7 +87,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
 
     async function loadDoctorNames() {
       try {
-        const items = await window.journalAPI.getDoctorNames();
+        const items = await journalService.getDoctorNames();
         if (!isCancelled) {
           setDoctorNames(items);
         }
@@ -157,8 +158,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
     try {
       const exportEntries =
         startDate === endDate
-          ? await window.journalAPI.getByDate(startDate)
-          : await window.journalAPI.getByPeriod(startDate, endDate);
+          ? await journalService.getByDate(startDate)
+          : await journalService.getByPeriod(startDate, endDate);
 
       const filteredEntries = exportEntries
         .map((entry) => ({

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { parseMedisonXml } from "@/sync/medisonXmlParser";
+import { importMappingService, medisonService } from "@services";
 import type { MedisonParsedData } from "@/sync/medisonTypes";
 import type { MedisonMappingRow } from "../../electron/preload";
 
@@ -421,6 +422,8 @@ interface UseMedisonImportOptions {
     prostateStudyData?: Record<string, unknown>;
     breastStudyData?: Record<string, unknown>;
     testisStudyData?: Record<string, unknown>;
+    /** Сырой XML для дедупликации одинаковых файлов */
+    _xmlContent?: string;
   }) => void;
   onXmlContent?: string;
   userId?: number;
@@ -440,7 +443,7 @@ export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOption
   useEffect(() => {
     if (!userId) return;
 
-    window.importMappingAPI
+    importMappingService
       .getMappings(userId)
       .then((result) => {
         if (result.success && result.mappings) {
@@ -451,9 +454,9 @@ export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOption
   }, [userId]);
 
   useEffect(() => {
-    window.medisonAPI?.startWatching().catch(console.error);
+    medisonService.startWatching().catch(console.error);
 
-    const unsubscribe = window.medisonAPI?.onXmlFound(({ content }) => {
+    const unsubscribe = medisonService.onXmlFound(({ content }) => {
       const parsed = parseMedisonXml(content);
       if (!parsed) {
         console.warn("useMedisonImport: failed to parse XML");
@@ -474,7 +477,6 @@ export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOption
         patientDateOfBirth,
         researchDate,
         ...mapped,
-        // @ts-expect-error - добавляем content для deduplication
         _xmlContent: content,
       });
     });
@@ -483,7 +485,7 @@ export function useMedisonImport({ onDataReady, userId }: UseMedisonImportOption
 
     return () => {
       unsubscribe?.();
-      window.medisonAPI?.stopWatching().catch(console.error);
+      medisonService.stopWatching().catch(console.error);
     };
   }, [onDataReady]);
 }

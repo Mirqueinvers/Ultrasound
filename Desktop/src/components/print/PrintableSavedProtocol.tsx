@@ -35,6 +35,7 @@ import type {
   LymphNodesStudyProtocol,
 } from "@types";
 import type { DesktopStudiesDataMap } from "@/researches/types";
+import { patientService, protocolService, researchService } from "@services";
 import {
   normalizeEditableText,
   hasVisibleHtmlContent,
@@ -125,7 +126,7 @@ const PrintableSavedProtocol = React.forwardRef<
       setSourceBlockHtml({});
       setPersistedOverrides({});
 
-      const protocol = await window.protocolAPI.getByResearchId(researchId);
+      const protocol = await protocolService.getByResearchId(researchId);
       if (cancelled) {
         return;
       }
@@ -157,10 +158,10 @@ const PrintableSavedProtocol = React.forwardRef<
     let cancelled = false;
 
     const loadMeta = async () => {
-      const research = await window.researchAPI.getById(researchId);
+      const research = await researchService.getById(researchId);
       if (cancelled || !research) return;
 
-      const patient = await window.patientAPI.getById(research.patient_id);
+      const patient = await patientService.getById(research.patient_id);
       if (cancelled || !patient) return;
 
       const fullName = `${patient.last_name} ${patient.first_name}${

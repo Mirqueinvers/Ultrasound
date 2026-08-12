@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
+import { authService } from '@services';
 import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
@@ -25,11 +26,11 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      if (!window.authAPI) {
+      if (!authService.isAvailable()) {
         throw new Error('Auth API недоступен');
       }
 
-      const response = await window.authAPI.updateUser({
+      const response = await authService.updateUser({
         id: parseInt(user!.id),
         name: editedName,
         username: editedEmail,
@@ -74,11 +75,11 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      if (!window.authAPI) {
+      if (!authService.isAvailable()) {
         throw new Error('Auth API недоступен');
       }
 
-      const response = await window.authAPI.changePassword({
+      const response = await authService.changePassword({
         userId: parseInt(user!.id),
         currentPassword,
         newPassword,

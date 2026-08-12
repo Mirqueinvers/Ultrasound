@@ -1,4 +1,5 @@
 ﻿// Frontend/vite.config.ts
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -8,6 +9,12 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
   ],
+  resolve: {
+    alias: {
+      "@services": fileURLToPath(new URL("./src/services/electron/index.ts", import.meta.url)),
+      "@services/*": fileURLToPath(new URL("./src/services/electron/*", import.meta.url)),
+    },
+  },
   base: "./", // критично для сборки под Electron (file://)
   server: {
     host: "0.0.0.0",

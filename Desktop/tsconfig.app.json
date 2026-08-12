@@ -35,6 +35,8 @@
       "@contexts/*": ["./src/contexts/*"],
       "@hooks": ["./src/hooks/index.ts"],
       "@hooks/*": ["./src/hooks/*"],
+      "@services": ["./src/services/electron/index.ts"],
+      "@services/*": ["./src/services/electron/*"],
       "@layout/*": ["./src/layout/*"],
       "@utils/*": ["./src/utils/*"],
       "@assets/*": ["./src/assets/*"],
