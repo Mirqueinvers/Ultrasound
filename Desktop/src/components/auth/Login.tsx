@@ -1,20 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { LoginFormData } from '@/types/auth';
+import { serverConfigService } from '@services';
 import './Auth.css';
 
 interface LoginProps {
   onLogin: (data: LoginFormData) => Promise<void>;
   onSwitchToRegister: () => void;
+  onServerSetup?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister, onServerSetup }) => {
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
+    username: '',
     password: '',
   });
   const [error, setError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Предзаполняем логин последнего вошедшего пользователя (этап 2.5).
+  useEffect(() => {
+    if (!serverConfigService.isAvailable()) return;
+    serverConfigService
+      .getConfig()
+      .then((config) => {
+        if (typeof config.lastLoginUsername === "string" && config.lastLoginUsername) {
+          setFormData((prev) => ({ ...prev, username: config.lastLoginUsername as string }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isSubmitting) return;
@@ -50,16 +65,16 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
         <h2 className="auth-title">Вход в систему</h2>
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Логин</label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              placeholder="example@mail.com"
+              placeholder="Введите логин"
               required
-              autoComplete="email"
+              autoComplete="username"
               autoFocus
             />
           </div>
@@ -101,6 +116,17 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
               Зарегистрироваться
             </button>
           </p>
+          {onServerSetup && (
+            <p style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                className="link-button"
+                onClick={onServerSetup}
+              >
+                Изменить адрес сервера
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>

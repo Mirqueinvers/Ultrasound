@@ -22,6 +22,7 @@ import type {
   NetworkAPI,
   UpdateAPI,
   ConnectionAPI,
+  ServerConfigAPI,
   ConnectionStatus,
   Research,
   PatientSearchEntry,
@@ -213,6 +214,11 @@ const connectionAPI: ConnectionAPI = {
   },
 };
 
+const serverConfigAPI: ServerConfigAPI = {
+  getConfig: () => ipcRenderer.invoke("server:getConfig"),
+  saveConfig: (config) => ipcRenderer.invoke("server:saveConfig", config),
+};
+
 const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
@@ -268,6 +274,7 @@ contextBridge.exposeInMainWorld("importMappingAPI", importMappingAPI);
 contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 contextBridge.exposeInMainWorld("defaultsAPI", defaultsAPI);
 contextBridge.exposeInMainWorld("registryAPI", registryAPI);
+contextBridge.exposeInMainWorld("serverConfigAPI", serverConfigAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
 contextBridge.exposeInMainWorld("connectionAPI", connectionAPI);
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);

@@ -8,9 +8,10 @@ type AuthMode = 'login' | 'register';
 interface AuthFormProps {
   onLogin: (data: LoginFormData) => Promise<void>;
   onRegister: (data: RegisterFormData) => Promise<void>;
+  onServerSetup?: () => void;
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ onLogin, onRegister }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ onLogin, onRegister, onServerSetup }) => {
   const [mode, setMode] = useState<AuthMode>('login');
 
   return (
@@ -20,6 +21,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLogin, onRegister }) => {
           key="login-form" // Добавили key
           onLogin={onLogin}
           onSwitchToRegister={() => setMode('register')}
+          onServerSetup={onServerSetup}
         />
       ) : (
         <Register 

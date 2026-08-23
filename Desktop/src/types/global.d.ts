@@ -16,6 +16,7 @@ import type {
   UpdateAPI,
   NetworkAPI,
   ConnectionAPI,
+  ServerConfigAPI,
 } from "../../electron/contracts";
 
 declare global {
@@ -37,6 +38,7 @@ declare global {
     updateAPI: UpdateAPI;
     networkAPI: NetworkAPI;
     connectionAPI: ConnectionAPI;
+    serverConfigAPI: ServerConfigAPI;
   }
 }
 

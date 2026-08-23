@@ -9,7 +9,7 @@ import {
   apiClient,
   ApiError,
 } from "./apiClient";
-import { loadServerConfig, saveAuthToken, saveServerConfig } from "./apiConfig";
+import { saveAuthToken, saveServerConfig } from "./apiConfig";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   // ==================== AUTH HANDLERS ====================

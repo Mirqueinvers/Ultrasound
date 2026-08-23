@@ -10,7 +10,7 @@ interface RegisterProps {
 
 const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: '',
+    username: '',
     password: '',
     confirmPassword: '',
     name: '',
@@ -88,16 +88,16 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Логин</label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              placeholder="example@mail.com"
+              placeholder="Введите логин"
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 

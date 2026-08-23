@@ -8,13 +8,13 @@ export interface User {
 }
 
 export interface LoginFormData {
-  email: string;
+  username: string;
   password: string;
   organization?: string;
 }
 
 export interface RegisterFormData {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
   name: string;

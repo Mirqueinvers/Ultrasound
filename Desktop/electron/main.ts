@@ -9,7 +9,7 @@ import { setupMedisonHandlers } from "./ipc/medisonIpc";
 import { setupMedisonMappingHandlers } from "./ipc/medisonMappingIpc";
 import { getMobileHostService } from "./mobile-host";
 import { loadServerConfig, saveServerConfig } from "./apiConfig";
-import { setServerUrl } from "./apiClient";
+import { setServerUrl, apiClient } from "./apiClient";
 import { OfflineCache } from "./cache/offlineCache";
 import { ConnectionMonitor } from "./cache/connectionMonitor";
 import {
@@ -83,6 +83,17 @@ app.whenReady().then(async () => {
     console.error("Failed to start mobile host service:", error);
   }
 
+  // ==================== RESTORE SERVER CONFIG + TOKEN (Этап 2.5) ====================
+  // Восстанавливаем адрес сервера и JWT-токен ДО создания окна,
+  // чтобы renderer при старте мог восстановить сессию без повторного входа.
+  try {
+    const initialConfig = await loadServerConfig();
+    setServerUrl(initialConfig.serverUrl);
+    apiClient.setToken(initialConfig.token ?? null);
+  } catch (error) {
+    console.error("Failed to restore server config:", error);
+  }
+
   // ==================== OFFLINE CACHE + CONNECTION MONITOR (Этап 2.3) ====================
   try {
     OfflineCache.getInstance().init(path.join(app.getPath("userData"), "cache.db"));
@@ -106,8 +117,14 @@ app.whenReady().then(async () => {
   ipcMain.handle("server:getConfig", async () => {
     const config = await loadServerConfig();
     setServerUrl(config.serverUrl);
+    // Восстановление JWT-токена для сессии (этап 2.5).
+    apiClient.setToken(config.token ?? null);
     ConnectionMonitor.getInstance().notifyConfigChanged();
-    return { serverUrl: config.serverUrl, configured: config.serverUrl.trim().length > 0 };
+    return {
+      serverUrl: config.serverUrl,
+      configured: config.serverUrl.trim().length > 0,
+      lastLoginUsername: config.lastLoginUsername,
+    };
   });
 
   ipcMain.handle(

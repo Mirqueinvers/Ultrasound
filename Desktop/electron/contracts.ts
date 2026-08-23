@@ -371,6 +371,22 @@ export interface PatientSearchAPI {
   search: (query: string) => Promise<PatientSearchEntry[]>;
 }
 
+// ========== SERVER CONFIG API (Этап 2.5) ==========
+
+export interface ServerConfigInfo {
+  serverUrl: string;
+  configured: boolean;
+  lastLoginUsername?: string;
+}
+
+export interface ServerConfigAPI {
+  getConfig: () => Promise<ServerConfigInfo>;
+  saveConfig: (config: {
+    serverUrl: string;
+    lastLoginUsername?: string;
+  }) => Promise<{ success: boolean; message?: string }>;
+}
+
 // ========== CONNECTION API (Этап 2.3) ==========
 
 export type ConnectionStatus = "online" | "offline" | "not-configured";

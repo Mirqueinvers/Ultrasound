@@ -20,6 +20,7 @@ import type {
   RegistryAPI,
   NetworkAPI,
   UpdateAPI,
+  ServerConfigAPI,
   AuthUser,
   Patient,
   Research,
@@ -180,6 +181,10 @@ export const windowMocks = {
   networkAPI: {
     sendExport: vi.fn(async () => ({ success: true, imported: 1, skipped: 0 })),
   } satisfies Mocked<NetworkAPI>,
+  serverConfigAPI: {
+    getConfig: vi.fn(async () => ({ serverUrl: "", configured: false })),
+    saveConfig: vi.fn(async () => ({ success: true })),
+  } satisfies Mocked<ServerConfigAPI>,
   updateAPI: {
     check: vi.fn(async () => {}),
     download: vi.fn(async () => {}),

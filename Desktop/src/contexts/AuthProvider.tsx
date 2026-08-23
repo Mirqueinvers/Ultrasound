@@ -7,14 +7,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Проверка сохраненной сессии при загрузке
+  // Проверка сохраненной сессии при загрузке (этап 2.5)
   useEffect(() => {
     const initAuth = async () => {
       try {
         const storedUserId = localStorage.getItem('userId');
 
         if (storedUserId && authService.isAvailable()) {
-          // Загружаем данные пользователя из БД
+          // Загружаем данные пользователя с сервера по токену из конфига.
           const userData = await authService.getUser(storedUserId);
 
           if (userData) {
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const response = await authService.login({
-        username: data.email, // используем email как username
+        username: data.username,
         password: data.password,
       });
 
@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const response = await authService.register({
-        username: data.email, // используем email как username
+        username: data.username,
         password: data.password,
         name: data.name,
         organization: data.organization,
