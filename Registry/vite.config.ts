@@ -11,15 +11,12 @@ export default defineConfig({
     electron([
       {
         entry: "electron/main.ts",
-      vite: {
-        build: {
-          outDir: "dist-electron",
-          minify: false,
-          rollupOptions: {
-            external: ["better-sqlite3", "sql.js"],
+        vite: {
+          build: {
+            outDir: "dist-electron",
+            minify: false,
           },
         },
-      },
       },
       {
         entry: "electron/preload.ts",

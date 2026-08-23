@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { promises as fs } from "node:fs";
-import { startApiServer } from "../src/api";
 import { initDb } from "../src/db";
 import { registerRegistryIpc } from "./registryIpc";
 import {
@@ -39,12 +38,13 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  // Этап 3.3: вход сервисной учёткой регистратуры в центральный API
+  // Этап 3.3/3.4: вход сервисной учёткой регистратуры в центральный API
   // и регистрация IPC-моста (window.registryAPI) до создания окна.
+  // Собственный HTTP-сервер Registry (src/api.ts) удалён — данные теперь
+  // хранятся в общей PostgreSQL, Desktop и Registry видят одни записи.
   await initDb();
   registerRegistryIpc();
 
-  await startApiServer();
   await createWindow();
 
   // ==================== UPDATE SERVERS HANDLERS ====================

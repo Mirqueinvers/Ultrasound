@@ -3,9 +3,9 @@ import type { Doctor, DoctorFormData } from "../types";
 import { getDayOfWeek } from "../utils/date";
 
 /**
- * Этап 3.3: данные загружаются через IPC-мост window.registryAPI
+ * Этап 3.3/3.4: данные загружаются через IPC-мост window.registryAPI
  * (см. electron/registryIpc.ts), который работает с центральным API.
- * Локальный HTTP-сервер Registry (services/api.ts) больше не используется.
+ * Локальный HTTP-сервер Registry удалён на этапе 3.4.
  */
 function getRegistryApi(): NonNullable<Window["registryAPI"]> {
   if (!window.registryAPI) {
