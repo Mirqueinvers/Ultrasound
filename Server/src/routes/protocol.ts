@@ -24,11 +24,6 @@ router.get("/researches/:id/protocol", async (req, res, next) => {
       return;
     }
 
-    if (research.studies.length === 0) {
-      res.json({ researchId: research.id, studies: {}, printOverrides: {} });
-      return;
-    }
-
     const studies: Record<string, unknown> = {};
     for (const study of research.studies) {
       studies[study.studyType] = study.studyData;
@@ -64,16 +59,19 @@ router.put("/researches/:id/protocol/overrides", async (req, res, next) => {
       .filter(([blockId]) => blockId.trim())
       .map(([blockId, blockText]) => [blockId.trim(), typeof blockText === "string" ? blockText : String(blockText ?? "")] as const);
 
+    const now = new Date();
+
     await prisma.$transaction(async (tx) => {
       await tx.printBlockOverride.deleteMany({ where: { researchId: req.params.id } });
 
-      if (entries.length > 0) {
-        await tx.printBlockOverride.createMany({
-          data: entries.map(([blockId, blockText]) => ({
+      for (const [blockId, blockText] of entries) {
+        await tx.printBlockOverride.create({
+          data: {
             researchId: req.params.id,
             blockId,
             blockText,
-          })),
+            updatedAt: now,
+          },
         });
       }
     });

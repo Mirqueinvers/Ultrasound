@@ -11,7 +11,9 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "migrate:local-dbs": "tsx prisma/migrate-local-dbs.ts"
+    "migrate:local-dbs": "tsx prisma/migrate-local-dbs.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -31,9 +33,12 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.1.0",
+    "@types/supertest": "^7.2.1",
     "better-sqlite3": "^11.10.0",
     "prisma": "^6.16.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.11"
   }
 }

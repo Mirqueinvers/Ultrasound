@@ -57,7 +57,7 @@ router.get("/", async (req, res, next) => {
       }),
     ]);
 
-    res.json({ patients, total });
+    res.json({ patients: patients.map(serializePatient), total });
   } catch (err) {
     next(err);
   }
@@ -109,7 +109,7 @@ router.post("/find-or-create", async (req, res, next) => {
     });
 
     if (existing) {
-      res.json({ success: true, message: "Пациент найден", patient: existing });
+      res.json({ success: true, message: "Пациент найден", patient: serializePatient(existing) });
       return;
     }
 
@@ -128,7 +128,7 @@ router.post("/find-or-create", async (req, res, next) => {
       },
     });
 
-    res.status(201).json({ success: true, message: "Пациент создан", patient });
+    res.status(201).json({ success: true, message: "Пациент создан", patient: serializePatient(patient) });
   } catch (err) {
     next(err);
   }
@@ -159,7 +159,7 @@ router.get("/search", async (req, res, next) => {
       take: limit,
     });
 
-    res.json({ patients, total: patients.length });
+    res.json({ patients: patients.map(serializePatient), total: patients.length });
   } catch (err) {
     next(err);
   }
@@ -173,7 +173,7 @@ router.get("/:id", async (req, res, next) => {
       res.status(404).json({ error: "Пациент не найден" });
       return;
     }
-    res.json(patient);
+    res.json(serializePatient(patient as never));
   } catch (err) {
     next(err);
   }
@@ -211,7 +211,7 @@ router.put("/:id", async (req, res, next) => {
       },
     });
 
-    res.json(patient);
+    res.json(serializePatient(patient as never));
   } catch (err) {
     next(err);
   }
