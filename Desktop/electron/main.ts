@@ -9,6 +9,8 @@ import { setupMedisonHandlers } from "./ipc/medisonIpc";
 import { setupMedisonMappingHandlers } from "./ipc/medisonMappingIpc";
 import { DatabaseManager } from "./database/database";
 import { getMobileHostService } from "./mobile-host";
+import { loadServerConfig, saveServerConfig } from "./apiConfig";
+import { setServerUrl } from "./apiClient";
 import {
   setAutoUpdaterWindow,
   initAutoUpdater,
@@ -82,6 +84,38 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+
+  // ==================== SERVER CONFIG HANDLERS ====================
+  // Конфигурация подключения к центральному PostgreSQL-серверу (Этап 2.1).
+  // Сохраняет адрес сервера и подхватывает его для apiClient.
+  ipcMain.handle("server:getConfig", async () => {
+    const config = await loadServerConfig();
+    setServerUrl(config.serverUrl);
+    return { serverUrl: config.serverUrl, configured: config.serverUrl.trim().length > 0 };
+  });
+
+  ipcMain.handle(
+    "server:saveConfig",
+    async (_event, config: { serverUrl?: string; lastLoginUsername?: string }) => {
+      try {
+        const url = (config?.serverUrl ?? "").trim();
+        if (!url) {
+          return { success: false, message: "Адрес сервера не указан" };
+        }
+        await saveServerConfig({
+          serverUrl: url,
+          ...(config?.lastLoginUsername
+            ? { lastLoginUsername: config.lastLoginUsername }
+            : {}),
+        });
+        setServerUrl(url);
+        return { success: true };
+      } catch (error) {
+        console.error("Server config save error:", error);
+        return { success: false, message: "Не удалось сохранить адрес сервера" };
+      }
+    }
+  );
 
   // ==================== UPDATE SERVERS HANDLERS ====================
 

@@ -595,7 +595,7 @@ volumes:
 - [ ] **Этап 1.8** — Реализовать Appointments + Doctors (Registry).
 - [ ] **Этап 1.9** — Написать `scripts/migrate-local-dbs.ts` (только `ultrasound.db`).
 - [ ] **Этап 1.10** — Написать интеграционные тесты API.
-- [ ] **Этап 2.1** — Создать apiClient в Desktop.
+- [x] **Этап 2.1** — Создать apiClient в Desktop.
 - [ ] **Этап 2.2** — Переписать `ipc-handlers.ts` и `medisonMappingIpc.ts` на API.
 - [ ] **Этап 2.3** — Добавить офлайн-кэш и очередь операций.
 - [ ] **Этап 2.4** — Удалить репозитории `better-sqlite3` и старый слой БД.
