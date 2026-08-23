@@ -37,6 +37,17 @@ curl http://localhost:4000/api/health   # -> {"status":"ok"}
 | `JWT_SECRET` | Секрет JWT (обязателен!) | — |
 | `DATABASE_URL` | Адрес БД для локального запуска API вне Docker | — |
 
+## Развёртывание на Windows без Docker
+
+Если на сервере нет Docker — используйте готовый пакет в папке `deploy/`:
+
+1. Установить **PostgreSQL 16** (служба Windows) и **Node.js 22 LTS**.
+2. Скопировать `Server/` на серверный ПК (например, `C:\Ultrasound\Server`).
+3. Запустить `deploy\install-server.bat` от администратора — он всё сделает сам
+   (`.env`, БД, зависимости, миграции, сборка, служба Windows через NSSM, порт 4000).
+
+Подробная пошаговая инструкция: **`deploy/INSTALL.md`**.
+
 ## Локальная разработка (вне Docker)
 
 ```bash

@@ -608,6 +608,7 @@ volumes:
 - [x] **Этап 3.4** — Удалить sql.js и собственный HTTP-сервер Registry.
 - [ ] **Этап 3.5** — Переписать тесты Registry.
 - [x] **Этап 5.1** — Сборка и запуск на сервере (Docker Compose).
+  - [x] Подготовлен пакет развёртывания **на Windows без Docker**: `Server/deploy/` — `INSTALL.md`, `install-server.bat` (PostgreSQL + NSSM-служба API + порт 4000), `update-server.bat`, `uninstall-server.bat`.
 - [ ] **Этап 5.2** — Миграция данных Desktop.
 - [ ] **Этап 5.3** — E2E-тестирование всей связки (Registry → Desktop → Mobile → статистика).
 - [ ] **Этап 5.4** — Проверка офлайн-режима.
