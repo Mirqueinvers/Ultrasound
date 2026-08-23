@@ -28,7 +28,7 @@ import type {
 // ========== Типовые данные ==========
 
 export const makeAuthUser = (overrides: Partial<AuthUser> = {}): AuthUser => ({
-  id: 1,
+  id: "1",
   username: "doctor@example.com",
   name: "Иванов Иван Иванович",
   organization: "ГБУЗ №1",
@@ -36,7 +36,7 @@ export const makeAuthUser = (overrides: Partial<AuthUser> = {}): AuthUser => ({
 });
 
 export const makePatient = (overrides: Partial<Patient> = {}): Patient => ({
-  id: 1,
+  id: "1",
   last_name: "Иванов",
   first_name: "Иван",
   middle_name: "Иванович",
@@ -47,8 +47,8 @@ export const makePatient = (overrides: Partial<Patient> = {}): Patient => ({
 });
 
 export const makeResearch = (overrides: Partial<Research> = {}): Research => ({
-  id: 1,
-  patient_id: 1,
+  id: "1",
+  patient_id: "1",
   research_date: "2026-01-15",
   payment_type: "oms",
   organization: "ГБУЗ №1",
@@ -95,7 +95,7 @@ const statsData = {
 
 export const windowMocks = {
   authAPI: {
-    register: vi.fn(async () => ({ success: true, message: "Регистрация успешна", userId: 1 })),
+    register: vi.fn(async () => ({ success: true, message: "Регистрация успешна", userId: "1" })),
     login: vi.fn(async () => ({ success: true, message: "Вход выполнен", user: makeAuthUser() })),
     getUser: vi.fn(async () => makeAuthUser()),
     updateUser: vi.fn(async () => ({ success: true, message: "Профиль обновлён" })),
@@ -110,8 +110,8 @@ export const windowMocks = {
     delete: vi.fn(async () => ({ success: true, message: "Пациент удалён" })),
   } satisfies Mocked<PatientAPI>,
   researchAPI: {
-    create: vi.fn(async () => ({ success: true, message: "Исследование создано", researchId: 1 })),
-    addStudy: vi.fn(async () => ({ success: true, message: "Исследование добавлено", studyId: 1 })),
+    create: vi.fn(async () => ({ success: true, message: "Исследование создано", researchId: "1" })),
+    addStudy: vi.fn(async () => ({ success: true, message: "Исследование добавлено", studyId: "1" })),
     getById: vi.fn(async () => makeResearch()),
     getByPatientId: vi.fn(async () => [makeResearch()]),
     getAll: vi.fn(async () => [makeResearch()]),
@@ -147,7 +147,7 @@ export const windowMocks = {
   } satisfies Mocked<MedisonAPI>,
   importMappingAPI: {
     getMappings: vi.fn(async () => ({ success: true, mappings: [] })),
-    upsertMapping: vi.fn(async () => ({ success: true, id: 1 })),
+    upsertMapping: vi.fn(async () => ({ success: true, id: "1" })),
     deleteMapping: vi.fn(async () => ({ success: true })),
     resetDefaultMappings: vi.fn(async () => ({ success: true })),
   } satisfies Mocked<ImportMappingAPI>,

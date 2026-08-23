@@ -426,7 +426,7 @@ interface UseMedisonImportOptions {
     _xmlContent?: string;
   }) => void;
   onXmlContent?: string;
-  userId?: number;
+  userId?: string;
 }
 
 /**

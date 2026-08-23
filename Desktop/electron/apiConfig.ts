@@ -1,5 +1,5 @@
 // Персистентная конфигурация подключения к центральному серверу.
-// Файл: {userData}/server-config.json → { serverUrl }
+// Файл: {userData}/server-config.json → { serverUrl, lastLoginUsername, token }
 import { app } from "electron";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -8,6 +8,8 @@ export interface ServerConfig {
   serverUrl: string;
   /** Логин последнего вошедшего пользователя (для удобного предзаполнения на экране входа). */
   lastLoginUsername?: string;
+  /** JWT-токен для восстановления сессии после перезапуска приложения. */
+  token?: string;
 }
 
 function configFilePath(): string {
@@ -24,22 +26,33 @@ export async function loadServerConfig(): Promise<ServerConfig> {
         typeof parsed.lastLoginUsername === "string"
           ? parsed.lastLoginUsername
           : undefined,
+      token: typeof parsed.token === "string" ? parsed.token : undefined,
     };
   } catch {
     return { serverUrl: "" };
   }
 }
 
-export async function saveServerConfig(config: ServerConfig): Promise<void> {
-  const normalized = {
-    serverUrl: (config.serverUrl ?? "").trim(),
-    ...(config.lastLoginUsername
+/** Сохраняет конфиг, сохраняя не переданные поля из уже существующего файла. */
+export async function saveServerConfig(config: Partial<ServerConfig>): Promise<void> {
+  const existing = await loadServerConfig();
+  const merged: ServerConfig = {
+    serverUrl: (config.serverUrl ?? existing.serverUrl).trim(),
+    ...(config.lastLoginUsername !== undefined
       ? { lastLoginUsername: config.lastLoginUsername }
-      : {}),
+      : existing.lastLoginUsername
+        ? { lastLoginUsername: existing.lastLoginUsername }
+        : {}),
+    ...(config.token !== undefined
+      ? { token: config.token }
+      : existing.token
+        ? { token: existing.token }
+        : {}),
   };
-  await fs.writeFile(
-    configFilePath(),
-    JSON.stringify(normalized, null, 2),
-    "utf8",
-  );
+  await fs.writeFile(configFilePath(), JSON.stringify(merged, null, 2), "utf8");
+}
+
+/** Сохраняет (или очищает) JWT-токен. */
+export async function saveAuthToken(token: string | null): Promise<void> {
+  await saveServerConfig({ token: token ?? undefined });
 }

@@ -33,7 +33,7 @@ const baseOptions = {
     [recommendationOverrideKey("ОБП")]: "Рекомендации",
   })),
   studyDefinitions: studyDefs,
-  researchId: 1,
+  researchId: "1",
   onSave: vi.fn(),
 };
 
@@ -100,7 +100,7 @@ describe("usePrintableOverrides", () => {
     });
 
     expect(protocolService.savePrintOverrides).toHaveBeenCalledWith({
-      researchId: 1,
+      researchId: "1",
       overrides: expect.objectContaining({
         [bodyOverrideKey("obp")]: "<p>Текст</p>",
         [conclusionOverrideKey("ОБП")]: "Заключение",

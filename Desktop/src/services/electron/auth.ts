@@ -9,15 +9,15 @@ export const authService = {
     window.authAPI.register(data),
   login: (data: { username: string; password: string }) =>
     window.authAPI.login(data),
-  getUser: (userId: number) => window.authAPI.getUser(userId),
+  getUser: (userId: string) => window.authAPI.getUser(userId),
   updateUser: (data: {
-    id: number;
+    id: string;
     name: string;
     username: string;
     organization?: string;
   }) => window.authAPI.updateUser(data),
   changePassword: (data: {
-    userId: number;
+    userId: string;
     currentPassword: string;
     newPassword: string;
   }) => window.authAPI.changePassword(data),

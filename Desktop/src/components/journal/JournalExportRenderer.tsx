@@ -15,10 +15,10 @@ export interface JournalExportRendererApi {
 }
 
 export interface JournalExportRendererProps {
-  researchIds: number[];
+  researchIds: string[];
   fileName: string;
   researchMeta: Record<
-    number,
+    string,
     {
       patientName: string;
       researchDate: string;
@@ -26,7 +26,7 @@ export interface JournalExportRendererProps {
   >;
   onComplete: (result?: {
     failedResearches: Array<{
-      researchId: number;
+      researchId: string;
       patientName: string;
       researchDate: string;
     }>;
@@ -40,8 +40,8 @@ type ExportStatus = "pending" | "ready" | "failed";
 type NetworkStatus = "idle" | "sending" | "sent" | "error";
 
 interface ExportProtocolBoundaryProps {
-  researchId: number;
-  onFail: (researchId: number, reason: string) => void;
+  researchId: string;
+  onFail: (researchId: string, reason: string) => void;
   children: React.ReactNode;
 }
 
@@ -98,7 +98,7 @@ export const JournalExportRenderer = React.forwardRef<
 ) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [statuses, setStatuses] = React.useState<Record<number, ExportStatus>>(
+  const [statuses, setStatuses] = React.useState<Record<string, ExportStatus>>(
     {},
   );
   const [hasTimedOut, setHasTimedOut] = React.useState(false);
@@ -115,7 +115,7 @@ export const JournalExportRenderer = React.forwardRef<
     () =>
       Object.entries(statuses)
         .filter(([, status]) => status === "failed")
-        .map(([researchId]) => Number(researchId)),
+        .map(([researchId]) => researchId),
     [statuses],
   );
   const resolvedCount = readyCount + failedIds.length;
@@ -135,7 +135,7 @@ export const JournalExportRenderer = React.forwardRef<
   }, [networkMessage, onNetworkMessageChange]);
 
   const markStatus = React.useCallback(
-    (researchId: number, status: ExportStatus) => {
+    (researchId: string, status: ExportStatus) => {
       setStatuses((currentStatuses) => {
         if (currentStatuses[researchId] === status) {
           return currentStatuses;
@@ -151,14 +151,14 @@ export const JournalExportRenderer = React.forwardRef<
   );
 
   const handleReady = React.useCallback(
-    (researchId: number) => {
+    (researchId: string) => {
       markStatus(researchId, "ready");
     },
     [markStatus],
   );
 
   const handleFail = React.useCallback(
-    (researchId: number, reason: string) => {
+    (researchId: string, reason: string) => {
       console.error(
         `[JournalExport] Failed to render research ${researchId}: ${reason}`,
       );

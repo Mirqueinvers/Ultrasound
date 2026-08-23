@@ -1,12 +1,10 @@
 import { ipcMain } from "electron";
-import { DatabaseManager } from "../database/database";
+import { apiClient, ApiError } from "../apiClient";
 
 export function setupMedisonMappingHandlers(): void {
-  const db = DatabaseManager.getInstance();
-
-  ipcMain.handle("medison-mapping:getAll", async (_, userId: number) => {
+  ipcMain.handle("medison-mapping:getAll", async (_, userId: string) => {
     try {
-      const mappings = db.medisonMappings.getByUserId(userId);
+      const mappings = await apiClient.medison.getMappings(userId);
       return { success: true, mappings };
     } catch (err) {
       console.error("medison-mapping:getAll error:", err);
@@ -19,7 +17,7 @@ export function setupMedisonMappingHandlers(): void {
     async (
       _,
       data: {
-        userId: number;
+        userId: string;
         measurementId: string;
         targetStudyType: string;
         targetField: string;
@@ -28,32 +26,44 @@ export function setupMedisonMappingHandlers(): void {
       }
     ) => {
       try {
-        const result = db.medisonMappings.upsert(data);
-        return result;
+        const result = await apiClient.medison.upsertMapping(data);
+        return { success: true, id: result.data?.id };
       } catch (err) {
         console.error("medison-mapping:upsert error:", err);
-        return { success: false, message: "Ошибка сохранения маппинга" };
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка сохранения маппинга",
+        };
       }
     }
   );
 
-  ipcMain.handle("medison-mapping:delete", async (_, id: number) => {
+  ipcMain.handle("medison-mapping:delete", async (_, id: string) => {
     try {
-      const result = db.medisonMappings.delete(id);
-      return result;
+      await apiClient.medison.deleteMapping(id);
+      return { success: true };
     } catch (err) {
       console.error("medison-mapping:delete error:", err);
-      return { success: false, message: "Ошибка удаления маппинга" };
+      return {
+        success: false,
+        message:
+          err instanceof ApiError ? err.message : "Ошибка удаления маппинга",
+      };
     }
   });
 
-  ipcMain.handle("medison-mapping:resetDefaults", async (_, userId: number) => {
+  ipcMain.handle("medison-mapping:resetDefaults", async (_, userId: string) => {
     try {
-      const result = db.medisonMappings.resetDefaults(userId);
-      return result;
+      await apiClient.medison.resetDefaults(userId);
+      return { success: true };
     } catch (err) {
       console.error("medison-mapping:resetDefaults error:", err);
-      return { success: false, message: "Ошибка сброса маппингов" };
+      return {
+        success: false,
+        message:
+          err instanceof ApiError ? err.message : "Ошибка сброса маппингов",
+      };
     }
   });
 }

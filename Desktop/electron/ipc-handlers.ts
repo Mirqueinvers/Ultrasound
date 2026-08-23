@@ -1,14 +1,17 @@
 // ultrasound/frontend/electron/ipc-handlers.ts
+// Этап 2.2: обработчики IPC делегируют запросы центральному API-серверу (Server/).
+// Интерфейс `window.api.*` для Renderer сохранён без изменений.
 import { app, ipcMain, BrowserWindow, dialog } from "electron";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { URL } from "node:url";
-import { DatabaseManager } from "./database/database";
-import type { CachedRegistryAppointment } from "./database/registryAppointmentRepository";
+import {
+  apiClient,
+  ApiError,
+} from "./apiClient";
+import { loadServerConfig, saveAuthToken, saveServerConfig } from "./apiConfig";
 
 export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
-  const db = DatabaseManager.getInstance();
-
   // ==================== AUTH HANDLERS ====================
 
   ipcMain.handle(
@@ -22,19 +25,71 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         organization,
       }: { username: string; password: string; name: string; organization?: string }
     ) => {
-      return await db.users.registerUser(username, password, name, organization);
+      try {
+        const result = await apiClient.auth.register({
+          username,
+          password,
+          name,
+          organization,
+        });
+        return {
+          success: true,
+          message: result.message ?? "Регистрация успешна",
+          userId: result.data?.userId,
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message: err instanceof ApiError ? err.message : "Ошибка при регистрации",
+        };
+      }
     }
   );
 
   ipcMain.handle(
     "auth:login",
     async (_, { username, password }: { username: string; password: string }) => {
-      return await db.users.loginUser(username, password);
+      try {
+        const result = await apiClient.auth.login({ username, password });
+        apiClient.setToken(result.token);
+        await saveAuthToken(result.token);
+        await saveServerConfig({ lastLoginUsername: username });
+        return {
+          success: true,
+          message: result.message ?? "Вход выполнен успешно",
+          user: {
+            id: result.user.id,
+            username: result.user.username,
+            name: result.user.name,
+            organization: result.user.organization,
+          },
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message: err instanceof ApiError ? err.message : "Ошибка при входе",
+        };
+      }
     }
   );
 
-  ipcMain.handle("auth:getUser", async (_, userId: number) => {
-    return db.users.getUserById(userId);
+  ipcMain.handle("auth:getUser", async (_, userId: string) => {
+    try {
+      const me = await apiClient.auth.getMe();
+      // Сервер возвращает текущего пользователя по токену; сверяем с запрошенным id.
+      if (me && me.id === userId) {
+        return {
+          id: me.id,
+          username: me.username,
+          name: me.name,
+          organization: me.organization,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error("auth:getUser error:", err);
+      return null;
+    }
   });
 
   ipcMain.handle(
@@ -46,9 +101,29 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         name,
         username,
         organization,
-      }: { id: number; name: string; username: string; organization?: string }
+      }: { id: string; name: string; username: string; organization?: string }
     ) => {
-      return await db.users.updateUser(id, name, username, organization);
+      try {
+        const me = await apiClient.auth.getMe();
+        if (!me || me.id !== id) {
+          return { success: false, message: "Пользователь не найден" };
+        }
+        const result = await apiClient.auth.updateProfile({
+          name,
+          username,
+          organization: organization ?? null,
+        });
+        return {
+          success: true,
+          message: result.message ?? "Профиль успешно обновлён",
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при обновлении профиля",
+        };
+      }
     }
   );
 
@@ -60,9 +135,28 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         userId,
         currentPassword,
         newPassword,
-      }: { userId: number; currentPassword: string; newPassword: string }
+      }: { userId: string; currentPassword: string; newPassword: string }
     ) => {
-      return await db.users.changePassword(userId, currentPassword, newPassword);
+      try {
+        const me = await apiClient.auth.getMe();
+        if (!me || me.id !== userId) {
+          return { success: false, message: "Пользователь не найден" };
+        }
+        const result = await apiClient.auth.changePassword({
+          currentPassword,
+          newPassword,
+        });
+        return {
+          success: true,
+          message: result.message ?? "Пароль успешно изменён",
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при смене пароля",
+        };
+      }
     }
   );
 
@@ -84,28 +178,97 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         dateOfBirth: string;
       }
     ) => {
-      return db.patients.findOrCreatePatient(
-        lastName,
-        firstName,
-        middleName,
-        dateOfBirth
-      );
+      try {
+        const result = await apiClient.patients.findOrCreate({
+          lastName,
+          firstName,
+          middleName,
+          dateOfBirth,
+        });
+        const patient = result.data?.patient;
+        return {
+          success: true,
+          message: result.message ?? "Пациент найден",
+          patient: patient
+            ? {
+                id: patient.id,
+                last_name: patient.last_name,
+                first_name: patient.first_name,
+                middle_name: patient.middle_name ?? undefined,
+                date_of_birth: patient.date_of_birth,
+                created_at: patient.created_at,
+                updated_at: patient.updated_at,
+              }
+            : undefined,
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при поиске/создании пациента",
+        };
+      }
     }
   );
 
-  ipcMain.handle("patient:search", async (_, query: string, limit?: number) => {
-    return db.patients.searchPatients(query, limit);
-  });
+  ipcMain.handle(
+    "patient:search",
+    async (_, query: string, limit?: number) => {
+      try {
+        const result = await apiClient.patients.search(query, limit);
+        return result.patients.map((p) => ({
+          id: p.id,
+          last_name: p.last_name,
+          first_name: p.first_name,
+          middle_name: p.middle_name ?? undefined,
+          date_of_birth: p.date_of_birth,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        }));
+      } catch (err) {
+        console.error("patient:search error:", err);
+        return [];
+      }
+    }
+  );
 
   ipcMain.handle(
     "patient:getAll",
     async (_, limit?: number, offset?: number) => {
-      return db.patients.getAllPatients(limit, offset);
+      try {
+        const result = await apiClient.patients.getAll(limit, offset);
+        return result.patients.map((p) => ({
+          id: p.id,
+          last_name: p.last_name,
+          first_name: p.first_name,
+          middle_name: p.middle_name ?? undefined,
+          date_of_birth: p.date_of_birth,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        }));
+      } catch (err) {
+        console.error("patient:getAll error:", err);
+        return [];
+      }
     }
   );
 
-  ipcMain.handle("patient:getById", async (_, id: number) => {
-    return db.patients.findPatientById(id);
+  ipcMain.handle("patient:getById", async (_, id: string) => {
+    try {
+      const patient = await apiClient.patients.getById(id);
+      return {
+        id: patient.id,
+        last_name: patient.last_name,
+        first_name: patient.first_name,
+        middle_name: patient.middle_name ?? undefined,
+        date_of_birth: patient.date_of_birth,
+        created_at: patient.created_at,
+        updated_at: patient.updated_at,
+      };
+    } catch (err) {
+      console.error("patient:getById error:", err);
+      return undefined;
+    }
   });
 
   ipcMain.handle(
@@ -119,25 +282,45 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         middleName,
         dateOfBirth,
       }: {
-        id: number;
+        id: string;
         lastName: string;
         firstName: string;
         middleName: string | null;
         dateOfBirth: string;
       }
     ) => {
-      return db.patients.updatePatient(
-        id,
-        lastName,
-        firstName,
-        middleName,
-        dateOfBirth
-      );
+      try {
+        await apiClient.patients.update(id, {
+          lastName,
+          firstName,
+          middleName,
+          dateOfBirth,
+        });
+        return { success: true, message: "Данные пациента обновлены" };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при обновлении данных пациента",
+        };
+      }
     }
   );
 
-  ipcMain.handle("patient:delete", async (_, id: number) => {
-    return db.patients.deletePatient(id);
+  ipcMain.handle("patient:delete", async (_, id: string) => {
+    try {
+      const result = await apiClient.patients.delete(id);
+      return {
+        success: true,
+        message: result.message ?? "Пациент и его исследования удалены",
+      };
+    } catch (err) {
+      return {
+        success: false,
+        message:
+          err instanceof ApiError ? err.message : "Ошибка при удалении пациента",
+      };
+    }
   });
 
   // ==================== RESEARCH HANDLERS ====================
@@ -154,7 +337,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         doctorName,
         notes,
       }: {
-        patientId: number;
+        patientId: string;
         researchDate: string;
         paymentType: "oms" | "paid";
         organization?: string | null;
@@ -162,14 +345,27 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         notes?: string;
       }
     ) => {
-      return db.researches.createResearch(
-        patientId,
-        researchDate,
-        paymentType,
-        organization ?? null,
-        doctorName,
-        notes
-      );
+      try {
+        const result = await apiClient.researches.create({
+          patientId,
+          researchDate,
+          paymentType,
+          organization: organization ?? null,
+          doctorName: doctorName ?? null,
+          notes: notes ?? null,
+        });
+        return {
+          success: true,
+          message: result.message ?? "Исследование создано",
+          researchId: result.data?.researchId,
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при создании исследования",
+        };
+      }
     }
   );
 
@@ -182,30 +378,128 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         studyType,
         studyData,
       }: {
-        researchId: number;
+        researchId: string;
         studyType: string;
         studyData: object;
       }
     ) => {
-      return db.researches.addStudyToResearch(researchId, studyType, studyData);
+      try {
+        const result = await apiClient.researches.addStudy(researchId, {
+          studyType,
+          studyData,
+        });
+        return {
+          success: true,
+          message: result.message ?? "Исследование добавлено",
+          studyId: result.data?.studyId,
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при добавлении исследования",
+        };
+      }
     }
   );
 
-  ipcMain.handle("research:getById", async (_, id: number) => {
-    return db.researches.getResearchById(id);
+  ipcMain.handle("research:getById", async (_, id: string) => {
+    try {
+      const research = await apiClient.researches.getById(id);
+      if (!research) return null;
+      return {
+        id: research.id,
+        patient_id: research.patient_id,
+        research_date: research.research_date,
+        payment_type: research.payment_type,
+        organization: research.organization ?? undefined,
+        doctor_name: research.doctor_name ?? undefined,
+        notes: research.notes ?? undefined,
+        created_at: research.created_at,
+        updated_at: research.updated_at,
+        studies: (research.studies ?? []).map((s) => ({
+          id: s.id,
+          research_id: s.research_id,
+          study_type: s.study_type,
+          study_data: s.study_data,
+          created_at: s.created_at,
+        })),
+      };
+    } catch (err) {
+      console.error("research:getById error:", err);
+      return null;
+    }
   });
 
   ipcMain.handle(
     "research:getByPatientId",
-    async (_, patientId: number, limit?: number, offset?: number) => {
-      return db.researches.getResearchesByPatientId(patientId, limit, offset);
+    async (_, patientId: string, limit?: number, offset?: number) => {
+      try {
+        const result = await apiClient.researches.getByPatientId(
+          patientId,
+          limit,
+          offset
+        );
+        return result.researches.map((research) => ({
+          id: research.id,
+          patient_id: research.patient_id,
+          research_date: research.research_date,
+          payment_type: research.payment_type,
+          organization: research.organization ?? undefined,
+          doctor_name: research.doctor_name ?? undefined,
+          notes: research.notes ?? undefined,
+          created_at: research.created_at,
+          updated_at: research.updated_at,
+          studies: (research.studies ?? []).map((s) => ({
+            id: s.id,
+            research_id: s.research_id,
+            study_type: s.study_type,
+            study_data: s.study_data,
+            created_at: s.created_at,
+          })),
+        }));
+      } catch (err) {
+        console.error("research:getByPatientId error:", err);
+        return [];
+      }
     }
   );
 
   ipcMain.handle(
     "research:getAll",
     async (_, limit?: number, offset?: number) => {
-      return db.researches.getAllResearches(limit, offset);
+      try {
+        const result = await apiClient.researches.getAll(limit, offset);
+        return result.researches.map((research) => ({
+          id: research.id,
+          patient_id: research.patient_id,
+          research_date: research.research_date,
+          payment_type: research.payment_type,
+          organization: research.organization ?? undefined,
+          doctor_name: research.doctor_name ?? undefined,
+          notes: research.notes ?? undefined,
+          created_at: research.created_at,
+          updated_at: research.updated_at,
+          ...(research.patient
+            ? {
+                last_name: research.patient.last_name,
+                first_name: research.patient.first_name,
+                middle_name: research.patient.middle_name,
+                date_of_birth: research.patient.date_of_birth,
+              }
+            : {}),
+          studies: (research.studies ?? []).map((s) => ({
+            id: s.id,
+            research_id: s.research_id,
+            study_type: s.study_type,
+            study_data: s.study_data,
+            created_at: s.created_at,
+          })),
+        }));
+      } catch (err) {
+        console.error("research:getAll error:", err);
+        return [];
+      }
     }
   );
 
@@ -221,7 +515,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         doctorName,
         notes,
       }: {
-        id: number;
+        id: string;
         researchDate?: string;
         paymentType?: "oms" | "paid";
         organization?: string | null;
@@ -229,43 +523,153 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         notes?: string;
       }
     ) => {
-      return db.researches.updateResearch(
-        id,
-        researchDate,
-        paymentType,
-        organization ?? null,
-        doctorName,
-        notes
-      );
+      try {
+        await apiClient.researches.update(id, {
+          researchDate,
+          paymentType,
+          organization,
+          doctorName,
+          notes,
+        });
+        return { success: true, message: "Исследование обновлено" };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Ошибка при обновлении исследования",
+        };
+      }
     }
   );
 
-  ipcMain.handle("research:delete", async (_, id: number) => {
-    return db.researches.deleteResearch(id);
+  ipcMain.handle("research:delete", async (_, id: string) => {
+    try {
+      const result = await apiClient.researches.delete(id);
+      return {
+        success: true,
+        message: result.message ?? "Исследование удалено",
+      };
+    } catch (err) {
+      return {
+        success: false,
+        message:
+          err instanceof ApiError ? err.message : "Ошибка при удалении исследования",
+      };
+    }
   });
 
   ipcMain.handle(
     "research:search",
     async (_, query: string, limit?: number) => {
-      return db.researches.searchResearches(query, limit);
+      try {
+        const result = await apiClient.researches.search(query, limit);
+        return result.researches.map((research) => ({
+          id: research.id,
+          patient_id: research.patient_id,
+          research_date: research.research_date,
+          payment_type: research.payment_type,
+          organization: research.organization ?? undefined,
+          doctor_name: research.doctor_name ?? undefined,
+          notes: research.notes ?? undefined,
+          created_at: research.created_at,
+          updated_at: research.updated_at,
+          ...(research.patient
+            ? {
+                last_name: research.patient.last_name,
+                first_name: research.patient.first_name,
+                middle_name: research.patient.middle_name,
+                date_of_birth: research.patient.date_of_birth,
+              }
+            : {}),
+          studies: (research.studies ?? []).map((s) => ({
+            id: s.id,
+            research_id: s.research_id,
+            study_type: s.study_type,
+            study_data: s.study_data,
+            created_at: s.created_at,
+          })),
+        }));
+      } catch (err) {
+        console.error("research:search error:", err);
+        return [];
+      }
     }
   );
 
   // ==================== JOURNAL HANDLERS ====================
 
   ipcMain.handle("journal:getByDate", async (_, date: string) => {
-    return db.journal.getJournalByDate(date);
+    try {
+      const entries = await apiClient.journal.getByDate(date);
+      return entries.map((entry) => ({
+        patient: {
+          id: entry.patient.id,
+          last_name: entry.patient.last_name,
+          first_name: entry.patient.first_name,
+          middle_name: entry.patient.middle_name ?? undefined,
+          date_of_birth: entry.patient.date_of_birth,
+          created_at: entry.patient.created_at,
+          updated_at: entry.patient.updated_at,
+        },
+        researches: entry.researches.map((r) => ({
+          id: r.id,
+          patient_id: r.patient_id,
+          research_date: r.research_date,
+          payment_type: r.payment_type,
+          doctor_name: r.doctor_name ?? undefined,
+          notes: r.notes ?? undefined,
+          created_at: r.created_at,
+          updated_at: r.updated_at,
+          study_types: r.study_types,
+        })),
+      }));
+    } catch (err) {
+      console.error("journal:getByDate error:", err);
+      return [];
+    }
   });
 
   ipcMain.handle(
     "journal:getByPeriod",
     async (_, startDate: string, endDate: string) => {
-      return db.journal.getJournalByPeriod(startDate, endDate);
+      try {
+        const entries = await apiClient.journal.getByPeriod(startDate, endDate);
+        return entries.map((entry) => ({
+          patient: {
+            id: entry.patient.id,
+            last_name: entry.patient.last_name,
+            first_name: entry.patient.first_name,
+            middle_name: entry.patient.middle_name ?? undefined,
+            date_of_birth: entry.patient.date_of_birth,
+            created_at: entry.patient.created_at,
+            updated_at: entry.patient.updated_at,
+          },
+          researches: entry.researches.map((r) => ({
+            id: r.id,
+            patient_id: r.patient_id,
+            research_date: r.research_date,
+            payment_type: r.payment_type,
+            doctor_name: r.doctor_name ?? undefined,
+            notes: r.notes ?? undefined,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+            study_types: r.study_types,
+          })),
+        }));
+      } catch (err) {
+        console.error("journal:getByPeriod error:", err);
+        return [];
+      }
     }
   );
 
   ipcMain.handle("journal:getDoctorNames", async () => {
-    return db.journal.getDoctorNames();
+    try {
+      return await apiClient.journal.getDoctors();
+    } catch (err) {
+      console.error("journal:getDoctorNames error:", err);
+      return [];
+    }
   });
 
   ipcMain.handle(
@@ -419,17 +823,60 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   );
 
-  // ==================== STATISTICS HANDLERS ====================
+  // ==================== PROTOCOL HANDLERS ====================
 
-  ipcMain.handle("database:getStatistics", async (_, startDate?: string, endDate?: string, doctorName?: string) => {
+  ipcMain.handle("protocol:getByResearchId", async (_event, id: string) => {
     try {
-      const data = db.statistics.getStatistics(startDate, endDate, doctorName);
-      return { success: true, data };
-    } catch (error) {
-      console.error("Statistics error:", error);
-      return { success: false, message: "Ошибка при получении статистики" };
+      return await apiClient.protocol.getByResearchId(id);
+    } catch (err) {
+      console.error("protocol:getByResearchId error:", err);
+      return null;
     }
   });
+
+  ipcMain.handle(
+    "protocol:savePrintOverrides",
+    async (
+      _event,
+      data: { researchId: string; overrides: Record<string, string> }
+    ) => {
+      try {
+        const result = await apiClient.protocol.savePrintOverrides(
+          data.researchId,
+          data.overrides ?? {}
+        );
+        return {
+          success: true,
+          message: result.message ?? "Шаблоны протоколов успешно сохранены.",
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message:
+            err instanceof ApiError ? err.message : "Не удалось сохранить шаблоны протоколов.",
+        };
+      }
+    }
+  );
+
+  // ==================== STATISTICS HANDLERS ====================
+
+  ipcMain.handle(
+    "database:getStatistics",
+    async (_, startDate?: string, endDate?: string, doctorName?: string) => {
+      try {
+        const result = await apiClient.statistics.getStatistics(
+          startDate,
+          endDate,
+          doctorName
+        );
+        return { success: true, data: result.data };
+      } catch (err) {
+        console.error("Statistics error:", err);
+        return { success: false, message: "Ошибка при получении статистики" };
+      }
+    }
+  );
 
   // ==================== WINDOW HANDLERS ====================
 
@@ -501,6 +948,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   });
 
   // ==================== REGISTRY ADDRESSES HANDLERS ====================
+  // Настройки адресов регистратур остаются локальными (этап 2.6 — упрощение).
 
   const registryAddressesFilePath = path.join(
     app.getPath("userData"),
@@ -559,10 +1007,12 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   );
 
   // ==================== REGISTRY APPOINTMENTS CACHE HANDLERS ====================
+  // Кэш записей регистратуры остаётся локальным до этапа 2.6.
 
   ipcMain.handle("registry:getCachedAppointments", async () => {
     try {
-      return db.registryAppointments.getAll();
+      const { DatabaseManager } = await import("./database/database");
+      return DatabaseManager.getInstance().registryAppointments.getAll();
     } catch (error) {
       console.error("Registry appointments cache load error:", error);
       return [];
@@ -571,12 +1021,17 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
 
   ipcMain.handle(
     "registry:saveCachedAppointments",
-    async (_, appointments: CachedRegistryAppointment[]) => {
+    async (_, appointments: unknown[]) => {
       try {
         if (!Array.isArray(appointments)) {
           return { success: false, message: "Некорректные данные для кэша" };
         }
-        db.registryAppointments.replaceAll(appointments);
+        const { DatabaseManager } = await import("./database/database");
+        DatabaseManager.getInstance().registryAppointments.replaceAll(
+          appointments as Parameters<
+            typeof DatabaseManager.prototype.registryAppointments.replaceAll
+          >[0]
+        );
         return { success: true };
       } catch (error) {
         console.error("Registry appointments cache save error:", error);

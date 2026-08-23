@@ -6,7 +6,7 @@ import type { MedisonMappingRow } from "../../../electron/preload";
 import "./ImportMappingTab.css";
 
 interface MappingEntry {
-  id: number | null;
+  id: string | null;
   measurementId: string;
   targetStudyType: string;
   targetField: string;
@@ -35,13 +35,13 @@ const ImportMappingTab: React.FC = () => {
     if (!user) return;
     setLoading(true);
     try {
-      const result = await importMappingService.getMappings(parseInt(user.id));
+      const result = await importMappingService.getMappings(user.id);
       let dbMappings = result.success && result.mappings ? result.mappings : [];
 
       // Если маппингов нет — сбрасываем на дефолтные
       if (dbMappings.length === 0) {
-        await importMappingService.resetDefaultMappings(parseInt(user.id));
-        const retry = await importMappingService.getMappings(parseInt(user.id));
+        await importMappingService.resetDefaultMappings(user.id);
+        const retry = await importMappingService.getMappings(user.id);
         dbMappings = retry.success && retry.mappings ? retry.mappings : [];
       }
 
@@ -72,7 +72,7 @@ const ImportMappingTab: React.FC = () => {
     setSaving(entry.measurementId || "new");
     try {
       const result = await importMappingService.upsertMapping({
-        userId: parseInt(user.id),
+        userId: user.id,
         measurementId: entry.measurementId,
         targetStudyType: entry.targetStudyType,
         targetField: entry.targetField,
@@ -168,7 +168,7 @@ const ImportMappingTab: React.FC = () => {
   const handleResetDefaults = async () => {
     if (!user) return;
     try {
-      const result = await importMappingService.resetDefaultMappings(parseInt(user.id));
+      const result = await importMappingService.resetDefaultMappings(user.id);
       if (result.success) {
         await loadMappings();
         setMessage({ type: "success", text: "Маппинги сброшены на умолчания" });

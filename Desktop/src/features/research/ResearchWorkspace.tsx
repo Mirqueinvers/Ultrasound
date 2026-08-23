@@ -56,7 +56,7 @@ const ResearchWorkspace: React.FC<ResearchWorkspaceProps> = ({
   const [paymentType, setPaymentType] = React.useState<"oms" | "paid">("oms");
   const [isPrintModalOpen, setIsPrintModalOpen] = React.useState(false);
   const [printAutoToken, setPrintAutoToken] = React.useState<string | null>(null);
-  const [currentResearchId, setCurrentResearchId] = React.useState<number | null>(null);
+  const [currentResearchId, setCurrentResearchId] = React.useState<string | null>(null);
 
   useClearStaleStudies(selectedStudies, studiesData, clearStudyData);
 
@@ -78,7 +78,7 @@ const ResearchWorkspace: React.FC<ResearchWorkspaceProps> = ({
     researchDate,
     selectedStudies,
     studiesData,
-    onSaved: (researchId: number) => {
+    onSaved: (researchId: string) => {
       setCurrentResearchId(researchId);
       if (mobileSaveRequestAt) {
         void mobileHostService.publishSync({

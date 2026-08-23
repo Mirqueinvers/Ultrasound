@@ -15,7 +15,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (storedUserId && authService.isAvailable()) {
           // Загружаем данные пользователя из БД
-          const userData = await authService.getUser(parseInt(storedUserId));
+          const userData = await authService.getUser(storedUserId);
 
           if (userData) {
             const user: User = {
@@ -156,7 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Перезагружаем данные из БД для синхронизации
     if (authService.isAvailable() && updatedUser.id) {
       try {
-        const userData = await authService.getUser(parseInt(updatedUser.id));
+        const userData = await authService.getUser(updatedUser.id);
         if (userData) {
           const freshUser: User = {
             id: userData.id.toString(),

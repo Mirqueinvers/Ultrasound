@@ -51,7 +51,7 @@ export default function MedisonAutoImport() {
   });
 
   useMedisonImport({
-    userId: user ? parseInt(user.id) : undefined,
+    userId: user ? user.id : undefined,
     onDataReady: (data) => {
       console.log("MedisonAutoImport: получены данные", {
         keys: Object.keys(data),

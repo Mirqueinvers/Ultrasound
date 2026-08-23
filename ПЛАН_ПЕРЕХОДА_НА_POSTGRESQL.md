@@ -585,18 +585,18 @@ volumes:
 
 ## 10. Порядок работ (чек-лист)
 
-- [ ] **Этап 1.1** — Создать `Server/`: package.json, tsconfig, Express, Prisma.
-- [ ] **Этап 1.2** — Написать `schema.prisma` и прогонить `prisma migrate dev`.
-- [ ] **Этап 1.3** — Поднять PostgreSQL через Docker Compose.
-- [ ] **Этап 1.4** — Реализовать модуль Auth (JWT).
-- [ ] **Этап 1.5** — Реализовать Patients + Researches + Journal + Protocol.
-- [ ] **Этап 1.6** — Реализовать Statistics (перевод `strftime` → `to_char`).
-- [ ] **Этап 1.7** — Реализовать Medison-mappings.
-- [ ] **Этап 1.8** — Реализовать Appointments + Doctors (Registry).
-- [ ] **Этап 1.9** — Написать `scripts/migrate-local-dbs.ts` (только `ultrasound.db`).
-- [ ] **Этап 1.10** — Написать интеграционные тесты API.
+- [x] **Этап 1.1** — Создать `Server/`: package.json, tsconfig, Express, Prisma.
+- [x] **Этап 1.2** — Написать `schema.prisma` и прогонить `prisma migrate dev`.
+- [x] **Этап 1.3** — Поднять PostgreSQL через Docker Compose.
+- [x] **Этап 1.4** — Реализовать модуль Auth (JWT).
+- [x] **Этап 1.5** — Реализовать Patients + Researches + Journal + Protocol.
+- [x] **Этап 1.6** — Реализовать Statistics (перевод `strftime` → `to_char`).
+- [x] **Этап 1.7** — Реализовать Medison-mappings.
+- [x] **Этап 1.8** — Реализовать Appointments + Doctors (Registry).
+- [x] **Этап 1.9** — Написать `scripts/migrate-local-dbs.ts` (только `ultrasound.db`).
+- [x] **Этап 1.10** — Написать интеграционные тесты API.
 - [x] **Этап 2.1** — Создать apiClient в Desktop.
-- [ ] **Этап 2.2** — Переписать `ipc-handlers.ts` и `medisonMappingIpc.ts` на API.
+- [x] **Этап 2.2** — Переписать `ipc-handlers.ts` и `medisonMappingIpc.ts` на API.
 - [ ] **Этап 2.3** — Добавить офлайн-кэш и очередь операций.
 - [ ] **Этап 2.4** — Удалить репозитории `better-sqlite3` и старый слой БД.
 - [ ] **Этап 2.5** — Настройка адреса сервера в Desktop, экран входа.

@@ -98,7 +98,7 @@ interface PrintableProtocolProps {
   editMode?: boolean;
   onSave?: () => void;
   onReady?: () => void;
-  researchId?: number | null;
+  researchId?: string | null;
 }
 
 const PrintableProtocol = React.forwardRef<PrintableProtocolHandle, PrintableProtocolProps>((props, ref) => {

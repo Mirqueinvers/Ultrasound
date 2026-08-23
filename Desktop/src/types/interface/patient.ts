@@ -1,7 +1,7 @@
 // c:/Projects/Ultrasound/Frontend/src/types/interface/patient.ts
 
 export interface Patient {
-  id: number;
+  id: string;
   last_name: string;
   first_name: string;
   middle_name?: string;
@@ -11,8 +11,8 @@ export interface Patient {
 }
 
 export interface Research {
-  id: number;
-  patient_id: number;
+  id: string;
+  patient_id: string;
   research_date: string;
   payment_type: "oms" | "paid";
   doctor_name?: string;
@@ -32,7 +32,7 @@ export interface PatientCardProps {
   researches: Research[];
   isExpanded: boolean;
   onToggle: () => void;
-  onOpenProtocol: (researchId: number) => void;
+  onOpenProtocol: (researchId: string) => void;
   formatPatientName: (p: Patient) => string;
   formatDateRu: (value: string) => string;
 }

@@ -72,7 +72,7 @@ const Journal: React.FC = () => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [printResearchId, setPrintResearchId] = useState<number | null>(null);
+  const [printResearchId, setPrintResearchId] = useState<string | null>(null);
   const [isPrintSavedOpen, setIsPrintSavedOpen] = useState(false);
 
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
@@ -93,7 +93,7 @@ const Journal: React.FC = () => {
     [entries],
   );
 
-  const handleDeleteResearch = async (researchId: number) => {
+  const handleDeleteResearch = async (researchId: string) => {
     try {
       await researchService.delete(researchId);
 
@@ -112,7 +112,7 @@ const Journal: React.FC = () => {
     }
   };
 
-  const openProtocol = (researchId: number) => {
+  const openProtocol = (researchId: string) => {
     setPrintResearchId(researchId);
     setIsPrintSavedOpen(true);
   };

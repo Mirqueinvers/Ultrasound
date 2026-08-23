@@ -19,7 +19,7 @@ export const EditPatientModal: React.FC<Props> = ({
   onDelete,
 }) => {
   const [form, setForm] = useState<Patient>({
-    id: 0,
+    id: "",
     last_name: "",
     first_name: "",
     middle_name: "",

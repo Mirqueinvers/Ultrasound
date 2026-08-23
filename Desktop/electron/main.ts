@@ -50,7 +50,7 @@ function createWindow() {
   setAutoUpdaterWindow(mainWindow);
 
   setupAuthHandlers(mainWindow);
-  setupProtocolHandlers(dbManager.protocol);
+  setupProtocolHandlers();
   setupMobileHostHandlers();
   setupMedisonHandlers((payload) => {
     if (mainWindow && !mainWindow.isDestroyed()) {

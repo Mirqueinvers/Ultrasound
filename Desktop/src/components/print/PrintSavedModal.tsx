@@ -5,7 +5,7 @@ import { protocolService } from "@services";
 interface PrintSavedModalProps {
   isOpen: boolean;
   onClose: () => void;
-  researchId: number | null;
+  researchId: string | null;
 }
 
 const buildPrintableHtml = (root: HTMLElement, title: string) => {

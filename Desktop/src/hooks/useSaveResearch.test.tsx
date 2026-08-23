@@ -61,7 +61,7 @@ describe("useSaveResearch", () => {
       success: true,
       message: "ОК",
       patient: {
-        id: 1,
+        id: "1",
         last_name: "Иванов",
         first_name: "Иван",
         middle_name: "Иванович",
@@ -73,12 +73,12 @@ describe("useSaveResearch", () => {
     vi.mocked(researchService.create).mockResolvedValue({
       success: true,
       message: "ОК",
-      researchId: 42,
+      researchId: "42",
     });
     vi.mocked(researchService.addStudy).mockResolvedValue({
       success: true,
       message: "ОК",
-      studyId: 1,
+      studyId: "1",
     });
   });
 
@@ -96,11 +96,11 @@ describe("useSaveResearch", () => {
     expect(result.current.isSavedSuccessfully).toBe(true);
     expect(result.current.saveMessage?.type).toBe("success");
     expect(result.current.saveMessage?.text).toContain("42");
-    expect(onSaved).toHaveBeenCalledWith(42);
+    expect(onSaved).toHaveBeenCalledWith("42");
     expect(patientService.findOrCreate).toHaveBeenCalled();
     expect(researchService.create).toHaveBeenCalled();
     expect(researchService.addStudy).toHaveBeenCalledWith({
-      researchId: 42,
+      researchId: "42",
       studyType: "ОБП",
       studyData: { freeFluid: "не определяется" },
     });

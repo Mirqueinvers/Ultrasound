@@ -81,8 +81,8 @@ interface StudyBlockDefinition extends StudyEditorSection {
 }
 
 type PrintableSavedProtocolProps = {
-  researchId: number;
-  onReady?: (researchId: number) => void;
+  researchId: string;
+  onReady?: (researchId: string) => void;
   editMode?: boolean;
   onSave?: () => void;
 };

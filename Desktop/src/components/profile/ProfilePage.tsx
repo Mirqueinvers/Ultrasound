@@ -31,7 +31,7 @@ const ProfilePage: React.FC = () => {
       }
 
       const response = await authService.updateUser({
-        id: parseInt(user!.id),
+        id: user!.id,
         name: editedName,
         username: editedEmail,
         organization: editedOrganization || undefined,
@@ -80,7 +80,7 @@ const ProfilePage: React.FC = () => {
       }
 
       const response = await authService.changePassword({
-        userId: parseInt(user!.id),
+        userId: user!.id,
         currentPassword,
         newPassword,
       });

@@ -26,11 +26,11 @@ export function SearchSection() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [expandedPatientIds, setExpandedPatientIds] = useState<number[]>([]);
-  const [printResearchId, setPrintResearchId] = useState<number | null>(null);
+  const [expandedPatientIds, setExpandedPatientIds] = useState<string[]>([]);
+  const [printResearchId, setPrintResearchId] = useState<string | null>(null);
   const [isPrintSavedOpen, setIsPrintSavedOpen] = useState(false);
 
-  const toggleExpanded = (patientId: number) => {
+  const toggleExpanded = (patientId: string) => {
     setExpandedPatientIds((prev) =>
       prev.includes(patientId)
         ? prev.filter((id) => id !== patientId)
@@ -38,7 +38,7 @@ export function SearchSection() {
     );
   };
 
-  const openProtocol = (researchId: number) => {
+  const openProtocol = (researchId: string) => {
     setPrintResearchId(researchId);
     setIsPrintSavedOpen(true);
   };

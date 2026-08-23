@@ -8,7 +8,7 @@ interface UseSaveResearchParams {
   researchDate: string;
   selectedStudies: string[];
   studiesData: Record<string, unknown>;
-  onSaved?: (researchId: number) => void;
+  onSaved?: (researchId: string) => void;
 }
 
 interface SaveMessage {

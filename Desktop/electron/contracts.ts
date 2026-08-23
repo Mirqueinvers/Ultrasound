@@ -1,18 +1,21 @@
 // Единый источник IPC-контрактов для Desktop.
 // Все интерфейсы API и доменные типы живут только здесь.
 // preload.ts, src/types/global.d.ts и сервисы импортируют из этого файла.
+//
+// ВАЖНО (Этап 2.2): переход на центральный PostgreSQL → все id — UUID-строки.
+// Репозитории better-sqlite3 (числовые id) будут удалены на этапе 2.4.
 
 // ========== ДОМЕННЫЕ ТИПЫ ==========
 
 export interface AuthUser {
-  id: number;
+  id: string;
   username: string;
   name: string;
   organization?: string | null;
 }
 
 export interface Patient {
-  id: number;
+  id: string;
   last_name: string;
   first_name: string;
   middle_name?: string;
@@ -22,8 +25,8 @@ export interface Patient {
 }
 
 export interface Research {
-  id: number;
-  patient_id: number;
+  id: string;
+  patient_id: string;
   research_date: string;
   payment_type: "oms" | "paid";
   organization?: string | null;
@@ -34,8 +37,8 @@ export interface Research {
 }
 
 export interface ResearchStudy {
-  id: number;
-  research_id: number;
+  id: string;
+  research_id: string;
   study_type: string;
   study_data: unknown;
   created_at: string;
@@ -47,7 +50,7 @@ export interface JournalEntry {
 }
 
 export interface SavedProtocol {
-  researchId: number;
+  researchId: string;
   studies: { [studyType: string]: unknown };
   printOverrides: Record<string, string>;
 }
@@ -75,8 +78,8 @@ export interface MobileHostStatus {
 }
 
 export interface MedisonMappingRow {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   measurement_id: string;
   target_study_type: string;
   target_field: string;
@@ -91,6 +94,8 @@ export interface RegistryAddress {
   ip: string;
 }
 
+// Кэш записей регистратуры. Имеет собственные локальные числовые id
+// (таблица registry_appointments удаляется на этапе 2.6 — пока не меняем).
 export interface CachedRegistryAppointment {
   sourceIp: string;
   sourceName: string;
@@ -133,7 +138,7 @@ export interface AuthAPI {
   }) => Promise<{
     success: boolean;
     message: string;
-    userId?: number;
+    userId?: string;
   }>;
   login: (data: {
     username: string;
@@ -143,9 +148,9 @@ export interface AuthAPI {
     message: string;
     user?: AuthUser | null;
   }>;
-  getUser: (userId: number) => Promise<AuthUser | null>;
+  getUser: (userId: string) => Promise<AuthUser | null>;
   updateUser: (data: {
-    id: number;
+    id: string;
     name: string;
     username: string;
     organization?: string;
@@ -154,7 +159,7 @@ export interface AuthAPI {
     message: string;
   }>;
   changePassword: (data: {
-    userId: number;
+    userId: string;
     currentPassword: string;
     newPassword: string;
   }) => Promise<{
@@ -178,9 +183,9 @@ export interface PatientAPI {
   }>;
   search: (query: string, limit?: number) => Promise<Patient[]>;
   getAll: (limit?: number, offset?: number) => Promise<Patient[]>;
-  getById: (id: number) => Promise<Patient | undefined>;
+  getById: (id: string) => Promise<Patient | undefined>;
   update: (data: {
-    id: number;
+    id: string;
     lastName: string;
     firstName: string;
     middleName: string | null;
@@ -189,7 +194,7 @@ export interface PatientAPI {
     success: boolean;
     message: string;
   }>;
-  delete: (id: number) => Promise<{
+  delete: (id: string) => Promise<{
     success: boolean;
     message: string;
   }>;
@@ -197,7 +202,7 @@ export interface PatientAPI {
 
 export interface ResearchAPI {
   create: (data: {
-    patientId: number;
+    patientId: string;
     researchDate: string;
     paymentType: "oms" | "paid";
     organization?: string | null;
@@ -206,26 +211,26 @@ export interface ResearchAPI {
   }) => Promise<{
     success: boolean;
     message: string;
-    researchId?: number;
+    researchId?: string;
   }>;
   addStudy: (data: {
-    researchId: number;
+    researchId: string;
     studyType: string;
     studyData: object;
   }) => Promise<{
     success: boolean;
     message: string;
-    studyId?: number;
+    studyId?: string;
   }>;
-  getById: (id: number) => Promise<Research | null>;
+  getById: (id: string) => Promise<Research | null>;
   getByPatientId: (
-    patientId: number,
+    patientId: string,
     limit?: number,
     offset?: number,
   ) => Promise<Research[]>;
   getAll: (limit?: number, offset?: number) => Promise<Research[]>;
   update: (data: {
-    id: number;
+    id: string;
     researchDate?: string;
     paymentType?: "oms" | "paid";
     organization?: string | null;
@@ -235,7 +240,7 @@ export interface ResearchAPI {
     success: boolean;
     message: string;
   }>;
-  delete: (id: number) => Promise<{
+  delete: (id: string) => Promise<{
     success: boolean;
     message: string;
   }>;
@@ -277,17 +282,17 @@ export interface MedisonAPI {
 }
 
 export interface ImportMappingAPI {
-  getMappings: (userId: number) => Promise<{ success: boolean; mappings?: MedisonMappingRow[]; message?: string }>;
+  getMappings: (userId: string) => Promise<{ success: boolean; mappings?: MedisonMappingRow[]; message?: string }>;
   upsertMapping: (data: {
-    userId: number;
+    userId: string;
     measurementId: string;
     targetStudyType: string;
     targetField: string;
     transform: string;
     isEnabled: boolean;
-  }) => Promise<{ success: boolean; id?: number; message?: string }>;
-  deleteMapping: (id: number) => Promise<{ success: boolean; message?: string }>;
-  resetDefaultMappings: (userId: number) => Promise<{ success: boolean; message?: string }>;
+  }) => Promise<{ success: boolean; id?: string; message?: string }>;
+  deleteMapping: (id: string) => Promise<{ success: boolean; message?: string }>;
+  resetDefaultMappings: (userId: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 // ========== PROTOCOL API ==========
@@ -298,7 +303,7 @@ export interface ProtocolAPI {
     printers: PrinterInfo[];
     message?: string;
   }>;
-  getByResearchId: (id: number) => Promise<SavedProtocol | null>;
+  getByResearchId: (id: string) => Promise<SavedProtocol | null>;
   printHtml: (data: {
     content: string;
     title?: string;
@@ -308,7 +313,7 @@ export interface ProtocolAPI {
     message?: string;
   }>;
   savePrintOverrides: (data: {
-    researchId: number;
+    researchId: string;
     overrides: Record<string, string>;
   }) => Promise<{
     success: boolean;
@@ -335,6 +340,8 @@ export interface DefaultsAPI {
 }
 
 // ========== REGISTRY API ==========
+// Работает только с локальным кэшем записей регистратур и адресами.
+// Не меняется на этапе 2.2 (кэш удаляется на этапе 2.6).
 
 export interface RegistryAPI {
   getAddresses: () => Promise<RegistryAddress[]>;

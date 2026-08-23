@@ -119,7 +119,7 @@ const patientSearchAPI: PatientSearchAPI = {
       }
     >;
 
-    const byPatient = new Map<number, PatientSearchEntry>();
+    const byPatient = new Map<string, PatientSearchEntry>();
 
     for (const r of researches) {
       if (!byPatient.has(r.patient_id)) {

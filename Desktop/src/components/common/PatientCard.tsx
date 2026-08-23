@@ -55,9 +55,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 export interface PatientCardProps {
   patient: Patient;
   researches: Research[];
-  onOpenProtocol: (researchId: number) => void;
+  onOpenProtocol: (researchId: string) => void;
   onEditPatient?: () => void;
-  onDeleteResearch?: (researchId: number) => void;
+  onDeleteResearch?: (researchId: string) => void;
   formatPatientName: (p: Patient) => string;
   formatDateRu: (value: string) => string;
   showResearchDate?: boolean;
@@ -80,9 +80,9 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   const paidCount = totalResearches - omsCount;
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [researchToDelete, setResearchToDelete] = React.useState<number | null>(null);
+  const [researchToDelete, setResearchToDelete] = React.useState<string | null>(null);
 
-  const handleDeleteResearchClick = (researchId: number) => {
+  const handleDeleteResearchClick = (researchId: string) => {
     setResearchToDelete(researchId);
     setIsDeleteDialogOpen(true);
   };

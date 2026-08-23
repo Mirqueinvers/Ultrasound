@@ -30,7 +30,7 @@ interface UsePrintableOverridesOptions {
   /** Список исследований для протокола */
   studyDefinitions: PrintStudyDefinition[];
   /** ID исследования (если есть) — для сохранения в БД */
-  researchId?: number | null;
+  researchId?: string | null;
   /** Колбэк после успешного сохранения */
   onSave?: () => void;
   /** Требовать успешный ответ БД (иначе молча продолжаем с локальным сохранением) */

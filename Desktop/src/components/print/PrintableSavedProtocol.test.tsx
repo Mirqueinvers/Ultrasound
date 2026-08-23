@@ -28,14 +28,14 @@ describe("PrintableSavedProtocol (снапшот печати)", () => {
     localStorage.setItem("userId", "1");
 
     windowMocks.authAPI.getUser.mockResolvedValue({
-      id: 1,
+      id: "1",
       username: "doctor@example.com",
       name: "Иванов Иван Иванович",
       organization: "ГБУЗ №1",
     });
 
     windowMocks.protocolAPI.getByResearchId.mockResolvedValue({
-      researchId: 1,
+      researchId: "1",
       studies: {
         [STUDY_KEYS.OBP]: obpProtocolFixture,
         [STUDY_KEYS.KIDNEYS]: kidneyProtocolFixture,
@@ -45,8 +45,8 @@ describe("PrintableSavedProtocol (снапшот печати)", () => {
 
     windowMocks.researchAPI.getById.mockResolvedValue(
       makeResearch({
-        id: 1,
-        patient_id: 1,
+        id: "1",
+        patient_id: "1",
         research_date: "2026-01-15T00:00:00",
         doctor_name: "Иванов Иван Иванович",
         organization: "ГБУЗ №1",
@@ -55,7 +55,7 @@ describe("PrintableSavedProtocol (снапшот печати)", () => {
 
     windowMocks.patientAPI.getById.mockResolvedValue(
       makePatient({
-        id: 1,
+        id: "1",
         last_name: "Иванов",
         first_name: "Иван",
         middle_name: "Иванович",
@@ -71,7 +71,7 @@ describe("PrintableSavedProtocol (снапшот печати)", () => {
 
   it("загружает сохранённый протокол и рендерит стабильный HTML-снапшот", async () => {
     const { container } = renderWithPrintProviders(
-      <PrintableSavedProtocol researchId={1} />,
+      <PrintableSavedProtocol researchId="1" />,
     );
 
     // Дожидаемся завершения асинхронной загрузки данных и появления печатного HTML.

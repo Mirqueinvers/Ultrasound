@@ -5,7 +5,7 @@ import type { ProtocolAPI } from "../../../electron/preload";
  */
 export const protocolService = {
   getPrinters: () => window.protocolAPI.getPrinters(),
-  getByResearchId: (id: number) => window.protocolAPI.getByResearchId(id),
+  getByResearchId: (id: string) => window.protocolAPI.getByResearchId(id),
   printHtml: (data: Parameters<ProtocolAPI["printHtml"]>[0]) =>
     window.protocolAPI.printHtml(data),
   savePrintOverrides: (data: Parameters<ProtocolAPI["savePrintOverrides"]>[0]) =>

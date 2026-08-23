@@ -7,7 +7,7 @@ interface PrintModalProps {
   onClose: () => void;
   autoPrintToken?: string | null;
   initialEditMode?: boolean;
-  researchId?: number | null;
+  researchId?: string | null;
 }
 
 const buildPrintableHtml = (root: HTMLElement, title: string) => {

@@ -11,13 +11,13 @@ import { journalService } from "@services";
 type ExportMode = "date" | "period";
 
 type FailedExport = {
-  researchId: number;
+  researchId: string;
   patientName: string;
   researchDate: string;
 };
 
 type ExportResearchMeta = Record<
-  number,
+  string,
   {
     patientName: string;
     researchDate: string;
@@ -71,7 +71,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, journalDate 
   const [isPreparingExport, setIsPreparingExport] = useState(false);
 
   // Шаг 2: экспорт
-  const [exportResearchIds, setExportResearchIds] = useState<number[]>([]);
+  const [exportResearchIds, setExportResearchIds] = useState<string[]>([]);
   const [exportResearchMeta, setExportResearchMeta] = useState<ExportResearchMeta>({});
   const [exportFileName, setExportFileName] = useState("uzi-protocols.html");
   const [failedExports, setFailedExports] = useState<FailedExport[]>([]);
