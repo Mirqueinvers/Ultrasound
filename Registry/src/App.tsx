@@ -259,7 +259,7 @@ export default function App() {
   }, [editingAppointment, removeAppointment, addToast]);
 
   const handleDeleteFromCard = useCallback(
-    (id: number) => {
+    (id: string) => {
       setConfirm({
         title: "Удалить запись",
         message: "Вы уверены, что хотите удалить эту запись?",

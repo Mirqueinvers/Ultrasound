@@ -1,15 +1,14 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
-import { initDb } from "./db";
 import { corsMiddleware } from "./api/middleware/cors";
 import { apiConfig } from "./api/config";
 import appointmentsRouter from "./api/routes/appointments";
 import doctorsRouter from "./api/routes/doctors";
 
 export async function startApiServer() {
-  // Этап 3.2: initDb больше не создаёт локальную БД sql.js — настраивает
-  // адрес центрального API и входит сервисной учёткой регистратуры.
-  await initDb();
+  // Этап 3.2: initDb больше не создаёт локальную БД sql.js.
+  // Этап 3.3: авторизация сервисной учётки выполняется в electron/main.ts
+  // (await initDb()) ДО старта этого сервера, поэтому здесь initDb не вызывается.
 
   const app = express();
   app.use(express.json());

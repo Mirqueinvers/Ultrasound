@@ -5,15 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startApiServer = startApiServer;
 const express_1 = __importDefault(require("express"));
-const db_1 = require("./db");
 const cors_1 = require("./api/middleware/cors");
 const config_1 = require("./api/config");
 const appointments_1 = __importDefault(require("./api/routes/appointments"));
 const doctors_1 = __importDefault(require("./api/routes/doctors"));
 async function startApiServer() {
-    // Этап 3.2: initDb больше не создаёт локальную БД sql.js — настраивает
-    // адрес центрального API и входит сервисной учёткой регистратуры.
-    await (0, db_1.initDb)();
+    // Этап 3.2: initDb больше не создаёт локальную БД sql.js.
+    // Этап 3.3: авторизация сервисной учётки выполняется в electron/main.ts
+    // (await initDb()) ДО старта этого сервера, поэтому здесь initDb не вызывается.
     const app = (0, express_1.default)();
     app.use(express_1.default.json());
     app.use(cors_1.corsMiddleware);

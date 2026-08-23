@@ -1,12 +1,30 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Doctor, DoctorFormData } from "../types";
-import {
-  fetchDoctors as apiFetchDoctors,
-  createDoctor as apiCreate,
-  updateDoctor as apiUpdate,
-  deleteDoctor as apiDelete,
-} from "../services/api";
 import { getDayOfWeek } from "../utils/date";
+
+/**
+ * Этап 3.3: данные загружаются через IPC-мост window.registryAPI
+ * (см. electron/registryIpc.ts), который работает с центральным API.
+ * Локальный HTTP-сервер Registry (services/api.ts) больше не используется.
+ */
+function getRegistryApi(): NonNullable<Window["registryAPI"]> {
+  if (!window.registryAPI) {
+    throw new Error("registryAPI недоступен: приложение запущено вне Electron");
+  }
+  return window.registryAPI;
+}
+
+function parseWorkDays(raw: string): number[] {
+  try {
+    const parsed: unknown = JSON.parse(raw || "[1,2,3,4,5]");
+    if (Array.isArray(parsed)) {
+      return parsed.filter((d): d is number => typeof d === "number");
+    }
+  } catch {
+    // Не JSON — используем будни по умолчанию
+  }
+  return [1, 2, 3, 4, 5];
+}
 
 export function useDoctors() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -17,12 +35,13 @@ export function useDoctors() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetchDoctors();
-      const mapped: Doctor[] = data.map((d: any) => ({
-        id: String(d.id),
+      const api = getRegistryApi();
+      const data = await api.getDoctors();
+      const mapped: Doctor[] = data.map((d) => ({
+        id: d.id,
         name: d.name,
         maxPatientsPerDay: d.max_patients_per_day,
-        workDays: JSON.parse(d.work_days || "[1,2,3,4,5]"),
+        workDays: parseWorkDays(d.work_days),
       }));
       setDoctors(mapped);
     } catch (err) {
@@ -40,7 +59,8 @@ export function useDoctors() {
 
   const createDoctor = async (data: DoctorFormData): Promise<boolean> => {
     try {
-      await apiCreate(data);
+      const api = getRegistryApi();
+      await api.createDoctor(data.name, data.maxPatientsPerDay, data.workDays);
       await fetchDoctors();
       return true;
     } catch (err) {
@@ -56,7 +76,8 @@ export function useDoctors() {
     data: DoctorFormData
   ): Promise<boolean> => {
     try {
-      await apiUpdate(id, data);
+      const api = getRegistryApi();
+      await api.updateDoctor(id, data.name, data.maxPatientsPerDay, data.workDays);
       await fetchDoctors();
       return true;
     } catch (err) {
@@ -69,7 +90,8 @@ export function useDoctors() {
 
   const removeDoctor = async (id: string): Promise<boolean> => {
     try {
-      await apiDelete(id);
+      const api = getRegistryApi();
+      await api.deleteDoctor(id);
       await fetchDoctors();
       return true;
     } catch (err) {

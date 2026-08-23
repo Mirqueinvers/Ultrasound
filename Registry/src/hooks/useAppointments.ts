@@ -2,12 +2,18 @@ import { useState, useEffect, useCallback } from "react";
 import type { Appointment, PatientFormData } from "../types";
 import { toApiDate } from "../utils/date";
 import { getDepartment } from "../utils/patient";
-import {
-  fetchAppointmentsByMonth,
-  createAppointment as apiCreate,
-  updateAppointment as apiUpdate,
-  deleteAppointment as apiDelete,
-} from "../services/api";
+
+/**
+ * Этап 3.3: данные загружаются через IPC-мост window.registryAPI
+ * (см. electron/registryIpc.ts), который работает с центральным API.
+ * Локальный HTTP-сервер Registry (services/api.ts) больше не используется.
+ */
+function getRegistryApi(): NonNullable<Window["registryAPI"]> {
+  if (!window.registryAPI) {
+    throw new Error("registryAPI недоступен: приложение запущено вне Electron");
+  }
+  return window.registryAPI;
+}
 
 export function useAppointments(date: string) {
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
@@ -19,11 +25,12 @@ export function useAppointments(date: string) {
     setLoading(true);
     setError(null);
     try {
+      const api = getRegistryApi();
       const parts = date.split(".");
       if (parts.length === 3) {
         const month = parseInt(parts[1]) - 1;
         const year = parseInt(parts[2]);
-        const data = await fetchAppointmentsByMonth(month, year);
+        const data = await api.getAppointmentsByMonth(month, year);
         setAllAppointments(data);
       } else {
         setAllAppointments([]);
@@ -50,11 +57,18 @@ export function useAppointments(date: string) {
     data: PatientFormData
   ): Promise<boolean> => {
     try {
-      await apiCreate({
-        ...data,
-        appointmentDate: toApiDate(date),
-        department: getDepartment(),
-      });
+      const api = getRegistryApi();
+      await api.createAppointment(
+        {
+          last_name: data.lastName,
+          first_name: data.firstName,
+          middle_name: data.middleName,
+          date_of_birth: data.dateOfBirth,
+          department: getDepartment(),
+        },
+        toApiDate(date),
+        data.studies
+      );
       await fetchAppointments();
       return true;
     } catch (err) {
@@ -66,11 +80,21 @@ export function useAppointments(date: string) {
   };
 
   const updateAppointment = async (
-    id: number,
+    id: string,
     data: PatientFormData
   ): Promise<boolean> => {
     try {
-      await apiUpdate(id, data);
+      const api = getRegistryApi();
+      await api.updateAppointment(
+        id,
+        data.studies,
+        {
+          last_name: data.lastName,
+          first_name: data.firstName,
+          middle_name: data.middleName,
+          date_of_birth: data.dateOfBirth,
+        }
+      );
       await fetchAppointments();
       return true;
     } catch (err) {
@@ -81,9 +105,10 @@ export function useAppointments(date: string) {
     }
   };
 
-  const removeAppointment = async (id: number): Promise<boolean> => {
+  const removeAppointment = async (id: string): Promise<boolean> => {
     try {
-      await apiDelete(id);
+      const api = getRegistryApi();
+      await api.deleteAppointment(id);
       await fetchAppointments();
       return true;
     } catch (err) {

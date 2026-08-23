@@ -1,5 +1,5 @@
 export interface Patient {
-  id: number;
+  id: string;
   last_name: string;
   first_name: string;
   middle_name: string;
@@ -8,8 +8,8 @@ export interface Patient {
 }
 
 export interface Appointment {
-  id: number;
-  patient_id: number;
+  id: string;
+  patient_id: string;
   appointment_date: string;
   studies: string[];
   created_at: string;
@@ -36,20 +36,4 @@ export interface DoctorFormData {
   name: string;
   maxPatientsPerDay: number;
   workDays: number[];
-}
-
-export interface AppointmentApiResponse {
-  id: number;
-  patient_id: number;
-  appointment_date: string;
-  studies: string[];
-  department?: string;
-  created_at: string;
-  patient?: {
-    id: number;
-    last_name: string;
-    first_name: string;
-    middle_name: string;
-    date_of_birth: string;
-  };
 }

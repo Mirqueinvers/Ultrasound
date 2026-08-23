@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { promises as fs } from "node:fs";
 import { startApiServer } from "../src/api";
+import { initDb } from "../src/db";
+import { registerRegistryIpc } from "./registryIpc";
 import {
   setAutoUpdaterWindow,
   initAutoUpdater,
@@ -37,6 +39,11 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  // Этап 3.3: вход сервисной учёткой регистратуры в центральный API
+  // и регистрация IPC-моста (window.registryAPI) до создания окна.
+  await initDb();
+  registerRegistryIpc();
+
   await startApiServer();
   await createWindow();
 

@@ -7,7 +7,7 @@ interface AppointmentListProps {
   appointments: Appointment[];
   todayDoctors: { id: string; name: string }[];
   onEdit: (appointment: Appointment) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function AppointmentList({

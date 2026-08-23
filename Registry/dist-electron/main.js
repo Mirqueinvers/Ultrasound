@@ -23220,10 +23220,26 @@ var require_express$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 * MIT Licensed
 */
 //#endregion
-//#region src/services/apiClient.ts
+//#region src/api/middleware/cors.ts
 var import_express = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_express$1();
 })))());
+function corsMiddleware(_req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	res.header("Access-Control-Allow-Headers", "Content-Type");
+	if (_req.method === "OPTIONS") {
+		res.sendStatus(200);
+		return;
+	}
+	next();
+}
+var apiConfig = {
+	port: parseInt(process.env.API_PORT || "3456", 10),
+	host: process.env.API_HOST || "0.0.0.0"
+};
+//#endregion
+//#region src/services/apiClient.ts
 /**
 * API-клиент для центрального сервера (PostgreSQL + Prisma).
 *
@@ -23509,22 +23525,6 @@ async function deleteDoctor(id) {
 	return Boolean(result?.success);
 }
 //#endregion
-//#region src/api/middleware/cors.ts
-function corsMiddleware(_req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	res.header("Access-Control-Allow-Headers", "Content-Type");
-	if (_req.method === "OPTIONS") {
-		res.sendStatus(200);
-		return;
-	}
-	next();
-}
-var apiConfig = {
-	port: parseInt(process.env.API_PORT || "3456", 10),
-	host: process.env.API_HOST || "0.0.0.0"
-};
-//#endregion
 //#region src/api/validation.ts
 function validateCreateAppointment(body) {
 	const errors = [];
@@ -23690,7 +23690,6 @@ router.delete("/:id", async (req, res) => {
 //#endregion
 //#region src/api.ts
 async function startApiServer() {
-	await initDb();
 	const app = (0, import_express.default)();
 	app.use(import_express.json());
 	app.use(corsMiddleware);
@@ -23704,6 +23703,30 @@ async function startApiServer() {
 	app.listen(apiConfig.port, apiConfig.host, () => {
 		console.log(`Registry API server running on http://${apiConfig.host}:${apiConfig.port}`);
 	});
+}
+//#endregion
+//#region electron/registryIpc.ts
+/**
+* IPC-мост между React-компонентами Registry и центральным API-сервером.
+*
+* Этап 3.3 плана перехода на PostgreSQL: компоненты React больше не ходят
+* в собственный HTTP-сервер Registry (src/api.ts), а обращаются к центральному
+* API через IPC. Обработчики делегируют запросы слою данных `src/db.ts`,
+* который уже работает с центральным сервером (PostgreSQL + Prisma).
+*
+* Renderer получает доступ к этим функциям через `window.registryAPI`
+* (см. preload.ts и src/electron.d.ts).
+*/
+function registerRegistryIpc() {
+	electron.ipcMain.handle("registry:getAppointmentsByMonth", async (_event, month, year) => getAppointmentsByMonth(month, year));
+	electron.ipcMain.handle("registry:getAppointmentsByDate", async (_event, date) => getAppointmentsByDate(date));
+	electron.ipcMain.handle("registry:createAppointment", async (_event, patientData, appointmentDate, studies) => createAppointment(patientData, appointmentDate, studies));
+	electron.ipcMain.handle("registry:updateAppointment", async (_event, id, studies, patientData) => updateAppointment(id, studies, patientData));
+	electron.ipcMain.handle("registry:deleteAppointment", async (_event, id) => deleteAppointment(id));
+	electron.ipcMain.handle("registry:getDoctors", async () => getDoctors());
+	electron.ipcMain.handle("registry:createDoctor", async (_event, name, maxPatientsPerDay, workDays) => createDoctor(name, maxPatientsPerDay, workDays));
+	electron.ipcMain.handle("registry:updateDoctor", async (_event, id, name, maxPatientsPerDay, workDays) => updateDoctor(id, name, maxPatientsPerDay, workDays));
+	electron.ipcMain.handle("registry:deleteDoctor", async (_event, id) => deleteDoctor(id));
 }
 //#endregion
 //#region node_modules/universalify/index.js
@@ -37404,6 +37427,8 @@ async function createWindow() {
 	} else await mainWindow.loadFile(path.default.join(__dirname, "..", "dist", "index.html"));
 }
 electron.app.whenReady().then(async () => {
+	await initDb();
+	registerRegistryIpc();
 	await startApiServer();
 	await createWindow();
 	const updateServersFilePath = path.default.join(electron.app.getPath("userData"), "update-servers.json");

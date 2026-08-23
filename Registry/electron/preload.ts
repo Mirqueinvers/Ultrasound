@@ -65,3 +65,49 @@ contextBridge.exposeInMainWorld("electronAPI", {
 });
 
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);
+
+// ========== REGISTRY API ==========
+// Этап 3.3: данные регистратуры (записи, врачи) — через IPC к центральному API.
+// Типы контракта — в src/electron.d.ts (RegistryAPI).
+
+const registryAPI = {
+  getAppointmentsByMonth: (month: number, year: number) =>
+    ipcRenderer.invoke("registry:getAppointmentsByMonth", month, year),
+  getAppointmentsByDate: (date: string) =>
+    ipcRenderer.invoke("registry:getAppointmentsByDate", date),
+  createAppointment: (
+    patientData: unknown,
+    appointmentDate: string,
+    studies: string[]
+  ) =>
+    ipcRenderer.invoke(
+      "registry:createAppointment",
+      patientData,
+      appointmentDate,
+      studies
+    ),
+  updateAppointment: (id: string, studies: string[], patientData?: unknown) =>
+    ipcRenderer.invoke("registry:updateAppointment", id, studies, patientData),
+  deleteAppointment: (id: string) =>
+    ipcRenderer.invoke("registry:deleteAppointment", id),
+  getDoctors: () => ipcRenderer.invoke("registry:getDoctors"),
+  createDoctor: (name: string, maxPatientsPerDay: number, workDays: number[]) =>
+    ipcRenderer.invoke("registry:createDoctor", name, maxPatientsPerDay, workDays),
+  updateDoctor: (
+    id: string,
+    name: string,
+    maxPatientsPerDay: number,
+    workDays: number[]
+  ) =>
+    ipcRenderer.invoke(
+      "registry:updateDoctor",
+      id,
+      name,
+      maxPatientsPerDay,
+      workDays
+    ),
+  deleteDoctor: (id: string) =>
+    ipcRenderer.invoke("registry:deleteDoctor", id),
+};
+
+contextBridge.exposeInMainWorld("registryAPI", registryAPI);
