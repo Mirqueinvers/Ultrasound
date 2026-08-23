@@ -1,0 +1,74 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mc:/Projects/Ultrasound/Desktop[39m
+
+(node:22264) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///c:/Projects/Ultrasound/Desktop/postcss.config.js?t=1787486749349 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to c:\Projects\Ultrasound\Desktop\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m electron/__tests__/apiClient.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m electron/cache/__tests__/offlineCache.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m electron/__tests__/apiClient.offline.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m electron/cache/__tests__/connectionMonitor.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/features/research/Kidney.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/features/research/Thyroid.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/features/research/Obp.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/hooks/useSmallHooks.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/hooks/useSaveResearch.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/hooks/useOrganForm.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/hooks/usePrintableOverrides.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/components/print/PrintableSavedProtocol.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/components/print/PrintableProtocol.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/utils/defaultsAccess.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/sync/medisonXmlParser.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/utils/printHelpers.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/services/electron/ipcContracts.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/components/print/organs/Kidney/kidneyHelpers.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/utils/deepMerge.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/utils/normalizeSelectValue.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/utils/volume.test.ts [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 21 [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m electron/__tests__/apiClient.offline.test.ts[2m [ electron/__tests__/apiClient.offline.test.ts ][22m
+[41m[1m FAIL [22m[49m electron/__tests__/apiClient.test.ts[2m [ electron/__tests__/apiClient.test.ts ][22m
+[41m[1m FAIL [22m[49m src/hooks/useOrganForm.test.tsx[2m [ src/hooks/useOrganForm.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/hooks/usePrintableOverrides.test.tsx[2m [ src/hooks/usePrintableOverrides.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/hooks/useSaveResearch.test.tsx[2m [ src/hooks/useSaveResearch.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/hooks/useSmallHooks.test.tsx[2m [ src/hooks/useSmallHooks.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/sync/medisonXmlParser.test.ts[2m [ src/sync/medisonXmlParser.test.ts ][22m
+[41m[1m FAIL [22m[49m src/utils/deepMerge.test.ts[2m [ src/utils/deepMerge.test.ts ][22m
+[41m[1m FAIL [22m[49m src/utils/defaultsAccess.test.tsx[2m [ src/utils/defaultsAccess.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/utils/normalizeSelectValue.test.ts[2m [ src/utils/normalizeSelectValue.test.ts ][22m
+[41m[1m FAIL [22m[49m src/utils/printHelpers.test.ts[2m [ src/utils/printHelpers.test.ts ][22m
+[41m[1m FAIL [22m[49m src/utils/volume.test.ts[2m [ src/utils/volume.test.ts ][22m
+[41m[1m FAIL [22m[49m electron/cache/__tests__/connectionMonitor.test.ts[2m [ electron/cache/__tests__/connectionMonitor.test.ts ][22m
+[41m[1m FAIL [22m[49m electron/cache/__tests__/offlineCache.test.ts[2m [ electron/cache/__tests__/offlineCache.test.ts ][22m
+[41m[1m FAIL [22m[49m src/components/print/PrintableProtocol.test.tsx[2m [ src/components/print/PrintableProtocol.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/components/print/PrintableSavedProtocol.test.tsx[2m [ src/components/print/PrintableSavedProtocol.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/features/research/Kidney.test.tsx[2m [ src/features/research/Kidney.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/features/research/Obp.test.tsx[2m [ src/features/research/Obp.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/features/research/Thyroid.test.tsx[2m [ src/features/research/Thyroid.test.tsx ][22m
+[41m[1m FAIL [22m[49m src/services/electron/ipcContracts.test.ts[2m [ src/services/electron/ipcContracts.test.ts ][22m
+[41m[1m FAIL [22m[49m src/components/print/organs/Kidney/kidneyHelpers.test.ts[2m [ src/components/print/organs/Kidney/kidneyHelpers.test.ts ][22m
+[31m[1mError[22m: Vitest failed to find the current suite. One of the following is possible:
+- "vitest" is imported directly without running "vitest" command
+- "vitest" is imported inside "globalSetup" (to fix this, use "setupFiles" instead, because "globalSetup" runs in a different context)
+- "vitest" is imported inside Vite / Vitest config file
+- Otherwise, it might be a Vitest bug. Please report it to https://github.com/vitest-dev/vitest/issues
+[39m
+[36m [2m❯[22m src/test/setup.ts:[2m7:1[22m[39m
+    [90m  5|[39m
+    [90m  6|[39m [90m// Автоматическая очистка DOM между тестами.[39m
+    [90m  7|[39m [34mafterEach[39m(() [33m=>[39m {
+    [90m   |[39m [31m^[39m
+    [90m  8|[39m   [34mcleanup[39m()[33m;[39m
+    [90m  9|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m21 failed[39m[22m[90m (21)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:05:49
+[2m   Duration [22m 6.39s[2m (transform 119ms, setup 0ms, import 0ms, tests 0ms, environment 48.95s)[22m
+

@@ -1,39 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Calendar, Settings, RefreshCw, WifiOff, User, Stethoscope } from "lucide-react";
+import { Calendar, RefreshCw, User, Stethoscope } from "lucide-react";
 import { registryService } from "@services";
 import type {
-  CachedRegistryAppointment,
-  RegistryAddress,
+  RegistryAppointment,
 } from "../../../electron/preload";
-
-const REGISTRY_PORT = 3456;
-
-interface Patient {
-  id: number;
-  last_name: string;
-  first_name: string;
-  middle_name: string;
-  date_of_birth: string;
-}
-
-export interface PatientSelectData {
-  fullName: string;
-  dateOfBirth: string;
-  studies: string[];
-}
-
-interface Appointment {
-  id: number;
-  patient_id: number;
-  appointment_date: string;
-  studies: string[];
-  department?: string;
-  created_at: string;
-  patient?: Patient;
-  // Локальная метка источника (какая регистратура предоставила запись)
-  _sourceName?: string;
-  _fromCache?: boolean;
-}
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return "";
@@ -65,208 +35,40 @@ interface RegistryPanelProps {
   onPatientSelect?: (data: PatientSelectData) => void;
 }
 
+export interface PatientSelectData {
+  fullName: string;
+  dateOfBirth: string;
+  studies: string[];
+}
+
 const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<RegistryAppointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [addresses, setAddresses] = useState<RegistryAddress[]>([]);
-  const [newAddressName, setNewAddressName] = useState("");
-  const [newAddressIp, setNewAddressIp] = useState("");
-
-  // Загрузка сохраненных адресов из файла (userData)
-  useEffect(() => {
-    registryService
-      .getAddresses()
-      .then((stored) => {
-        if (Array.isArray(stored) && stored.length > 0) {
-          setAddresses(stored);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const persistAddresses = useCallback((updated: RegistryAddress[]) => {
-    registryService.saveAddresses(updated).catch(() => {});
-  }, []);
 
   const fetchAppointments = useCallback(async () => {
-    if (addresses.length === 0) {
-      setAppointments([]);
-      setError(null);
-      return;
-    }
-
     setLoading(true);
     setError(null);
-    setAppointments([]);
-
-    // Текущий локальный кэш записей регистратур (для офлайн-источников)
-    const cached = await registryService
-      .getCachedAppointments()
-      .catch(() => [] as CachedRegistryAppointment[]);
-
-    // Результаты онлайн-опросов по источникам
-    const onlineBySource = new Map<string, Appointment[]>();
-    const failedSources: string[] = [];
-    let lastError: string | null = null;
-
-    // Добавление записей из локального кэша для конкретного недоступного источника
-    const applyCacheForSource = (addr: RegistryAddress) => {
-      const cachedForAddr = cached.filter(
-        (c) =>
-          c.appointment &&
-          c.appointment.appointment_date === date &&
-          c.sourceIp === addr.ip,
+    try {
+      const items = await registryService.getAppointmentsByDate(date);
+      setAppointments(items);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Не удалось получить записи с сервера"
       );
-      if (cachedForAddr.length === 0) return;
-      setAppointments((prev) => {
-        const existingKeys = new Set(prev.map((a) => `${a._sourceName}:${a.id}`));
-        const additional = cachedForAddr
-          .filter((c) => !existingKeys.has(`${c.sourceName || c.sourceIp}:${c.appointment.id}`))
-          .map((c) => ({
-            ...c.appointment,
-            _sourceName: c.sourceName || c.sourceIp,
-            _fromCache: true,
-          }));
-        return [...prev, ...additional];
-      });
-    };
-
-    // Инкрементальное добавление записей от успешно опрошенной регистратуры
-    const applyOnlineSource = (addr: RegistryAddress, items: Appointment[]) => {
-      onlineBySource.set(addr.ip, items);
-      const markupItems = items.map((appt) => ({
-        ...appt,
-        _sourceName: addr.name,
-        _fromCache: false,
-      }));
-      setAppointments((prev) => {
-        const existingKeys = new Set(prev.map((a) => `${a._sourceName}:${a.id}`));
-        return [
-          ...prev,
-          ...markupItems.filter((a) => !existingKeys.has(`${a._sourceName}:${a.id}`)),
-        ];
-      });
-    };
-
-    // Запускаем опрос всех регистратур параллельно.
-    // Результаты каждой применяются сразу по мере ответа, а не в конце.
-    const REQUEST_TIMEOUT_MS = 5000;
-    const promises = addresses.map(async (addr) => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      try {
-        const res = await fetch(`http://${addr.ip}:${REGISTRY_PORT}/api/appointments?date=${date}`, {
-          signal: controller.signal,
-        });
-        if (!res.ok) {
-          throw new Error(`Ошибка сервера ${addr.name} (${addr.ip}): ${res.status}`);
-        }
-        const data = await res.json();
-        // data может быть массивом или объектом {value: [...], Count: ...}
-        const items = Array.isArray(data) ? data : (data.value || []);
-        applyOnlineSource(addr, items);
-      } catch (err) {
-        lastError =
-          err instanceof Error && err.name === "AbortError"
-            ? `Не удалось подключиться к ${addr.name} (${addr.ip}) — таймаут`
-            : err instanceof Error
-              ? err.message
-              : `Не удалось подключиться к ${addr.name} (${addr.ip})`;
-        failedSources.push(addr.ip);
-        applyCacheForSource(addr);
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    });
-
-    await Promise.allSettled(promises);
-
-    // Обновляем кэш: записи из доступных источников заменяются свежими,
-    // записи из недоступных источников сохраняются в кэше
-    if (onlineBySource.size > 0) {
-      const freshEntries: CachedRegistryAppointment[] = [];
-      for (const [sourceIp, items] of onlineBySource.entries()) {
-        const sourceName = addresses.find((a) => a.ip === sourceIp)?.name ?? sourceIp;
-        for (const appt of items) {
-          freshEntries.push({
-            sourceIp,
-            sourceName,
-            appointment: appt,
-            cachedAt: new Date().toISOString(),
-          });
-        }
-      }
-
-      const merged: CachedRegistryAppointment[] = [];
-      const keySet = new Set<string>();
-
-      // Сохраняем старые записи только из источников, которые сейчас недоступны
-      for (const entry of cached) {
-        if (!onlineBySource.has(entry.sourceIp)) {
-          const key = `${entry.sourceIp}:${entry.appointment.id}`;
-          if (!keySet.has(key)) {
-            keySet.add(key);
-            merged.push(entry);
-          }
-        }
-      }
-      // Добавляем свежие записи из доступных источников
-      for (const entry of freshEntries) {
-        const key = `${entry.sourceIp}:${entry.appointment.id}`;
-        if (!keySet.has(key)) {
-          keySet.add(key);
-          merged.push(entry);
-        }
-      }
-
-      await registryService.saveCachedAppointments(merged).catch(() => {});
+      setAppointments([]);
+    } finally {
+      setLoading(false);
     }
-
-    // Ошибку показываем только если вообще нет живых регистратур
-    if (onlineBySource.size === 0 && failedSources.length > 0) {
-      setError(lastError);
-    }
-
-    setLoading(false);
-  }, [date, addresses]);
+  }, [date]);
 
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  const handleAddAddress = () => {
-    // Очистка ввода: убираем IP:, http://, слэши и порт :3456, оставляем только IP
-    const cleanedIp = newAddressIp
-      .replace(/^IP\s*:\s*/i, "")
-      .replace(/^http:\/\//i, "")
-      .replace(/\/+$/, "")
-      .replace(/^(\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/, "$1")
-      .trim();
-    if (!cleanedIp) return;
-    if (addresses.some((a) => a.ip === cleanedIp)) return;
-    const name = newAddressName.trim() || cleanedIp;
-    const updated = [...addresses, { name, ip: cleanedIp }];
-    setAddresses(updated);
-    persistAddresses(updated);
-    setNewAddressName("");
-    setNewAddressIp("");
-  };
-
-  const handleRemoveAddress = (addr: RegistryAddress) => {
-    const updated = addresses.filter((a) => a.ip !== addr.ip);
-    setAddresses(updated);
-    persistAddresses(updated);
-  };
-
-  const handleCloseSettings = () => {
-    setShowSettings(false);
-  };
-
   const handlePatientClick = useCallback(
-    (appt: Appointment) => {
+    (appt: RegistryAppointment) => {
       if (!onPatientSelect || !appt.patient) return;
       const fullName = `${appt.patient.last_name} ${appt.patient.first_name} ${appt.patient.middle_name}`.trim();
       onPatientSelect({
@@ -300,61 +102,31 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
           >
             <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
           </button>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
-            title="Настройки подключения"
-          >
-            <Settings size={18} />
-          </button>
         </div>
       </div>
 
-      {/* Нет подключенных регистратур */}
-      {addresses.length === 0 && (
-        <div className="flex items-center gap-3 p-4 mb-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-500">
-          <WifiOff size={20} className="shrink-0" />
-          <div>
-            <p className="font-medium text-sm">Подключенных регистратур нет</p>
-            <p className="text-xs mt-0.5 opacity-80">
-              Добавьте IP-адрес регистратуры в настройках
-            </p>
-          </div>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="ml-auto text-xs font-medium text-slate-600 underline hover:no-underline"
-          >
-            Настроить
-          </button>
-        </div>
-      )}
-
-      {/* Ошибка подключения */}
-      {error && addresses.length > 0 && (
+      {/* Ошибка подключения к серверу */}
+      {error && (
         <div className="flex items-center gap-3 p-4 mb-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700">
-          <WifiOff size={20} className="shrink-0" />
-          <div>
-            <p className="font-medium text-sm">Регистратура не подключена</p>
-            <p className="text-xs mt-0.5 opacity-80">{error}</p>
-          </div>
+          <span className="text-sm">{error}</span>
           <button
-            onClick={() => setShowSettings(true)}
+            onClick={fetchAppointments}
             className="ml-auto text-xs font-medium text-amber-700 underline hover:no-underline"
           >
-            Настроить
+            Повторить
           </button>
         </div>
       )}
 
-      {/* Загрузка (пока не пришли данные ни от одной регистратуры) */}
-      {loading && !error && addresses.length > 0 && appointments.length === 0 && (
+      {/* Загрузка */}
+      {loading && !error && (
         <div className="flex items-center justify-center py-12">
           <RefreshCw size={24} className="animate-spin text-medical-400" />
           <span className="ml-3 text-sm text-slate-500">Загрузка...</span>
         </div>
       )}
 
-      {/* Список записей */}
+      {/* Нет записей */}
       {!loading && !error && appointments.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-slate-400">
           <Calendar size={48} className="mb-4 opacity-50" />
@@ -368,9 +140,9 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
           <p className="text-sm text-slate-500">
             Записей на {formatDate(date)}: <strong>{appointments.length}</strong>
           </p>
-          {appointments.map((appt, index) => (
+          {appointments.map((appt) => (
             <div
-              key={`${appt._sourceName ?? "unknown"}:${appt.id}:${index}`}
+              key={appt.id}
               onClick={() => handlePatientClick(appt)}
               className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow duration-200 cursor-pointer"
             >
@@ -400,22 +172,6 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
                         {study}
                       </span>
                     ))}
-                    {appt._fromCache && (
-                      <span
-                        className="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200"
-                        title="Данные из локального кэша, регистратура сейчас недоступна"
-                      >
-                        💾 из кэша
-                      </span>
-                    )}
-                    {appt._sourceName && (
-                      <span
-                        className="text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full border border-slate-200"
-                        title={`Источник: ${appt._sourceName}`}
-                      >
-                        🖥 {appt._sourceName}
-                      </span>
-                    )}
                     {appt.department && (
                       <span className="text-xs bg-sky-50 text-sky-600 px-2.5 py-1 rounded-full border border-sky-200 ml-auto">
                         🏥 {appt.department}
@@ -426,96 +182,6 @@ const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Модалка настроек */}
-      {showSettings && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">
-              Настройки подключения
-            </h3>
-
-            <label className="block text-sm font-medium text-slate-600 mb-2">
-              Подключенные регистратуры:
-            </label>
-
-            {/* Список адресов */}
-            <div className="space-y-2 mb-4">
-              {addresses.length === 0 && (
-                <p className="text-sm text-slate-400">
-                  Список пуст. Добавьте IP-адрес регистратуры.
-                </p>
-              )}
-              {addresses.map((addr) => (
-                <div
-                  key={addr.ip}
-                  className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">{addr.name}</p>
-                    <p className="text-xs text-slate-400 font-mono">{addr.ip}</p>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveAddress(addr)}
-                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md p-1 transition-all duration-200 shrink-0"
-                    title="Удалить"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Добавление нового адреса */}
-            <label className="block text-sm font-medium text-slate-600 mb-1">
-              Название
-            </label>
-            <input
-              type="text"
-              value={newAddressName}
-              onChange={(e) => setNewAddressName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
-              placeholder="Поликлиника №1"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200 mb-3"
-            />
-            <label className="block text-sm font-medium text-slate-600 mb-1">
-              IP-адрес
-            </label>
-            <div className="flex items-center gap-2 mb-4">
-              <input
-                type="text"
-                value={newAddressIp}
-                onChange={(e) => setNewAddressIp(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddAddress()}
-                placeholder="192.168.1.100"
-                className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
-              />
-              <button
-                onClick={handleAddAddress}
-                className="px-3 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200 shrink-0"
-              >
-                Добавить
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-400 mb-4">
-              Порт {REGISTRY_PORT} подставляется автоматически
-            </p>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={handleCloseSettings}
-                className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200"
-              >
-                Готово
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

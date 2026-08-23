@@ -947,107 +947,18 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
     }
   });
 
-  // ==================== REGISTRY ADDRESSES HANDLERS ====================
-  // Настройки адресов регистратур остаются локальными (этап 2.6 — упрощение).
+  // ==================== REGISTRY APPOINTMENTS HANDLERS ====================
+  // Этап 2.6: кэш registry_appointments удалён — записи регистратуры
+  // читаются напрямую из центральной БД через API-сервер.
 
-  const registryAddressesFilePath = path.join(
-    app.getPath("userData"),
-    "registry-addresses.json"
-  );
-
-  ipcMain.handle("registry:getAddresses", async () => {
+  ipcMain.handle("registry:getAppointmentsByDate", async (_, date: string) => {
     try {
-      const data = await fs.readFile(registryAddressesFilePath, "utf8");
-      const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed)) return [];
-      // Миграция старого формата: массив строк -> [{ name, ip }]
-      return parsed.map((entry: unknown) => {
-        if (typeof entry === "string") {
-          return { name: entry, ip: entry };
-        }
-        if (
-          entry &&
-          typeof entry === "object" &&
-          typeof (entry as { ip?: unknown }).ip === "string"
-        ) {
-          const item = entry as { name?: unknown; ip: string };
-          return {
-            name:
-              typeof item.name === "string" && item.name.trim() !== ""
-                ? item.name
-                : item.ip,
-            ip: item.ip,
-          };
-        }
-        return null;
-      }).filter((entry: { name: string; ip: string } | null) => entry !== null);
-    } catch {
+      return await apiClient.appointments.getByDate(date);
+    } catch (err) {
+      console.error("registry:getAppointmentsByDate error:", err);
       return [];
     }
   });
-
-  ipcMain.handle(
-    "registry:saveAddresses",
-    async (_, addresses: { name: string; ip: string }[]) => {
-      try {
-        await fs.writeFile(
-          registryAddressesFilePath,
-          JSON.stringify(addresses, null, 2),
-          "utf8"
-        );
-        return { success: true };
-      } catch (error) {
-        console.error("Registry addresses save error:", error);
-        return {
-          success: false,
-          message: "Не удалось сохранить адреса регистратур",
-        };
-      }
-    }
-  );
-
-  // ==================== REGISTRY APPOINTMENTS CACHE HANDLERS ====================
-  // Кэш записей регистратуры — временное хранение в JSON-файле (этап 2.4).
-  // Старый слой БД (better-sqlite3 репозитории) удалён.
-  // Окончательно кэш удаляется на этапе 2.6 (чтение appointments напрямую).
-
-  const registryAppointmentsCacheFilePath = path.join(
-    app.getPath("userData"),
-    "registry-appointments-cache.json"
-  );
-
-  ipcMain.handle("registry:getCachedAppointments", async () => {
-    try {
-      const data = await fs.readFile(registryAppointmentsCacheFilePath, "utf8");
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  });
-
-  ipcMain.handle(
-    "registry:saveCachedAppointments",
-    async (_, appointments: unknown[]) => {
-      try {
-        if (!Array.isArray(appointments)) {
-          return { success: false, message: "Некорректные данные для кэша" };
-        }
-        await fs.writeFile(
-          registryAppointmentsCacheFilePath,
-          JSON.stringify(appointments, null, 2),
-          "utf8"
-        );
-        return { success: true };
-      } catch (error) {
-        console.error("Registry appointments cache save error:", error);
-        return {
-          success: false,
-          message: "Не удалось сохранить кэш записей регистратур",
-        };
-      }
-    }
-  );
 
   // ==================== NETWORK HANDLERS ====================
 

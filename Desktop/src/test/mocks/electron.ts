@@ -173,10 +173,7 @@ export const windowMocks = {
     reset: vi.fn(async () => ({ success: true })),
   } satisfies Mocked<DefaultsAPI>,
   registryAPI: {
-    getAddresses: vi.fn(async () => []),
-    saveAddresses: vi.fn(async () => ({ success: true })),
-    getCachedAppointments: vi.fn(async () => []),
-    saveCachedAppointments: vi.fn(async () => ({ success: true })),
+    getAppointmentsByDate: vi.fn(async () => []),
   } satisfies Mocked<RegistryAPI>,
   networkAPI: {
     sendExport: vi.fn(async () => ({ success: true, imported: 1, skipped: 0 })),

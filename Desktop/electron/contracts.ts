@@ -90,33 +90,22 @@ export interface MedisonMappingRow {
   updated_at: string;
 }
 
-export interface RegistryAddress {
-  name: string;
-  ip: string;
-}
-
-// Кэш записей регистратуры. Имеет собственные локальные числовые id.
-// Таблица registry_appointments удалена (этап 2.4, кэш временно в JSON-файле),
-// окончательно кэш удаляется на этапе 2.6 (чтение appointments напрямую).
-export interface CachedRegistryAppointment {
-  sourceIp: string;
-  sourceName: string;
-  appointment: {
-    id: number;
-    patient_id: number;
-    appointment_date: string;
-    studies: string[];
-    department?: string;
-    created_at: string;
-    patient?: {
-      id: number;
-      last_name: string;
-      first_name: string;
-      middle_name: string;
-      date_of_birth: string;
-    };
+// Запись регистратуры из центральной БД (общая таблица appointments).
+// Этап 2.6: локальный кэш registry_appointments удалён — читаем напрямую с API.
+export interface RegistryAppointment {
+  id: string;
+  patient_id: string;
+  appointment_date: string;
+  studies: string[];
+  department?: string;
+  created_at: string;
+  patient?: {
+    id: string;
+    last_name: string;
+    first_name: string;
+    middle_name: string;
+    date_of_birth: string;
   };
-  cachedAt: string;
 }
 
 export interface PatientSearchEntry {
@@ -342,14 +331,11 @@ export interface DefaultsAPI {
 }
 
 // ========== REGISTRY API ==========
-// Работает только с локальным кэшем записей регистратур и адресами.
-// Кэш временно хранится в JSON-файле (этап 2.4) и удаляется на этапе 2.6.
+// Этап 2.6: кэш registry_appointments удалён — записи регистратуры
+// читаются напрямую из центральной БД через API-сервер.
 
 export interface RegistryAPI {
-  getAddresses: () => Promise<RegistryAddress[]>;
-  saveAddresses: (addresses: RegistryAddress[]) => Promise<{ success: boolean; message?: string }>;
-  getCachedAppointments: () => Promise<CachedRegistryAppointment[]>;
-  saveCachedAppointments: (appointments: CachedRegistryAppointment[]) => Promise<{ success: boolean; message?: string }>;
+  getAppointmentsByDate: (date: string) => Promise<RegistryAppointment[]>;
 }
 
 export interface NetworkAPI {

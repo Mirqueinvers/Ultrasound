@@ -193,11 +193,7 @@ const defaultsAPI: DefaultsAPI = {
 };
 
 const registryAPI: RegistryAPI = {
-  getAddresses: () => ipcRenderer.invoke("registry:getAddresses"),
-  saveAddresses: (addresses) => ipcRenderer.invoke("registry:saveAddresses", addresses),
-  getCachedAppointments: () => ipcRenderer.invoke("registry:getCachedAppointments"),
-  saveCachedAppointments: (appointments) =>
-    ipcRenderer.invoke("registry:saveCachedAppointments", appointments),
+  getAppointmentsByDate: (date) => ipcRenderer.invoke("registry:getAppointmentsByDate", date),
 };
 
 const connectionAPI: ConnectionAPI = {

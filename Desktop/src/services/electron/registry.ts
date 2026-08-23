@@ -1,18 +1,13 @@
 import type {
-  CachedRegistryAppointment,
   RegistryAPI,
-  RegistryAddress,
+  RegistryAppointment,
 } from "../../../electron/preload";
 
 /**
- * Адаптер над window.registryAPI (адреса регистратуры + кэш записей).
+ * Адаптер над window.registryAPI (записи регистратуры из центральной БД).
+ * Этап 2.6: кэш registry_appointments удалён — записи читаются напрямую с API.
  */
 export const registryService = {
-  getAddresses: (): Promise<RegistryAddress[]> => window.registryAPI.getAddresses(),
-  saveAddresses: (addresses: RegistryAddress[]) =>
-    window.registryAPI.saveAddresses(addresses),
-  getCachedAppointments: (): Promise<CachedRegistryAppointment[]> =>
-    window.registryAPI.getCachedAppointments(),
-  saveCachedAppointments: (appointments: CachedRegistryAppointment[]) =>
-    window.registryAPI.saveCachedAppointments(appointments),
+  getAppointmentsByDate: (date: string): Promise<RegistryAppointment[]> =>
+    window.registryAPI.getAppointmentsByDate(date),
 } satisfies RegistryAPI;
