@@ -6,6 +6,7 @@ import ExportModal from "@/components/journal/ExportModal";
 import DatePickerField from "@/components/common/DatePickerField";
 import { journalService, patientService, researchService } from "@services";
 import type { JournalEntry, Patient, Research } from "@/types";
+import { getTodayIso } from "@/utils/date";
 
 const formatPatientName = (patient: Patient) =>
   `${patient.last_name} ${patient.first_name}${patient.middle_name ? ` ${patient.middle_name}` : ""}`;
@@ -69,7 +70,7 @@ type FailedExport = {
 };
 
 const Journal: React.FC = () => {
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(getTodayIso());
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [printResearchId, setPrintResearchId] = useState<string | null>(null);

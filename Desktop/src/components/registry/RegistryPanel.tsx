@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, RefreshCw, User, Stethoscope } from "lucide-react";
 import { registryService } from "@services";
+import { getTodayIso } from "@/utils/date";
 import type {
   RegistryAppointment,
 } from "../../../electron/preload";
@@ -42,7 +43,7 @@ export interface PatientSelectData {
 }
 
 const RegistryPanel: React.FC<RegistryPanelProps> = ({ onPatientSelect }) => {
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(getTodayIso());
   const [appointments, setAppointments] = useState<RegistryAppointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -8,6 +8,7 @@ import { URL } from "node:url";
 import WebSocket, { WebSocketServer } from "ws";
 import {
   createEmptyDraftSessionSyncState,
+  createEmptyHeaderSyncState,
   createEmptyMobileSyncSnapshot,
   type MobileSyncSnapshot,
   type MobileSyncWireMessage,
@@ -659,6 +660,14 @@ class MobileHostService {
         };
 
         this.syncState.header.researchDate = this.syncState.header.researchDate || getCurrentDate();
+
+        // Если черновик закрыт — не восстанавливаем старые данные пациента и
+        // «застрявшую» дату исследования из прошлой сессии. Иначе при старте
+        // приложения форма «Данные пациента» показывает вчерашнюю/чужую дату,
+        // а не сегодняшнюю (корректная локальная дата заменяется из сессии).
+        if (!this.syncState.session.isDraftActive) {
+          this.syncState.header = createEmptyHeaderSyncState();
+        }
       }
 
       this.sessionId = parsed.sessionId ?? this.syncState.session.sessionId;

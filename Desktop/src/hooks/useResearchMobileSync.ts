@@ -36,7 +36,7 @@ export const useResearchMobileSync = ({
         const { header, studiesData: nextStudiesData } = syncMessage.state;
         setPatientFullNameState(header.patientFullName);
         setPatientDateOfBirthState(header.patientDateOfBirth);
-        setResearchDateState(header.researchDate);
+        setResearchDateState(header.researchDate || getCurrentDate());
         setOrganizationState(header.organization);
         // МЕРЖИМ, а не заменяем — чтобы сохранить данные, которые были добавлены
         // локально на десктопе (например, импорт с флешки через mergeStudyData)
