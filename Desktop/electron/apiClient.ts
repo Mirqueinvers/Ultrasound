@@ -3,7 +3,14 @@
 // Конфигурация (URL сервера) и JWT-токен хранятся в памяти модуля;
 // персистентность (userData/server-config.json) — в отдельном apiConfig.ts.
 //
+// Этап 2.3: офлайн-кэш чтения (MVP по п. 4.3 плана).
+//  - GET-запросы кэшируются (cache-through): онлайн — обновляем кэш и отдаём свежее;
+//    сеть недоступна — отдаём из кэша.
+//  - Записи (POST/PUT/PATCH/DELETE) офлайн запрещены: выбрасываем ApiError c code "OFFLINE".
+//  - После успешной мутации инвалидируем связанные префиксы кэша.
+//
 // ВАЖНО: этот модуль НЕ зависит от `electron`, чтобы был тестируем в vitest (node-окружение).
+import { OfflineCache } from "./cache/offlineCache";
 import type {
   ApiAppointment,
   ApiDoctor,
@@ -18,14 +25,30 @@ import type {
   ApiUser,
 } from "./apiTypes";
 
+// ===== TTL для кэша чтения =====
+export const CACHE_TTL = {
+  /** 5 минут — журнал, списки, поиск. */
+  SHORT: 5 * 60 * 1000,
+  /** 15 минут — статистика (тяжёлый запрос). */
+  MEDIUM: 15 * 60 * 1000,
+  /** Вечная запись — объект по id (обновляется при онлайн-чтении). */
+  ETERNAL: undefined,
+} as const;
+
 // ===== Ошибка API =====
 export class ApiError extends Error {
   status?: number;
+  code?: "OFFLINE" | "NOT_CONFIGURED" | "HTTP";
 
-  constructor(message: string, status?: number) {
+  constructor(
+    message: string,
+    status?: number,
+    code?: "OFFLINE" | "NOT_CONFIGURED" | "HTTP",
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -63,14 +86,29 @@ interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
   auth?: boolean;
+  /** Ключ кэша для GET-запросов (cache-through). */
+  cacheKey?: string;
+  /** TTL записи кэша в мс. undefined/не задано = вечная запись. */
+  cacheTtlMs?: number;
+  /** Префиксы кэша для инвалидации после мутации. */
+  invalidatePrefixes?: string[];
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   if (!isConfigured()) {
-    throw new ApiError("Адрес сервера не настроен");
+    throw new ApiError(
+      "Адрес сервера не настроен",
+      undefined,
+      "NOT_CONFIGURED",
+    );
   }
 
   const { method = "GET", query, body, auth = true } = options;
+  const isRead = method === "GET";
+  const cache = OfflineCache.getInstance();
 
   const queryString = query
     ? Object.entries(query)
@@ -99,8 +137,19 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (err) {
+    // ===== Сеть недоступна: для GET пробуем кэш, иначе — ошибка OFFLINE =====
+    if (isRead && options.cacheKey) {
+      const hit = cache.getValue<T>(options.cacheKey);
+      if (hit) {
+        return hit.value;
+      }
+    }
     const cause = err instanceof Error ? err.message : String(err);
-    throw new ApiError(`Нет связи с сервером по адресу ${serverUrl} (${cause})`);
+    throw new ApiError(
+      `Нет связи с сервером по адресу ${serverUrl} (${cause})`,
+      undefined,
+      "OFFLINE",
+    );
   }
 
   if (!response.ok) {
@@ -115,18 +164,34 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     } catch {
       // тело не JSON — оставляем статусное сообщение
     }
-    throw new ApiError(message, response.status);
+    throw new ApiError(message, response.status, "HTTP");
   }
 
   if (response.status === 204) {
+    if (!isRead && options.invalidatePrefixes) {
+      for (const prefix of options.invalidatePrefixes) {
+        cache.deleteKeysByPrefix(prefix);
+      }
+    }
     return undefined as T;
   }
 
+  let result: T;
   try {
-    return (await response.json()) as T;
+    result = (await response.json()) as T;
   } catch {
-    return undefined as T;
+    result = undefined as T;
   }
+
+  if (isRead && options.cacheKey) {
+    cache.setValue(options.cacheKey, result, options.cacheTtlMs);
+  } else if (!isRead && options.invalidatePrefixes) {
+    for (const prefix of options.invalidatePrefixes) {
+      cache.deleteKeysByPrefix(prefix);
+    }
+  }
+
+  return result;
 }
 
 // ===== Auth =====
@@ -149,7 +214,11 @@ export const authApi = {
       auth: false,
     }),
 
-  getMe: () => request<ApiUser>("/auth/me"),
+  getMe: () =>
+    request<ApiUser>("/auth/me", {
+      cacheKey: "auth:me",
+      cacheTtlMs: CACHE_TTL.ETERNAL,
+    }),
 
   updateProfile: (data: {
     name: string;
@@ -159,6 +228,7 @@ export const authApi = {
     request<ApiSuccessResponse<{ user: ApiUser }>>("/auth/profile", {
       method: "PATCH",
       body: data,
+      invalidatePrefixes: ["auth:me"],
     }),
 
   changePassword: (data: {
@@ -176,14 +246,22 @@ export const patientsApi = {
   getAll: (limit?: number, offset?: number) =>
     request<{ patients: ApiPatient[]; total: number }>("/patients", {
       query: { limit, offset },
+      cacheKey: `patient:list:${limit ?? ""}:${offset ?? ""}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
     }),
 
   search: (query: string, limit?: number) =>
     request<{ patients: ApiPatient[]; total: number }>("/patients/search", {
       query: { q: query, limit },
+      cacheKey: `patient:search:${query}:${limit ?? ""}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
     }),
 
-  getById: (id: string) => request<ApiPatient>(`/patients/${id}`),
+  getById: (id: string) =>
+    request<ApiPatient>(`/patients/${id}`, {
+      cacheKey: `patient:byId:${id}`,
+      cacheTtlMs: CACHE_TTL.ETERNAL,
+    }),
 
   create: (data: {
     lastName: string;
@@ -194,6 +272,7 @@ export const patientsApi = {
     request<ApiPatient>("/patients", {
       method: "POST",
       body: data,
+      invalidatePrefixes: ["patient:list:", "patient:search:"],
     }),
 
   findOrCreate: (data: {
@@ -207,6 +286,7 @@ export const patientsApi = {
       {
         method: "POST",
         body: data,
+        invalidatePrefixes: ["patient:list:", "patient:search:"],
       },
     ),
 
@@ -222,11 +302,23 @@ export const patientsApi = {
     request<ApiPatient>(`/patients/${id}`, {
       method: "PUT",
       body: data,
+      invalidatePrefixes: [
+        `patient:byId:${id}`,
+        "patient:list:",
+        "patient:search:",
+      ],
     }),
 
   delete: (id: string) =>
     request<ApiSuccessResponse>(`/patients/${id}`, {
       method: "DELETE",
+      invalidatePrefixes: [
+        `patient:byId:${id}`,
+        "patient:list:",
+        "patient:search:",
+        "research:byPatient:",
+        "journal:",
+      ],
     }),
 };
 
@@ -235,20 +327,32 @@ export const researchesApi = {
   getAll: (limit?: number, offset?: number) =>
     request<{ researches: ApiResearch[]; total: number }>("/researches", {
       query: { limit, offset },
+      cacheKey: `research:list:${limit ?? ""}:${offset ?? ""}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
     }),
 
   search: (query: string, limit?: number) =>
     request<{ researches: ApiResearch[]; total: number }>(
       "/researches/search",
-      { query: { q: query, limit } },
+      {
+        query: { q: query, limit },
+        cacheKey: `research:search:${query}:${limit ?? ""}`,
+        cacheTtlMs: CACHE_TTL.SHORT,
+      },
     ),
 
   getByPatientId: (patientId: string, limit?: number, offset?: number) =>
     request<{ researches: ApiResearch[]; total: number }>("/researches", {
       query: { patientId, limit, offset },
+      cacheKey: `research:byPatient:${patientId}:${limit ?? ""}:${offset ?? ""}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
     }),
 
-  getById: (id: string) => request<ApiResearch>(`/researches/${id}`),
+  getById: (id: string) =>
+    request<ApiResearch>(`/researches/${id}`, {
+      cacheKey: `research:byId:${id}`,
+      cacheTtlMs: CACHE_TTL.ETERNAL,
+    }),
 
   create: (data: {
     patientId: string;
@@ -261,6 +365,7 @@ export const researchesApi = {
     request<ApiSuccessResponse<{ researchId: string }>>("/researches", {
       method: "POST",
       body: data,
+      invalidatePrefixes: ["research:list:", "research:search:", "journal:"],
     }),
 
   addStudy: (
@@ -269,7 +374,15 @@ export const researchesApi = {
   ) =>
     request<ApiSuccessResponse<{ studyId: string }>>(
       `/researches/${researchId}/studies`,
-      { method: "POST", body: data },
+      {
+        method: "POST",
+        body: data,
+        invalidatePrefixes: [
+          `research:byId:${researchId}`,
+          "research:byPatient:",
+          "journal:",
+        ],
+      },
     ),
 
   update: (
@@ -285,34 +398,69 @@ export const researchesApi = {
     request<ApiSuccessResponse>(`/researches/${id}`, {
       method: "PUT",
       body: data,
+      invalidatePrefixes: [
+        `research:byId:${id}`,
+        "research:list:",
+        "research:search:",
+        "journal:",
+      ],
     }),
 
   delete: (id: string) =>
     request<ApiSuccessResponse>(`/researches/${id}`, {
       method: "DELETE",
+      invalidatePrefixes: [
+        `research:byId:${id}`,
+        "research:byPatient:",
+        "research:list:",
+        "research:search:",
+        "journal:",
+      ],
     }),
 };
 
 // ===== Journal =====
 export const journalApi = {
   getByDate: (date: string) =>
-    request<ApiJournalEntry[]>("/journal", { query: { date } }),
+    request<ApiJournalEntry[]>("/journal", {
+      query: { date },
+      cacheKey: `journal:date:${date}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 
   getByPeriod: (from: string, to: string) =>
-    request<ApiJournalEntry[]>("/journal", { query: { from, to } }),
+    request<ApiJournalEntry[]>("/journal", {
+      query: { from, to },
+      cacheKey: `journal:period:${from}:${to}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 
-  getDoctors: () => request<string[]>("/journal/doctors"),
+  getDoctors: () =>
+    request<string[]>("/journal/doctors", {
+      cacheKey: "journal:doctors",
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 };
 
 // ===== Protocol =====
 export const protocolApi = {
   getByResearchId: (id: string) =>
-    request<ApiSavedProtocol>(`/researches/${id}/protocol`),
+    request<ApiSavedProtocol>(`/researches/${id}/protocol`, {
+      cacheKey: `protocol:${id}`,
+      cacheTtlMs: CACHE_TTL.ETERNAL,
+    }),
 
-  savePrintOverrides: (researchId: string, printOverrides: Record<string, string>) =>
+  savePrintOverrides: (
+    researchId: string,
+    printOverrides: Record<string, string>,
+  ) =>
     request<ApiSuccessResponse>(
       `/researches/${researchId}/protocol/overrides`,
-      { method: "PUT", body: { printOverrides } },
+      {
+        method: "PUT",
+        body: { printOverrides },
+        invalidatePrefixes: [`protocol:${researchId}`],
+      },
     ),
 };
 
@@ -321,6 +469,8 @@ export const statisticsApi = {
   getStatistics: (from?: string, to?: string, doctor?: string) =>
     request<ApiSuccessResponse<ApiStatisticsData>>("/statistics", {
       query: { from, to, doctor },
+      cacheKey: `statistics:${from ?? ""}:${to ?? ""}:${doctor ?? ""}`,
+      cacheTtlMs: CACHE_TTL.MEDIUM,
     }),
 };
 
@@ -329,6 +479,8 @@ export const medisonApi = {
   getMappings: (userId: string) =>
     request<ApiMedisonMapping[]>("/medison-mappings", {
       query: { userId },
+      cacheKey: `medison:${userId}`,
+      cacheTtlMs: CACHE_TTL.ETERNAL,
     }),
 
   upsertMapping: (data: {
@@ -342,27 +494,41 @@ export const medisonApi = {
     request<ApiSuccessResponse<{ id: string }>>("/medison-mappings", {
       method: "POST",
       body: data,
+      invalidatePrefixes: [`medison:${data.userId}`],
     }),
 
   deleteMapping: (id: string) =>
     request<ApiSuccessResponse>(`/medison-mappings/${id}`, {
       method: "DELETE",
+      invalidatePrefixes: ["medison:"],
     }),
 
   resetDefaults: (userId: string) =>
-    request<ApiSuccessResponse<{ inserted: number }>>("/medison-mappings/reset", {
-      method: "POST",
-      body: { userId },
-    }),
+    request<ApiSuccessResponse<{ inserted: number }>>(
+      "/medison-mappings/reset",
+      {
+        method: "POST",
+        body: { userId },
+        invalidatePrefixes: [`medison:${userId}`],
+      },
+    ),
 };
 
 // ===== Appointments (Registry) =====
 export const appointmentsApi = {
   getByDate: (date: string) =>
-    request<ApiAppointment[]>("/appointments", { query: { date } }),
+    request<ApiAppointment[]>("/appointments", {
+      query: { date },
+      cacheKey: `appointment:date:${date}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 
   getByMonth: (month: number, year: number) =>
-    request<ApiAppointment[]>("/appointments", { query: { month, year } }),
+    request<ApiAppointment[]>("/appointments", {
+      query: { month, year },
+      cacheKey: `appointment:month:${month}:${year}`,
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 
   create: (data: {
     lastName: string;
@@ -376,6 +542,7 @@ export const appointmentsApi = {
     request<ApiAppointment>("/appointments", {
       method: "POST",
       body: data,
+      invalidatePrefixes: ["appointment:"],
     }),
 
   update: (
@@ -392,17 +559,23 @@ export const appointmentsApi = {
     request<ApiAppointment>(`/appointments/${id}`, {
       method: "PUT",
       body: data,
+      invalidatePrefixes: ["appointment:"],
     }),
 
   delete: (id: string) =>
     request<ApiSuccessResponse>(`/appointments/${id}`, {
       method: "DELETE",
+      invalidatePrefixes: ["appointment:"],
     }),
 };
 
 // ===== Doctors (Registry) =====
 export const doctorsApi = {
-  getAll: () => request<ApiDoctor[]>("/doctors"),
+  getAll: () =>
+    request<ApiDoctor[]>("/doctors", {
+      cacheKey: "doctor:list",
+      cacheTtlMs: CACHE_TTL.SHORT,
+    }),
 
   create: (data: {
     name: string;
@@ -412,6 +585,7 @@ export const doctorsApi = {
     request<ApiDoctor>("/doctors", {
       method: "POST",
       body: data,
+      invalidatePrefixes: ["doctor:list"],
     }),
 
   update: (
@@ -425,11 +599,13 @@ export const doctorsApi = {
     request<ApiDoctor>(`/doctors/${id}`, {
       method: "PUT",
       body: data,
+      invalidatePrefixes: ["doctor:list"],
     }),
 
   delete: (id: string) =>
     request<ApiSuccessResponse>(`/doctors/${id}`, {
       method: "DELETE",
+      invalidatePrefixes: ["doctor:list"],
     }),
 };
 

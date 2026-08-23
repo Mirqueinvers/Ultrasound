@@ -15,6 +15,7 @@ import type {
   MobileHostAPI,
   UpdateAPI,
   NetworkAPI,
+  ConnectionAPI,
 } from "../../electron/contracts";
 
 declare global {
@@ -35,6 +36,7 @@ declare global {
     mobileHostAPI: MobileHostAPI;
     updateAPI: UpdateAPI;
     networkAPI: NetworkAPI;
+    connectionAPI: ConnectionAPI;
   }
 }
 

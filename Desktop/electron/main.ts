@@ -7,10 +7,11 @@ import { setupProtocolHandlers } from "./ipc/protocolHandlers";
 import { setupMobileHostHandlers } from "./ipc/mobileHostHandlers";
 import { setupMedisonHandlers } from "./ipc/medisonIpc";
 import { setupMedisonMappingHandlers } from "./ipc/medisonMappingIpc";
-import { DatabaseManager } from "./database/database";
 import { getMobileHostService } from "./mobile-host";
 import { loadServerConfig, saveServerConfig } from "./apiConfig";
 import { setServerUrl } from "./apiClient";
+import { OfflineCache } from "./cache/offlineCache";
+import { ConnectionMonitor } from "./cache/connectionMonitor";
 import {
   setAutoUpdaterWindow,
   initAutoUpdater,
@@ -23,7 +24,6 @@ import {
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
-  const dbManager = DatabaseManager.getInstance();
   const appRootPath = path.join(__dirname, "..", "..");
 
   const iconPath = path.join(appRootPath, "build", "us-icon.png");
@@ -83,6 +83,21 @@ app.whenReady().then(async () => {
     console.error("Failed to start mobile host service:", error);
   }
 
+  // ==================== OFFLINE CACHE + CONNECTION MONITOR (Этап 2.3) ====================
+  try {
+    OfflineCache.getInstance().init(path.join(app.getPath("userData"), "cache.db"));
+  } catch (error) {
+    console.error("Failed to init offline cache:", error);
+  }
+  ConnectionMonitor.getInstance().start();
+  ConnectionMonitor.getInstance().onStatusChange((status) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      if (!window.isDestroyed()) {
+        window.webContents.send("connection:status-changed", status);
+      }
+    }
+  });
+
   createWindow();
 
   // ==================== SERVER CONFIG HANDLERS ====================
@@ -91,6 +106,7 @@ app.whenReady().then(async () => {
   ipcMain.handle("server:getConfig", async () => {
     const config = await loadServerConfig();
     setServerUrl(config.serverUrl);
+    ConnectionMonitor.getInstance().notifyConfigChanged();
     return { serverUrl: config.serverUrl, configured: config.serverUrl.trim().length > 0 };
   });
 
@@ -109,6 +125,7 @@ app.whenReady().then(async () => {
             : {}),
         });
         setServerUrl(url);
+        ConnectionMonitor.getInstance().notifyConfigChanged();
         return { success: true };
       } catch (error) {
         console.error("Server config save error:", error);
@@ -116,6 +133,16 @@ app.whenReady().then(async () => {
       }
     }
   );
+
+  // ==================== CONNECTION STATUS + OFFLINE CACHE IPC (Этап 2.3) ====================
+
+  ipcMain.handle("connection:getStatus", () => {
+    return ConnectionMonitor.getInstance().getStatus();
+  });
+
+  ipcMain.handle("offlineCache:getSummary", () => {
+    return OfflineCache.getInstance().getSummary();
+  });
 
   // ==================== UPDATE SERVERS HANDLERS ====================
 

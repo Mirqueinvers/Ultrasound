@@ -21,6 +21,8 @@ import type {
   RegistryAPI,
   NetworkAPI,
   UpdateAPI,
+  ConnectionAPI,
+  ConnectionStatus,
   Research,
   PatientSearchEntry,
 } from "./contracts";
@@ -197,6 +199,20 @@ const registryAPI: RegistryAPI = {
     ipcRenderer.invoke("registry:saveCachedAppointments", appointments),
 };
 
+const connectionAPI: ConnectionAPI = {
+  getStatus: () => ipcRenderer.invoke("connection:getStatus"),
+  getOfflineCacheSummary: () => ipcRenderer.invoke("offlineCache:getSummary"),
+  onStatusChange: (handler) => {
+    const listener = (_event: unknown, status: ConnectionStatus) => {
+      handler(status);
+    };
+    ipcRenderer.on("connection:status-changed", listener);
+    return () => {
+      ipcRenderer.removeListener("connection:status-changed", listener);
+    };
+  },
+};
+
 const networkAPI: NetworkAPI = {
   sendExport: (data) => ipcRenderer.invoke("network:sendExport", data),
 };
@@ -253,4 +269,5 @@ contextBridge.exposeInMainWorld("databaseAPI", databaseAPI);
 contextBridge.exposeInMainWorld("defaultsAPI", defaultsAPI);
 contextBridge.exposeInMainWorld("registryAPI", registryAPI);
 contextBridge.exposeInMainWorld("networkAPI", networkAPI);
+contextBridge.exposeInMainWorld("connectionAPI", connectionAPI);
 contextBridge.exposeInMainWorld("updateAPI", updateAPI);

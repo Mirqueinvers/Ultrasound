@@ -369,6 +369,29 @@ export interface PatientSearchAPI {
   search: (query: string) => Promise<PatientSearchEntry[]>;
 }
 
+// ========== CONNECTION API (Этап 2.3) ==========
+
+export type ConnectionStatus = "online" | "offline" | "not-configured";
+
+export interface ConnectionStatusInfo {
+  status: ConnectionStatus;
+  lastCheckedAt: string | null;
+}
+
+export interface OfflineCacheSummary {
+  patients: number;
+  researches: number;
+  journal: number;
+  statistics: number;
+  protocols: number;
+}
+
+export interface ConnectionAPI {
+  getStatus: () => Promise<ConnectionStatusInfo>;
+  onStatusChange: (handler: (status: ConnectionStatus) => void) => () => void;
+  getOfflineCacheSummary: () => Promise<OfflineCacheSummary>;
+}
+
 // ========== DATABASE API ==========
 
 export interface DatabaseAPI {

@@ -26,6 +26,7 @@ import { databaseService } from "./database";
 import { registryService } from "./registry";
 import { networkService } from "./network";
 import { updateService } from "./update";
+import { connectionService } from "./connection";
 
 // ========== Группа A. preload.ts реэкспортирует ровно те же типы, что contracts.ts ==========
 
@@ -93,6 +94,10 @@ describe("IPC-контракты: preload реэкспортирует типы 
   it("UpdateAPI идентичен в preload и contracts", () => {
     expectTypeOf<Preload.UpdateAPI>().toEqualTypeOf<Contracts.UpdateAPI>();
   });
+
+  it("ConnectionAPI идентичен в preload и contracts", () => {
+    expectTypeOf<Preload.ConnectionAPI>().toEqualTypeOf<Contracts.ConnectionAPI>();
+  });
 });
 
 // ========== Группа B. Сервисы (адаптеры) соответствуют контрактам ==========
@@ -115,6 +120,7 @@ const apiServices = {
   patientSearchService,
   databaseService,
   updateService,
+  connectionService,
 } as const;
 
 describe("IPC-контракты: сервисы соответствуют контрактам", () => {
@@ -180,6 +186,10 @@ describe("IPC-контракты: сервисы соответствуют ко
 
   it("updateService соответствует UpdateAPI", () => {
     expectTypeOf(apiServices.updateService).toMatchTypeOf<Contracts.UpdateAPI>();
+  });
+
+  it("connectionService соответствует ConnectionAPI", () => {
+    expectTypeOf(apiServices.connectionService).toMatchTypeOf<Contracts.ConnectionAPI>();
   });
 });
 
@@ -301,6 +311,10 @@ describe("IPC-контракты: window.*API в global.d.ts совпадают 
 
   it("window.updateAPI — это UpdateAPI", () => {
     expectTypeOf<Window["updateAPI"]>().toEqualTypeOf<Contracts.UpdateAPI>();
+  });
+
+  it("window.connectionAPI — это ConnectionAPI", () => {
+    expectTypeOf<Window["connectionAPI"]>().toEqualTypeOf<Contracts.ConnectionAPI>();
   });
 });
 

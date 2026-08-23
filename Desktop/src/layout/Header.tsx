@@ -1,6 +1,7 @@
 import React from "react";
-import { FileText, BookOpen, Search, BarChart3, BookMarked, CalendarClock } from "lucide-react";
+import { FileText, BookOpen, Search, BarChart3, BookMarked, CalendarClock, Wifi, WifiOff } from "lucide-react";
 import UserMenu from "@/components/common/UserMenu";
+import { useConnectionStatus } from "@/hooks";
 
 interface HeaderProps {
   activeSection: string;
@@ -50,6 +51,10 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const navRef = React.useRef<HTMLDivElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = React.useState<{ left: number; width: number } | null>(null);
+  const { status: connectionStatus } = useConnectionStatus();
+  const isOffline = connectionStatus === "offline";
+  const isNotConfigured = connectionStatus === "not-configured";
+  const showConnectionWarning = isOffline || isNotConfigured;
 
   React.useEffect(() => {
     if (!navRef.current) return;
@@ -117,6 +122,25 @@ const Header: React.FC<HeaderProps> = ({
             }
           />
         </nav>
+
+        {/* Статус подключения к серверу (этап 2.3) */}
+        {showConnectionWarning && (
+          <div
+            className={`relative z-[100] ml-3 flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium ${
+              isOffline
+                ? "bg-amber-50 border-amber-200 text-amber-700"
+                : "bg-slate-50 border-slate-200 text-slate-500"
+            }`}
+            title={
+              isOffline
+                ? "Нет связи с сервером. Доступен только просмотр кэшированных данных."
+                : "Адрес сервера не настроен."
+            }
+          >
+            {isOffline ? <WifiOff size={16} /> : <Wifi size={16} />}
+            <span>{isOffline ? "Нет связи" : "Сервер не настроен"}</span>
+          </div>
+        )}
 
         {/* User Menu */}
         <div className="relative z-[100] ml-4">
