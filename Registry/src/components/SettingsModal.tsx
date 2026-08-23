@@ -1,9 +1,10 @@
-import { X, Plus, Pencil, Trash2, RefreshCw, Download, CheckCircle, AlertCircle, RotateCw, Server, Upload } from "lucide-react";
+import { X, Plus, Pencil, Trash2, RefreshCw, Download, CheckCircle, AlertCircle, RotateCw, Server, Upload, Database, Loader2 } from "lucide-react";
 import { DAY_NAMES, DAY_NAMES_FULL } from "../constants";
 import { btnClass } from "../constants";
 import type { Doctor } from "../types";
 
 export type UpdateState = "idle" | "checking" | "available" | "downloading" | "downloaded" | "error" | "not-available";
+export type ServerStatus = "idle" | "saving" | "ok" | "error";
 
 interface UpdateServer {
   name: string;
@@ -12,13 +13,20 @@ interface UpdateServer {
 
 interface SettingsModalProps {
   departmentInput: string;
-  settingsTab: "department" | "doctors" | "update";
+  settingsTab: "department" | "doctors" | "update" | "server";
   doctors: Doctor[];
   showDoctorForm: boolean;
   editingDoctor: Doctor | null;
   doctorName: string;
   doctorMaxPatients: string;
   doctorWorkDays: number[];
+  // Server (центральный API) state
+  serverUrl: string;
+  serverStatus: ServerStatus;
+  serverMessage: string;
+  serverConnected: boolean | null;
+  onServerUrlChange: (val: string) => void;
+  onSaveServer: () => void;
   // Update state
   updateState: UpdateState;
   updateProgress: number;
@@ -37,7 +45,7 @@ interface SettingsModalProps {
   onUpdateDownload: () => void;
   onUpdateInstall: () => void;
   onDepartmentChange: (val: string) => void;
-  onSettingsTabChange: (tab: "department" | "doctors" | "update") => void;
+  onSettingsTabChange: (tab: "department" | "doctors" | "update" | "server") => void;
   onSaveDepartment: () => void;
   onClose: () => void;
   onAddDoctor: () => void;
@@ -69,6 +77,12 @@ export default function SettingsModal({
   doctorName,
   doctorMaxPatients,
   doctorWorkDays,
+  serverUrl,
+  serverStatus,
+  serverMessage,
+  serverConnected,
+  onServerUrlChange,
+  onSaveServer,
   updateState,
   updateProgress,
   updateVersion,
@@ -132,6 +146,16 @@ export default function SettingsModal({
             }`}
           >
             Врачи
+          </button>
+          <button
+            onClick={() => onSettingsTabChange("server")}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+              settingsTab === "server"
+                ? "bg-medical-50 text-medical-700 border-b-2 border-medical-500"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Сервер
           </button>
           <button
             onClick={() => onSettingsTabChange("update")}
@@ -306,6 +330,77 @@ export default function SettingsModal({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Вкладка "Сервер" */}
+        {settingsTab === "server" && (
+          <div className="overflow-y-auto min-h-0">
+            <div className="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Database size={16} className="text-medical-600" />
+                <span className="text-sm font-semibold text-slate-700">
+                  Центральный сервер
+                </span>
+              </div>
+
+              <label className="block text-sm font-medium text-slate-600 mb-1">
+                Адрес сервера
+              </label>
+              <input
+                type="text"
+                value={serverUrl}
+                onChange={(e) => onServerUrlChange(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onSaveServer()}
+                placeholder="http://10.201.50.187:4000/api"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-300 focus:border-medical-400 transition-all duration-200"
+              />
+              <p className="text-xs text-slate-400 mt-2 mb-3">
+                Можно указать IP (10.201.50.187), IP с портом
+                (10.201.50.187:4000) или полный адрес. Порт 4000 и путь /api
+                подставляются автоматически.
+              </p>
+
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-sm">
+                  {serverConnected === null ? (
+                    <span className="text-slate-400">Статус не проверен</span>
+                  ) : serverConnected ? (
+                    <span className="text-green-600 flex items-center gap-1">
+                      <CheckCircle size={16} /> Подключено
+                    </span>
+                  ) : (
+                    <span className="text-red-500 flex items-center gap-1">
+                      <AlertCircle size={16} /> Нет подключения
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={onSaveServer}
+                  disabled={serverStatus === "saving" || !serverUrl.trim()}
+                  className="px-4 py-2 text-sm font-medium text-white bg-medical-500 hover:bg-medical-600 rounded-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {serverStatus === "saving" ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <RefreshCw size={16} />
+                  )}
+                  Сохранить и проверить
+                </button>
+              </div>
+
+              {serverMessage && (
+                <p
+                  className={`text-xs mt-2 ${
+                    serverStatus === "error"
+                      ? "text-red-500"
+                      : "text-green-600"
+                  }`}
+                >
+                  {serverMessage}
+                </p>
+              )}
+            </div>
           </div>
         )}
 

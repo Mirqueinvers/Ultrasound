@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { promises as fs } from "node:fs";
-import { initDb } from "../src/db";
+import { initDb, reconnect, checkServerConnection, normalizeServerUrl } from "../src/db";
 import { registerRegistryIpc } from "./registryIpc";
 import {
   setAutoUpdaterWindow,
@@ -15,6 +15,39 @@ import {
 let mainWindow: BrowserWindow | null = null;
 
 const isDev = !app.isPackaged;
+
+// ==================== CENTRAL SERVER CONFIG (Этап: настройки Registry) ====================
+// Адрес центрального API хранится в {userData}/server-config.json.
+// Приоритет при старте: сохранённый адрес -> переменная CENTRAL_API_URL -> дефолт.
+
+function getServerConfigFilePath(): string {
+  return path.join(app.getPath("userData"), "server-config.json");
+}
+
+async function loadServerConfig(): Promise<{ centralApiUrl?: string }> {
+  try {
+    const data = await fs.readFile(getServerConfigFilePath(), "utf8");
+    const parsed: unknown = JSON.parse(data);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      typeof (parsed as { centralApiUrl?: unknown }).centralApiUrl === "string"
+    ) {
+      return { centralApiUrl: (parsed as { centralApiUrl: string }).centralApiUrl };
+    }
+  } catch {
+    // Файл отсутствует или повреждён — используем env/дефолт
+  }
+  return {};
+}
+
+async function saveServerConfig(url: string): Promise<void> {
+  await fs.writeFile(
+    getServerConfigFilePath(),
+    JSON.stringify({ centralApiUrl: url }, null, 2),
+    "utf8"
+  );
+}
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
@@ -38,14 +71,74 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  // Восстанавливаем адрес центрального сервера, сохранённый в настройках.
+  let configuredServerUrl: string | undefined;
+  try {
+    const saved = await loadServerConfig();
+    if (saved.centralApiUrl && saved.centralApiUrl.trim() !== "") {
+      configuredServerUrl = saved.centralApiUrl.trim();
+    }
+  } catch {
+    // нет конфига — используем переменную окружения / дефолт
+  }
+
   // Этап 3.3/3.4: вход сервисной учёткой регистратуры в центральный API
   // и регистрация IPC-моста (window.registryAPI) до создания окна.
   // Собственный HTTP-сервер Registry (src/api.ts) удалён — данные теперь
   // хранятся в общей PostgreSQL, Desktop и Registry видят одни записи.
-  await initDb();
+  await initDb(configuredServerUrl);
   registerRegistryIpc();
 
   await createWindow();
+
+  // ==================== CENTRAL SERVER CONFIG HANDLERS ====================
+  // Адрес центрального API: чтение/сохранение из настроек Registry.
+
+  ipcMain.handle("registry:getServerConfig", async () => {
+    let savedUrl = "";
+    try {
+      const saved = await loadServerConfig();
+      savedUrl = saved.centralApiUrl || "";
+    } catch {
+      // ignore
+    }
+    const current =
+      savedUrl.trim() ||
+      (process.env.CENTRAL_API_URL || "").trim() ||
+      "http://localhost:4000/api";
+    try {
+      const connected = await checkServerConnection(current);
+      return { centralApiUrl: current, connected };
+    } catch {
+      return { centralApiUrl: current, connected: false };
+    }
+  });
+
+  ipcMain.handle("registry:saveServerConfig", async (_event, rawUrl: string) => {
+    const url = normalizeServerUrl(typeof rawUrl === "string" ? rawUrl : "");
+    if (!url) {
+      return { success: false, message: "Укажите адрес сервера", connected: false };
+    }
+    try {
+      await saveServerConfig(url);
+    } catch (error) {
+      console.error("Server config save error:", error);
+      return {
+        success: false,
+        message: "Не удалось сохранить адрес сервера",
+        connected: false,
+      };
+    }
+    const result = await reconnect(url);
+    if (result.ok) {
+      return { success: true, message: "Адрес сохранён, подключение установлено", connected: true };
+    }
+    return {
+      success: true,
+      message: result.message || "Адрес сохранён, но подключение не удалось",
+      connected: false,
+    };
+  });
 
   // ==================== UPDATE SERVERS HANDLERS ====================
 

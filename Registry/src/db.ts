@@ -93,36 +93,90 @@ function mapDoctorDto(d: DoctorDto): Doctor {
 
 // ===== Инициализация: адрес сервера + авторизация =====
 
-export async function initDb(): Promise<void> {
-  api.setApiUrl(CENTRAL_API_URL);
+/** Нормализация введённого пользователем адреса сервера.
+ *  Принимает: "10.201.50.187", "10.201.50.187:4000", "http://...:4000/api".
+ *  Возвращает полный URL вида "http://<host>:4000/api" или "" при пустом вводе.
+ */
+export function normalizeServerUrl(input: string): string {
+  let s = input.trim();
+  if (!s) return "";
+  s = s.replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(s)) s = `http://${s}`;
 
-  // Пытаемся войти. Если аккаунта ещё нет (БД стартовала пустой) — регистрируем.
-  try {
-    const result = await api.login(REGISTRY_USERNAME, REGISTRY_PASSWORD);
-    api.setToken(result.token);
-    return;
-  } catch (err) {
-    console.warn(
-      `initDb: вход "${REGISTRY_USERNAME}" не удался, пробуем создать учётную запись`,
-      err
-    );
+  // Если после протокола указан только host без порта — подставляем 4000.
+  const match = s.match(/^(https?:\/\/)([^/]+)(\/.*)?$/i);
+  if (match) {
+    const host = match[2];
+    const rest = match[3] || "";
+    if (!/:\d+$/.test(host)) {
+      s = `${match[1]}${host}:4000${rest}`;
+    }
   }
 
+  if (!/\/api$/i.test(s)) s = `${s}/api`;
+  return s;
+}
+
+async function doLogin(
+  url: string
+): Promise<{ ok: boolean; message?: string }> {
+  api.setApiUrl(url);
+  api.setToken(null);
   try {
-    await api.register({
-      username: REGISTRY_USERNAME,
-      password: REGISTRY_PASSWORD,
-      name: "Регистратура",
-    });
     const result = await api.login(REGISTRY_USERNAME, REGISTRY_PASSWORD);
     api.setToken(result.token);
-    console.log(`initDb: учётная запись "${REGISTRY_USERNAME}" создана`);
+    return { ok: true };
   } catch (err) {
-    console.error(
-      "initDb: не удалось авторизоваться в центральном API. " +
-        "Проверьте CENTRAL_API_URL, REGISTRY_USERNAME, REGISTRY_PASSWORD.",
+    console.warn(
+      `doLogin: вход "${REGISTRY_USERNAME}" на ${url} не удался, пробуем создать учётную запись`,
       err
     );
+    try {
+      await api.register({
+        username: REGISTRY_USERNAME,
+        password: REGISTRY_PASSWORD,
+        name: "Регистратура",
+      });
+      const result = await api.login(REGISTRY_USERNAME, REGISTRY_PASSWORD);
+      api.setToken(result.token);
+      return { ok: true, message: `Учётная запись "${REGISTRY_USERNAME}" создана` };
+    } catch (err2) {
+      const detail = err2 instanceof Error ? err2.message : String(err2);
+      return {
+        ok: false,
+        message: `Не удалось авторизоваться на ${url}. Проверьте адрес сервера и учётные данные. ${detail}`,
+      };
+    }
+  }
+}
+
+export async function initDb(serverUrl?: string): Promise<void> {
+  const url =
+    serverUrl && serverUrl.trim() !== "" ? normalizeServerUrl(serverUrl) : CENTRAL_API_URL;
+  const result = await doLogin(url);
+  if (!result.ok) {
+    console.error(`initDb: ${result.message}`);
+  } else if (result.message) {
+    console.log(`initDb: ${result.message}`);
+  }
+}
+
+/** Сменить адрес центрального сервера и переподключиться (вызывается из настроек). */
+export async function reconnect(
+  serverUrl: string
+): Promise<{ ok: boolean; message?: string }> {
+  const url = normalizeServerUrl(serverUrl);
+  return doLogin(url);
+}
+
+/** Проверка связи с сервером через GET /health. */
+export async function checkServerConnection(url: string): Promise<boolean> {
+  try {
+    api.setApiUrl(normalizeServerUrl(url));
+    await api.fetchHealth();
+    return true;
+  } catch {
+    return false;
   }
 }
 

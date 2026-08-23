@@ -108,6 +108,10 @@ const registryAPI = {
     ),
   deleteDoctor: (id: string) =>
     ipcRenderer.invoke("registry:deleteDoctor", id),
+  // Конфигурация центрального сервера (Этап: настройки Registry)
+  getServerConfig: () => ipcRenderer.invoke("registry:getServerConfig"),
+  saveServerConfig: (url: string) =>
+    ipcRenderer.invoke("registry:saveServerConfig", url),
 };
 
 contextBridge.exposeInMainWorld("registryAPI", registryAPI);

@@ -85,6 +85,16 @@ export interface RegistryAPI {
     workDays: number[]
   ) => Promise<RegistryDoctor | null>;
   deleteDoctor: (id: string) => Promise<boolean>;
+  // Конфигурация центрального сервера (Этап: настройки Registry)
+  getServerConfig: () => Promise<{
+    centralApiUrl: string;
+    connected: boolean;
+  }>;
+  saveServerConfig: (url: string) => Promise<{
+    success: boolean;
+    message: string;
+    connected: boolean;
+  }>;
 }
 
 declare global {

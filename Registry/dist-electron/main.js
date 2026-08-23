@@ -187,6 +187,9 @@ function updateDoctor$1(id, data) {
 function deleteDoctor$1(id) {
 	return request(`/doctors/${encodeURIComponent(id)}`, { method: "DELETE" }, true);
 }
+function fetchHealth() {
+	return request("/health");
+}
 //#endregion
 //#region src/db.ts
 /**
@@ -236,24 +239,68 @@ function mapDoctorDto(d) {
 		work_days: JSON.stringify(d.workDays)
 	};
 }
-async function initDb() {
-	setApiUrl(CENTRAL_API_URL);
-	try {
-		setToken((await login(REGISTRY_USERNAME, REGISTRY_PASSWORD)).token);
-		return;
-	} catch (err) {
-		console.warn(`initDb: вход "${REGISTRY_USERNAME}" не удался, пробуем создать учётную запись`, err);
+/** Нормализация введённого пользователем адреса сервера.
+*  Принимает: "10.201.50.187", "10.201.50.187:4000", "http://...:4000/api".
+*  Возвращает полный URL вида "http://<host>:4000/api" или "" при пустом вводе.
+*/
+function normalizeServerUrl(input) {
+	let s = input.trim();
+	if (!s) return "";
+	s = s.replace(/\/+$/, "");
+	if (!/^https?:\/\//i.test(s)) s = `http://${s}`;
+	const match = s.match(/^(https?:\/\/)([^/]+)(\/.*)?$/i);
+	if (match) {
+		const host = match[2];
+		const rest = match[3] || "";
+		if (!/:\d+$/.test(host)) s = `${match[1]}${host}:4000${rest}`;
 	}
+	if (!/\/api$/i.test(s)) s = `${s}/api`;
+	return s;
+}
+async function doLogin(url) {
+	setApiUrl(url);
+	setToken(null);
 	try {
-		await register({
-			username: REGISTRY_USERNAME,
-			password: REGISTRY_PASSWORD,
-			name: "Регистратура"
-		});
 		setToken((await login(REGISTRY_USERNAME, REGISTRY_PASSWORD)).token);
-		console.log(`initDb: учётная запись "${REGISTRY_USERNAME}" создана`);
+		return { ok: true };
 	} catch (err) {
-		console.error("initDb: не удалось авторизоваться в центральном API. Проверьте CENTRAL_API_URL, REGISTRY_USERNAME, REGISTRY_PASSWORD.", err);
+		console.warn(`doLogin: вход "${REGISTRY_USERNAME}" на ${url} не удался, пробуем создать учётную запись`, err);
+		try {
+			await register({
+				username: REGISTRY_USERNAME,
+				password: REGISTRY_PASSWORD,
+				name: "Регистратура"
+			});
+			setToken((await login(REGISTRY_USERNAME, REGISTRY_PASSWORD)).token);
+			return {
+				ok: true,
+				message: `Учётная запись "${REGISTRY_USERNAME}" создана`
+			};
+		} catch (err2) {
+			return {
+				ok: false,
+				message: `Не удалось авторизоваться на ${url}. Проверьте адрес сервера и учётные данные. ${err2 instanceof Error ? err2.message : String(err2)}`
+			};
+		}
+	}
+}
+async function initDb(serverUrl) {
+	const result = await doLogin(serverUrl && serverUrl.trim() !== "" ? normalizeServerUrl(serverUrl) : CENTRAL_API_URL);
+	if (!result.ok) console.error(`initDb: ${result.message}`);
+	else if (result.message) console.log(`initDb: ${result.message}`);
+}
+/** Сменить адрес центрального сервера и переподключиться (вызывается из настроек). */
+async function reconnect(serverUrl) {
+	return doLogin(normalizeServerUrl(serverUrl));
+}
+/** Проверка связи с сервером через GET /health. */
+async function checkServerConnection(url) {
+	try {
+		setApiUrl(normalizeServerUrl(url));
+		await fetchHealth();
+		return true;
+	} catch {
+		return false;
 	}
 }
 async function getAppointmentsByMonth(month, year) {
@@ -14827,6 +14874,20 @@ function quitAndInstall() {
 //#region electron/main.ts
 var mainWindow = null;
 var isDev = !electron.app.isPackaged;
+function getServerConfigFilePath() {
+	return path.default.join(electron.app.getPath("userData"), "server-config.json");
+}
+async function loadServerConfig() {
+	try {
+		const data = await node_fs.promises.readFile(getServerConfigFilePath(), "utf8");
+		const parsed = JSON.parse(data);
+		if (parsed && typeof parsed === "object" && typeof parsed.centralApiUrl === "string") return { centralApiUrl: parsed.centralApiUrl };
+	} catch {}
+	return {};
+}
+async function saveServerConfig(url) {
+	await node_fs.promises.writeFile(getServerConfigFilePath(), JSON.stringify({ centralApiUrl: url }, null, 2), "utf8");
+}
 async function createWindow() {
 	mainWindow = new electron.BrowserWindow({
 		width: 1200,
@@ -14844,9 +14905,61 @@ async function createWindow() {
 	} else await mainWindow.loadFile(path.default.join(__dirname, "..", "dist", "index.html"));
 }
 electron.app.whenReady().then(async () => {
-	await initDb();
+	let configuredServerUrl;
+	try {
+		const saved = await loadServerConfig();
+		if (saved.centralApiUrl && saved.centralApiUrl.trim() !== "") configuredServerUrl = saved.centralApiUrl.trim();
+	} catch {}
+	await initDb(configuredServerUrl);
 	registerRegistryIpc();
 	await createWindow();
+	electron.ipcMain.handle("registry:getServerConfig", async () => {
+		let savedUrl = "";
+		try {
+			savedUrl = (await loadServerConfig()).centralApiUrl || "";
+		} catch {}
+		const current = savedUrl.trim() || (process.env.CENTRAL_API_URL || "").trim() || "http://localhost:4000/api";
+		try {
+			return {
+				centralApiUrl: current,
+				connected: await checkServerConnection(current)
+			};
+		} catch {
+			return {
+				centralApiUrl: current,
+				connected: false
+			};
+		}
+	});
+	electron.ipcMain.handle("registry:saveServerConfig", async (_event, rawUrl) => {
+		const url = normalizeServerUrl(typeof rawUrl === "string" ? rawUrl : "");
+		if (!url) return {
+			success: false,
+			message: "Укажите адрес сервера",
+			connected: false
+		};
+		try {
+			await saveServerConfig(url);
+		} catch (error) {
+			console.error("Server config save error:", error);
+			return {
+				success: false,
+				message: "Не удалось сохранить адрес сервера",
+				connected: false
+			};
+		}
+		const result = await reconnect(url);
+		if (result.ok) return {
+			success: true,
+			message: "Адрес сохранён, подключение установлено",
+			connected: true
+		};
+		return {
+			success: true,
+			message: result.message || "Адрес сохранён, но подключение не удалось",
+			connected: false
+		};
+	});
 	const updateServersFilePath = path.default.join(electron.app.getPath("userData"), "update-servers.json");
 	function normalizeServers(parsed) {
 		return (Array.isArray(parsed) ? parsed : parsed && typeof parsed === "object" && Array.isArray(parsed.servers) ? parsed.servers : []).map((entry) => {

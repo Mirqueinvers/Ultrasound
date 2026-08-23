@@ -12,7 +12,7 @@ import CalendarView from "./components/CalendarView";
 import AllDoctorsView from "./components/AllDoctorsView";
 import AppointmentList from "./components/AppointmentList";
 import AppointmentModal from "./components/AppointmentModal";
-import SettingsModal, { cleanIpInput, type UpdateState } from "./components/SettingsModal";
+import SettingsModal, { cleanIpInput, type UpdateState, type ServerStatus } from "./components/SettingsModal";
 import ToastContainer from "./components/Toast";
 import ConfirmDialog from "./components/ConfirmDialog";
 
@@ -27,6 +27,7 @@ export default function App() {
     appointments,
     allAppointments,
     loading: loadingAppointments,
+    fetchAppointments,
     createAppointment,
     updateAppointment,
     removeAppointment,
@@ -34,6 +35,7 @@ export default function App() {
   const {
     doctors,
     loading: loadingDoctors,
+    fetchDoctors,
     createDoctor,
     updateDoctor,
     removeDoctor,
@@ -54,7 +56,7 @@ export default function App() {
   // Модалка настроек
   const [showSettings, setShowSettings] = useState(false);
   const [departmentInput, setDepartmentInput] = useState(getDepartment());
-  const [settingsTab, setSettingsTab] = useState<"department" | "doctors" | "update">("department");
+  const [settingsTab, setSettingsTab] = useState<"department" | "doctors" | "update" | "server">("department");
 
   // Врачи UI
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
@@ -78,6 +80,12 @@ export default function App() {
   const [updateNewName, setUpdateNewName] = useState("");
   const [updateNewIp, setUpdateNewIp] = useState("");
 
+  // Сервер (центральный API)
+  const [serverUrl, setServerUrl] = useState("");
+  const [serverStatus, setServerStatus] = useState<ServerStatus>("idle");
+  const [serverMessage, setServerMessage] = useState("");
+  const [serverConnected, setServerConnected] = useState<boolean | null>(null);
+
   // Загрузка сохранённых серверов обновлений
   useEffect(() => {
     const api = window.updateAPI;
@@ -93,6 +101,51 @@ export default function App() {
       setUpdateActiveIp(ip || "");
     }).catch(() => {});
   }, []);
+
+  // Загрузка текущего адреса центрального сервера
+  const refreshServerConfig = useCallback(async () => {
+    const api = window.registryAPI;
+    if (!api) return;
+    try {
+      const cfg = await api.getServerConfig();
+      setServerUrl(cfg.centralApiUrl);
+      setServerConnected(cfg.connected);
+    } catch {
+      // registryAPI недоступен — оставляем текущее значение
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshServerConfig();
+  }, [refreshServerConfig]);
+
+  // Сохранение адреса сервера с переподключением
+  const handleSaveServer = useCallback(async () => {
+    const api = window.registryAPI;
+    if (!api) return;
+    setServerStatus("saving");
+    setServerMessage("");
+    try {
+      const result = await api.saveServerConfig(serverUrl);
+      setServerStatus(result.success ? "ok" : "error");
+      setServerMessage(result.message);
+      setServerConnected(result.connected);
+      if (result.success && result.connected) {
+        addToast("success", "Сервер сохранён, подключение установлено");
+        // Перезагружаем данные с нового сервера
+        fetchAppointments();
+        fetchDoctors();
+      } else {
+        addToast("error", result.message || "Не удалось подключиться к серверу");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Не удалось сохранить адрес сервера";
+      setServerStatus("error");
+      setServerMessage(msg);
+      setServerConnected(false);
+      addToast("error", msg);
+    }
+  }, [serverUrl, addToast, fetchAppointments, fetchDoctors]);
 
   // Подписка на события обновления
   useEffect(() => {
@@ -376,7 +429,8 @@ export default function App() {
     setDepartmentInput(getDepartment());
     setSettingsTab("department");
     setShowSettings(true);
-  }, []);
+    refreshServerConfig();
+  }, [refreshServerConfig]);
 
   // Врачи на выбранную дату
   const todayDoctors = getDoctorsForDate(date);
@@ -515,6 +569,12 @@ export default function App() {
           updateActiveIp={updateActiveIp}
           updateNewName={updateNewName}
           updateNewIp={updateNewIp}
+          serverUrl={serverUrl}
+          serverStatus={serverStatus}
+          serverMessage={serverMessage}
+          serverConnected={serverConnected}
+          onServerUrlChange={setServerUrl}
+          onSaveServer={handleSaveServer}
           onUpdateNewNameChange={setUpdateNewName}
           onUpdateNewIpChange={setUpdateNewIp}
           onUpdateAddServer={handleUpdateAddServer}
