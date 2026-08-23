@@ -46,6 +46,15 @@ export default defineConfig({
         "src/hooks/useFieldUpdate.ts",
         "src/hooks/useListManager.ts",
         "src/hooks/usePrintableOverrides.ts",
+        // ==== Этап 2.7: IPC-слой и HTTP-клиент (центральный сервер) ====
+        "electron/apiClient.ts",
+        "electron/apiConfig.ts",
+        "electron/ipc-handlers.ts",
+        "electron/ipc/medisonMappingIpc.ts",
+        "electron/ipc/protocolHandlers.ts",
+        "electron/ipc/mobileHostHandlers.ts",
+        "electron/cache/connectionMonitor.ts",
+        "electron/cache/offlineCache.ts",
       ],
       exclude: [
         "src/test/**",

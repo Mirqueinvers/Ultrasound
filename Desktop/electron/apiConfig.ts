@@ -54,5 +54,22 @@ export async function saveServerConfig(config: Partial<ServerConfig>): Promise<v
 
 /** Сохраняет (или очищает) JWT-токен. */
 export async function saveAuthToken(token: string | null): Promise<void> {
-  await saveServerConfig({ token: token ?? undefined });
+  if (token !== null) {
+    await saveServerConfig({ token });
+    return;
+  }
+  // Очистка: убираем поле token, сохраняя остальной конфиг.
+  // saveServerConfig({ token: undefined }) нельзя — он сохранил бы прежний токен.
+  const existing = await loadServerConfig();
+  const cleared: ServerConfig = {
+    serverUrl: existing.serverUrl,
+    ...(existing.lastLoginUsername
+      ? { lastLoginUsername: existing.lastLoginUsername }
+      : {}),
+  };
+  await fs.writeFile(
+    configFilePath(),
+    JSON.stringify(cleared, null, 2),
+    "utf8",
+  );
 }
