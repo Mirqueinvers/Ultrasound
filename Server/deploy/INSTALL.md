@@ -107,14 +107,23 @@ http://<IP-сервера>:4000/api/health
 
 ## Шаг 7. Миграция данных Desktop (выполняется один раз)
 
-После установки сервера перенести старые базы `ultrasound.db` из кабинетов:
+### Простой способ (один файл)
+Положить `ultrasound.db` на серверный ПК в папку `C:\ultrasound\ultrasound.db` и запустить
+от администратора `deploy\migrate-data.bat`. Скрипт сам:
+- сделает резервную копию `ultrasound.db` рядом с файлом;
+- установит зависимости (если нужно);
+- запустит миграцию и покажет сводку (пользователи, пациенты, исследования).
 
+### Вручную (несколько баз)
 ```bat
 cd C:\Ultrasound\Server
 npx tsx prisma/migrate-local-dbs.ts --from "C:\путь\к\ultrasound.db" --to "postgresql://ultrasound:<пароль>@localhost:5432/ultrasound"
 ```
-
 `--from` можно указывать несколько раз (по одному файлу на кабинет).
+
+> ⚠️ **Скрипт миграции запускается ОДИН раз.** Повторный запуск создаст дубли
+> пациентов и исследований. Если нужно перезапустить — сначала очистите таблицы:
+> `TRUNCATE print_block_overrides, research_studies, researches, patients, medison_mappings CASCADE;`
 
 ---
 
