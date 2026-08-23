@@ -36,10 +36,6 @@ let electron = require("electron");
 let path = require("path");
 path = __toESM(path);
 let node_fs = require("node:fs");
-let fs = require("fs");
-fs = __toESM(fs);
-let sql_js = require("sql.js");
-sql_js = __toESM(sql_js);
 //#region node_modules/ms/index.js
 var require_ms = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	/**
@@ -12980,9 +12976,9 @@ var require_mime_types = /* @__PURE__ */ __commonJSMin(((exports) => {
 	* @param {string} path
 	* @return {false|string}
 	*/
-	function lookup(path$42) {
-		if (!path$42 || typeof path$42 !== "string") return false;
-		var extension = extname("x." + path$42).toLowerCase().slice(1);
+	function lookup(path$41) {
+		if (!path$41 || typeof path$41 !== "string") return false;
+		var extension = extname("x." + path$41).toLowerCase().slice(1);
 		if (!extension) return false;
 		return exports.types[extension] || false;
 	}
@@ -16418,17 +16414,17 @@ var require_view = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @private
 	*/
 	var debug = require_src()("express:view");
-	var path$29 = require("node:path");
-	var fs$5 = require("node:fs");
+	var path$28 = require("node:path");
+	var fs$3 = require("node:fs");
 	/**
 	* Module variables.
 	* @private
 	*/
-	var dirname = path$29.dirname;
-	var basename = path$29.basename;
-	var extname = path$29.extname;
-	var join = path$29.join;
-	var resolve = path$29.resolve;
+	var dirname = path$28.dirname;
+	var basename = path$28.basename;
+	var extname = path$28.extname;
+	var join = path$28.join;
+	var resolve = path$28.resolve;
 	/**
 	* Module exports.
 	* @public
@@ -16535,7 +16531,7 @@ var require_view = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	function tryStat(path) {
 		debug("stat \"%s\"", path);
 		try {
-			return fs$5.statSync(path);
+			return fs$3.statSync(path);
 		} catch (e) {
 			return;
 		}
@@ -21518,12 +21514,12 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var escapeHtml = require_escape_html();
 	var etag = require_etag();
 	var fresh = require_fresh();
-	var fs$4 = require("fs");
+	var fs$2 = require("fs");
 	var mime = require_mime_types();
 	var ms = require_ms();
 	var onFinished = require_on_finished();
 	var parseRange = require_range_parser();
-	var path$28 = require("path");
+	var path$27 = require("path");
 	var statuses = require_statuses();
 	var Stream$1 = require("stream");
 	var util$2 = require("util");
@@ -21531,11 +21527,11 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* Path function references.
 	* @private
 	*/
-	var extname = path$28.extname;
-	var join = path$28.join;
-	var normalize = path$28.normalize;
-	var resolve = path$28.resolve;
-	var sep = path$28.sep;
+	var extname = path$27.extname;
+	var join = path$27.join;
+	var normalize = path$27.normalize;
+	var resolve = path$27.resolve;
+	var sep = path$27.sep;
 	/**
 	* Regular expression for identifying a bytes Range header.
 	* @private
@@ -21565,8 +21561,8 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @return {SendStream}
 	* @public
 	*/
-	function send(req, path$31, options) {
-		return new SendStream(req, path$31, options);
+	function send(req, path$30, options) {
+		return new SendStream(req, path$30, options);
 	}
 	/**
 	* Initialize a `SendStream` with the given `path`.
@@ -21576,11 +21572,11 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {object} [options]
 	* @private
 	*/
-	function SendStream(req, path$32, options) {
+	function SendStream(req, path$31, options) {
 		Stream$1.call(this);
 		var opts = options || {};
 		this.options = opts;
-		this.path = path$32;
+		this.path = path$31;
 		this.req = req;
 		this._acceptRanges = opts.acceptRanges !== void 0 ? Boolean(opts.acceptRanges) : true;
 		this._cacheControl = opts.cacheControl !== void 0 ? Boolean(opts.cacheControl) : true;
@@ -21758,10 +21754,10 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {string} path
 	* @private
 	*/
-	SendStream.prototype.redirect = function redirect(path$33) {
+	SendStream.prototype.redirect = function redirect(path$32) {
 		var res = this.res;
 		if (hasListeners(this, "directory")) {
-			this.emit("directory", res, path$33);
+			this.emit("directory", res, path$32);
 			return;
 		}
 		if (this.hasTrailingSlash()) {
@@ -21788,36 +21784,36 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	SendStream.prototype.pipe = function pipe(res) {
 		var root = this._root;
 		this.res = res;
-		var path$34 = decode(this.path);
-		if (path$34 === -1) {
+		var path$33 = decode(this.path);
+		if (path$33 === -1) {
 			this.error(400);
 			return res;
 		}
-		if (~path$34.indexOf("\0")) {
+		if (~path$33.indexOf("\0")) {
 			this.error(400);
 			return res;
 		}
 		var parts;
 		if (root !== null) {
-			if (path$34) path$34 = normalize("." + sep + path$34);
-			if (UP_PATH_REGEXP.test(path$34)) {
-				debug("malicious path \"%s\"", path$34);
+			if (path$33) path$33 = normalize("." + sep + path$33);
+			if (UP_PATH_REGEXP.test(path$33)) {
+				debug("malicious path \"%s\"", path$33);
 				this.error(403);
 				return res;
 			}
-			parts = path$34.split(sep);
-			path$34 = normalize(join(root, path$34));
+			parts = path$33.split(sep);
+			path$33 = normalize(join(root, path$33));
 		} else {
-			if (UP_PATH_REGEXP.test(path$34)) {
-				debug("malicious path \"%s\"", path$34);
+			if (UP_PATH_REGEXP.test(path$33)) {
+				debug("malicious path \"%s\"", path$33);
 				this.error(403);
 				return res;
 			}
-			parts = normalize(path$34).split(sep);
-			path$34 = resolve(path$34);
+			parts = normalize(path$33).split(sep);
+			path$33 = resolve(path$33);
 		}
 		if (containsDotFile(parts)) {
-			debug("%s dotfile \"%s\"", this._dotfiles, path$34);
+			debug("%s dotfile \"%s\"", this._dotfiles, path$33);
 			switch (this._dotfiles) {
 				case "allow": break;
 				case "deny":
@@ -21829,10 +21825,10 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			}
 		}
 		if (this._index.length && this.hasTrailingSlash()) {
-			this.sendIndex(path$34);
+			this.sendIndex(path$33);
 			return res;
 		}
-		this.sendFile(path$34);
+		this.sendFile(path$33);
 		return res;
 	};
 	/**
@@ -21841,7 +21837,7 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {String} path
 	* @api public
 	*/
-	SendStream.prototype.send = function send(path$35, stat) {
+	SendStream.prototype.send = function send(path$34, stat) {
 		var len = stat.size;
 		var options = this.options;
 		var opts = {};
@@ -21853,9 +21849,9 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			this.headersAlreadySent();
 			return;
 		}
-		debug("pipe \"%s\"", path$35);
-		this.setHeader(path$35, stat);
-		this.type(path$35);
+		debug("pipe \"%s\"", path$34);
+		this.setHeader(path$34, stat);
+		this.type(path$34);
 		if (this.isConditionalGET()) {
 			if (this.isPreconditionFailure()) {
 				this.error(412);
@@ -21898,7 +21894,7 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			res.end();
 			return;
 		}
-		this.stream(path$35, opts);
+		this.stream(path$34, opts);
 	};
 	/**
 	* Transfer file for `path`.
@@ -21906,24 +21902,24 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {String} path
 	* @api private
 	*/
-	SendStream.prototype.sendFile = function sendFile(path$36) {
+	SendStream.prototype.sendFile = function sendFile(path$35) {
 		var i = 0;
 		var self = this;
-		debug("stat \"%s\"", path$36);
-		fs$4.stat(path$36, function onstat(err, stat) {
-			var pathEndsWithSep = path$36[path$36.length - 1] === sep;
-			if (err && err.code === "ENOENT" && !extname(path$36) && !pathEndsWithSep) return next(err);
+		debug("stat \"%s\"", path$35);
+		fs$2.stat(path$35, function onstat(err, stat) {
+			var pathEndsWithSep = path$35[path$35.length - 1] === sep;
+			if (err && err.code === "ENOENT" && !extname(path$35) && !pathEndsWithSep) return next(err);
 			if (err) return self.onStatError(err);
-			if (stat.isDirectory()) return self.redirect(path$36);
+			if (stat.isDirectory()) return self.redirect(path$35);
 			if (pathEndsWithSep) return self.error(404);
-			self.emit("file", path$36, stat);
-			self.send(path$36, stat);
+			self.emit("file", path$35, stat);
+			self.send(path$35, stat);
 		});
 		function next(err) {
 			if (self._extensions.length <= i) return err ? self.onStatError(err) : self.error(404);
-			var p = path$36 + "." + self._extensions[i++];
+			var p = path$35 + "." + self._extensions[i++];
 			debug("stat \"%s\"", p);
-			fs$4.stat(p, function(err, stat) {
+			fs$2.stat(p, function(err, stat) {
 				if (err) return next(err);
 				if (stat.isDirectory()) return next();
 				self.emit("file", p, stat);
@@ -21937,7 +21933,7 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {String} path
 	* @api private
 	*/
-	SendStream.prototype.sendIndex = function sendIndex(path$37) {
+	SendStream.prototype.sendIndex = function sendIndex(path$36) {
 		var i = -1;
 		var self = this;
 		function next(err) {
@@ -21945,9 +21941,9 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				if (err) return self.onStatError(err);
 				return self.error(404);
 			}
-			var p = join(path$37, self._index[i]);
+			var p = join(path$36, self._index[i]);
 			debug("stat \"%s\"", p);
-			fs$4.stat(p, function(err, stat) {
+			fs$2.stat(p, function(err, stat) {
 				if (err) return next(err);
 				if (stat.isDirectory()) return next();
 				self.emit("file", p, stat);
@@ -21963,10 +21959,10 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {Object} options
 	* @api private
 	*/
-	SendStream.prototype.stream = function stream(path$38, options) {
+	SendStream.prototype.stream = function stream(path$37, options) {
 		var self = this;
 		var res = this.res;
-		var stream = fs$4.createReadStream(path$38, options);
+		var stream = fs$2.createReadStream(path$37, options);
 		this.emit("stream", stream);
 		stream.pipe(res);
 		function cleanup() {
@@ -21988,10 +21984,10 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {String} path
 	* @api private
 	*/
-	SendStream.prototype.type = function type(path$39) {
+	SendStream.prototype.type = function type(path$38) {
 		var res = this.res;
 		if (res.getHeader("Content-Type")) return;
-		var ext = extname(path$39);
+		var ext = extname(path$38);
 		var type = mime.contentType(ext) || "application/octet-stream";
 		debug("content-type %s", type);
 		res.setHeader("Content-Type", type);
@@ -22004,9 +22000,9 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {Object} stat
 	* @api private
 	*/
-	SendStream.prototype.setHeader = function setHeader(path$40, stat) {
+	SendStream.prototype.setHeader = function setHeader(path$39, stat) {
 		var res = this.res;
-		this.emit("headers", res, path$40, stat);
+		this.emit("headers", res, path$39, stat);
 		if (this._acceptRanges && !res.getHeader("Accept-Ranges")) {
 			debug("accept ranges");
 			res.setHeader("Accept-Ranges", "bytes");
@@ -22099,9 +22095,9 @@ var require_send = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	* @param {String} path
 	* @api private
 	*/
-	function decode(path$41) {
+	function decode(path$40) {
 		try {
-			return decodeURIComponent(path$41);
+			return decodeURIComponent(path$40);
 		} catch (err) {
 			return -1;
 		}
@@ -22292,7 +22288,7 @@ var require_response = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var http = require("node:http");
 	var onFinished = require_on_finished();
 	var mime = require_mime_types();
-	var path$27 = require("node:path");
+	var path$26 = require("node:path");
 	var pathIsAbsolute = require("node:path").isAbsolute;
 	var statuses = require_statuses();
 	var sign = require_cookie_signature().sign;
@@ -22301,8 +22297,8 @@ var require_response = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var setCharset = require_utils$2().setCharset;
 	var cookie = require_cookie();
 	var send = require_send();
-	var extname = path$27.extname;
-	var resolve = path$27.resolve;
+	var extname = path$26.extname;
+	var resolve = path$26.resolve;
 	var vary = require_vary();
 	var { Buffer: Buffer$1 } = require("node:buffer");
 	/**
@@ -23075,9 +23071,9 @@ var require_serve_static = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			}
 			var forwardError = !fallthrough;
 			var originalUrl = parseUrl.original(req);
-			var path$30 = parseUrl(req).pathname;
-			if (path$30 === "/" && originalUrl.pathname.substr(-1) !== "/") path$30 = "";
-			var stream = send(req, path$30, opts);
+			var path$29 = parseUrl(req).pathname;
+			if (path$29 === "/" && originalUrl.pathname.substr(-1) !== "/") path$29 = "";
+			var stream = send(req, path$29, opts);
 			stream.on("directory", onDirectory);
 			if (setHeaders) stream.on("headers", setHeaders);
 			if (fallthrough) stream.on("file", function onFile() {
@@ -23224,261 +23220,293 @@ var require_express$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 * MIT Licensed
 */
 //#endregion
-//#region src/db.ts
+//#region src/services/apiClient.ts
 var import_express = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_express$1();
 })))());
-function getDbPath() {
-	try {
-		const { app } = require("electron");
-		if (app?.getPath) return path.default.join(app.getPath("userData"), "registry.db");
-	} catch {}
-	return path.default.join(__dirname, "..", "registry.db");
+/**
+* API-клиент для центрального сервера (PostgreSQL + Prisma).
+*
+* Этап 3.1 плана перехода на PostgreSQL.
+*
+* Назначение: заменить локальную БД Registry (sql.js) и локальный HTTP-сервер
+* (src/api.ts) вызовами к центральному API-серверу. Все данные (пациенты,
+* записи, врачи) теперь хранятся на сервере в единой базе.
+*
+* Контракт:
+*  - Базовый URL задаётся через setApiUrl() (по умолчанию — http://localhost:4000/api).
+*    Renderer при старте вызывает setApiUrl(config.apiUrl) (значение VITE_API_URL);
+*    серверная часть (db.ts) — свой адрес из переменных окружения.
+*  - Запросы отправляются в camelCase (как текущий UI);
+*  - Ответы приходят от сервера в snake_case (маппинг Prisma @@map),
+*    клиент нормализует их в DTO для UI;
+*  - ID записей — строки (UUID), а не числа.
+*  - Авторизация: JWT-токен передаётся в заголовке `Authorization: Bearer <token>`.
+*    Токен получается через login()/register() и хранится в памяти модуля
+*    (setToken()). Персистентность токена — ответственность вызывающего кода.
+*
+* ВАЖНО: модуль не зависит от `import.meta.env` / config.ts, чтобы его можно
+* было использовать и в main-процессе (tsc-сборка db.ts через tsconfig.api.json).
+*/
+var DEFAULT_API_URL = "http://localhost:4000/api";
+var apiBase = DEFAULT_API_URL;
+var token = null;
+function setApiUrl(url) {
+	apiBase = (url || DEFAULT_API_URL).replace(/\/+$/, "");
 }
-var DB_PATH = getDbPath();
-var db = null;
-function saveDb() {
-	if (!db) return;
-	const data = db.export();
-	const buffer = Buffer.from(data);
-	fs.default.writeFileSync(DB_PATH, buffer);
+function setToken(value) {
+	token = value;
+}
+async function request(path, options, allowNotFound = false) {
+	const headers = {
+		"Content-Type": "application/json",
+		...options?.headers
+	};
+	if (token) headers["Authorization"] = `Bearer ${token}`;
+	const res = await fetch(`${apiBase}${path}`, {
+		...options,
+		headers
+	});
+	if (res.status === 404 && allowNotFound) return { success: true };
+	if (!res.ok) {
+		let message = `HTTP ${res.status}`;
+		try {
+			const body = await res.json();
+			if (body && typeof body === "object") {
+				const error = body.error;
+				const msg = body.message;
+				if (typeof error === "string") message = error;
+				else if (typeof msg === "string") message = msg;
+			}
+		} catch {}
+		throw new Error(message);
+	}
+	if (res.status === 204) return;
+	return res.json();
+}
+function normalizeStudies(studies) {
+	if (Array.isArray(studies)) return studies.filter((s) => typeof s === "string");
+	if (typeof studies === "string") try {
+		const parsed = JSON.parse(studies);
+		if (Array.isArray(parsed)) return parsed.filter((s) => typeof s === "string");
+	} catch {}
+	return [];
+}
+function mapAppointment(a) {
+	return {
+		id: a.id,
+		patientId: a.patient_id,
+		appointmentDate: a.appointment_date,
+		studies: normalizeStudies(a.studies),
+		department: a.department ?? "",
+		createdAt: a.created_at,
+		patient: a.patient ? {
+			id: a.patient.id,
+			lastName: a.patient.last_name,
+			firstName: a.patient.first_name,
+			middleName: a.patient.middle_name ?? "",
+			dateOfBirth: a.patient.date_of_birth
+		} : void 0
+	};
+}
+function normalizeWorkDays(workDays) {
+	if (Array.isArray(workDays)) return workDays.filter((d) => typeof d === "number");
+	if (typeof workDays === "string") try {
+		const parsed = JSON.parse(workDays);
+		if (Array.isArray(parsed)) return parsed.filter((d) => typeof d === "number");
+	} catch {}
+	return [
+		1,
+		2,
+		3,
+		4,
+		5
+	];
+}
+function mapDoctor(d) {
+	return {
+		id: d.id,
+		name: d.name,
+		maxPatientsPerDay: d.max_patients_per_day,
+		workDays: normalizeWorkDays(d.work_days)
+	};
+}
+function login(username, password) {
+	return request("/auth/login", {
+		method: "POST",
+		body: JSON.stringify({
+			username,
+			password
+		})
+	});
+}
+function register(data) {
+	return request("/auth/register", {
+		method: "POST",
+		body: JSON.stringify(data)
+	});
+}
+function fetchAppointmentsByDate(date) {
+	return request(`/appointments?date=${encodeURIComponent(date)}`).then((items) => items.map(mapAppointment));
+}
+function fetchAppointmentsByMonth(month, year) {
+	return request(`/appointments?month=${month}&year=${year}`).then((items) => items.map(mapAppointment));
+}
+function createAppointment$1(data) {
+	return request("/appointments", {
+		method: "POST",
+		body: JSON.stringify(data)
+	}).then(mapAppointment);
+}
+function updateAppointment$1(id, data) {
+	return request(`/appointments/${encodeURIComponent(id)}`, {
+		method: "PUT",
+		body: JSON.stringify(data)
+	}).then(mapAppointment);
+}
+function deleteAppointment$1(id) {
+	return request(`/appointments/${encodeURIComponent(id)}`, { method: "DELETE" }, true);
+}
+function fetchDoctors() {
+	return request("/doctors").then((items) => items.map(mapDoctor));
+}
+function createDoctor$1(data) {
+	return request("/doctors", {
+		method: "POST",
+		body: JSON.stringify(data)
+	}).then(mapDoctor);
+}
+function updateDoctor$1(id, data) {
+	return request(`/doctors/${encodeURIComponent(id)}`, {
+		method: "PUT",
+		body: JSON.stringify(data)
+	}).then(mapDoctor);
+}
+function deleteDoctor$1(id) {
+	return request(`/doctors/${encodeURIComponent(id)}`, { method: "DELETE" }, true);
+}
+//#endregion
+//#region src/db.ts
+/**
+* Слой доступа к данным Registry.
+*
+* Этап 3.2 плана перехода на PostgreSQL: локальная БД sql.js (registry.db)
+* заменена вызовами к центральному API-серверу (Server/).
+*
+* Все функции асинхронные. Формат данных сохранён как в старом Registry
+* (snake_case) — его отдаёт центральный API. ID теперь — строки (UUID).
+*
+* Авторизация: при initDb() выполняется вход сервисной учёткой регистратуры.
+* Учётные данные задаются переменными окружения:
+*   CENTRAL_API_URL   — адрес центрального API (по умолчанию http://localhost:4000/api);
+*   REGISTRY_USERNAME — логин (по умолчанию registry);
+*   REGISTRY_PASSWORD — пароль (по умолчанию registry123).
+* Если аккаунт ещё не создан (БД сервера стартовала пустой), при первом
+* старте он регистрируется автоматически.
+*
+* Данные старых registry.db НЕ переносятся — регистратура стартует с пустой базы.
+*/
+var CENTRAL_API_URL = process.env.CENTRAL_API_URL || "http://localhost:4000/api";
+var REGISTRY_USERNAME = process.env.REGISTRY_USERNAME || "registry";
+var REGISTRY_PASSWORD = process.env.REGISTRY_PASSWORD || "registry123";
+function mapAppointmentDto(a) {
+	return {
+		id: a.id,
+		patient_id: a.patientId,
+		appointment_date: a.appointmentDate,
+		studies: a.studies,
+		department: a.department,
+		created_at: a.createdAt,
+		patient: a.patient ? {
+			id: a.patient.id,
+			last_name: a.patient.lastName,
+			first_name: a.patient.firstName,
+			middle_name: a.patient.middleName,
+			date_of_birth: a.patient.dateOfBirth
+		} : void 0
+	};
+}
+function mapDoctorDto(d) {
+	return {
+		id: d.id,
+		name: d.name,
+		max_patients_per_day: d.maxPatientsPerDay,
+		work_days: JSON.stringify(d.workDays)
+	};
 }
 async function initDb() {
-	const SQL = await (0, sql_js.default)();
-	if (fs.default.existsSync(DB_PATH)) {
-		const fileBuffer = fs.default.readFileSync(DB_PATH);
-		db = new SQL.Database(fileBuffer);
-	} else db = new SQL.Database();
-	if (!db) return;
-	db.run("PRAGMA foreign_keys = ON");
-	initSchema();
-	saveDb();
-}
-function initSchema() {
-	if (!db) return;
-	db.exec(`
-    CREATE TABLE IF NOT EXISTS patients (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      last_name TEXT NOT NULL,
-      first_name TEXT NOT NULL,
-      middle_name TEXT DEFAULT '',
-      date_of_birth TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS appointments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-      appointment_date TEXT NOT NULL,
-      studies TEXT NOT NULL DEFAULT '[]',
-      department TEXT DEFAULT '',
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
-
-    CREATE TABLE IF NOT EXISTS doctors (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      max_patients_per_day INTEGER NOT NULL DEFAULT 15,
-      work_days TEXT NOT NULL DEFAULT '[1,2,3,4,5]'
-    );
-  `);
+	setApiUrl(CENTRAL_API_URL);
 	try {
-		db.exec(`ALTER TABLE appointments ADD COLUMN department TEXT DEFAULT ''`);
-	} catch {}
-}
-function getAppointmentFromRow(row) {
-	return {
-		id: row.id,
-		patient_id: row.patient_id,
-		appointment_date: row.appointment_date,
-		studies: JSON.parse(row.studies || "[]"),
-		department: row.department || "",
-		created_at: row.created_at,
-		patient: {
-			id: row.p_id,
-			last_name: row.last_name,
-			first_name: row.first_name,
-			middle_name: row.middle_name || "",
-			date_of_birth: row.date_of_birth
-		}
-	};
-}
-function getAppointmentsByMonth(month, year) {
-	if (!db) return [];
-	const prefix = `${year}-${String(month + 1).padStart(2, "0")}`;
-	const stmt = db.prepare(`
-    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
-    FROM appointments a
-    JOIN patients p ON p.id = a.patient_id
-    WHERE a.appointment_date LIKE ?
-    ORDER BY a.appointment_date ASC, a.created_at ASC
-  `);
-	stmt.bind([`${prefix}%`]);
-	const rows = [];
-	while (stmt.step()) rows.push(stmt.getAsObject());
-	stmt.free();
-	return rows.map(getAppointmentFromRow);
-}
-function getAppointmentsByDate(date) {
-	if (!db) return [];
-	const stmt = db.prepare(`
-    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
-    FROM appointments a
-    JOIN patients p ON p.id = a.patient_id
-    WHERE a.appointment_date = ?
-    ORDER BY a.created_at ASC
-  `);
-	stmt.bind([date]);
-	const rows = [];
-	while (stmt.step()) rows.push(stmt.getAsObject());
-	stmt.free();
-	return rows.map(getAppointmentFromRow);
-}
-function createAppointment(patientData, appointmentDate, studies) {
-	if (!db) throw new Error("Database not initialized");
-	const findStmt = db.prepare(`SELECT id FROM patients WHERE last_name = ? AND first_name = ? AND date_of_birth = ?`);
-	findStmt.bind([
-		patientData.last_name,
-		patientData.first_name,
-		patientData.date_of_birth
-	]);
-	let patientId = null;
-	if (findStmt.step()) patientId = findStmt.getAsObject().id;
-	findStmt.free();
-	if (patientId) db.run(`UPDATE patients SET middle_name = ? WHERE id = ?`, [patientData.middle_name, patientId]);
-	else {
-		db.run(`INSERT INTO patients (last_name, first_name, middle_name, date_of_birth) VALUES (?, ?, ?, ?)`, [
-			patientData.last_name,
-			patientData.first_name,
-			patientData.middle_name,
-			patientData.date_of_birth
-		]);
-		patientId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0];
+		setToken((await login(REGISTRY_USERNAME, REGISTRY_PASSWORD)).token);
+		return;
+	} catch (err) {
+		console.warn(`initDb: вход "${REGISTRY_USERNAME}" не удался, пробуем создать учётную запись`, err);
 	}
-	const department = patientData.department || "";
-	db.run(`INSERT INTO appointments (patient_id, appointment_date, studies, department) VALUES (?, ?, ?, ?)`, [
-		patientId,
-		appointmentDate,
-		JSON.stringify(studies),
-		department
-	]);
-	const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0];
-	saveDb();
-	return {
-		id: newId,
-		patient_id: patientId,
-		appointment_date: appointmentDate,
+	try {
+		await register({
+			username: REGISTRY_USERNAME,
+			password: REGISTRY_PASSWORD,
+			name: "Регистратура"
+		});
+		setToken((await login(REGISTRY_USERNAME, REGISTRY_PASSWORD)).token);
+		console.log(`initDb: учётная запись "${REGISTRY_USERNAME}" создана`);
+	} catch (err) {
+		console.error("initDb: не удалось авторизоваться в центральном API. Проверьте CENTRAL_API_URL, REGISTRY_USERNAME, REGISTRY_PASSWORD.", err);
+	}
+}
+async function getAppointmentsByMonth(month, year) {
+	return (await fetchAppointmentsByMonth(month, year)).map(mapAppointmentDto);
+}
+async function getAppointmentsByDate(date) {
+	return (await fetchAppointmentsByDate(date)).map(mapAppointmentDto);
+}
+async function createAppointment(patientData, appointmentDate, studies) {
+	return mapAppointmentDto(await createAppointment$1({
+		lastName: patientData.last_name,
+		firstName: patientData.first_name,
+		middleName: patientData.middle_name || "",
+		dateOfBirth: patientData.date_of_birth,
 		studies,
-		department,
-		created_at: (/* @__PURE__ */ new Date()).toISOString(),
-		patient: {
-			id: patientId,
-			...patientData
-		}
-	};
+		appointmentDate,
+		department: patientData.department || ""
+	}));
 }
-function updateAppointment(id, studies, patientData) {
-	if (!db) return null;
-	db.run(`UPDATE appointments SET studies = ? WHERE id = ?`, [JSON.stringify(studies), id]);
+async function updateAppointment(id, studies, patientData) {
+	const input = { studies };
 	if (patientData) {
-		const stmt = db.prepare(`SELECT patient_id FROM appointments WHERE id = ?`);
-		stmt.bind([id]);
-		let patientId = null;
-		if (stmt.step()) patientId = stmt.getAsObject().patient_id;
-		stmt.free();
-		if (patientId) {
-			const updates = [];
-			const params = [];
-			if (patientData.last_name !== void 0) {
-				updates.push("last_name = ?");
-				params.push(patientData.last_name);
-			}
-			if (patientData.first_name !== void 0) {
-				updates.push("first_name = ?");
-				params.push(patientData.first_name);
-			}
-			if (patientData.middle_name !== void 0) {
-				updates.push("middle_name = ?");
-				params.push(patientData.middle_name);
-			}
-			if (patientData.date_of_birth !== void 0) {
-				updates.push("date_of_birth = ?");
-				params.push(patientData.date_of_birth);
-			}
-			if (updates.length > 0) {
-				params.push(patientId);
-				db.run(`UPDATE patients SET ${updates.join(", ")} WHERE id = ?`, params);
-			}
-		}
+		if (patientData.last_name !== void 0) input.lastName = patientData.last_name;
+		if (patientData.first_name !== void 0) input.firstName = patientData.first_name;
+		if (patientData.middle_name !== void 0) input.middleName = patientData.middle_name;
+		if (patientData.date_of_birth !== void 0) input.dateOfBirth = patientData.date_of_birth;
 	}
-	saveDb();
-	const selectStmt = db.prepare(`
-    SELECT a.*, p.id as p_id, p.last_name, p.first_name, p.middle_name, p.date_of_birth
-    FROM appointments a
-    JOIN patients p ON p.id = a.patient_id
-    WHERE a.id = ?
-  `);
-	selectStmt.bind([id]);
-	let row = null;
-	if (selectStmt.step()) row = selectStmt.getAsObject();
-	selectStmt.free();
-	if (!row) return null;
-	return getAppointmentFromRow(row);
+	const updated = await updateAppointment$1(id, input);
+	return updated ? mapAppointmentDto(updated) : null;
 }
-function deleteAppointment(id) {
-	if (!db) return false;
-	const result = db.run(`DELETE FROM appointments WHERE id = ?`, [id]);
-	saveDb();
-	return result.changes > 0;
+async function deleteAppointment(id) {
+	const result = await deleteAppointment$1(id);
+	return Boolean(result?.success);
 }
-function getDoctors() {
-	if (!db) return [];
-	const stmt = db.prepare(`SELECT * FROM doctors ORDER BY name ASC`);
-	const rows = [];
-	while (stmt.step()) rows.push(stmt.getAsObject());
-	stmt.free();
-	return rows;
+async function getDoctors() {
+	return (await fetchDoctors()).map(mapDoctorDto);
 }
-function createDoctor(name, maxPatientsPerDay, workDays) {
-	if (!db) throw new Error("Database not initialized");
-	const workDaysJson = JSON.stringify(workDays);
-	db.run(`INSERT INTO doctors (name, max_patients_per_day, work_days) VALUES (?, ?, ?)`, [
+async function createDoctor(name, maxPatientsPerDay, workDays) {
+	return mapDoctorDto(await createDoctor$1({
 		name,
 		maxPatientsPerDay,
-		workDaysJson
-	]);
-	const newId = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0];
-	saveDb();
-	return {
-		id: newId,
-		name,
-		max_patients_per_day: maxPatientsPerDay,
-		work_days: workDaysJson
-	};
+		workDays
+	}));
 }
-function updateDoctor(id, name, maxPatientsPerDay, workDays) {
-	if (!db) return null;
-	const workDaysJson = JSON.stringify(workDays);
-	db.run(`UPDATE doctors SET name = ?, max_patients_per_day = ?, work_days = ? WHERE id = ?`, [
+async function updateDoctor(id, name, maxPatientsPerDay, workDays) {
+	const doctor = await updateDoctor$1(id, {
 		name,
 		maxPatientsPerDay,
-		workDaysJson,
-		id
-	]);
-	saveDb();
-	return {
-		id,
-		name,
-		max_patients_per_day: maxPatientsPerDay,
-		work_days: workDaysJson
-	};
+		workDays
+	});
+	return doctor ? mapDoctorDto(doctor) : null;
 }
-function deleteDoctor(id) {
-	if (!db) return false;
-	const result = db.run(`DELETE FROM doctors WHERE id = ?`, [id]);
-	saveDb();
-	return result.changes > 0;
+async function deleteDoctor(id) {
+	const result = await deleteDoctor$1(id);
+	return Boolean(result?.success);
 }
 //#endregion
 //#region src/api/middleware/cors.ts
@@ -23547,12 +23575,12 @@ function formatValidationErrors(errors) {
 //#endregion
 //#region src/api/routes/appointments.ts
 var router$1 = (0, import_express.Router)();
-router$1.get("/", (req, res) => {
+router$1.get("/", async (req, res) => {
 	const date = req.query.date;
 	const month = req.query.month;
 	const year = req.query.year;
 	if (month && year) {
-		const appointments = getAppointmentsByMonth(parseInt(month), parseInt(year));
+		const appointments = await getAppointmentsByMonth(parseInt(month), parseInt(year));
 		res.json(appointments);
 		return;
 	}
@@ -23560,17 +23588,17 @@ router$1.get("/", (req, res) => {
 		res.status(400).json({ error: "date parameter is required" });
 		return;
 	}
-	const appointments = getAppointmentsByDate(date);
+	const appointments = await getAppointmentsByDate(date);
 	res.json(appointments);
 });
-router$1.post("/", (req, res) => {
+router$1.post("/", async (req, res) => {
 	const errors = validateCreateAppointment(req.body);
 	if (errors.length > 0) {
 		res.status(400).json(formatValidationErrors(errors));
 		return;
 	}
 	const { lastName, firstName, middleName, dateOfBirth, appointmentDate, studies, department } = req.body;
-	const appointment = createAppointment({
+	const appointment = await createAppointment({
 		last_name: lastName,
 		first_name: firstName,
 		middle_name: middleName || "",
@@ -23579,28 +23607,29 @@ router$1.post("/", (req, res) => {
 	}, appointmentDate, studies);
 	res.status(201).json(appointment);
 });
-router$1.put("/:id", (req, res) => {
+router$1.put("/:id", async (req, res) => {
 	const errors = validateUpdateAppointment(req.body);
 	if (errors.length > 0) {
 		res.status(400).json(formatValidationErrors(errors));
 		return;
 	}
-	const id = parseInt(req.params.id, 10);
+	const id = req.params.id;
 	const { studies, lastName, firstName, middleName, dateOfBirth } = req.body;
 	const patientData = {};
 	if (lastName !== void 0) patientData.last_name = lastName;
 	if (firstName !== void 0) patientData.first_name = firstName;
 	if (middleName !== void 0) patientData.middle_name = middleName;
 	if (dateOfBirth !== void 0) patientData.date_of_birth = dateOfBirth;
-	const appointment = updateAppointment(id, studies, Object.keys(patientData).length > 0 ? patientData : void 0);
+	const appointment = await updateAppointment(id, studies, Object.keys(patientData).length > 0 ? patientData : void 0);
 	if (!appointment) {
 		res.status(404).json({ error: "Appointment not found" });
 		return;
 	}
 	res.json(appointment);
 });
-router$1.delete("/:id", (req, res) => {
-	if (!deleteAppointment(parseInt(req.params.id, 10))) {
+router$1.delete("/:id", async (req, res) => {
+	const id = req.params.id;
+	if (!await deleteAppointment(id)) {
 		res.status(404).json({ error: "Appointment not found" });
 		return;
 	}
@@ -23609,18 +23638,18 @@ router$1.delete("/:id", (req, res) => {
 //#endregion
 //#region src/api/routes/doctors.ts
 var router = (0, import_express.Router)();
-router.get("/", (_req, res) => {
-	const doctors = getDoctors();
+router.get("/", async (_req, res) => {
+	const doctors = await getDoctors();
 	res.json(doctors);
 });
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
 	const errors = validateCreateDoctor(req.body);
 	if (errors.length > 0) {
 		res.status(400).json(formatValidationErrors(errors));
 		return;
 	}
 	const { name, maxPatientsPerDay, workDays } = req.body;
-	const doctor = createDoctor(name, maxPatientsPerDay || 15, workDays || [
+	const doctor = await createDoctor(name, maxPatientsPerDay || 15, workDays || [
 		1,
 		2,
 		3,
@@ -23629,15 +23658,15 @@ router.post("/", (req, res) => {
 	]);
 	res.status(201).json(doctor);
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
 	const errors = validateCreateDoctor(req.body);
 	if (errors.length > 0) {
 		res.status(400).json(formatValidationErrors(errors));
 		return;
 	}
-	const id = parseInt(req.params.id, 10);
+	const id = req.params.id;
 	const { name, maxPatientsPerDay, workDays } = req.body;
-	const doctor = updateDoctor(id, name, maxPatientsPerDay || 15, workDays || [
+	const doctor = await updateDoctor(id, name, maxPatientsPerDay || 15, workDays || [
 		1,
 		2,
 		3,
@@ -23650,8 +23679,9 @@ router.put("/:id", (req, res) => {
 	}
 	res.json(doctor);
 });
-router.delete("/:id", (req, res) => {
-	if (!deleteDoctor(parseInt(req.params.id, 10))) {
+router.delete("/:id", async (req, res) => {
+	const id = req.params.id;
+	if (!await deleteDoctor(id)) {
 		res.status(404).json({ error: "Doctor not found" });
 		return;
 	}
@@ -23666,6 +23696,11 @@ async function startApiServer() {
 	app.use(corsMiddleware);
 	app.use("/api/appointments", router$1);
 	app.use("/api/doctors", router);
+	app.use((err, _req, res, _next) => {
+		console.error("Registry API error:", err);
+		const message = err instanceof Error ? err.message : "Internal Server Error";
+		res.status(500).json({ error: message });
+	});
 	app.listen(apiConfig.port, apiConfig.host, () => {
 		console.log(`Registry API server running on http://${apiConfig.host}:${apiConfig.port}`);
 	});
@@ -24054,7 +24089,7 @@ var require_clone = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 //#endregion
 //#region node_modules/graceful-fs/graceful-fs.js
 var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	var fs$2 = require("fs");
+	var fs$1 = require("fs");
 	var polyfills = require_polyfills();
 	var legacy = require_legacy_streams();
 	var clone = require_clone();
@@ -24083,44 +24118,44 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		m = "GFS4: " + m.split(/\n/).join("\nGFS4: ");
 		console.error(m);
 	};
-	if (!fs$2[gracefulQueue]) {
-		publishQueue(fs$2, global[gracefulQueue] || []);
-		fs$2.close = (function(fs$close) {
+	if (!fs$1[gracefulQueue]) {
+		publishQueue(fs$1, global[gracefulQueue] || []);
+		fs$1.close = (function(fs$close) {
 			function close(fd, cb) {
-				return fs$close.call(fs$2, fd, function(err) {
+				return fs$close.call(fs$1, fd, function(err) {
 					if (!err) resetQueue();
 					if (typeof cb === "function") cb.apply(this, arguments);
 				});
 			}
 			Object.defineProperty(close, previousSymbol, { value: fs$close });
 			return close;
-		})(fs$2.close);
-		fs$2.closeSync = (function(fs$closeSync) {
+		})(fs$1.close);
+		fs$1.closeSync = (function(fs$closeSync) {
 			function closeSync(fd) {
-				fs$closeSync.apply(fs$2, arguments);
+				fs$closeSync.apply(fs$1, arguments);
 				resetQueue();
 			}
 			Object.defineProperty(closeSync, previousSymbol, { value: fs$closeSync });
 			return closeSync;
-		})(fs$2.closeSync);
+		})(fs$1.closeSync);
 		if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || "")) process.on("exit", function() {
-			debug(fs$2[gracefulQueue]);
-			require("assert").equal(fs$2[gracefulQueue].length, 0);
+			debug(fs$1[gracefulQueue]);
+			require("assert").equal(fs$1[gracefulQueue].length, 0);
 		});
 	}
-	if (!global[gracefulQueue]) publishQueue(global, fs$2[gracefulQueue]);
-	module.exports = patch(clone(fs$2));
-	if (process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs$2.__patched) {
-		module.exports = patch(fs$2);
-		fs$2.__patched = true;
+	if (!global[gracefulQueue]) publishQueue(global, fs$1[gracefulQueue]);
+	module.exports = patch(clone(fs$1));
+	if (process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs$1.__patched) {
+		module.exports = patch(fs$1);
+		fs$1.__patched = true;
 	}
-	function patch(fs$10) {
-		polyfills(fs$10);
-		fs$10.gracefulify = patch;
-		fs$10.createReadStream = createReadStream;
-		fs$10.createWriteStream = createWriteStream;
-		var fs$readFile = fs$10.readFile;
-		fs$10.readFile = readFile;
+	function patch(fs) {
+		polyfills(fs);
+		fs.gracefulify = patch;
+		fs.createReadStream = createReadStream;
+		fs.createWriteStream = createWriteStream;
+		var fs$readFile = fs.readFile;
+		fs.readFile = readFile;
 		function readFile(path, options, cb) {
 			if (typeof options === "function") cb = options, options = null;
 			return go$readFile(path, options, cb);
@@ -24141,8 +24176,8 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				});
 			}
 		}
-		var fs$writeFile = fs$10.writeFile;
-		fs$10.writeFile = writeFile;
+		var fs$writeFile = fs.writeFile;
+		fs.writeFile = writeFile;
 		function writeFile(path, data, options, cb) {
 			if (typeof options === "function") cb = options, options = null;
 			return go$writeFile(path, data, options, cb);
@@ -24164,8 +24199,8 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				});
 			}
 		}
-		var fs$appendFile = fs$10.appendFile;
-		if (fs$appendFile) fs$10.appendFile = appendFile;
+		var fs$appendFile = fs.appendFile;
+		if (fs$appendFile) fs.appendFile = appendFile;
 		function appendFile(path, data, options, cb) {
 			if (typeof options === "function") cb = options, options = null;
 			return go$appendFile(path, data, options, cb);
@@ -24187,8 +24222,8 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				});
 			}
 		}
-		var fs$copyFile = fs$10.copyFile;
-		if (fs$copyFile) fs$10.copyFile = copyFile;
+		var fs$copyFile = fs.copyFile;
+		if (fs$copyFile) fs.copyFile = copyFile;
 		function copyFile(src, dest, flags, cb) {
 			if (typeof flags === "function") {
 				cb = flags;
@@ -24213,8 +24248,8 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				});
 			}
 		}
-		var fs$readdir = fs$10.readdir;
-		fs$10.readdir = readdir;
+		var fs$readdir = fs.readdir;
+		fs.readdir = readdir;
 		var noReaddirOptionVersions = /^v[0-5]\./;
 		function readdir(path, options, cb) {
 			if (typeof options === "function") cb = options, options = null;
@@ -24245,21 +24280,21 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			}
 		}
 		if (process.version.substr(0, 4) === "v0.8") {
-			var legStreams = legacy(fs$10);
+			var legStreams = legacy(fs);
 			ReadStream = legStreams.ReadStream;
 			WriteStream = legStreams.WriteStream;
 		}
-		var fs$ReadStream = fs$10.ReadStream;
+		var fs$ReadStream = fs.ReadStream;
 		if (fs$ReadStream) {
 			ReadStream.prototype = Object.create(fs$ReadStream.prototype);
 			ReadStream.prototype.open = ReadStream$open;
 		}
-		var fs$WriteStream = fs$10.WriteStream;
+		var fs$WriteStream = fs.WriteStream;
 		if (fs$WriteStream) {
 			WriteStream.prototype = Object.create(fs$WriteStream.prototype);
 			WriteStream.prototype.open = WriteStream$open;
 		}
-		Object.defineProperty(fs$10, "ReadStream", {
+		Object.defineProperty(fs, "ReadStream", {
 			get: function() {
 				return ReadStream;
 			},
@@ -24269,7 +24304,7 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			enumerable: true,
 			configurable: true
 		});
-		Object.defineProperty(fs$10, "WriteStream", {
+		Object.defineProperty(fs, "WriteStream", {
 			get: function() {
 				return WriteStream;
 			},
@@ -24280,7 +24315,7 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			configurable: true
 		});
 		var FileReadStream = ReadStream;
-		Object.defineProperty(fs$10, "FileReadStream", {
+		Object.defineProperty(fs, "FileReadStream", {
 			get: function() {
 				return FileReadStream;
 			},
@@ -24291,7 +24326,7 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			configurable: true
 		});
 		var FileWriteStream = WriteStream;
-		Object.defineProperty(fs$10, "FileWriteStream", {
+		Object.defineProperty(fs, "FileWriteStream", {
 			get: function() {
 				return FileWriteStream;
 			},
@@ -24335,13 +24370,13 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			});
 		}
 		function createReadStream(path, options) {
-			return new fs$10.ReadStream(path, options);
+			return new fs.ReadStream(path, options);
 		}
 		function createWriteStream(path, options) {
-			return new fs$10.WriteStream(path, options);
+			return new fs.WriteStream(path, options);
 		}
-		var fs$open = fs$10.open;
-		fs$10.open = open;
+		var fs$open = fs.open;
+		fs.open = open;
 		function open(path, flags, mode, cb) {
 			if (typeof mode === "function") cb = mode, mode = null;
 			return go$open(path, flags, mode, cb);
@@ -24363,27 +24398,27 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				});
 			}
 		}
-		return fs$10;
+		return fs;
 	}
 	function enqueue(elem) {
 		debug("ENQUEUE", elem[0].name, elem[1]);
-		fs$2[gracefulQueue].push(elem);
+		fs$1[gracefulQueue].push(elem);
 		retry();
 	}
 	var retryTimer;
 	function resetQueue() {
 		var now = Date.now();
-		for (var i = 0; i < fs$2[gracefulQueue].length; ++i) if (fs$2[gracefulQueue][i].length > 2) {
-			fs$2[gracefulQueue][i][3] = now;
-			fs$2[gracefulQueue][i][4] = now;
+		for (var i = 0; i < fs$1[gracefulQueue].length; ++i) if (fs$1[gracefulQueue][i].length > 2) {
+			fs$1[gracefulQueue][i][3] = now;
+			fs$1[gracefulQueue][i][4] = now;
 		}
 		retry();
 	}
 	function retry() {
 		clearTimeout(retryTimer);
 		retryTimer = void 0;
-		if (fs$2[gracefulQueue].length === 0) return;
-		var elem = fs$2[gracefulQueue].shift();
+		if (fs$1[gracefulQueue].length === 0) return;
+		var elem = fs$1[gracefulQueue].shift();
 		var fn = elem[0];
 		var args = elem[1];
 		var err = elem[2];
@@ -24402,7 +24437,7 @@ var require_graceful_fs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			if (sinceAttempt >= Math.min(sinceStart * 1.2, 100)) {
 				debug("RETRY", fn.name, args);
 				fn.apply(null, args.concat([startTime]));
-			} else fs$2[gracefulQueue].push(elem);
+			} else fs$1[gracefulQueue].push(elem);
 		}
 		if (retryTimer === void 0) retryTimer = setTimeout(retry, 0);
 	}
@@ -25595,9 +25630,9 @@ var require_jsonfile$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var { stringify, stripBom } = require_utils();
 	async function _readFile(file, options = {}) {
 		if (typeof options === "string") options = { encoding: options };
-		const fs$6 = options.fs || _fs;
+		const fs = options.fs || _fs;
 		const shouldThrow = "throws" in options ? options.throws : true;
-		let data = await universalify.fromCallback(fs$6.readFile)(file, options);
+		let data = await universalify.fromCallback(fs.readFile)(file, options);
 		data = stripBom(data);
 		let obj;
 		try {
@@ -25613,10 +25648,10 @@ var require_jsonfile$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var readFile = universalify.fromPromise(_readFile);
 	function readFileSync(file, options = {}) {
 		if (typeof options === "string") options = { encoding: options };
-		const fs$7 = options.fs || _fs;
+		const fs = options.fs || _fs;
 		const shouldThrow = "throws" in options ? options.throws : true;
 		try {
-			let content = fs$7.readFileSync(file, options);
+			let content = fs.readFileSync(file, options);
 			content = stripBom(content);
 			return JSON.parse(content, options.reviver);
 		} catch (err) {
@@ -25627,15 +25662,15 @@ var require_jsonfile$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		}
 	}
 	async function _writeFile(file, obj, options = {}) {
-		const fs$8 = options.fs || _fs;
+		const fs = options.fs || _fs;
 		const str = stringify(obj, options);
-		await universalify.fromCallback(fs$8.writeFile)(file, str, options);
+		await universalify.fromCallback(fs.writeFile)(file, str, options);
 	}
 	var writeFile = universalify.fromPromise(_writeFile);
 	function writeFileSync(file, obj, options = {}) {
-		const fs$9 = options.fs || _fs;
+		const fs = options.fs || _fs;
 		const str = stringify(obj, options);
-		return fs$9.writeFileSync(file, str, options);
+		return fs.writeFileSync(file, str, options);
 	}
 	module.exports = {
 		readFile,

@@ -14,13 +14,13 @@ import {
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const date = req.query.date as string;
   const month = req.query.month as string;
   const year = req.query.year as string;
 
   if (month && year) {
-    const appointments = getAppointmentsByMonth(parseInt(month), parseInt(year));
+    const appointments = await getAppointmentsByMonth(parseInt(month), parseInt(year));
     res.json(appointments);
     return;
   }
@@ -29,11 +29,11 @@ router.get("/", (req, res) => {
     res.status(400).json({ error: "date parameter is required" });
     return;
   }
-  const appointments = getAppointmentsByDate(date);
+  const appointments = await getAppointmentsByDate(date);
   res.json(appointments);
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const errors = validateCreateAppointment(req.body);
   if (errors.length > 0) {
     res.status(400).json(formatValidationErrors(errors));
@@ -42,7 +42,7 @@ router.post("/", (req, res) => {
 
   const { lastName, firstName, middleName, dateOfBirth, appointmentDate, studies, department } = req.body;
 
-  const appointment = createAppointment(
+  const appointment = await createAppointment(
     {
       last_name: lastName,
       first_name: firstName,
@@ -57,14 +57,14 @@ router.post("/", (req, res) => {
   res.status(201).json(appointment);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   const errors = validateUpdateAppointment(req.body);
   if (errors.length > 0) {
     res.status(400).json(formatValidationErrors(errors));
     return;
   }
 
-  const id = parseInt(req.params.id, 10);
+  const id = req.params.id;
   const { studies, lastName, firstName, middleName, dateOfBirth } = req.body;
 
   const patientData: Record<string, string> = {};
@@ -75,7 +75,7 @@ router.put("/:id", (req, res) => {
 
   const hasPatientData = Object.keys(patientData).length > 0;
 
-  const appointment = updateAppointment(id, studies, hasPatientData ? patientData : undefined);
+  const appointment = await updateAppointment(id, studies, hasPatientData ? patientData : undefined);
   if (!appointment) {
     res.status(404).json({ error: "Appointment not found" });
     return;
@@ -84,9 +84,9 @@ router.put("/:id", (req, res) => {
   res.json(appointment);
 });
 
-router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const deleted = deleteAppointment(id);
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+  const deleted = await deleteAppointment(id);
 
   if (!deleted) {
     res.status(404).json({ error: "Appointment not found" });

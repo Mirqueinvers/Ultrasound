@@ -8,16 +8,47 @@
  * записи, врачи) теперь хранятся на сервере в единой базе.
  *
  * Контракт:
- *  - Базовый URL — config.apiUrl (VITE_API_URL, адрес центрального сервера);
+ *  - Базовый URL задаётся через setApiUrl() (по умолчанию — http://localhost:4000/api).
+ *    Renderer при старте вызывает setApiUrl(config.apiUrl) (значение VITE_API_URL);
+ *    серверная часть (db.ts) — свой адрес из переменных окружения.
  *  - Запросы отправляются в camelCase (как текущий UI);
  *  - Ответы приходят от сервера в snake_case (маппинг Prisma @@map),
  *    клиент нормализует их в DTO для UI;
  *  - ID записей — строки (UUID), а не числа.
+ *  - Авторизация: JWT-токен передаётся в заголовке `Authorization: Bearer <token>`.
+ *    Токен получается через login()/register() и хранится в памяти модуля
+ *    (setToken()). Персистентность токена — ответственность вызывающего кода.
+ *
+ * ВАЖНО: модуль не зависит от `import.meta.env` / config.ts, чтобы его можно
+ * было использовать и в main-процессе (tsc-сборка db.ts через tsconfig.api.json).
  */
 
-import { config } from "./config";
+// ===== Состояние клиента =====
 
-const API_BASE = config.apiUrl;
+const DEFAULT_API_URL = "http://localhost:4000/api";
+
+let apiBase = DEFAULT_API_URL;
+let token: string | null = null;
+
+export function setApiUrl(url: string): void {
+  apiBase = (url || DEFAULT_API_URL).replace(/\/+$/, "");
+}
+
+export function getApiUrl(): string {
+  return apiBase;
+}
+
+export function setToken(value: string | null): void {
+  token = value;
+}
+
+export function getToken(): string | null {
+  return token;
+}
+
+export function clearToken(): void {
+  token = null;
+}
 
 // ===== Сырые ответы центрального API =====
 
@@ -71,6 +102,37 @@ export interface DoctorDto {
   workDays: number[];
 }
 
+// ===== Авторизация =====
+
+export interface AuthUserDto {
+  id: string;
+  username: string;
+  name: string;
+  organization: string | null;
+  createdAt: string;
+  lastLogin: string | null;
+}
+
+export interface LoginResult {
+  success: boolean;
+  message: string;
+  token: string;
+  user: AuthUserDto;
+}
+
+export interface RegisterResult {
+  success: boolean;
+  message: string;
+  userId: string;
+}
+
+export interface RegisterInput {
+  username: string;
+  password: string;
+  name: string;
+  organization?: string | null;
+}
+
 // ===== Входные данные =====
 
 export interface CreateAppointmentInput {
@@ -106,12 +168,18 @@ async function request<T>(
   options?: RequestInit,
   allowNotFound = false
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options?.headers as Record<string, string> | undefined),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${apiBase}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (res.status === 404 && allowNotFound) {
@@ -208,6 +276,22 @@ function mapDoctor(d: ApiDoctor): DoctorDto {
     maxPatientsPerDay: d.max_patients_per_day,
     workDays: normalizeWorkDays(d.work_days),
   };
+}
+
+// ===== Авторизация =====
+
+export function login(username: string, password: string): Promise<LoginResult> {
+  return request<LoginResult>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+export function register(data: RegisterInput): Promise<RegisterResult> {
+  return request<RegisterResult>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 // ===== Записи (Appointments) =====

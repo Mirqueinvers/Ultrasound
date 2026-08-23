@@ -11,12 +11,20 @@ const config_1 = require("./api/config");
 const appointments_1 = __importDefault(require("./api/routes/appointments"));
 const doctors_1 = __importDefault(require("./api/routes/doctors"));
 async function startApiServer() {
+    // Этап 3.2: initDb больше не создаёт локальную БД sql.js — настраивает
+    // адрес центрального API и входит сервисной учёткой регистратуры.
     await (0, db_1.initDb)();
     const app = (0, express_1.default)();
     app.use(express_1.default.json());
     app.use(cors_1.corsMiddleware);
     app.use("/api/appointments", appointments_1.default);
     app.use("/api/doctors", doctors_1.default);
+    // Express 5 пробрасывает ошибки из async-обработчиков сюда.
+    app.use((err, _req, res, _next) => {
+        console.error("Registry API error:", err);
+        const message = err instanceof Error ? err.message : "Internal Server Error";
+        res.status(500).json({ error: message });
+    });
     app.listen(config_1.apiConfig.port, config_1.apiConfig.host, () => {
         console.log(`Registry API server running on http://${config_1.apiConfig.host}:${config_1.apiConfig.port}`);
     });

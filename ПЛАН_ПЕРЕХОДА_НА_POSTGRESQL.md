@@ -603,7 +603,7 @@ volumes:
 - [x] **Этап 2.6** — Удалить кэш `registry_appointments` (чтение `appointments` напрямую).
 - [x] **Этап 2.7** — Переписать тесты Desktop.
 - [x] **Этап 3.1** — Создать apiClient в Registry.
-- [ ] **Этап 3.2** — Переписать `db.ts` (sql.js) на API.
+- [x] **Этап 3.2** — Переписать `db.ts` (sql.js) на API.
 - [ ] **Этап 3.3** — Обновить компоненты React Registry.
 - [ ] **Этап 3.4** — Удалить sql.js и собственный HTTP-сервер Registry.
 - [ ] **Этап 3.5** — Переписать тесты Registry.

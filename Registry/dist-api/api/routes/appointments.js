@@ -4,12 +4,12 @@ const express_1 = require("express");
 const db_1 = require("../../db");
 const validation_1 = require("../validation");
 const router = (0, express_1.Router)();
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
     const date = req.query.date;
     const month = req.query.month;
     const year = req.query.year;
     if (month && year) {
-        const appointments = (0, db_1.getAppointmentsByMonth)(parseInt(month), parseInt(year));
+        const appointments = await (0, db_1.getAppointmentsByMonth)(parseInt(month), parseInt(year));
         res.json(appointments);
         return;
     }
@@ -17,17 +17,17 @@ router.get("/", (req, res) => {
         res.status(400).json({ error: "date parameter is required" });
         return;
     }
-    const appointments = (0, db_1.getAppointmentsByDate)(date);
+    const appointments = await (0, db_1.getAppointmentsByDate)(date);
     res.json(appointments);
 });
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const errors = (0, validation_1.validateCreateAppointment)(req.body);
     if (errors.length > 0) {
         res.status(400).json((0, validation_1.formatValidationErrors)(errors));
         return;
     }
     const { lastName, firstName, middleName, dateOfBirth, appointmentDate, studies, department } = req.body;
-    const appointment = (0, db_1.createAppointment)({
+    const appointment = await (0, db_1.createAppointment)({
         last_name: lastName,
         first_name: firstName,
         middle_name: middleName || "",
@@ -36,13 +36,13 @@ router.post("/", (req, res) => {
     }, appointmentDate, studies);
     res.status(201).json(appointment);
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
     const errors = (0, validation_1.validateUpdateAppointment)(req.body);
     if (errors.length > 0) {
         res.status(400).json((0, validation_1.formatValidationErrors)(errors));
         return;
     }
-    const id = parseInt(req.params.id, 10);
+    const id = req.params.id;
     const { studies, lastName, firstName, middleName, dateOfBirth } = req.body;
     const patientData = {};
     if (lastName !== undefined)
@@ -54,16 +54,16 @@ router.put("/:id", (req, res) => {
     if (dateOfBirth !== undefined)
         patientData.date_of_birth = dateOfBirth;
     const hasPatientData = Object.keys(patientData).length > 0;
-    const appointment = (0, db_1.updateAppointment)(id, studies, hasPatientData ? patientData : undefined);
+    const appointment = await (0, db_1.updateAppointment)(id, studies, hasPatientData ? patientData : undefined);
     if (!appointment) {
         res.status(404).json({ error: "Appointment not found" });
         return;
     }
     res.json(appointment);
 });
-router.delete("/:id", (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const deleted = (0, db_1.deleteAppointment)(id);
+router.delete("/:id", async (req, res) => {
+    const id = req.params.id;
+    const deleted = await (0, db_1.deleteAppointment)(id);
     if (!deleted) {
         res.status(404).json({ error: "Appointment not found" });
         return;
