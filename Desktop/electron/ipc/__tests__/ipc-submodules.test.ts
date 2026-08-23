@@ -122,7 +122,7 @@ describe("medison-mapping-хендлеры", () => {
 
   it("medison-mapping:upsert — успех и ApiError", async () => {
     m.apiClientMock.medison.upsertMapping.mockResolvedValue({
-      data: { id: "m-2" },
+      id: "m-2",
     });
     const payload = {
       userId: "u-1",

@@ -278,7 +278,7 @@ describe("auth-хендлеры", () => {
   it("auth:register — успех, возвращает message и userId", async () => {
     m.apiClientMock.auth.register.mockResolvedValue({
       message: "Регистрация успешна",
-      data: { userId: "u-1" },
+      userId: "u-1",
     });
     const res = await invoke("auth:register", {
       username: "doc",
@@ -459,7 +459,7 @@ describe("patient-хендлеры", () => {
   it("patient:findOrCreate — успех, маппит пациента", async () => {
     m.apiClientMock.patients.findOrCreate.mockResolvedValue({
       message: "Пациент создан",
-      data: { patient: patientFixture },
+      patient: patientFixture,
     });
     const res = await invoke("patient:findOrCreate", {
       lastName: "Иванов",
@@ -584,7 +584,7 @@ describe("research-хендлеры", () => {
   it("research:create — успех и ошибка", async () => {
     m.apiClientMock.researches.create.mockResolvedValue({
       message: "Исследование создано",
-      data: { researchId: "r-1" },
+      researchId: "r-1",
     });
     const res = await invoke("research:create", {
       patientId: "p-1",
@@ -621,7 +621,7 @@ describe("research-хендлеры", () => {
   it("research:addStudy — успех и ошибка", async () => {
     m.apiClientMock.researches.addStudy.mockResolvedValue({
       message: "Исследование добавлено",
-      data: { studyId: "s-1" },
+      studyId: "s-1",
     });
     const res = await invoke("research:addStudy", {
       researchId: "r-1",

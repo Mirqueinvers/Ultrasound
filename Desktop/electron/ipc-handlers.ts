@@ -35,7 +35,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         return {
           success: true,
           message: result.message ?? "Регистрация успешна",
-          userId: result.data?.userId,
+          userId: result.userId,
         };
       } catch (err) {
         return {
@@ -185,7 +185,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
           middleName,
           dateOfBirth,
         });
-        const patient = result.data?.patient;
+        const patient = result.patient;
         return {
           success: true,
           message: result.message ?? "Пациент найден",
@@ -357,7 +357,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         return {
           success: true,
           message: result.message ?? "Исследование создано",
-          researchId: result.data?.researchId,
+          researchId: result.researchId,
         };
       } catch (err) {
         return {
@@ -391,7 +391,7 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         return {
           success: true,
           message: result.message ?? "Исследование добавлено",
-          studyId: result.data?.studyId,
+          studyId: result.studyId,
         };
       } catch (err) {
         return {

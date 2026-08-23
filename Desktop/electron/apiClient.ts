@@ -201,7 +201,7 @@ export const authApi = {
     password: string;
     name: string;
     organization?: string;
-  }) => request<ApiSuccessResponse<{ userId: string }>>("/auth/register", {
+  }) => request<{ success: boolean; message?: string; userId: string }>("/auth/register", {
     method: "POST",
     body: data,
     auth: false,
@@ -225,7 +225,7 @@ export const authApi = {
     username: string;
     organization?: string | null;
   }) =>
-    request<ApiSuccessResponse<{ user: ApiUser }>>("/auth/profile", {
+    request<{ success: boolean; message?: string; user: ApiUser }>("/auth/profile", {
       method: "PATCH",
       body: data,
       invalidatePrefixes: ["auth:me"],
@@ -281,7 +281,7 @@ export const patientsApi = {
     middleName?: string | null;
     dateOfBirth: string;
   }) =>
-    request<ApiSuccessResponse<{ patient: ApiPatient }>>(
+    request<{ success: boolean; message?: string; patient: ApiPatient }>(
       "/patients/find-or-create",
       {
         method: "POST",
@@ -362,7 +362,7 @@ export const researchesApi = {
     doctorName?: string | null;
     notes?: string | null;
   }) =>
-    request<ApiSuccessResponse<{ researchId: string }>>("/researches", {
+    request<{ success: boolean; message?: string; researchId: string }>("/researches", {
       method: "POST",
       body: data,
       invalidatePrefixes: ["research:list:", "research:search:", "journal:"],
@@ -372,7 +372,7 @@ export const researchesApi = {
     researchId: string,
     data: { studyType: string; studyData: object },
   ) =>
-    request<ApiSuccessResponse<{ studyId: string }>>(
+    request<{ success: boolean; message?: string; studyId: string }>(
       `/researches/${researchId}/studies`,
       {
         method: "POST",
@@ -491,7 +491,7 @@ export const medisonApi = {
     transform?: string;
     isEnabled?: boolean;
   }) =>
-    request<ApiSuccessResponse<{ id: string }>>("/medison-mappings", {
+    request<{ success: boolean; id: string }>("/medison-mappings", {
       method: "POST",
       body: data,
       invalidatePrefixes: [`medison:${data.userId}`],
@@ -504,7 +504,7 @@ export const medisonApi = {
     }),
 
   resetDefaults: (userId: string) =>
-    request<ApiSuccessResponse<{ inserted: number }>>(
+    request<{ success: boolean; inserted: number }>(
       "/medison-mappings/reset",
       {
         method: "POST",

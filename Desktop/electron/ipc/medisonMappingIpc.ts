@@ -27,7 +27,7 @@ export function setupMedisonMappingHandlers(): void {
     ) => {
       try {
         const result = await apiClient.medison.upsertMapping(data);
-        return { success: true, id: result.data?.id };
+        return { success: true, id: result.id };
       } catch (err) {
         console.error("medison-mapping:upsert error:", err);
         return {
