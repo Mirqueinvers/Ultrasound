@@ -4,18 +4,41 @@ services:
     container_name: ultrasound-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ultrasound
-      POSTGRES_PASSWORD: ultrasound_password
-      POSTGRES_DB: ultrasound
+      POSTGRES_USER: ${POSTGRES_USER:-ultrasound}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ultrasound_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ultrasound}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ultrasound"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ultrasound}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  api:
+    build:
+      context: .
+    container_name: ultrasound-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Внутри compose-сети БД доступна по имени сервиса "postgres"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ultrasound}:${POSTGRES_PASSWORD:-ultrasound_password}@postgres:5432/${POSTGRES_DB:-ultrasound}
+      # JWT_SECRET обязателен — задайте его в .env
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET не задан. Скопируйте .env.example в .env и задайте секрет}
+      PORT: 4000
+    ports:
+      - "${API_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 volumes:
   pgdata:
