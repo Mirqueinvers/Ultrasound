@@ -20,7 +20,7 @@ if not exist "%SERVER_ROOT%\package.json" (
 )
 
 echo.
-echo [1/4] Обновляю зависимости (npm ci)...
+echo [1/5] Обновляю зависимости (npm ci)...
 cd /d "%SERVER_ROOT%"
 call npm ci
 if errorlevel 1 (
@@ -29,7 +29,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo [2/4] Применяю миграции Prisma...
+echo [2/5] Применяю миграции Prisma...
 call npx prisma migrate deploy
 if errorlevel 1 (
   echo [ОШИБКА] Миграции не применились. Проверьте .env и что PostgreSQL запущен.
@@ -37,7 +37,15 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo [3/4] Собираю TypeScript...
+echo [3/5] Генерирую Prisma Client...
+call npx prisma generate
+if errorlevel 1 (
+  echo [ОШИБКА] prisma generate не удался.
+  pause
+  exit /b 1
+)
+
+echo [4/5] Собираю TypeScript...
 call npm run build
 if errorlevel 1 (
   echo [ОШИБКА] Сборка не удалась.
@@ -45,7 +53,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo [4/4] Перезапускаю службу UltrasoundAPI...
+echo [5/5] Перезапускаю службу UltrasoundAPI...
 set "NSSM_EXE=%~dp0nssm.exe"
 if not exist "%NSSM_EXE%" (
   echo [ОШИБКА] Не найден nssm.exe. Сначала выполните install-server.bat.

@@ -141,6 +141,16 @@ if errorlevel 1 (
   exit /b 1
 )
 
+rem ===== Генерация Prisma Client =====
+echo.
+echo Генерирую Prisma Client...
+call npx prisma generate
+if errorlevel 1 (
+  echo [ОШИБКА] prisma generate не удался.
+  pause
+  exit /b 1
+)
+
 rem ===== Сборка =====
 echo.
 echo Собираю TypeScript...
