@@ -1,0 +1,294 @@
+/**
+ * API-клиент для центрального сервера (PostgreSQL + Prisma).
+ *
+ * Этап 3.1 плана перехода на PostgreSQL.
+ *
+ * Назначение: заменить локальную БД Registry (sql.js) и локальный HTTP-сервер
+ * (src/api.ts) вызовами к центральному API-серверу. Все данные (пациенты,
+ * записи, врачи) теперь хранятся на сервере в единой базе.
+ *
+ * Контракт:
+ *  - Базовый URL — config.apiUrl (VITE_API_URL, адрес центрального сервера);
+ *  - Запросы отправляются в camelCase (как текущий UI);
+ *  - Ответы приходят от сервера в snake_case (маппинг Prisma @@map),
+ *    клиент нормализует их в DTO для UI;
+ *  - ID записей — строки (UUID), а не числа.
+ */
+
+import { config } from "./config";
+
+const API_BASE = config.apiUrl;
+
+// ===== Сырые ответы центрального API =====
+
+interface ApiPatient {
+  id: string;
+  last_name: string;
+  first_name: string;
+  middle_name: string | null;
+  date_of_birth: string;
+}
+
+interface ApiAppointment {
+  id: string;
+  patient_id: string;
+  appointment_date: string;
+  studies: string[] | string | Record<string, unknown> | null;
+  department: string | null;
+  created_at: string;
+  patient?: ApiPatient | null;
+}
+
+interface ApiDoctor {
+  id: string;
+  name: string;
+  max_patients_per_day: number;
+  work_days: number[] | string;
+}
+
+// ===== DTO для UI =====
+
+export interface AppointmentDto {
+  id: string;
+  patientId: string;
+  appointmentDate: string;
+  studies: string[];
+  department: string;
+  createdAt: string;
+  patient?: {
+    id: string;
+    lastName: string;
+    firstName: string;
+    middleName: string;
+    dateOfBirth: string;
+  };
+}
+
+export interface DoctorDto {
+  id: string;
+  name: string;
+  maxPatientsPerDay: number;
+  workDays: number[];
+}
+
+// ===== Входные данные =====
+
+export interface CreateAppointmentInput {
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  dateOfBirth: string;
+  studies: string[];
+  appointmentDate: string;
+  department: string;
+}
+
+export interface UpdateAppointmentInput {
+  studies?: string[];
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+  dateOfBirth?: string;
+}
+
+export interface CreateDoctorInput {
+  name: string;
+  maxPatientsPerDay: number;
+  workDays: number[];
+}
+
+export type UpdateDoctorInput = CreateDoctorInput;
+
+// ===== Базовый запрос =====
+
+async function request<T>(
+  path: string,
+  options?: RequestInit,
+  allowNotFound = false
+): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (res.status === 404 && allowNotFound) {
+    // Для DELETE 404 означает, что запись уже не существует — это успех
+    return { success: true } as T;
+  }
+
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const body: unknown = await res.json();
+      if (body && typeof body === "object") {
+        const error = (body as { error?: unknown }).error;
+        const msg = (body as { message?: unknown }).message;
+        if (typeof error === "string") {
+          message = error;
+        } else if (typeof msg === "string") {
+          message = msg;
+        }
+      }
+    } catch {
+      // Тело не JSON — оставляем статус
+    }
+    throw new Error(message);
+  }
+
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
+  return res.json() as Promise<T>;
+}
+
+// ===== Маппинги =====
+
+function normalizeStudies(studies: ApiAppointment["studies"]): string[] {
+  if (Array.isArray(studies)) {
+    return studies.filter((s): s is string => typeof s === "string");
+  }
+  if (typeof studies === "string") {
+    try {
+      const parsed: unknown = JSON.parse(studies);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((s): s is string => typeof s === "string");
+      }
+    } catch {
+      // Не JSON
+    }
+  }
+  return [];
+}
+
+function mapAppointment(a: ApiAppointment): AppointmentDto {
+  return {
+    id: a.id,
+    patientId: a.patient_id,
+    appointmentDate: a.appointment_date,
+    studies: normalizeStudies(a.studies),
+    department: a.department ?? "",
+    createdAt: a.created_at,
+    patient: a.patient
+      ? {
+          id: a.patient.id,
+          lastName: a.patient.last_name,
+          firstName: a.patient.first_name,
+          middleName: a.patient.middle_name ?? "",
+          dateOfBirth: a.patient.date_of_birth,
+        }
+      : undefined,
+  };
+}
+
+function normalizeWorkDays(workDays: ApiDoctor["work_days"]): number[] {
+  if (Array.isArray(workDays)) {
+    return workDays.filter((d): d is number => typeof d === "number");
+  }
+  if (typeof workDays === "string") {
+    try {
+      const parsed: unknown = JSON.parse(workDays);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((d): d is number => typeof d === "number");
+      }
+    } catch {
+      // Не JSON
+    }
+  }
+  return [1, 2, 3, 4, 5];
+}
+
+function mapDoctor(d: ApiDoctor): DoctorDto {
+  return {
+    id: d.id,
+    name: d.name,
+    maxPatientsPerDay: d.max_patients_per_day,
+    workDays: normalizeWorkDays(d.work_days),
+  };
+}
+
+// ===== Записи (Appointments) =====
+
+export function fetchAppointmentsByDate(date: string): Promise<AppointmentDto[]> {
+  return request<ApiAppointment[]>(
+    `/appointments?date=${encodeURIComponent(date)}`
+  ).then((items) => items.map(mapAppointment));
+}
+
+export function fetchAppointmentsByMonth(
+  month: number,
+  year: number
+): Promise<AppointmentDto[]> {
+  return request<ApiAppointment[]>(
+    `/appointments?month=${month}&year=${year}`
+  ).then((items) => items.map(mapAppointment));
+}
+
+export function createAppointment(
+  data: CreateAppointmentInput
+): Promise<AppointmentDto> {
+  return request<ApiAppointment>("/appointments", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }).then(mapAppointment);
+}
+
+export function updateAppointment(
+  id: string,
+  data: UpdateAppointmentInput
+): Promise<AppointmentDto> {
+  return request<ApiAppointment>(`/appointments/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  }).then(mapAppointment);
+}
+
+export function deleteAppointment(id: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(
+    `/appointments/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+    true
+  );
+}
+
+// ===== Врачи (Doctors) =====
+
+export function fetchDoctors(): Promise<DoctorDto[]> {
+  return request<ApiDoctor[]>("/doctors").then((items) =>
+    items.map(mapDoctor)
+  );
+}
+
+export function createDoctor(data: CreateDoctorInput): Promise<DoctorDto> {
+  return request<ApiDoctor>("/doctors", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }).then(mapDoctor);
+}
+
+export function updateDoctor(
+  id: string,
+  data: UpdateDoctorInput
+): Promise<DoctorDto> {
+  return request<ApiDoctor>(`/doctors/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  }).then(mapDoctor);
+}
+
+export function deleteDoctor(id: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(
+    `/doctors/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+    true
+  );
+}
+
+// ===== Здоровье сервера =====
+
+export function fetchHealth(): Promise<{ status: string }> {
+  return request<{ status: string }>("/health");
+}

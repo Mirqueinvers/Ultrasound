@@ -1,0 +1,144 @@
+// ===== Конфигурация Prisma =====
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== Пользователи (Desktop) =====
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique @map("username")
+  password     String   @map("password")
+  name         String   @map("name")
+  organization String?  @map("organization")
+  searchText   String?  @map("search_text") // нормализованное имя для поиска ё→е
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastLogin    DateTime? @map("last_login")
+
+  medisonMappings MedisonMapping[]
+
+  @@map("users")
+}
+
+// ===== Пациенты (общие для Desktop и Registry) =====
+model Patient {
+  id          String   @id @default(uuid())
+  lastName    String   @map("last_name")
+  firstName   String   @map("first_name")
+  middleName  String?  @map("middle_name")
+  dateOfBirth String   @map("date_of_birth")
+  searchText  String   @map("search_text") // нормализованное ФИО + ДР для поиска ё→е
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  researches   Research[]
+  appointments Appointment[]
+
+  @@index([lastName, firstName, middleName])
+  @@index([dateOfBirth])
+  @@index([searchText])
+  @@map("patients")
+}
+
+// ===== Исследования (Desktop) =====
+model Research {
+  id           String      @id @default(uuid())
+  patientId    String      @map("patient_id")
+  researchDate String      @map("research_date")
+  paymentType  PaymentType @map("payment_type")
+  organization String?
+  doctorName   String?     @map("doctor_name")
+  notes        String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  patient Patient                           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  studies ResearchStudy[]
+  printOverrides PrintBlockOverride[]
+
+  @@index([patientId])
+  @@index([researchDate])
+  @@map("researches")
+}
+
+enum PaymentType {
+  oms
+  paid
+
+  @@map("payment_type")
+}
+
+// ===== Исследования (протоколы) внутри исследования =====
+model ResearchStudy {
+  id         String   @id @default(uuid())
+  researchId String   @map("research_id")
+  studyType  String   @map("study_type")
+  studyData  Json     @map("study_data")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  research Research @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  @@index([researchId])
+  @@index([studyType])
+  @@map("research_studies")
+}
+
+// ===== Переопределения блоков печати протокола =====
+model PrintBlockOverride {
+  researchId String   @map("research_id")
+  blockId    String   @map("block_id")
+  blockText  String   @map("block_text")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  research Research @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  @@id([researchId, blockId])
+  @@map("print_block_overrides")
+}
+
+// ===== Маппинги Medison =====
+model MedisonMapping {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  measurementId   String   @map("measurement_id")
+  targetStudyType String   @map("target_study_type")
+  targetField     String   @map("target_field")
+  transform       String   @default("number->string")
+  isEnabled       Boolean  @default(true) @map("is_enabled")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("medison_mappings")
+}
+
+// ===== Записи регистратуры (Registry) =====
+model Appointment {
+  id              String   @id @default(uuid())
+  patientId       String   @map("patient_id")
+  appointmentDate String   @map("appointment_date")
+  studies         Json     @map("studies")
+  department      String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentDate])
+  @@map("appointments")
+}
+
+// ===== Врачи регистратуры (Registry) =====
+model Doctor {
+  id                String   @id @default(uuid())
+  name              String   @map("name")
+  maxPatientsPerDay Int      @default(15) @map("max_patients_per_day")
+  workDays          Json     @map("work_days") // массив [1,2,3,4,5]
+
+  @@map("doctors")
+}

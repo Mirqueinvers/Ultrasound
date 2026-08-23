@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ultrasound-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ultrasound
+      POSTGRES_PASSWORD: ultrasound_password
+      POSTGRES_DB: ultrasound
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ultrasound"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
