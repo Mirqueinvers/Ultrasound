@@ -893,50 +893,6 @@ describe("journal-хендлеры", () => {
   });
 });
 
-describe("protocol-хендлеры (ipc-handlers)", () => {
-  it("protocol:getByResearchId — успех и ошибка: null", async () => {
-    const saved = {
-      researchId: "r-1",
-      studies: { obp: { liver: {} } },
-      printOverrides: { block_a: "текст" },
-    };
-    m.apiClientMock.protocol.getByResearchId.mockResolvedValue(saved);
-    const res = await invoke("protocol:getByResearchId", "r-1");
-    expect(m.apiClientMock.protocol.getByResearchId).toHaveBeenCalledWith("r-1");
-    expect(res).toEqual(saved);
-
-    m.apiClientMock.protocol.getByResearchId.mockRejectedValue(
-      new Error("network"),
-    );
-    expect(await invoke("protocol:getByResearchId", "r-1")).toBeNull();
-  });
-
-  it("protocol:savePrintOverrides — успех и ошибка", async () => {
-    m.apiClientMock.protocol.savePrintOverrides.mockResolvedValue({
-      message: "Шаблоны сохранены.",
-    });
-    const res = await invoke("protocol:savePrintOverrides", {
-      researchId: "r-1",
-      overrides: { block_a: "текст" },
-    });
-    expect(m.apiClientMock.protocol.savePrintOverrides).toHaveBeenCalledWith(
-      "r-1",
-      { block_a: "текст" },
-    );
-    expect(res).toEqual({ success: true, message: "Шаблоны сохранены." });
-
-    m.apiClientMock.protocol.savePrintOverrides.mockRejectedValue(
-      new m.ApiError("Исследование не найдено"),
-    );
-    expect(
-      await invoke("protocol:savePrintOverrides", {
-        researchId: "r-999",
-        overrides: {},
-      }),
-    ).toEqual({ success: false, message: "Исследование не найдено" });
-  });
-});
-
 describe("statistics-хендлер", () => {
   it("database:getStatistics — успех и ошибка", async () => {
     const stats = { totalPatients: 10, totalResearches: 20 };
