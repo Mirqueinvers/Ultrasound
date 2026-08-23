@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       "@services": fileURLToPath(new URL("./src/services/electron/index.ts", import.meta.url)),
       "@services/*": fileURLToPath(new URL("./src/services/electron/*", import.meta.url)),
-      // Изолированная копия better-sqlite3 под системный Node ABI (для тестов репозиториев).
+      // Изолированная копия better-sqlite3 под системный Node ABI (для тестов офлайн-кэша).
       // Основная копия в node_modules собрана под Electron ABI и не загружается в vitest.
       "better-sqlite3": fileURLToPath(new URL("./.testdeps/node_modules/better-sqlite3/lib/index.js", import.meta.url)),
     },
@@ -46,12 +46,8 @@ export default defineConfig({
         "src/hooks/useFieldUpdate.ts",
         "src/hooks/useListManager.ts",
         "src/hooks/usePrintableOverrides.ts",
-        "electron/database/*.ts",
       ],
       exclude: [
-        "electron/database/schema.ts",
-        "electron/database/database.ts",
-        "electron/database/initDatabase.ts",
         "src/test/**",
         "**/*.test.{ts,tsx}",
       ],

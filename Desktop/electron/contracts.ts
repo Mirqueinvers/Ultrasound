@@ -3,7 +3,8 @@
 // preload.ts, src/types/global.d.ts и сервисы импортируют из этого файла.
 //
 // ВАЖНО (Этап 2.2): переход на центральный PostgreSQL → все id — UUID-строки.
-// Репозитории better-sqlite3 (числовые id) будут удалены на этапе 2.4.
+// Старый слой БД (репозитории better-sqlite3) удалён на этапе 2.4.
+// Данные приходят с центрального API-сервера через apiClient (main-процесс).
 
 // ========== ДОМЕННЫЕ ТИПЫ ==========
 
@@ -94,8 +95,9 @@ export interface RegistryAddress {
   ip: string;
 }
 
-// Кэш записей регистратуры. Имеет собственные локальные числовые id
-// (таблица registry_appointments удаляется на этапе 2.6 — пока не меняем).
+// Кэш записей регистратуры. Имеет собственные локальные числовые id.
+// Таблица registry_appointments удалена (этап 2.4, кэш временно в JSON-файле),
+// окончательно кэш удаляется на этапе 2.6 (чтение appointments напрямую).
 export interface CachedRegistryAppointment {
   sourceIp: string;
   sourceName: string;
@@ -341,7 +343,7 @@ export interface DefaultsAPI {
 
 // ========== REGISTRY API ==========
 // Работает только с локальным кэшем записей регистратур и адресами.
-// Не меняется на этапе 2.2 (кэш удаляется на этапе 2.6).
+// Кэш временно хранится в JSON-файле (этап 2.4) и удаляется на этапе 2.6.
 
 export interface RegistryAPI {
   getAddresses: () => Promise<RegistryAddress[]>;

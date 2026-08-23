@@ -1007,14 +1007,21 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
   );
 
   // ==================== REGISTRY APPOINTMENTS CACHE HANDLERS ====================
-  // Кэш записей регистратуры остаётся локальным до этапа 2.6.
+  // Кэш записей регистратуры — временное хранение в JSON-файле (этап 2.4).
+  // Старый слой БД (better-sqlite3 репозитории) удалён.
+  // Окончательно кэш удаляется на этапе 2.6 (чтение appointments напрямую).
+
+  const registryAppointmentsCacheFilePath = path.join(
+    app.getPath("userData"),
+    "registry-appointments-cache.json"
+  );
 
   ipcMain.handle("registry:getCachedAppointments", async () => {
     try {
-      const { DatabaseManager } = await import("./database/database");
-      return DatabaseManager.getInstance().registryAppointments.getAll();
-    } catch (error) {
-      console.error("Registry appointments cache load error:", error);
+      const data = await fs.readFile(registryAppointmentsCacheFilePath, "utf8");
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
       return [];
     }
   });
@@ -1026,11 +1033,10 @@ export function setupAuthHandlers(mainWindow?: BrowserWindow): void {
         if (!Array.isArray(appointments)) {
           return { success: false, message: "Некорректные данные для кэша" };
         }
-        const { DatabaseManager } = await import("./database/database");
-        DatabaseManager.getInstance().registryAppointments.replaceAll(
-          appointments as Parameters<
-            typeof DatabaseManager.prototype.registryAppointments.replaceAll
-          >[0]
+        await fs.writeFile(
+          registryAppointmentsCacheFilePath,
+          JSON.stringify(appointments, null, 2),
+          "utf8"
         );
         return { success: true };
       } catch (error) {
