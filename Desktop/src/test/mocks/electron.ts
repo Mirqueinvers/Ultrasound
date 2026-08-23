@@ -13,6 +13,7 @@ import type {
   ImportMappingAPI,
   ProtocolAPI,
   FileAPI,
+  SavedProtocol,
   PatientSearchAPI,
   DatabaseAPI,
   DefaultsAPI,
@@ -152,7 +153,7 @@ export const windowMocks = {
   } satisfies Mocked<ImportMappingAPI>,
   protocolAPI: {
     getPrinters: vi.fn(async () => ({ success: true, printers: [] })),
-    getByResearchId: vi.fn(async () => null),
+    getByResearchId: vi.fn<() => Promise<SavedProtocol | null>>(async () => null),
     printHtml: vi.fn(async () => ({ success: true })),
     savePrintOverrides: vi.fn(async () => ({ success: true, message: "Сохранено" })),
   } satisfies Mocked<ProtocolAPI>,
