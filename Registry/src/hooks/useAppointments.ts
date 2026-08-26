@@ -15,43 +15,61 @@ function getRegistryApi(): NonNullable<Window["registryAPI"]> {
   return window.registryAPI;
 }
 
-export function useAppointments(date: string) {
+/**
+ * Хук записей регистратуры.
+ *
+ * @param date           выбранная дата (DD.MM.YYYY) — для списка записей и модалки;
+ * @param calendarMonth  месяц, отображаемый в календаре (0..11);
+ * @param calendarYear   год, отображаемый в календаре.
+ *
+ * Записи за месяц календаря (`allAppointments`) нужны для подсчёта занятости
+ * дней в календаре, поэтому они загружаются по `calendarMonth`/`calendarYear`,
+ * а не по месяцу выбранной даты. Записи выбранной даты (`appointments`)
+ * загружаются отдельно, чтобы список записей справа не зависел от того,
+ * какой месяц открыт в календаре.
+ */
+export function useAppointments(
+  date: string,
+  calendarMonth: number,
+  calendarYear: number
+) {
+  // Записи за отображаемый месяц календаря (для подсчёта занятости в календаре)
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
+  // Записи на выбранную дату (для списка записей и модалки)
+  const [selectedAppointments, setSelectedAppointments] = useState<
+    Appointment[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Загружаем записи за месяц, соответствующий выбранной дате
+  // Загружаем записи за отображаемый месяц календаря и за выбранную дату
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const api = getRegistryApi();
-      const parts = date.split(".");
-      if (parts.length === 3) {
-        const month = parseInt(parts[1]) - 1;
-        const year = parseInt(parts[2]);
-        const data = await api.getAppointmentsByMonth(month, year);
-        setAllAppointments(data);
-      } else {
-        setAllAppointments([]);
-      }
+      const apiDate = toApiDate(date);
+      const [monthData, dayData] = await Promise.all([
+        api.getAppointmentsByMonth(calendarMonth, calendarYear),
+        api.getAppointmentsByDate(apiDate),
+      ]);
+      setAllAppointments(monthData);
+      setSelectedAppointments(dayData);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Ошибка загрузки записей";
+      const msg =
+        err instanceof Error ? err.message : "Ошибка загрузки записей";
       setError(msg);
     } finally {
       setLoading(false);
     }
-  }, [date]);
+  }, [date, calendarMonth, calendarYear]);
 
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  // Фильтруем записи для выбранной даты
-  const appointments = allAppointments.filter((a) => {
-    const apiDate = toApiDate(date);
-    return a.appointment_date === apiDate;
-  });
+  // Записи для выбранной даты
+  const appointments = selectedAppointments;
 
   const createAppointment = async (
     data: PatientFormData

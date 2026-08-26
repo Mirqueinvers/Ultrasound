@@ -23,6 +23,14 @@ interface UpdateServer {
 
 export default function App() {
   const [date, setDate] = useState(getTodayString());
+  // Месяц и год, отображаемые в календаре. Хранятся в одном состоянии,
+  // чтобы переходы через границу года обновляли оба значения атомарно.
+  const [calendar, setCalendar] = useState(() => {
+    const now = new Date();
+    return { month: now.getMonth(), year: now.getFullYear() };
+  });
+  const calendarMonth = calendar.month;
+  const calendarYear = calendar.year;
   const {
     appointments,
     allAppointments,
@@ -31,7 +39,7 @@ export default function App() {
     createAppointment,
     updateAppointment,
     removeAppointment,
-  } = useAppointments(date);
+  } = useAppointments(date, calendarMonth, calendarYear);
   const {
     doctors,
     loading: loadingDoctors,
@@ -60,8 +68,6 @@ export default function App() {
 
   // Врачи UI
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
-  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
-  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
 
   // Форма врача
   const [showDoctorForm, setShowDoctorForm] = useState(false);
@@ -415,14 +421,20 @@ export default function App() {
 
   // Календарь
   const prevMonth = useCallback(() => {
-    setCalendarMonth((m) => (m === 0 ? 11 : m - 1));
-    setCalendarYear((y) => (calendarMonth === 0 ? y - 1 : y));
-  }, [calendarMonth]);
+    setCalendar((c) =>
+      c.month === 0
+        ? { month: 11, year: c.year - 1 }
+        : { month: c.month - 1, year: c.year }
+    );
+  }, []);
 
   const nextMonth = useCallback(() => {
-    setCalendarMonth((m) => (m === 11 ? 0 : m + 1));
-    setCalendarYear((y) => (calendarMonth === 11 ? y + 1 : y));
-  }, [calendarMonth]);
+    setCalendar((c) =>
+      c.month === 11
+        ? { month: 0, year: c.year + 1 }
+        : { month: c.month + 1, year: c.year }
+    );
+  }, []);
 
   // Настройки
   const handleOpenSettings = useCallback(() => {
