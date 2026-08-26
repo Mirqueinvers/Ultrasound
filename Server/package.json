@@ -12,6 +12,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "migrate:local-dbs": "tsx prisma/migrate-local-dbs.ts",
+    "migrate:registry-db": "tsx prisma/migrate-registry-db.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

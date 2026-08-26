@@ -102,3 +102,16 @@ npx tsx prisma/migrate-local-dbs.ts --from <путь к ultrasound.db> --to <DAT
 ```
 
 `better-sqlite3` нужен только для этого скрипта.
+
+## Скрипт миграции данных Registry
+
+```bash
+npx tsx prisma/migrate-registry-db.ts --from <путь к registry.db> --to <DATABASE_URL>
+```
+
+Переносит пациентов, врачей и записи на приём из старой базы регистратуры.
+Пациенты объединяются с уже загруженными в PostgreSQL (в т.ч. из `ultrasound.db`)
+по (ФИО, дата рождения). Повторный запуск безопасен — дубли не создаются.
+
+Готовый запуск на серверном ПК: положить `registry.db` в `C:\ultrasound\registry.db`
+и выполнить от администратора `deploy\migrate-registry-data.bat`.

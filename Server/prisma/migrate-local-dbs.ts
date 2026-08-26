@@ -106,6 +106,29 @@ function normalizeSearchText(value: string): string {
     .replace(/[^0-9а-я]/g, "");
 }
 
+/** Приводит дату рождения к виду YYYYMMDD (поддерживает ДД.ММ.ГГГГ и ГГГГ-ММ-ДД). */
+function canonicalDateOfBirth(value: string): string {
+  const s = String(value ?? "").trim();
+  const ddmmyyyy = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s);
+  if (ddmmyyyy) return `${ddmmyyyy[3]}${ddmmyyyy[2]}${ddmmyyyy[1]}`;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (iso) return `${iso[1]}${iso[2]}${iso[3]}`;
+  return s.replace(/\D/g, "");
+}
+
+/** Ключ дедупликации пациента: нормализованное ФИО + каноническая дата рождения. */
+function patientDedupKey(
+  lastName: string,
+  firstName: string,
+  middleName: string | null | undefined,
+  dateOfBirth: string
+): string {
+  const namePart = normalizeSearchText(
+    `${lastName} ${firstName} ${middleName || ""}`
+  );
+  return `${namePart} ${canonicalDateOfBirth(dateOfBirth)}`;
+}
+
 function buildPatientSearchText(params: {
   lastName: string;
   firstName: string;
@@ -161,8 +184,33 @@ async function main() {
     const patientIdMap = new Map<number, string>();
     const researchIdMap = new Map<number, string>();
 
-    // Дедупликация пациентов по (ФИО, ДР)
+    // Дедупликация пациентов по (ФИО, ДР): сначала учитываем пациентов, уже
+    // загруженных в PostgreSQL (например, из registry.db) — чтобы исследования
+    // из ultrasound.db не создавали дубли между источниками.
     const patientKeys = new Map<string, string>();
+    {
+      const existingPatients = await prisma.patient.findMany({
+        select: {
+          id: true,
+          lastName: true,
+          firstName: true,
+          middleName: true,
+          dateOfBirth: true,
+        },
+      });
+      for (const p of existingPatients) {
+        const key = patientDedupKey(
+          p.lastName,
+          p.firstName,
+          p.middleName,
+          p.dateOfBirth
+        );
+        if (!patientKeys.has(key)) patientKeys.set(key, p.id);
+      }
+      console.log(
+        `ℹ️ Уже загружено в PostgreSQL пациентов: ${existingPatients.length}`
+      );
+    }
 
     for (const dbPath of args.from) {
       console.log(`\n📂 Чтение базы: ${dbPath}`);
@@ -205,8 +253,11 @@ async function main() {
         .all() as PatientRow[];
 
       for (const patient of patients) {
-        const key = normalizeSearchText(
-          `${patient.last_name} ${patient.first_name} ${patient.middle_name || ""} ${patient.date_of_birth}`
+        const key = patientDedupKey(
+          patient.last_name,
+          patient.first_name,
+          patient.middle_name,
+          patient.date_of_birth
         );
 
         const existingId = patientKeys.get(key);
