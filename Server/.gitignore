@@ -1,0 +1,7 @@
+# Служебные каталоги веб-деплоя
+backups/
+deploy/incoming/
+deploy/staging/
+deploy/state.json
+deploy/deploy-package.zip
+logs/

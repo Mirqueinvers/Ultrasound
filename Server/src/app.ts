@@ -10,6 +10,7 @@ import statisticsRouter from "./routes/statistics.js";
 import medisonRouter from "./routes/medison.js";
 import appointmentsRouter from "./routes/appointments.js";
 import doctorsRouter from "./routes/doctors.js";
+import deployRouter from "./routes/deploy.js";
 import { notFoundHandler, errorHandler } from "./middleware/error.js";
 import { authMiddleware } from "./middleware/auth.js";
 
@@ -23,6 +24,9 @@ export function createApp(): Express {
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  // Веб-деплой сервера (до JWT-авторизации — защищён отдельным DEPLOY_TOKEN)
+  app.use("/", deployRouter);
 
   // Auth: register/login открыты, остальные — через authMiddleware внутри роута
   app.use("/api/auth", authRouter);

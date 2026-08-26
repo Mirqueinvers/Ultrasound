@@ -35,6 +35,7 @@ curl http://localhost:4000/api/health   # -> {"status":"ok"}
 | `POSTGRES_PORT` | Порт PostgreSQL наружу | `5432` |
 | `API_PORT` | Порт API наружу | `4000` |
 | `JWT_SECRET` | Секрет JWT (обязателен!) | — |
+| `DEPLOY_TOKEN` | Токен веб-деплоя (`POST /api/deploy`, заголовок `x-deploy-token`) | — |
 | `DATABASE_URL` | Адрес БД для локального запуска API вне Docker | — |
 
 ## Развёртывание на Windows без Docker
@@ -47,6 +48,33 @@ curl http://localhost:4000/api/health   # -> {"status":"ok"}
    (`.env`, БД, зависимости, миграции, сборка, служба Windows через NSSM, порт 4000).
 
 Подробная пошаговая инструкция: **`deploy/INSTALL.md`**.
+
+## Обновление по локальной сети (веб-деплой)
+
+Сервер умеет обновлять себя сам через HTTP — не нужно ходить к нему с флешкой.
+
+**Один раз (после первой установки через `install-server.bat`):**
+1. Забрать из `Server/.env` на серверном ПК значение `DEPLOY_TOKEN`.
+2. Скопировать на серверный ПК (старым способом) новые файлы `src/`, `prisma/`,
+   `package.json`, `package-lock.json`, `tsconfig.json` и папку `deploy/`
+   (там появились `deploy-runner.cmd` и `deploy-lan.bat`), затем запустить
+   `deploy\update-server.bat` от администратора. После этого деплой доступен по сети.
+
+**Дальше каждое обновление — одной командой с любого ПК в локальной сети:**
+```bat
+deploy\deploy-lan.bat <IP-сервера> <DEPLOY_TOKEN>
+```
+Или через браузер: открыть `http://<IP-сервера>:4000/deploy`, ввести токен,
+выбрать `deploy-package.zip` и нажать «Развернуть».
+
+Что делает сервер: останавливает службу `UltrasoundAPI`, делает резервную копию
+в `Server/backups/`, распаковывает пакет, выполняет `npm ci` → миграции Prisma →
+`npm run build`, запускает службу заново. При ошибке автоматически откатывает
+предыдущую версию. Ход обновления виден в логе `Server/logs/deploy.log`.
+
+> Пакет `deploy-package.zip` собирается скриптом автоматически из `src/`, `prisma/`,
+> `package.json`, `package-lock.json`, `tsconfig.json`. В нём никогда нет `node_modules`,
+> `.env` и других служебных файлов.
 
 ## Локальная разработка (вне Docker)
 

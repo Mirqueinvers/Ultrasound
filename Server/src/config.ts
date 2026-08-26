@@ -3,6 +3,7 @@ import "dotenv/config";
 export const config = {
   port: parseInt(process.env.PORT || "4000", 10),
   jwtSecret: process.env.JWT_SECRET || "dev-secret-change-me",
+  deployToken: process.env.DEPLOY_TOKEN || "",
   databaseUrl:
     process.env.DATABASE_URL ||
     "postgresql://ultrasound:ultrasound_password@localhost:5432/ultrasound",

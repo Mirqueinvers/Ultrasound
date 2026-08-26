@@ -76,10 +76,14 @@ set /p "PG_PASSWORD=Пароль postgres: "
 rem ===== Генерация JWT_SECRET =====
 for /f "usebackq delims=" %%s in (`powershell -NoProfile -Command "$s = [Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'); Write-Output $s"`) do set "JWT_SECRET=%%s"
 
+rem ===== Генерация DEPLOY_TOKEN (для веб-обновления по сети) =====
+for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "$s = [Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'); Write-Output $s"`) do set "DEPLOY_TOKEN=%%t"
+
 rem ===== Запись .env =====
 (
   echo DATABASE_URL="postgresql://%DB_USER%:%DB_PASSWORD%@%DB_HOST%:%DB_PORT%/%DB_NAME%"
   echo JWT_SECRET="%JWT_SECRET%"
+  echo DEPLOY_TOKEN="%DEPLOY_TOKEN%"
   echo PORT=%API_PORT%
   echo POSTGRES_USER=%DB_USER%
   echo POSTGRES_PASSWORD=%DB_PASSWORD%
